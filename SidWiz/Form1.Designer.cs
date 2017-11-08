@@ -42,20 +42,32 @@
             this.Stop = new System.Windows.Forms.Button();
             this.label6 = new System.Windows.Forms.Label();
             this.label7 = new System.Windows.Forms.Label();
-            this.comboColumns = new System.Windows.Forms.ComboBox();
             this.label8 = new System.Windows.Forms.Label();
-            this.numericUpDown2 = new System.Windows.Forms.NumericUpDown();
             this.label9 = new System.Windows.Forms.Label();
             this.cmbClr6 = new System.Windows.Forms.ComboBox();
             this.label10 = new System.Windows.Forms.Label();
             this.cmbClr7 = new System.Windows.Forms.ComboBox();
             this.label11 = new System.Windows.Forms.Label();
             this.cmbClr8 = new System.Windows.Forms.ComboBox();
-            this.cmbVoices = new System.Windows.Forms.ComboBox();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.enableFFBox = new System.Windows.Forms.CheckBox();
+            this.numColumns = new System.Windows.Forms.NumericUpDown();
+            this.numFps = new System.Windows.Forms.NumericUpDown();
+            this.label24 = new System.Windows.Forms.Label();
+            this.samplesTextBox = new System.Windows.Forms.TextBox();
+            this.heightTextBox = new System.Windows.Forms.TextBox();
+            this.label23 = new System.Windows.Forms.Label();
+            this.widthTextBox = new System.Windows.Forms.TextBox();
+            this.label22 = new System.Windows.Forms.Label();
+            this.numVoices = new System.Windows.Forms.NumericUpDown();
             this.button1 = new System.Windows.Forms.Button();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
+            this.label21 = new System.Windows.Forms.Label();
+            this.cmbClr9 = new System.Windows.Forms.ComboBox();
             this.groupBox3 = new System.Windows.Forms.GroupBox();
+            this.btnFile9 = new System.Windows.Forms.Button();
+            this.txtFile9 = new System.Windows.Forms.TextBox();
+            this.label20 = new System.Windows.Forms.Label();
             this.checkBox1 = new System.Windows.Forms.CheckBox();
             this.label16 = new System.Windows.Forms.Label();
             this.label17 = new System.Windows.Forms.Label();
@@ -81,17 +93,21 @@
             this.txtFile2 = new System.Windows.Forms.TextBox();
             this.btnFile1 = new System.Windows.Forms.Button();
             this.txtFile1 = new System.Windows.Forms.TextBox();
-            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown2)).BeginInit();
+            this.ffOutArgsLabel = new System.Windows.Forms.Label();
+            this.ffOutArgs = new System.Windows.Forms.TextBox();
             this.groupBox1.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.numColumns)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.numFps)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.numVoices)).BeginInit();
             this.groupBox2.SuspendLayout();
             this.groupBox3.SuspendLayout();
             this.SuspendLayout();
             // 
             // Start
             // 
-            this.Start.Location = new System.Drawing.Point(14, 123);
+            this.Start.Location = new System.Drawing.Point(17, 262);
             this.Start.Name = "Start";
-            this.Start.Size = new System.Drawing.Size(75, 23);
+            this.Start.Size = new System.Drawing.Size(77, 22);
             this.Start.TabIndex = 1;
             this.Start.Text = "Start";
             this.Start.UseVisualStyleBackColor = true;
@@ -214,9 +230,9 @@
             // 
             // Stop
             // 
-            this.Stop.Location = new System.Drawing.Point(14, 152);
+            this.Stop.Location = new System.Drawing.Point(16, 291);
             this.Stop.Name = "Stop";
-            this.Stop.Size = new System.Drawing.Size(75, 23);
+            this.Stop.Size = new System.Drawing.Size(78, 22);
             this.Stop.TabIndex = 13;
             this.Stop.Text = "Stop";
             this.Stop.UseVisualStyleBackColor = true;
@@ -225,7 +241,7 @@
             // label6
             // 
             this.label6.AutoSize = true;
-            this.label6.Location = new System.Drawing.Point(11, 22);
+            this.label6.Location = new System.Drawing.Point(11, 25);
             this.label6.Name = "label6";
             this.label6.Size = new System.Drawing.Size(46, 13);
             this.label6.TabIndex = 15;
@@ -234,55 +250,20 @@
             // label7
             // 
             this.label7.AutoSize = true;
-            this.label7.Location = new System.Drawing.Point(3, 58);
+            this.label7.Location = new System.Drawing.Point(3, 60);
             this.label7.Name = "label7";
             this.label7.Size = new System.Drawing.Size(54, 13);
             this.label7.TabIndex = 16;
             this.label7.Text = "#Columns";
             // 
-            // comboColumns
-            // 
-            this.comboColumns.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.comboColumns.FormattingEnabled = true;
-            this.comboColumns.Items.AddRange(new object[] {
-            "1",
-            "2"});
-            this.comboColumns.Location = new System.Drawing.Point(57, 55);
-            this.comboColumns.Name = "comboColumns";
-            this.comboColumns.Size = new System.Drawing.Size(39, 21);
-            this.comboColumns.TabIndex = 17;
-            this.comboColumns.SelectedIndexChanged += new System.EventHandler(this.comboColumns_SelectedIndexChanged);
-            // 
             // label8
             // 
             this.label8.AutoSize = true;
-            this.label8.Location = new System.Drawing.Point(19, 91);
+            this.label8.Location = new System.Drawing.Point(10, 94);
             this.label8.Name = "label8";
-            this.label8.Size = new System.Drawing.Size(34, 13);
+            this.label8.Size = new System.Drawing.Size(47, 13);
             this.label8.TabIndex = 19;
-            this.label8.Text = "Scale";
-            // 
-            // numericUpDown2
-            // 
-            this.numericUpDown2.Location = new System.Drawing.Point(56, 89);
-            this.numericUpDown2.Maximum = new decimal(new int[] {
-            16,
-            0,
-            0,
-            0});
-            this.numericUpDown2.Minimum = new decimal(new int[] {
-            2,
-            0,
-            0,
-            0});
-            this.numericUpDown2.Name = "numericUpDown2";
-            this.numericUpDown2.Size = new System.Drawing.Size(39, 20);
-            this.numericUpDown2.TabIndex = 18;
-            this.numericUpDown2.Value = new decimal(new int[] {
-            4,
-            0,
-            0,
-            0});
+            this.label8.Text = "Samples";
             // 
             // label9
             // 
@@ -353,48 +334,168 @@
             this.cmbClr8.DrawItem += new System.Windows.Forms.DrawItemEventHandler(this.cmbClr_DrawItem);
             this.cmbClr8.SelectedIndexChanged += new System.EventHandler(this.cmbClr8_SelectedIndexChanged);
             // 
-            // cmbVoices
-            // 
-            this.cmbVoices.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.cmbVoices.FormattingEnabled = true;
-            this.cmbVoices.Items.AddRange(new object[] {
-            "1",
-            "2",
-            "3",
-            "4",
-            "5",
-            "6",
-            "7",
-            "8"});
-            this.cmbVoices.Location = new System.Drawing.Point(57, 19);
-            this.cmbVoices.Name = "cmbVoices";
-            this.cmbVoices.Size = new System.Drawing.Size(39, 21);
-            this.cmbVoices.TabIndex = 26;
-            this.cmbVoices.SelectedIndexChanged += new System.EventHandler(this.cmbVoices_SelectedIndexChanged);
-            // 
             // groupBox1
             // 
+            this.groupBox1.Controls.Add(this.enableFFBox);
+            this.groupBox1.Controls.Add(this.numColumns);
+            this.groupBox1.Controls.Add(this.numFps);
+            this.groupBox1.Controls.Add(this.label24);
+            this.groupBox1.Controls.Add(this.samplesTextBox);
+            this.groupBox1.Controls.Add(this.heightTextBox);
+            this.groupBox1.Controls.Add(this.label23);
+            this.groupBox1.Controls.Add(this.widthTextBox);
+            this.groupBox1.Controls.Add(this.label22);
+            this.groupBox1.Controls.Add(this.numVoices);
             this.groupBox1.Controls.Add(this.button1);
-            this.groupBox1.Controls.Add(this.cmbVoices);
             this.groupBox1.Controls.Add(this.Start);
             this.groupBox1.Controls.Add(this.Stop);
             this.groupBox1.Controls.Add(this.label6);
             this.groupBox1.Controls.Add(this.label7);
-            this.groupBox1.Controls.Add(this.comboColumns);
-            this.groupBox1.Controls.Add(this.numericUpDown2);
             this.groupBox1.Controls.Add(this.label8);
             this.groupBox1.Location = new System.Drawing.Point(12, 12);
             this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(106, 391);
+            this.groupBox1.Size = new System.Drawing.Size(111, 430);
             this.groupBox1.TabIndex = 49;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Options";
             // 
+            // enableFFBox
+            // 
+            this.enableFFBox.AutoSize = true;
+            this.enableFFBox.Location = new System.Drawing.Point(6, 232);
+            this.enableFFBox.Name = "enableFFBox";
+            this.enableFFBox.Size = new System.Drawing.Size(86, 17);
+            this.enableFFBox.TabIndex = 38;
+            this.enableFFBox.Text = "Use FFmpeg";
+            this.enableFFBox.UseVisualStyleBackColor = true;
+            this.enableFFBox.CheckedChanged += new System.EventHandler(this.enableFFBox_CheckedChanged);
+            // 
+            // numColumns
+            // 
+            this.numColumns.Location = new System.Drawing.Point(60, 57);
+            this.numColumns.Maximum = new decimal(new int[] {
+            9,
+            0,
+            0,
+            0});
+            this.numColumns.Minimum = new decimal(new int[] {
+            1,
+            0,
+            0,
+            0});
+            this.numColumns.Name = "numColumns";
+            this.numColumns.Size = new System.Drawing.Size(45, 20);
+            this.numColumns.TabIndex = 37;
+            this.numColumns.Value = new decimal(new int[] {
+            1,
+            0,
+            0,
+            0});
+            // 
+            // numFps
+            // 
+            this.numFps.Location = new System.Drawing.Point(60, 197);
+            this.numFps.Maximum = new decimal(new int[] {
+            144,
+            0,
+            0,
+            0});
+            this.numFps.Minimum = new decimal(new int[] {
+            1,
+            0,
+            0,
+            0});
+            this.numFps.Name = "numFps";
+            this.numFps.Size = new System.Drawing.Size(45, 20);
+            this.numFps.TabIndex = 36;
+            this.numFps.Value = new decimal(new int[] {
+            60,
+            0,
+            0,
+            0});
+            this.numFps.ValueChanged += new System.EventHandler(this.numFps_ValueChanged);
+            // 
+            // label24
+            // 
+            this.label24.AutoSize = true;
+            this.label24.Location = new System.Drawing.Point(3, 200);
+            this.label24.Name = "label24";
+            this.label24.Size = new System.Drawing.Size(54, 13);
+            this.label24.TabIndex = 35;
+            this.label24.Text = "Framerate";
+            // 
+            // samplesTextBox
+            // 
+            this.samplesTextBox.Location = new System.Drawing.Point(60, 91);
+            this.samplesTextBox.Name = "samplesTextBox";
+            this.samplesTextBox.Size = new System.Drawing.Size(45, 20);
+            this.samplesTextBox.TabIndex = 34;
+            this.samplesTextBox.Text = "1024";
+            this.samplesTextBox.TextChanged += new System.EventHandler(this.samplesTextBox_TextChanged);
+            // 
+            // heightTextBox
+            // 
+            this.heightTextBox.Location = new System.Drawing.Point(60, 161);
+            this.heightTextBox.Name = "heightTextBox";
+            this.heightTextBox.Size = new System.Drawing.Size(45, 20);
+            this.heightTextBox.TabIndex = 33;
+            this.heightTextBox.Text = "720";
+            this.heightTextBox.TextChanged += new System.EventHandler(this.heightTextBox_TextChanged);
+            // 
+            // label23
+            // 
+            this.label23.AutoSize = true;
+            this.label23.Location = new System.Drawing.Point(19, 164);
+            this.label23.Name = "label23";
+            this.label23.Size = new System.Drawing.Size(38, 13);
+            this.label23.TabIndex = 32;
+            this.label23.Text = "Height";
+            // 
+            // widthTextBox
+            // 
+            this.widthTextBox.Location = new System.Drawing.Point(60, 126);
+            this.widthTextBox.Name = "widthTextBox";
+            this.widthTextBox.Size = new System.Drawing.Size(45, 20);
+            this.widthTextBox.TabIndex = 31;
+            this.widthTextBox.Text = "1280";
+            this.widthTextBox.TextChanged += new System.EventHandler(this.widthTextBox_TextChanged);
+            // 
+            // label22
+            // 
+            this.label22.AutoSize = true;
+            this.label22.Location = new System.Drawing.Point(22, 129);
+            this.label22.Name = "label22";
+            this.label22.Size = new System.Drawing.Size(35, 13);
+            this.label22.TabIndex = 30;
+            this.label22.Text = "Width";
+            // 
+            // numVoices
+            // 
+            this.numVoices.Location = new System.Drawing.Point(60, 22);
+            this.numVoices.Maximum = new decimal(new int[] {
+            9,
+            0,
+            0,
+            0});
+            this.numVoices.Minimum = new decimal(new int[] {
+            1,
+            0,
+            0,
+            0});
+            this.numVoices.Name = "numVoices";
+            this.numVoices.Size = new System.Drawing.Size(45, 20);
+            this.numVoices.TabIndex = 29;
+            this.numVoices.Value = new decimal(new int[] {
+            1,
+            0,
+            0,
+            0});
+            // 
             // button1
             // 
-            this.button1.Location = new System.Drawing.Point(14, 182);
+            this.button1.Location = new System.Drawing.Point(16, 321);
             this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(75, 23);
+            this.button1.Size = new System.Drawing.Size(78, 22);
             this.button1.TabIndex = 27;
             this.button1.Text = "About";
             this.button1.UseVisualStyleBackColor = true;
@@ -402,6 +503,8 @@
             // 
             // groupBox2
             // 
+            this.groupBox2.Controls.Add(this.label21);
+            this.groupBox2.Controls.Add(this.cmbClr9);
             this.groupBox2.Controls.Add(this.cmbClr1);
             this.groupBox2.Controls.Add(this.label1);
             this.groupBox2.Controls.Add(this.label11);
@@ -418,15 +521,41 @@
             this.groupBox2.Controls.Add(this.label4);
             this.groupBox2.Controls.Add(this.label5);
             this.groupBox2.Controls.Add(this.cmbClr5);
-            this.groupBox2.Location = new System.Drawing.Point(124, 12);
+            this.groupBox2.Location = new System.Drawing.Point(129, 12);
             this.groupBox2.Name = "groupBox2";
-            this.groupBox2.Size = new System.Drawing.Size(128, 391);
+            this.groupBox2.Size = new System.Drawing.Size(127, 430);
             this.groupBox2.TabIndex = 50;
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "Channel Colors";
             // 
+            // label21
+            // 
+            this.label21.AutoSize = true;
+            this.label21.Location = new System.Drawing.Point(6, 381);
+            this.label21.Name = "label21";
+            this.label21.Size = new System.Drawing.Size(31, 13);
+            this.label21.TabIndex = 49;
+            this.label21.Text = "Color";
+            // 
+            // cmbClr9
+            // 
+            this.cmbClr9.DrawMode = System.Windows.Forms.DrawMode.OwnerDrawFixed;
+            this.cmbClr9.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cmbClr9.DropDownWidth = 200;
+            this.cmbClr9.FormattingEnabled = true;
+            this.cmbClr9.ItemHeight = 20;
+            this.cmbClr9.Location = new System.Drawing.Point(9, 397);
+            this.cmbClr9.Name = "cmbClr9";
+            this.cmbClr9.Size = new System.Drawing.Size(108, 26);
+            this.cmbClr9.TabIndex = 39;
+            this.cmbClr9.DrawItem += new System.Windows.Forms.DrawItemEventHandler(this.cmbClr_DrawItem);
+            this.cmbClr9.SelectedIndexChanged += new System.EventHandler(this.cmbClr9_SelectedIndexChanged);
+            // 
             // groupBox3
             // 
+            this.groupBox3.Controls.Add(this.btnFile9);
+            this.groupBox3.Controls.Add(this.txtFile9);
+            this.groupBox3.Controls.Add(this.label20);
             this.groupBox3.Controls.Add(this.checkBox1);
             this.groupBox3.Controls.Add(this.label16);
             this.groupBox3.Controls.Add(this.label17);
@@ -452,13 +581,39 @@
             this.groupBox3.Controls.Add(this.txtFile2);
             this.groupBox3.Controls.Add(this.btnFile1);
             this.groupBox3.Controls.Add(this.txtFile1);
-            this.groupBox3.Location = new System.Drawing.Point(258, 12);
+            this.groupBox3.Location = new System.Drawing.Point(262, 12);
             this.groupBox3.Name = "groupBox3";
-            this.groupBox3.Size = new System.Drawing.Size(229, 391);
+            this.groupBox3.Size = new System.Drawing.Size(225, 430);
             this.groupBox3.TabIndex = 51;
             this.groupBox3.TabStop = false;
             this.groupBox3.Text = "File Info";
-            this.groupBox3.Enter += new System.EventHandler(this.groupBox3_Enter);
+            // 
+            // btnFile9
+            // 
+            this.btnFile9.Location = new System.Drawing.Point(194, 393);
+            this.btnFile9.Name = "btnFile9";
+            this.btnFile9.Size = new System.Drawing.Size(25, 23);
+            this.btnFile9.TabIndex = 129;
+            this.btnFile9.Text = "...";
+            this.btnFile9.UseVisualStyleBackColor = true;
+            // 
+            // txtFile9
+            // 
+            this.txtFile9.BackColor = System.Drawing.SystemColors.Info;
+            this.txtFile9.Location = new System.Drawing.Point(6, 394);
+            this.txtFile9.Name = "txtFile9";
+            this.txtFile9.ReadOnly = true;
+            this.txtFile9.Size = new System.Drawing.Size(191, 20);
+            this.txtFile9.TabIndex = 109;
+            // 
+            // label20
+            // 
+            this.label20.AutoSize = true;
+            this.label20.Location = new System.Drawing.Point(6, 378);
+            this.label20.Name = "label20";
+            this.label20.Size = new System.Drawing.Size(74, 13);
+            this.label20.TabIndex = 119;
+            this.label20.Text = "Channel 9 File";
             // 
             // checkBox1
             // 
@@ -509,7 +664,7 @@
             // 
             // btnFile8
             // 
-            this.btnFile8.Location = new System.Drawing.Point(198, 354);
+            this.btnFile8.Location = new System.Drawing.Point(194, 354);
             this.btnFile8.Name = "btnFile8";
             this.btnFile8.Size = new System.Drawing.Size(25, 23);
             this.btnFile8.TabIndex = 128;
@@ -523,12 +678,12 @@
             this.txtFile8.Location = new System.Drawing.Point(6, 355);
             this.txtFile8.Name = "txtFile8";
             this.txtFile8.ReadOnly = true;
-            this.txtFile8.Size = new System.Drawing.Size(193, 20);
+            this.txtFile8.Size = new System.Drawing.Size(191, 20);
             this.txtFile8.TabIndex = 108;
             // 
             // btnFile7
             // 
-            this.btnFile7.Location = new System.Drawing.Point(198, 315);
+            this.btnFile7.Location = new System.Drawing.Point(194, 315);
             this.btnFile7.Name = "btnFile7";
             this.btnFile7.Size = new System.Drawing.Size(25, 23);
             this.btnFile7.TabIndex = 127;
@@ -542,12 +697,12 @@
             this.txtFile7.Location = new System.Drawing.Point(6, 316);
             this.txtFile7.Name = "txtFile7";
             this.txtFile7.ReadOnly = true;
-            this.txtFile7.Size = new System.Drawing.Size(193, 20);
+            this.txtFile7.Size = new System.Drawing.Size(191, 20);
             this.txtFile7.TabIndex = 107;
             // 
             // btnFile6
             // 
-            this.btnFile6.Location = new System.Drawing.Point(198, 276);
+            this.btnFile6.Location = new System.Drawing.Point(194, 276);
             this.btnFile6.Name = "btnFile6";
             this.btnFile6.Size = new System.Drawing.Size(25, 23);
             this.btnFile6.TabIndex = 126;
@@ -561,12 +716,12 @@
             this.txtFile6.Location = new System.Drawing.Point(6, 277);
             this.txtFile6.Name = "txtFile6";
             this.txtFile6.ReadOnly = true;
-            this.txtFile6.Size = new System.Drawing.Size(193, 20);
+            this.txtFile6.Size = new System.Drawing.Size(191, 20);
             this.txtFile6.TabIndex = 106;
             // 
             // btnFile5
             // 
-            this.btnFile5.Location = new System.Drawing.Point(198, 238);
+            this.btnFile5.Location = new System.Drawing.Point(194, 238);
             this.btnFile5.Name = "btnFile5";
             this.btnFile5.Size = new System.Drawing.Size(25, 23);
             this.btnFile5.TabIndex = 125;
@@ -580,7 +735,7 @@
             this.txtFile5.Location = new System.Drawing.Point(6, 239);
             this.txtFile5.Name = "txtFile5";
             this.txtFile5.ReadOnly = true;
-            this.txtFile5.Size = new System.Drawing.Size(193, 20);
+            this.txtFile5.Size = new System.Drawing.Size(191, 20);
             this.txtFile5.TabIndex = 105;
             // 
             // label15
@@ -621,7 +776,7 @@
             // 
             // btnFile4
             // 
-            this.btnFile4.Location = new System.Drawing.Point(198, 199);
+            this.btnFile4.Location = new System.Drawing.Point(194, 199);
             this.btnFile4.Name = "btnFile4";
             this.btnFile4.Size = new System.Drawing.Size(25, 23);
             this.btnFile4.TabIndex = 124;
@@ -635,12 +790,12 @@
             this.txtFile4.Location = new System.Drawing.Point(6, 200);
             this.txtFile4.Name = "txtFile4";
             this.txtFile4.ReadOnly = true;
-            this.txtFile4.Size = new System.Drawing.Size(193, 20);
+            this.txtFile4.Size = new System.Drawing.Size(191, 20);
             this.txtFile4.TabIndex = 104;
             // 
             // btnFile3
             // 
-            this.btnFile3.Location = new System.Drawing.Point(198, 157);
+            this.btnFile3.Location = new System.Drawing.Point(194, 157);
             this.btnFile3.Name = "btnFile3";
             this.btnFile3.Size = new System.Drawing.Size(25, 23);
             this.btnFile3.TabIndex = 123;
@@ -654,12 +809,12 @@
             this.txtFile3.Location = new System.Drawing.Point(6, 158);
             this.txtFile3.Name = "txtFile3";
             this.txtFile3.ReadOnly = true;
-            this.txtFile3.Size = new System.Drawing.Size(193, 20);
+            this.txtFile3.Size = new System.Drawing.Size(191, 20);
             this.txtFile3.TabIndex = 103;
             // 
             // btnFile2
             // 
-            this.btnFile2.Location = new System.Drawing.Point(198, 118);
+            this.btnFile2.Location = new System.Drawing.Point(194, 118);
             this.btnFile2.Name = "btnFile2";
             this.btnFile2.Size = new System.Drawing.Size(25, 23);
             this.btnFile2.TabIndex = 122;
@@ -673,12 +828,12 @@
             this.txtFile2.Location = new System.Drawing.Point(6, 119);
             this.txtFile2.Name = "txtFile2";
             this.txtFile2.ReadOnly = true;
-            this.txtFile2.Size = new System.Drawing.Size(193, 20);
+            this.txtFile2.Size = new System.Drawing.Size(191, 20);
             this.txtFile2.TabIndex = 102;
             // 
             // btnFile1
             // 
-            this.btnFile1.Location = new System.Drawing.Point(198, 78);
+            this.btnFile1.Location = new System.Drawing.Point(194, 78);
             this.btnFile1.Name = "btnFile1";
             this.btnFile1.Size = new System.Drawing.Size(25, 23);
             this.btnFile1.TabIndex = 121;
@@ -692,28 +847,52 @@
             this.txtFile1.Location = new System.Drawing.Point(6, 79);
             this.txtFile1.Name = "txtFile1";
             this.txtFile1.ReadOnly = true;
-            this.txtFile1.Size = new System.Drawing.Size(193, 20);
+            this.txtFile1.Size = new System.Drawing.Size(191, 20);
             this.txtFile1.TabIndex = 101;
+            // 
+            // ffOutArgsLabel
+            // 
+            this.ffOutArgsLabel.AutoSize = true;
+            this.ffOutArgsLabel.Enabled = false;
+            this.ffOutArgsLabel.Location = new System.Drawing.Point(9, 450);
+            this.ffOutArgsLabel.Name = "ffOutArgsLabel";
+            this.ffOutArgsLabel.Size = new System.Drawing.Size(154, 13);
+            this.ffOutArgsLabel.TabIndex = 52;
+            this.ffOutArgsLabel.Text = "FFmpeg Conversion Arguments";
+            // 
+            // ffOutArgs
+            // 
+            this.ffOutArgs.Enabled = false;
+            this.ffOutArgs.Location = new System.Drawing.Point(169, 447);
+            this.ffOutArgs.Name = "ffOutArgs";
+            this.ffOutArgs.Size = new System.Drawing.Size(318, 20);
+            this.ffOutArgs.TabIndex = 53;
+            this.ffOutArgs.Text = "-c h264 -b:v 2000k";
             // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(502, 422);
+            this.ClientSize = new System.Drawing.Size(496, 473);
+            this.Controls.Add(this.ffOutArgs);
+            this.Controls.Add(this.ffOutArgsLabel);
             this.Controls.Add(this.groupBox3);
             this.Controls.Add(this.groupBox2);
             this.Controls.Add(this.groupBox1);
             this.Name = "Form1";
             this.Text = "SidWiz";
             this.Load += new System.EventHandler(this.Form1_Load);
-            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown2)).EndInit();
             this.groupBox1.ResumeLayout(false);
             this.groupBox1.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.numColumns)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.numFps)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.numVoices)).EndInit();
             this.groupBox2.ResumeLayout(false);
             this.groupBox2.PerformLayout();
             this.groupBox3.ResumeLayout(false);
             this.groupBox3.PerformLayout();
             this.ResumeLayout(false);
+            this.PerformLayout();
 
         }
 
@@ -733,16 +912,13 @@
         private System.Windows.Forms.Button Stop;
         private System.Windows.Forms.Label label6;
         private System.Windows.Forms.Label label7;
-        private System.Windows.Forms.ComboBox comboColumns;
         private System.Windows.Forms.Label label8;
-        private System.Windows.Forms.NumericUpDown numericUpDown2;
         private System.Windows.Forms.Label label9;
         private System.Windows.Forms.ComboBox cmbClr6;
         private System.Windows.Forms.Label label10;
         private System.Windows.Forms.ComboBox cmbClr7;
         private System.Windows.Forms.Label label11;
         private System.Windows.Forms.ComboBox cmbClr8;
-        private System.Windows.Forms.ComboBox cmbVoices;
         private System.Windows.Forms.GroupBox groupBox1;
         private System.Windows.Forms.GroupBox groupBox2;
         private System.Windows.Forms.GroupBox groupBox3;
@@ -772,8 +948,23 @@
         private System.Windows.Forms.TextBox txtFile1;
         private System.Windows.Forms.CheckBox checkBox1;
         private System.Windows.Forms.Button button1;
-
-
+        private System.Windows.Forms.NumericUpDown numVoices;
+        private System.Windows.Forms.Button btnFile9;
+        private System.Windows.Forms.TextBox txtFile9;
+        private System.Windows.Forms.Label label20;
+        private System.Windows.Forms.Label label21;
+        private System.Windows.Forms.ComboBox cmbClr9;
+        private System.Windows.Forms.TextBox heightTextBox;
+        private System.Windows.Forms.Label label23;
+        private System.Windows.Forms.TextBox widthTextBox;
+        private System.Windows.Forms.Label label22;
+        private System.Windows.Forms.TextBox samplesTextBox;
+        private System.Windows.Forms.NumericUpDown numFps;
+        private System.Windows.Forms.Label label24;
+        private System.Windows.Forms.NumericUpDown numColumns;
+        private System.Windows.Forms.CheckBox enableFFBox;
+        private System.Windows.Forms.Label ffOutArgsLabel;
+        private System.Windows.Forms.TextBox ffOutArgs;
     }
 }
 

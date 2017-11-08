@@ -1894,14 +1894,14 @@ namespace SidWiz
         {
             short val_16bit = 0;
             double scaleMultiplier = 0.0;
-            if (pByteVal > 0)
+            if (pByteVal < 128)
             {
-                scaleMultiplier = (double)pByteVal / (double)byte.MaxValue;
+                scaleMultiplier = (double)pByteVal / 127.0;
                 val_16bit = (short)((double)short.MaxValue * scaleMultiplier);
             }
-            else if (pByteVal < 0)
+            else
             {
-                scaleMultiplier = (double)pByteVal / (double)byte.MinValue;
+                scaleMultiplier = (256.0 - (double)pByteVal) / 128.0;
                 val_16bit = (short)((double)short.MinValue * scaleMultiplier);
             }
 
