@@ -19,7 +19,7 @@ namespace SidWiz
 
         private void Stop_Click(object sender, EventArgs e)
         {
-
+            
         }
     }
 

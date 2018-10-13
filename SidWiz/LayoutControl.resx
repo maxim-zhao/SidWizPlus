@@ -117,4 +117,14 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <metadata name="toolTip1.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+    <value>17, 17</value>
+  </metadata>
+  <data name="chkAlt.ToolTip" xml:space="preserve">
+    <value>Enables the alternative synchronization method.
+
+This is usually useful when dealing with non-simple waves,
+such as FM music or some wavetable waveforms.  This 
+method does not do well with square waves or random noise.</value>
+  </data>
 </root>

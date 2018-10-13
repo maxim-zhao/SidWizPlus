@@ -118,7 +118,10 @@ namespace SidWiz
 
             try
             {
-                mFileStream = File.Open(mFilename, FileMode.Open);
+                //byte[] data = File.ReadAllBytes(mFilename);
+
+                mFileStream = new FileStream(mFilename,FileMode.Open);
+                
                 mFileMode = pMode;
 
                 // RIFF chunk (12 bytes total)
@@ -352,8 +355,11 @@ namespace SidWiz
             if (mBitsPerSample == 8)
                 sample_8bit = GetNextSample_8bit();
             else if (mBitsPerSample == 16)
+            {
                 sample_8bit = ScaleShortToByte(GetNextSample_16bit());
-
+                             
+                sample_8bit = (byte)(((int)sample_8bit + (int)ScaleShortToByte(GetNextSample_16bit()))/2);
+            }
             return sample_8bit;
         }
 
@@ -456,10 +462,13 @@ namespace SidWiz
                 // Create the file.  If pOverwrite is true, then use FileMode.Create to overwrite the
                 // file if it exists.  Otherwise, use FileMode.CreateNew, which will throw a
                 // System.IO.IOException if the file exists.
-                if (pOverwrite)
-                    mFileStream = File.Open(pFilename, FileMode.Create);
-                else
-                    mFileStream = File.Open(pFilename, FileMode.CreateNew);
+              
+                //SidWiz does not use this code.
+
+                //if (pOverwrite)
+                    //mFileStream = File.Open(pFilename, FileMode.Create);
+                //else
+                    //mFileStream = File.Open(pFilename, FileMode.CreateNew);
 
                 mFileMode = WAVFileMode.WRITE;
 
@@ -1894,14 +1903,14 @@ namespace SidWiz
         {
             short val_16bit = 0;
             double scaleMultiplier = 0.0;
-            if (pByteVal < 128)
+            if (pByteVal > 0)
             {
-                scaleMultiplier = (double)pByteVal / 127.0;
+                scaleMultiplier = (double)pByteVal / (double)byte.MaxValue;
                 val_16bit = (short)((double)short.MaxValue * scaleMultiplier);
             }
-            else
+            else if (pByteVal < 0)
             {
-                scaleMultiplier = (256.0 - (double)pByteVal) / 128.0;
+                scaleMultiplier = (double)pByteVal / (double)byte.MinValue;
                 val_16bit = (short)((double)short.MinValue * scaleMultiplier);
             }
 
@@ -1915,13 +1924,9 @@ namespace SidWiz
         /// </summary>
         /// <param name="pShortVal">A 16-bit value to convert</param>
         /// <returns>The 8-bit scaled value</returns>
-        private static byte ScaleShortToByte(short pShortVal)
+        private static byte ScaleShortToByte(int pShortVal)
         {
-            byte val_8bit = 0;
-            double scaleMultiplier = pShortVal + 32768 ;
-            val_8bit = (byte)(scaleMultiplier / 256);
-
-            return val_8bit;
+            return (byte)((pShortVal + 32768) >> 8);  //rj1 edit - previous code didn't output right values, slow
         }
 
         private String mFilename;       // The name of the file open

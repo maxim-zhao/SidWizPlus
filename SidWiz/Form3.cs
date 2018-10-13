@@ -9,17 +9,12 @@ using System.Windows.Forms;
 
 namespace SidWiz
 {
-    public partial class WaitForm : Form
+    public partial class Form3 : Form
     {
-        public WaitForm()
+        public Form3()
         {
             InitializeComponent();
         }
 
-        public void Progress(string a, double b)
-        {
-            descLabel.Text = a;
-            progressBar.Value = (int) (b * 1000);
-        }
     }
 }
