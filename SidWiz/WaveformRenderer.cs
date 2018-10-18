@@ -126,13 +126,10 @@ namespace SidWiz
                     {
                         output.Write(rawData, bm, fractionComplete);
                     }
-                    // TODO
-                    // ffWriter.Write(rawData);
                 }
 
             }
 
-            //
             pinnedArray.Free();
         }
 
@@ -140,7 +137,7 @@ namespace SidWiz
         {
             // Find the centre point as the first point after the minimum where we see positive -> negative -> positive transition.
             // We disallow looking too far ahead.
-            // TODO breaks on some waveforms - maybe better if we had a high pass filter?
+            // TODO alternative triggering algorithms
             int frameTriggerOffset = 0;
             while (GetSample(channel, frameIndexSamples + frameTriggerOffset) > 0 && frameTriggerOffset < frameSamples) frameTriggerOffset++;
             while (GetSample(channel, frameIndexSamples + frameTriggerOffset) <= 0 && frameTriggerOffset < frameSamples) frameTriggerOffset++;
