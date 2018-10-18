@@ -23,16 +23,23 @@ namespace SidWiz
 
         public void Write(byte[] data, Image image, double fractionComplete)
         {
-            if (++_frameIndex % _frameSkip == 0)
+            if (!_form.Visible)
             {
-                _form.pictureBox1.Image = image;
-                _form.pictureBox1.Refresh();
-                var elapsedSeconds = _stopwatch.Elapsed.TotalSeconds;
-                var fps = _frameIndex / elapsedSeconds;
-                var eta = TimeSpan.FromSeconds(elapsedSeconds / fractionComplete - elapsedSeconds);
-                _form.toolStripStatusLabel2.Text = $"{fractionComplete:P} @ {fps:F}fps, ETA {eta:g}";
-                Application.DoEvents();
+                throw new Exception("Display form closed");
             }
+
+            if (++_frameIndex % _frameSkip != 0)
+            {
+                return;
+            }
+
+            _form.pictureBox1.Image = image;
+            _form.pictureBox1.Refresh();
+            var elapsedSeconds = _stopwatch.Elapsed.TotalSeconds;
+            var fps = _frameIndex / elapsedSeconds;
+            var eta = TimeSpan.FromSeconds(elapsedSeconds / fractionComplete - elapsedSeconds);
+            _form.toolStripStatusLabel2.Text = $"{fractionComplete:P} @ {fps:F}fps, ETA {eta:g}";
+            Application.DoEvents();
         }
 
         public void Dispose()

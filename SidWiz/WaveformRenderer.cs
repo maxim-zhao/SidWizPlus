@@ -14,8 +14,6 @@ namespace SidWiz
     internal class WaveformRenderer
     {
         private readonly List<Channel> _channels = new List<Channel>();
-//        private readonly List<ImageInfo> _images = new List<ImageInfo>();
-//        private readonly IList<TextInfo> _text = new List<TextInfo>();
 
         public int Width { get; set; }
         public int Height { get; set; }
@@ -27,71 +25,11 @@ namespace SidWiz
         public Image BackgroundImage { get; set; }
         public Rectangle RenderingBounds { get; set; }
 
-        private class Channel
+        public void AddChannel(Channel channel)
         {
-            public Channel(IList<float> samples, Color color, float lineWidth, string name)
-            {
-                Samples = samples;
-                Color = color;
-                Name = name;
-                LineWidth = lineWidth;
-            }
-
-            public IList<float> Samples { get; }
-            public Color Color { get; }
-            public string Name { get; }
-            public float LineWidth { get; }
+            _channels.Add(channel);
         }
 
-        public void AddChannel(IList<float> samples, Color color, float lineWidth, string name)
-        {
-            _channels.Add(new Channel(samples, color, lineWidth, name));
-        }
-        /*
-        public void AddImage(Image image, ContentAlignment alignment, bool stretchToFit, bool constrainWaves)
-        {
-            _images.Add(new ImageInfo(image, alignment, stretchToFit, constrainWaves));
-        }
-
-        internal class ImageInfo
-        {
-            public Image Image { get; }
-            public ContentAlignment Alignment { get; }
-            public bool StretchToFit { get; }
-            public bool ConstrainWaves { get; }
-
-            public ImageInfo(Image image, ContentAlignment alignment, bool stretchToFit, bool constrainWaves)
-            {
-                Image = image;
-                Alignment = alignment;
-                StretchToFit = stretchToFit;
-                ConstrainWaves = constrainWaves;
-            }
-        }
-
-        public void AddText(string text, Font font, ContentAlignment alignment, bool constrainWaves, Color color)
-        {
-            _text.Add(new TextInfo(text, font, alignment, constrainWaves, color));
-        }
-
-        internal class TextInfo
-        {
-            private readonly bool _constrainWaves;
-            public string Text { get; }
-            public Font Font { get; }
-            public ContentAlignment Alignment { get; }
-            public Color Color { get; }
-
-            public TextInfo(string text, Font font, ContentAlignment alignment, bool constrainWaves, Color color)
-            {
-                _constrainWaves = constrainWaves;
-                Text = text;
-                Font = font;
-                Alignment = alignment;
-                Color = color;
-            }
-        }
-        */
         public void Render(IList<IGraphicsOutput> outputs)
         {
             int sampleLength = _channels.Max(c => c.Samples.Count);
@@ -114,56 +52,6 @@ namespace SidWiz
                         g.FillRectangle(brush, 0, 0, Width, Height);
                     }
                 }
-
-                /*
-                // Draw images
-                foreach (var imageInfo in _images)
-                {
-                    int imageWidth = imageInfo.Image.Width;
-                    int imageHeight = imageInfo.Image.Height;
-                    // Compute size if stretching
-                    if (imageInfo.StretchToFit)
-                    {
-                        double aspectRatio = Width / (double) Height;
-                        double imageAspectRatio = imageWidth / (double) imageHeight;
-                        if (imageAspectRatio > aspectRatio)
-                        {
-                            // Image has a wider aspect ratio
-                            imageWidth = Width;
-                            imageHeight = (int) Math.Round(Width * imageAspectRatio);
-                        }
-                        else
-                        {
-                            imageHeight = Height;
-                            imageWidth = (int) Math.Round(Height / imageAspectRatio);
-                        }
-                    }
-
-                    // Compute where to draw it
-                    var r = AlignedRect(imageInfo.Alignment, Width, Height, imageWidth, imageHeight);
-                    g.DrawImage(imageInfo.Image, r);
-                    // Apply constriction?
-                    if (imageInfo.ConstrainWaves)
-                    {
-                        // TODO
-                    }
-                }
-
-                // Draw text
-                g.TextRenderingHint = TextRenderingHint.AntiAlias;
-                foreach (var textInfo in _text)
-                {
-                    // Measure it
-                    var size = g.MeasureString(textInfo.Text, textInfo.Font, new SizeF(Width, Height));
-                    // Draw it
-                    using (var b = new SolidBrush(textInfo.Color))
-                    {
-                        g.DrawString(textInfo.Text, textInfo.Font, b, AlignedRect(textInfo.Alignment, Width, Height, size.Width, size.Height));
-                    }
-
-                    // TODO constriction
-                }
-                */
             }
 
             var renderingBounds = RenderingBounds;
@@ -270,35 +158,5 @@ namespace SidWiz
         {
             return sampleIndex < 0 || sampleIndex >= channel.Samples.Count ? 0 : channel.Samples[sampleIndex];
         }
-
-/*
-        private RectangleF AlignedRect(ContentAlignment alignment, float width, float height, float imageWidth,
-            float imageHeight)
-        {
-            switch (alignment)
-            {
-                case ContentAlignment.TopLeft:
-                    return new RectangleF(0, 0, imageWidth, imageHeight);
-                case ContentAlignment.TopCenter:
-                    return new RectangleF((width - imageWidth) / 2, 0, imageWidth, imageHeight);
-                case ContentAlignment.TopRight:
-                    return new RectangleF(width - imageWidth, 0, imageWidth, imageHeight);
-                case ContentAlignment.MiddleLeft:
-                    return new RectangleF(width - imageWidth, (width - imageWidth) / 2, imageWidth, imageHeight);
-                case ContentAlignment.MiddleCenter:
-                    return new RectangleF((width - imageWidth) / 2, (width - imageWidth) / 2, imageWidth, imageHeight);
-                case ContentAlignment.MiddleRight:
-                    return new RectangleF(width - imageWidth, (width - imageWidth) / 2, imageWidth, imageHeight);
-                case ContentAlignment.BottomLeft:
-                    return new RectangleF(width - imageWidth, width - imageWidth, imageWidth, imageHeight);
-                case ContentAlignment.BottomCenter:
-                    return new RectangleF((width - imageWidth) / 2, width - imageWidth, imageWidth, imageHeight);
-                case ContentAlignment.BottomRight:
-                    return new RectangleF(width - imageWidth, width - imageWidth, imageWidth, imageHeight);
-                default:
-                    throw new Exception("Unhandled enum value " + alignment);
-            }
-        }
-*/
     }
 }
