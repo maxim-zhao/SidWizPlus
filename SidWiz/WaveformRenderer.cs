@@ -36,7 +36,6 @@ namespace SidWiz
 
             // We generate our "base image"
             var template = new Bitmap(Width, Height, PixelFormat.Format24bppRgb);
-            Rectangle drawingRectangle = new Rectangle(0, 0, Width, Height);
             using (var g = Graphics.FromImage(template))
             {
                 if (BackgroundImage != null)
