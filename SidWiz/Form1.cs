@@ -217,7 +217,7 @@ namespace SidWiz {
                 }
             }
 
-            var renderer = new WaveformRenderer()
+            var renderer = new WaveformRenderer
             {
                 BackgroundImage = backgroundImage.Image,
                 Columns = (int) numColumns.Value,
@@ -233,10 +233,11 @@ namespace SidWiz {
             {
                 renderer.AddChannel(new Channel(channel, Color.White, 3, ""));
             }
-            //using (var output = new FfmpegOutput(_ffPath, filename, width, height, fps, ffOutArgs.Text, filenames))
+
+            using (var output = new FfmpegOutput(_ffPath, filename, width, height, fps, ffOutArgs.Text, filenames))
             using (var preview = new PreviewOutput(16))
             {
-                renderer.Render(new IGraphicsOutput[]{/*output, */preview});
+                renderer.Render(new IGraphicsOutput[]{output, preview});
             }
 
             Start.Enabled = true; //you can click start again. this was causing some fun problems ;)
