@@ -8,6 +8,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
+using NAudio.Wave;
 using SidWiz.Outputs;
 using SidWiz.Triggers;
 
@@ -96,11 +97,13 @@ namespace SidWiz
             WaitForm waitForm = new WaitForm();
             waitForm.Show();
 
-            WAVFile wavFileTest = new WAVFile();
-            wavFileTest.Open(filenames.First(), WAVFile.WAVFileMode.READ);
-            int sampleLength = wavFileTest.NumSamples / wavFileTest.NumChannels;
-            int sampleRate = wavFileTest.SampleRateHz;
-            wavFileTest.Close();
+            int sampleLength;
+            int sampleRate;
+            using (var reader = new WaveFileReader(filenames.First()))
+            {
+                sampleLength = (int) reader.SampleCount;
+                sampleRate = reader.WaveFormat.SampleRate;
+            }
 
             float allMin = int.MaxValue;
             float allMax = int.MinValue;
@@ -115,37 +118,29 @@ namespace SidWiz
                 var result = new List<IList<float>>(Enumerable.Repeat<IList<float>>(null, filenames.Count));
                 Parallel.For(0, filenames.Count, ch =>
                 {
+                    // We read the file and convert to mono
                     var wavFilename = filenames[ch];
-                    var wavFile = new WAVFile();
-                    wavFile.Open(wavFilename, WAVFile.WAVFileMode.READ);
-                    try
+                    using (var reader = new WaveFileReader(wavFilename))
                     {
-                        var samples = new List<float>(sampleLength);
+                        var sampleProvider = reader.ToSampleProvider().ToMono();
+                        var buffer = new float[sampleRate];
+                        var samples = new List<float>();
                         float min = float.MaxValue;
                         float max = float.MinValue;
-                        for (long i = 0; i < sampleLength; i++)
+                        int samplesRead;
+                        do
                         {
-                            if (i > wavFile.NumSamples / wavFile.NumChannels) break;
-                            float t = 0;
-                            for (int j = 0; j < wavFile.NumChannels; j++)
+                            samplesRead = sampleProvider.Read(buffer, 0, sampleRate);
+                            for (int i = 0; i < samplesRead; ++i)
                             {
-                                t += wavFile.GetNextSampleAs16Bit() / 32768.0f;
+                                var sample = buffer[i];
+                                samples.Add(sample);
+                                max = Math.Max(max, sample);
+                                min = Math.Min(min, sample);
+
+                                Interlocked.Increment(ref progress);
                             }
-
-                            samples.Add(t / wavFile.NumChannels);
-
-                            if (t > max)
-                            {
-                                max = t;
-                            }
-
-                            if (t < min)
-                            {
-                                min = t;
-                            }
-
-                            Interlocked.Increment(ref progress);
-                        }
+                        } while (samplesRead > 0);
 
                         if (min == max)
                         {
@@ -161,10 +156,6 @@ namespace SidWiz
                             allMax = Math.Max(allMax, max);
                         }
                     }
-                    finally
-                    {
-                        wavFile.Close();
-                    }
                 });
                 return result.Where(ch => ch != null).ToList();
             });
@@ -173,7 +164,7 @@ namespace SidWiz
             {
                 Application.DoEvents();
                 Thread.Sleep(1);
-                waitForm.Progress("Reading data...", 1.0 * progress / totalProgress);
+                waitForm.Progress("Reading data...", (double) progress / totalProgress);
             }
 
             var voiceData = loadTask.Result;
