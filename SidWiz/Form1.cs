@@ -234,7 +234,7 @@ namespace SidWiz
 
             foreach (var channel in voiceData)
             {
-                renderer.AddChannel(new Channel(channel, Color.White, 3, "", new WidestWaveTrigger()));
+                renderer.AddChannel(new Channel(channel, Color.White, 3, "", new BiggestWaveAreaTrigger()));
             }
 
             var outputs = new List<IGraphicsOutput>();

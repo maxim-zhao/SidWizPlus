@@ -78,6 +78,7 @@
     <Compile Include="ImageInfo.cs" />
     <Compile Include="Outputs\FfmpegOutput.cs" />
     <Compile Include="Outputs\PreviewOutput.cs" />
+    <Compile Include="Triggers\BiggestWaveAreaTrigger.cs" />
     <Compile Include="Triggers\ITriggerAlgorithm.cs" />
     <Compile Include="Triggers\PeakSpeedTrigger.cs" />
     <Compile Include="Triggers\RisingEdgeTrigger.cs" />
