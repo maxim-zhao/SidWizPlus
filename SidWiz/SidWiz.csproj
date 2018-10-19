@@ -77,6 +77,9 @@
     <Compile Include="GD3Parser.cs" />
     <Compile Include="IGraphicsOutput.cs" />
     <Compile Include="ImageInfo.cs" />
+    <Compile Include="Triggers\ITriggerAlgorithm.cs" />
+    <Compile Include="Triggers\PeakSpeed.cs" />
+    <Compile Include="Triggers\RisingEdge.cs" />
     <Compile Include="PreviewOutput.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

@@ -94,7 +94,7 @@ namespace SidWiz
                         var channel = _channels[channelIndex];
 
                         // Compute the "trigger point".. This will be the centre of our rendering.
-                        var triggerPoint = GetTriggerPoint(channel, frameIndexSamples, frameSamples);
+                        var triggerPoint = channel.GetTriggerPoint(frameIndexSamples, frameSamples);
 
                         // Compute the initial x, y to render the line from.
                         var yBase = renderingBounds.Top + channelIndex / Columns * viewHeight + viewHeight / 2;
@@ -107,7 +107,7 @@ namespace SidWiz
                         for (int x = 0; x < viewWidth; x++)
                         {
                             var sampleIndex = leftmostSampleIndex + x * RenderedLineWidthInSamples / viewWidth;
-                            var sampleValue = GetSample(channel, sampleIndex);
+                            var sampleValue = channel.GetSample(sampleIndex);
 
                             // Compute the Y coordinate
                             var y = yBase - sampleValue * viewHeight;
@@ -131,28 +131,6 @@ namespace SidWiz
             }
 
             pinnedArray.Free();
-        }
-
-        private int GetTriggerPoint(Channel channel, int frameIndexSamples, int frameSamples)
-        {
-            // Find the centre point as the first point after the minimum where we see positive -> negative -> positive transition.
-            // We disallow looking too far ahead.
-            // TODO alternative triggering algorithms
-            int frameTriggerOffset = 0;
-            while (GetSample(channel, frameIndexSamples + frameTriggerOffset) > 0 && frameTriggerOffset < frameSamples) frameTriggerOffset++;
-            while (GetSample(channel, frameIndexSamples + frameTriggerOffset) <= 0 && frameTriggerOffset < frameSamples) frameTriggerOffset++;
-            if (frameTriggerOffset == frameSamples)
-            {
-                // Failed to find anything, just stick to the middle
-                frameTriggerOffset = frameSamples / 2;
-            }
-
-            return frameTriggerOffset;
-        }
-
-        private float GetSample(Channel channel, int sampleIndex)
-        {
-            return sampleIndex < 0 || sampleIndex >= channel.Samples.Count ? 0 : channel.Samples[sampleIndex];
         }
     }
 }
