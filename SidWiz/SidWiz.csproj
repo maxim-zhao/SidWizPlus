@@ -55,7 +55,6 @@
   <ItemGroup>
     <Compile Include="BackgroundRenderer.cs" />
     <Compile Include="Channel.cs" />
-    <Compile Include="FfmpegOutput.cs" />
     <Compile Include="Form1.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -77,10 +76,11 @@
     <Compile Include="GD3Parser.cs" />
     <Compile Include="IGraphicsOutput.cs" />
     <Compile Include="ImageInfo.cs" />
+    <Compile Include="Outputs\FfmpegOutput.cs" />
+    <Compile Include="Outputs\PreviewOutput.cs" />
     <Compile Include="Triggers\ITriggerAlgorithm.cs" />
     <Compile Include="Triggers\PeakSpeed.cs" />
     <Compile Include="Triggers\RisingEdge.cs" />
-    <Compile Include="PreviewOutput.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TextInfo.cs" />

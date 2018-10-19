@@ -12,6 +12,7 @@ using System.IO.Compression;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using SidWiz.Outputs;
 using SidWiz.Triggers;
 
 namespace SidWiz {

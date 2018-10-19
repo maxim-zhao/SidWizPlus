@@ -3,9 +3,9 @@ using System.Diagnostics;
 using System.Drawing;
 using System.Windows.Forms;
 
-namespace SidWiz
+namespace SidWiz.Outputs
 {
-    internal class PreviewOutput : IGraphicsOutput, IDisposable
+    internal class PreviewOutput : IGraphicsOutput
     {
         private readonly int _frameSkip;
         private readonly Form2 _form;

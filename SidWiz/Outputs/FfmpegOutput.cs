@@ -4,9 +4,9 @@ using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 
-namespace SidWiz
+namespace SidWiz.Outputs
 {
-    internal class FfmpegOutput : IGraphicsOutput, IDisposable
+    internal class FfmpegOutput : IGraphicsOutput
     {
         private readonly Process _process;
         private readonly BinaryWriter _writer;
