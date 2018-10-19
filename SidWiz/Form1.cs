@@ -12,6 +12,7 @@ using System.IO.Compression;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using SidWiz.Triggers;
 
 namespace SidWiz {
     public partial class Form1 : Form
@@ -19,7 +20,7 @@ namespace SidWiz {
         private Form2 _frm;
 
         private readonly string[] _args;
-        private string _ffPath = "";
+        private string _ffPath;
 
         public Form1(string[] args)
         {
@@ -58,7 +59,7 @@ namespace SidWiz {
                 return;
             }
 
-            go(sfd.FileName, getInputFilenames(), Convert.ToInt32(widthTextBox.Text), Convert.ToInt32(heightTextBox.Text), Convert.ToInt32(numFps.Value), null, null, null);
+            go(sfd.FileName, getInputFilenames(), Convert.ToInt32(widthTextBox.Text), Convert.ToInt32(heightTextBox.Text), Convert.ToInt32(numFps.Value), null, null, null, 16);
         }
 
         private IList<string> getInputFilenames()
@@ -72,7 +73,7 @@ namespace SidWiz {
         }
 
         private void go(string filename, IList<string> filenames, int width, int height, int fps, string background,
-            string logo, string vgmFile)
+            string logo, string vgmFile, int previewFrameskip)
         {
             filename = Path.GetFullPath(filename);
             Start.Enabled = false;
@@ -231,13 +232,30 @@ namespace SidWiz {
 
             foreach (var channel in voiceData)
             {
-                renderer.AddChannel(new Channel(channel, Color.White, 3, ""));
+                renderer.AddChannel(new Channel(channel, Color.White, 3, "", new PeakSpeed()));
             }
 
-            using (var output = new FfmpegOutput(_ffPath, filename, width, height, fps, ffOutArgs.Text, filenames))
-            using (var preview = new PreviewOutput(16))
+            var outputs = new List<IGraphicsOutput>();
+            if (_ffPath != null)
             {
-                renderer.Render(new IGraphicsOutput[]{output, preview});
+                outputs.Add(new FfmpegOutput(_ffPath, filename, width, height, fps, ffOutArgs.Text, filenames));
+            }
+
+            if (previewFrameskip > 0)
+            {
+                outputs.Add(new PreviewOutput(previewFrameskip));
+            }
+
+            try
+            {
+                renderer.Render(outputs);
+            }
+            finally
+            {
+                foreach (var graphicsOutput in outputs)
+                {
+                    graphicsOutput.Dispose();
+                }
             }
 
             Start.Enabled = true; //you can click start again. this was causing some fun problems ;)
@@ -300,6 +318,7 @@ namespace SidWiz {
             string logo = null;
             string vgmfile = null;
             string multidumper = null;
+            int previewFrameskip = 0;
             IList<string> inputWavs = null;
             for (int i = 0; i < _args.Length - 1; i += 2)
             {
@@ -347,6 +366,9 @@ namespace SidWiz {
                     case "--multidumper":
                         multidumper = value;
                         break;
+                    case "--previewframeskip":
+                        previewFrameskip = Convert.ToInt32(value);
+                        break;
                 }
             }
 
@@ -374,7 +396,7 @@ namespace SidWiz {
 
             if (destFile != null)
             {
-                go(destFile, inputWavs, Convert.ToInt32(widthTextBox.Text), Convert.ToInt32(heightTextBox.Text), Convert.ToInt32(numFps.Value), background, logo, vgmfile);
+                go(destFile, inputWavs, Convert.ToInt32(widthTextBox.Text), Convert.ToInt32(heightTextBox.Text), Convert.ToInt32(numFps.Value), background, logo, vgmfile, previewFrameskip);
                 Close();
             }
             else if (inputWavs != null)
