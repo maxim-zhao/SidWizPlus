@@ -10,24 +10,23 @@
     /// This algorithm is based code from オップナー2608.
     /// This algorithm can show good stability for waves which cross the zero point more than once.
     /// </summary>
-    class PeakSpeed : ITriggerAlgorithm
+    class PeakSpeedTrigger : ITriggerAlgorithm
     {
-        public int GetTriggerPoint(Channel channel, int frameIndexSamples, int frameSamples)
+        public int GetTriggerPoint(Channel channel, int startIndex, int endIndex)
         {
-            int max = frameIndexSamples + frameSamples;
             float peakValue = float.MinValue;
             int shortestDistance = int.MaxValue;
-            int triggerIndex = frameIndexSamples;
-            int i = frameIndexSamples;
-            while (i < max)
+            int triggerIndex = (startIndex + endIndex) / 2; // Default to centre if no peaks found
+            int i = startIndex;
+            while (i < endIndex)
             {
                 // First find a positive edge crossing zero
-                while (channel.GetSample(i) > 0 && i < max) ++i;
-                while (channel.GetSample(i) <= 0 && i < max) ++i;
+                while (channel.GetSample(i) > 0 && i < endIndex) ++i;
+                while (channel.GetSample(i) <= 0 && i < endIndex) ++i;
                 // Remember this point
                 int lastCrossing = i;
                 // Now move forward looking for a peak
-                for (var sample = channel.GetSample(i); sample > 0 && i < max; ++i)
+                for (var sample = channel.GetSample(i); sample > 0 && i < endIndex; ++i)
                 {
                     if (sample > peakValue)
                     {
@@ -47,7 +46,7 @@
                 }
             }
 
-            return triggerIndex - frameIndexSamples;
+            return triggerIndex;
         }
     }
 }

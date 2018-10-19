@@ -79,11 +79,12 @@
     <Compile Include="Outputs\FfmpegOutput.cs" />
     <Compile Include="Outputs\PreviewOutput.cs" />
     <Compile Include="Triggers\ITriggerAlgorithm.cs" />
-    <Compile Include="Triggers\PeakSpeed.cs" />
-    <Compile Include="Triggers\RisingEdge.cs" />
+    <Compile Include="Triggers\PeakSpeedTrigger.cs" />
+    <Compile Include="Triggers\RisingEdgeTrigger.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TextInfo.cs" />
+    <Compile Include="Triggers\WidestWaveTrigger.cs" />
     <Compile Include="WaveformRenderer.cs" />
     <Compile Include="WAVFile.cs" />
     <Compile Include="WAVFileExceptions.cs" />

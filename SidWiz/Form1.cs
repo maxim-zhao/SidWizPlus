@@ -4,18 +4,15 @@ using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
 using System.Reflection;
-using System.Drawing.Imaging;
 using System.Diagnostics;
-using System.Drawing.Text;
 using System.IO;
-using System.IO.Compression;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using SidWiz.Outputs;
 using SidWiz.Triggers;
 
-namespace SidWiz {
+namespace SidWiz
+{
     public partial class Form1 : Form
     {
         private Form2 _frm;
@@ -33,7 +30,9 @@ namespace SidWiz {
         private static int GetSample(IList<IList<int>> channels, int channelIndex, int sampleIndex)
         {
             // We may look "outside" the sample - so we return zeroes there
-            return sampleIndex < 0 || sampleIndex >= channels[channelIndex].Count ? 0 : channels[channelIndex][sampleIndex];
+            return sampleIndex < 0 || sampleIndex >= channels[channelIndex].Count
+                ? 0
+                : channels[channelIndex][sampleIndex];
         }
 
         private void Start_Click(object sender, EventArgs e)
@@ -60,7 +59,8 @@ namespace SidWiz {
                 return;
             }
 
-            go(sfd.FileName, getInputFilenames(), Convert.ToInt32(widthTextBox.Text), Convert.ToInt32(heightTextBox.Text), Convert.ToInt32(numFps.Value), null, null, null, 16);
+            go(sfd.FileName, getInputFilenames(), Convert.ToInt32(widthTextBox.Text),
+                Convert.ToInt32(heightTextBox.Text), Convert.ToInt32(numFps.Value), null, null, null, 16);
         }
 
         private IList<string> getInputFilenames()
@@ -215,7 +215,8 @@ namespace SidWiz {
                 var info = Gd3Parser.GetTagInfo(vgmFile);
                 if (info.Length > 0)
                 {
-                    backgroundImage.Add(new TextInfo(info, "Arial", 16, ContentAlignment.BottomLeft, FontStyle.Regular, DockStyle.Bottom, Color.White));
+                    backgroundImage.Add(new TextInfo(info, "Arial", 16, ContentAlignment.BottomLeft, FontStyle.Regular,
+                        DockStyle.Bottom, Color.White));
                 }
             }
 
@@ -233,7 +234,7 @@ namespace SidWiz {
 
             foreach (var channel in voiceData)
             {
-                renderer.AddChannel(new Channel(channel, Color.White, 3, "", new PeakSpeed()));
+                renderer.AddChannel(new Channel(channel, Color.White, 3, "", new WidestWaveTrigger()));
             }
 
             var outputs = new List<IGraphicsOutput>();
@@ -273,12 +274,13 @@ namespace SidWiz {
             //ArrayList ColorList = new ArrayList();
             Type colorType = typeof(Color);
             PropertyInfo[] propInfoList = colorType.GetProperties(BindingFlags.Static |
-                                          BindingFlags.DeclaredOnly | BindingFlags.Public);
+                                                                  BindingFlags.DeclaredOnly | BindingFlags.Public);
             List<Color> list = new List<Color>();
             foreach (PropertyInfo c in propInfoList)
             {
                 list.Add(Color.FromName(c.Name));
             }
+
             List<Color> sortedList = list.OrderBy(o => (o.GetHue() + (o.GetSaturation() * o.GetBrightness()))).ToList();
 
 
@@ -294,6 +296,7 @@ namespace SidWiz {
                 cmbClr8.Items.Add(c.Name);
                 cmbClr9.Items.Add(c.Name);
             }
+
             cmbClr1.Items.RemoveAt(0);
             cmbClr1.SelectedIndex = 1;
             cmbClr2.Items.RemoveAt(0);
@@ -350,7 +353,8 @@ namespace SidWiz {
                         break;
                     case "--file":
                         // We support wildcards...
-                        inputWavs = Directory.EnumerateFiles(Directory.GetCurrentDirectory(), value).OrderBy(x => x).ToList();
+                        inputWavs = Directory.EnumerateFiles(Directory.GetCurrentDirectory(), value).OrderBy(x => x)
+                            .ToList();
                         break;
                     case "--output":
                         destFile = value;
@@ -376,28 +380,34 @@ namespace SidWiz {
             if (multidumper != null && vgmfile != null && inputWavs == null)
             {
                 // Check if we have WAVs
-                inputWavs = Directory.EnumerateFiles(Path.GetDirectoryName(vgmfile), Path.GetFileNameWithoutExtension(vgmfile) + " - *.wav").ToList();
+                inputWavs = Directory.EnumerateFiles(Path.GetDirectoryName(vgmfile),
+                    Path.GetFileNameWithoutExtension(vgmfile) + " - *.wav").ToList();
                 if (!inputWavs.Any())
                 {
                     // Let's run it
-                    using (var p = Process.Start(new ProcessStartInfo{
+                    using (var p = Process.Start(new ProcessStartInfo
+                    {
                         FileName = multidumper,
                         Arguments = $"\"{vgmfile}\" 0",
                         RedirectStandardOutput = true,
-                        UseShellExecute = false}))
+                        UseShellExecute = false
+                    }))
                     {
                         p.BeginOutputReadLine();
                         p.WaitForExit();
                     }
+
                     // And try again
-                    inputWavs = Directory.EnumerateFiles(Path.GetDirectoryName(vgmfile), Path.GetFileNameWithoutExtension(vgmfile) + " - *.wav").ToList();
+                    inputWavs = Directory.EnumerateFiles(Path.GetDirectoryName(vgmfile),
+                        Path.GetFileNameWithoutExtension(vgmfile) + " - *.wav").ToList();
                 }
             }
 
 
             if (destFile != null)
             {
-                go(destFile, inputWavs, Convert.ToInt32(widthTextBox.Text), Convert.ToInt32(heightTextBox.Text), Convert.ToInt32(numFps.Value), background, logo, vgmfile, previewFrameskip);
+                go(destFile, inputWavs, Convert.ToInt32(widthTextBox.Text), Convert.ToInt32(heightTextBox.Text),
+                    Convert.ToInt32(numFps.Value), background, logo, vgmfile, previewFrameskip);
                 Close();
             }
             else if (inputWavs != null)
@@ -405,7 +415,8 @@ namespace SidWiz {
                 foreach (var file in inputWavs)
                 {
                     // We find the first unpopulated text box...
-                    groupBox3.Controls.OfType<TextBox>().OrderBy(c => c.TabIndex).First(c => c.Text.Length == 0).Text = file;
+                    groupBox3.Controls.OfType<TextBox>().OrderBy(c => c.TabIndex).First(c => c.Text.Length == 0).Text =
+                        file;
                     numVoices.Value = groupBox3.Controls.OfType<TextBox>().Count(c => c.Text.Length > 0);
                 }
             }
@@ -418,7 +429,7 @@ namespace SidWiz {
             Rectangle rect = e.Bounds;
             if (e.Index >= 0)
             {
-                string n = ((ComboBox)sender).Items[e.Index].ToString();
+                string n = ((ComboBox) sender).Items[e.Index].ToString();
                 Color c = Color.FromName(n);
                 Brush b = new SolidBrush(c);
                 g.FillRectangle(b, rect.X, rect.Y + 5, rect.Width / 2, rect.Height - 10);
@@ -426,17 +437,19 @@ namespace SidWiz {
 
                 if ((e.State & DrawItemState.Selected) == DrawItemState.Selected)
                 {
-                    e.Graphics.FillRectangle(new SolidBrush(Color.LightBlue), rect.X + 110, rect.Y, rect.Width, rect.Height);
+                    e.Graphics.FillRectangle(new SolidBrush(Color.LightBlue), rect.X + 110, rect.Y, rect.Width,
+                        rect.Height);
                 }
                 else
                 {
-                    e.Graphics.FillRectangle(new SolidBrush(SystemColors.Window), rect.X + 110, rect.Y, rect.Width, rect.Height);
+                    e.Graphics.FillRectangle(new SolidBrush(SystemColors.Window), rect.X + 110, rect.Y, rect.Width,
+                        rect.Height);
                 }
 
                 e.Graphics.DrawString(combo.Items[e.Index].ToString(),
-                                              e.Font,
-                                              new SolidBrush(Color.Black),
-                                              new Point(e.Bounds.X + 110, e.Bounds.Y + 5));
+                    e.Font,
+                    new SolidBrush(Color.Black),
+                    new Point(e.Bounds.X + 110, e.Bounds.Y + 5));
             }
         }
 
@@ -446,34 +459,42 @@ namespace SidWiz {
         {
             label1.Text = "V1 Color: " + cmbClr1.Text;
         }
+
         private void cmbClr2_SelectedIndexChanged(object sender, EventArgs e)
         {
             label2.Text = "V2 Color: " + cmbClr2.Text;
         }
+
         private void cmbClr3_SelectedIndexChanged(object sender, EventArgs e)
         {
             label3.Text = "V3 Color: " + cmbClr3.Text;
         }
+
         private void cmbClr4_SelectedIndexChanged(object sender, EventArgs e)
         {
             label4.Text = "V4 Color: " + cmbClr4.Text;
         }
+
         private void cmbClr5_SelectedIndexChanged(object sender, EventArgs e)
         {
             label5.Text = "V5 Color: " + cmbClr5.Text;
         }
+
         private void cmbClr6_SelectedIndexChanged(object sender, EventArgs e)
         {
             label9.Text = "V6 Color: " + cmbClr6.Text;
         }
+
         private void cmbClr7_SelectedIndexChanged(object sender, EventArgs e)
         {
             label10.Text = "V7 Color: " + cmbClr7.Text;
         }
+
         private void cmbClr8_SelectedIndexChanged(object sender, EventArgs e)
         {
             label11.Text = "V8 Color: " + cmbClr8.Text;
         }
+
         private void cmbClr9_SelectedIndexChanged(object sender, EventArgs e)
         {
             label21.Text = "V9 Color: " + cmbClr9.Text;
@@ -505,6 +526,7 @@ namespace SidWiz {
                     checkBox1.Checked = false;
                     return;
                 }
+
                 string baseName = Path.GetFullPath(txtFile1.Text);
                 baseName = baseName.Remove(baseName.Length - 5, 5);
                 txtFile2.Text = baseName + "2.wav";
@@ -535,7 +557,6 @@ namespace SidWiz {
                 txtFile8.Text = "";
                 txtFile9.Text = "";
             }
-
         }
 
         private void TryLoadWaveFile(TextBox a)
@@ -561,7 +582,8 @@ namespace SidWiz {
 
         private void button1_Click(object sender, EventArgs e)
         {
-            MessageBox.Show("SidWiz 1.0 by Rolf R Bakke\r\nSidWiz 2 by RushJet1\r\nSidWiz 2.1 by Pigu\r\nAVIFile Wrapper by Corinna John\r\nWAVFile class by CalicoSkies");
+            MessageBox.Show(
+                "SidWiz 1.0 by Rolf R Bakke\r\nSidWiz 2 by RushJet1\r\nSidWiz 2.1 by Pigu\r\nAVIFile Wrapper by Corinna John\r\nWAVFile class by CalicoSkies");
         }
 
         private void btnFile3_Click_1(object sender, EventArgs e)
@@ -614,7 +636,7 @@ namespace SidWiz {
 
         private void enableFFBox_CheckedChanged(object sender, EventArgs e)
         {
-            if(enableFFBox.Checked)
+            if (enableFFBox.Checked)
             {
                 OpenFileDialog ofd = new OpenFileDialog();
                 ofd.Title = "Select FFmpeg executable";

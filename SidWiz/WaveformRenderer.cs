@@ -94,14 +94,14 @@ namespace SidWiz
                         var channel = _channels[channelIndex];
 
                         // Compute the "trigger point".. This will be the centre of our rendering.
-                        var triggerPoint = channel.GetTriggerPoint(frameIndexSamples, frameSamples);
+                        var triggerPoint = channel.GetTriggerPoint(frameIndexSamples, frameIndexSamples + frameSamples);
 
                         // Compute the initial x, y to render the line from.
                         var yBase = renderingBounds.Top + channelIndex / Columns * viewHeight + viewHeight / 2;
                         var xBase = renderingBounds.Left + (channelIndex % Columns) * renderingBounds.Width / Columns ;
 
                         // And the initial sample index
-                        var leftmostSampleIndex = frameIndexSamples + triggerPoint - RenderedLineWidthInSamples / 2;
+                        var leftmostSampleIndex = triggerPoint - RenderedLineWidthInSamples / 2;
 
                         // Then, for each pixel, compute the Y coordinate for the waveform
                         for (int x = 0; x < viewWidth; x++)
