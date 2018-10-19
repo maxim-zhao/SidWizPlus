@@ -1,45 +1,41 @@
-﻿namespace SidWiz.Triggers
+﻿using System;
+
+namespace SidWiz.Triggers
 {
     /// <summary>
-    /// Finds the positive half-wave with the biggest area (= sum of positive samples)
+    /// Finds the positive+negative wave with the biggest area (= sum of absolute samples)
     /// </summary>
     internal class BiggestWaveAreaTrigger : ITriggerAlgorithm
     {
         public int GetTriggerPoint(Channel channel, int startIndex, int endIndex)
         {
-            // We step through the sample and select the first negative -> positive transition
             int bestOffset = (startIndex + endIndex) / 2; // Default to centre if no positive waves found
-            int lastCrossingPoint = -1;
+            int lastCrossingPoint = endIndex;
             float previousSample = channel.GetSample(startIndex);
             float bestArea = 0;
-            float currentArea = 0;
+            float currentArea = float.MinValue;
+
+            // We want to look beyond the end of the range to avoid losing track when the wave is low frequency
+            endIndex += endIndex - startIndex;
 
             // For each sample...
             for (int i = startIndex + 1; i < endIndex; ++i)
             {
+                // Add on the area
                 var sample = channel.GetSample(i);
-                if (sample > 0)
+                currentArea += Math.Abs(sample);
+                if (sample > 0 && previousSample <= 0)
                 {
-                    // Positive, is it an edge?
-                    if (previousSample <= 0)
+                    // Positive edge - check if it's a new biggest
+                    if (currentArea > bestArea)
                     {
-                        lastCrossingPoint = i;
-                        currentArea = 0;
+                        bestArea = currentArea;
+                        bestOffset = lastCrossingPoint;
                     }
 
-                    currentArea += sample;
-                }
-                else
-                {
-                    // Negative, is it an edge?
-                    if (previousSample > 0 && lastCrossingPoint > -1)
-                    {
-                        if (currentArea > bestArea)
-                        {
-                            bestOffset = lastCrossingPoint;
-                            bestArea = currentArea;
-                        }
-                    }
+                    // And reset
+                    lastCrossingPoint = i;
+                    currentArea = sample;
                 }
 
                 previousSample = sample;
