@@ -110,7 +110,7 @@ namespace SidWiz
                             var sampleValue = channel.GetSample(sampleIndex);
 
                             // Compute the Y coordinate
-                            var y = yBase - sampleValue * viewHeight;
+                            var y = yBase - sampleValue * viewHeight / 2;
 
                             points[x].X = x + xBase;
                             points[x].Y = y;

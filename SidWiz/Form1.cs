@@ -9,6 +9,7 @@ using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using NAudio.Wave;
+using NReplayGain;
 using SidWiz.Outputs;
 using SidWiz.Triggers;
 
@@ -97,67 +98,62 @@ namespace SidWiz
             WaitForm waitForm = new WaitForm();
             waitForm.Show();
 
-            int sampleLength;
             int sampleRate;
             using (var reader = new WaveFileReader(filenames.First()))
             {
-                sampleLength = (int) reader.SampleCount;
                 sampleRate = reader.WaveFormat.SampleRate;
             }
 
-            float allMin = int.MaxValue;
-            float allMax = int.MinValue;
-            var minmaxlock = new object();
-
-            int totalProgress = filenames.Count * sampleLength;
+            int totalProgress = filenames.Count;
             int progress = 0;
 
             var loadTask = Task.Run(() =>
             {
-                // Populate result with nulls so we can replace them by index
-                var result = new List<IList<float>>(Enumerable.Repeat<IList<float>>(null, filenames.Count));
-                Parallel.For(0, filenames.Count, ch =>
+                // Do a parallel read of all files
+                var channels = filenames.AsParallel().Select((wavFilename, channelIndex) =>
                 {
                     // We read the file and convert to mono
-                    var wavFilename = filenames[ch];
                     using (var reader = new WaveFileReader(wavFilename))
                     {
-                        var sampleProvider = reader.ToSampleProvider().ToMono();
-                        var buffer = new float[sampleRate];
-                        var samples = new List<float>();
-                        float min = float.MaxValue;
-                        float max = float.MinValue;
-                        int samplesRead;
-                        do
+                        var buffer = new float[reader.SampleCount];
+                        reader.ToSampleProvider().ToMono().Read(buffer, 0, (int) reader.SampleCount);
+                        // ReSharper disable once CompareOfFloatsByEqualityOperator
+                        // We don't care about ones where the samples are all equal
+                        if (buffer.Length > 0 && buffer.Any(s => s != buffer[0]))
                         {
-                            samplesRead = sampleProvider.Read(buffer, 0, sampleRate);
-                            for (int i = 0; i < samplesRead; ++i)
-                            {
-                                var sample = buffer[i];
-                                samples.Add(sample);
-                                max = Math.Max(max, sample);
-                                min = Math.Min(min, sample);
+                            // We do want to do some analysis here...
+                            var trackGain = new TrackGain(reader.WaveFormat.SampleRate);
+                            trackGain.AnalyzeSamples(buffer, buffer);
+                            Debug.WriteLine($"Channel {channelIndex} has track gain {trackGain.GetGain()}dB");
 
-                                Interlocked.Increment(ref progress);
-                            }
-                        } while (samplesRead > 0);
-
-                        if (min == max)
-                        {
-                            // Silent - discard data
-                            return;
+                            return new {Data = buffer, TrackGain = trackGain};
                         }
 
-                        result[ch] = samples;
-
-                        lock (minmaxlock)
-                        {
-                            allMin = Math.Min(allMin, min);
-                            allMax = Math.Max(allMax, max);
-                        }
+                        // Only include ones where there is data
+                        return null;
                     }
+                }).Where(ch => ch != null).ToList();
+
+                // Then normalize...
+                var totalGain = new AlbumGain();
+                foreach (var channel in channels)
+                {
+                    totalGain.AppendTrackData(channel.TrackGain);
+                }
+                var gain = totalGain.GetGain();
+                // We convert the gain from DB to a multiplier. The 300 is a fudge factor...
+                var scaling = (float)Math.Pow(10, gain / 20) / 300;
+                // ...and we apply it
+                channels.AsParallel().Select(channel => channel.Data).ForAll(samples =>
+                {
+                    for (int i = 0; i < samples.Length; ++i)
+                    {
+                        samples[i] *= scaling;
+                    }
+                    Debug.WriteLine($"Channel max is {samples.Max()}, min is {samples.Min()}");
                 });
-                return result.Where(ch => ch != null).ToList();
+
+                return channels.Select(channel => channel.Data).ToList();
             });
 
             while (!loadTask.IsCompleted)
@@ -168,18 +164,6 @@ namespace SidWiz
             }
 
             var voiceData = loadTask.Result;
-
-            // Scale all channels so we reach the limits
-            var scale = 1.0f / (allMax - allMin);
-
-            foreach (var channel in voiceData)
-            {
-                // Scale it
-                for (int i = 0; i < channel.Count; ++i)
-                {
-                    channel[i] *= scale;
-                }
-            }
 
             waitForm.Close();
             Enabled = true;
@@ -225,7 +209,7 @@ namespace SidWiz
 
             foreach (var channel in voiceData)
             {
-                renderer.AddChannel(new Channel(channel, Color.White, 3, "", new BiggestWaveAreaTrigger()));
+                renderer.AddChannel(new Channel(channel, Color.White, 3, "", new PeakSpeedTrigger()));
             }
 
             var outputs = new List<IGraphicsOutput>();
