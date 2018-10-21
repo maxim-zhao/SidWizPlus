@@ -8,6 +8,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
+using NAudio.Dsp;
 using NAudio.Wave;
 using NReplayGain;
 using SidWiz.Outputs;
@@ -62,7 +63,7 @@ namespace SidWiz
             }
 
             go(sfd.FileName, getInputFilenames(), Convert.ToInt32(widthTextBox.Text),
-                Convert.ToInt32(heightTextBox.Text), Convert.ToInt32(numFps.Value), null, null, null, 16);
+                Convert.ToInt32(heightTextBox.Text), Convert.ToInt32(numFps.Value), null, null, null, 16, -1, true, 1);
         }
 
         private IList<string> getInputFilenames()
@@ -76,7 +77,7 @@ namespace SidWiz
         }
 
         private void go(string filename, IList<string> filenames, int width, int height, int fps, string background,
-            string logo, string vgmFile, int previewFrameskip)
+            string logo, string vgmFile, int previewFrameskip, float highPassFrequency, bool replayGainChannels, float scale)
         {
             filename = Path.GetFullPath(filename);
             Start.Enabled = false;
@@ -104,7 +105,8 @@ namespace SidWiz
                 sampleRate = reader.WaveFormat.SampleRate;
             }
 
-            int totalProgress = filenames.Count;
+            int stepsPerFile = 1 + (highPassFrequency > 0 ? 1 : 0) + (replayGainChannels ? 1 : 0) + (replayGainChannels || scale != 1 ? 1 : 0);
+            int totalProgress = filenames.Count * stepsPerFile;
             int progress = 0;
 
             var loadTask = Task.Run(() =>
@@ -117,41 +119,68 @@ namespace SidWiz
                     {
                         var buffer = new float[reader.SampleCount];
                         reader.ToSampleProvider().ToMono().Read(buffer, 0, (int) reader.SampleCount);
+                        Interlocked.Increment(ref progress);
                         // ReSharper disable once CompareOfFloatsByEqualityOperator
                         // We don't care about ones where the samples are all equal
-                        if (buffer.Length > 0 && buffer.Any(s => s != buffer[0]))
+                        if (buffer.Length == 0 || buffer.All(s => s == buffer[0]))
                         {
-                            // We do want to do some analysis here...
-                            var trackGain = new TrackGain(reader.WaveFormat.SampleRate);
-                            trackGain.AnalyzeSamples(buffer, buffer);
-                            Debug.WriteLine($"Channel {channelIndex} has track gain {trackGain.GetGain()}dB");
-
-                            return new {Data = buffer, TrackGain = trackGain};
+                            // So we skip steps here
+                            Interlocked.Add(ref progress, stepsPerFile - 1);
+                            return null;
                         }
 
-                        // Only include ones where there is data
-                        return null;
+                        if (highPassFrequency > 0)
+                        {
+                            // Apply the high pass filter
+                            var filter = BiQuadFilter.HighPassFilter(reader.WaveFormat.SampleRate, highPassFrequency, 1);
+                            for (int i = 0; i < buffer.Length; ++i)
+                            {
+                                buffer[i] = filter.Transform(buffer[i]);
+                            }
+
+                            Interlocked.Increment(ref progress);
+                        }
+
+                        var trackGain = new TrackGain(reader.WaveFormat.SampleRate);
+                        if (replayGainChannels)
+                        {
+                            // We do want to do some analysis here...
+                            trackGain.AnalyzeSamples(buffer, buffer);
+                            Interlocked.Increment(ref progress);
+                        }
+
+                        return new {Data = buffer, TrackGain = trackGain};
                     }
                 }).Where(ch => ch != null).ToList();
 
-                // Then normalize...
-                var totalGain = new AlbumGain();
-                foreach (var channel in channels)
+                if (replayGainChannels)
                 {
-                    totalGain.AppendTrackData(channel.TrackGain);
-                }
-                var gain = totalGain.GetGain();
-                // We convert the gain from DB to a multiplier. The 300 is a fudge factor...
-                var scaling = (float)Math.Pow(10, gain / 20) / 300;
-                // ...and we apply it
-                channels.AsParallel().Select(channel => channel.Data).ForAll(samples =>
-                {
-                    for (int i = 0; i < samples.Length; ++i)
+                    // Then normalize...
+                    var totalGain = new AlbumGain();
+                    foreach (var channel in channels)
                     {
-                        samples[i] *= scaling;
+                        totalGain.AppendTrackData(channel.TrackGain);
                     }
-                    Debug.WriteLine($"Channel max is {samples.Max()}, min is {samples.Min()}");
-                });
+
+                    var gain = totalGain.GetGain();
+
+                    // We convert the gain from DB to a multiplier.
+                    scale *= (float)Math.Pow(10, gain / 20);
+                }
+
+                // ...and we apply it
+                if (scale != 1)
+                {
+                    channels.AsParallel().Select(channel => channel.Data).ForAll(samples =>
+                    {
+                        for (int i = 0; i < samples.Length; ++i)
+                        {
+                            samples[i] *= scale;
+                        }
+
+                        Interlocked.Increment(ref progress);
+                    });
+                }
 
                 return channels.Select(channel => channel.Data).ToList();
             });
@@ -227,6 +256,10 @@ namespace SidWiz
             {
                 renderer.Render(outputs);
             }
+            catch (Exception)
+            {
+                // Should mean it was cancelled
+            }
             finally
             {
                 foreach (var graphicsOutput in outputs)
@@ -298,6 +331,9 @@ namespace SidWiz
             string vgmfile = null;
             string multidumper = null;
             int previewFrameskip = 0;
+            double highPassFrequency = -1;
+            bool replayGainChannels = true;
+            double scale = 1.0;
             IList<string> inputWavs = null;
             for (int i = 0; i < _args.Length - 1; i += 2)
             {
@@ -328,8 +364,7 @@ namespace SidWiz
                         break;
                     case "--file":
                         // We support wildcards...
-                        inputWavs = Directory.EnumerateFiles(Directory.GetCurrentDirectory(), value).OrderBy(x => x)
-                            .ToList();
+                        inputWavs = Directory.EnumerateFiles(Directory.GetCurrentDirectory(), value).OrderBy(x => x).ToList();
                         break;
                     case "--output":
                         destFile = value;
@@ -349,13 +384,23 @@ namespace SidWiz
                     case "--previewframeskip":
                         previewFrameskip = Convert.ToInt32(value);
                         break;
+                    case "--highpassfilter":
+                        highPassFrequency = Convert.ToDouble(value);
+                        break;
+                    case "--replaygainchannels":
+                        replayGainChannels = Convert.ToBoolean(value);
+                        break;
+                    case "--scale":
+                        scale = Convert.ToDouble(value);
+                        break;
                 }
             }
 
             if (multidumper != null && vgmfile != null && inputWavs == null)
             {
                 // Check if we have WAVs
-                inputWavs = Directory.EnumerateFiles(Path.GetDirectoryName(vgmfile),
+                inputWavs = Directory.EnumerateFiles(
+                    Path.GetDirectoryName(vgmfile), 
                     Path.GetFileNameWithoutExtension(vgmfile) + " - *.wav").ToList();
                 if (!inputWavs.Any())
                 {
@@ -373,7 +418,8 @@ namespace SidWiz
                     }
 
                     // And try again
-                    inputWavs = Directory.EnumerateFiles(Path.GetDirectoryName(vgmfile),
+                    inputWavs = Directory.EnumerateFiles(
+                        Path.GetDirectoryName(vgmfile),
                         Path.GetFileNameWithoutExtension(vgmfile) + " - *.wav").ToList();
                 }
             }
@@ -382,7 +428,7 @@ namespace SidWiz
             if (destFile != null)
             {
                 go(destFile, inputWavs, Convert.ToInt32(widthTextBox.Text), Convert.ToInt32(heightTextBox.Text),
-                    Convert.ToInt32(numFps.Value), background, logo, vgmfile, previewFrameskip);
+                    Convert.ToInt32(numFps.Value), background, logo, vgmfile, previewFrameskip, (float)highPassFrequency, replayGainChannels, (float)scale);
                 Close();
             }
             else if (inputWavs != null)
