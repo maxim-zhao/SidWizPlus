@@ -11,19 +11,15 @@ namespace SidWiz.Outputs
         private readonly Process _process;
         private readonly BinaryWriter _writer;
 
-        public FfmpegOutput(string pathToExe, string filename, int width, int height, int fps, string extraArgs, ICollection<string> waveFilenames)
+        public FfmpegOutput(string pathToExe, string filename, int width, int height, int fps, string extraArgs, string masterAudioFilename)
         {
             // Build the FFMPEG commandline
             var arguments = "-y"; // Overwrite
 
             // Audio part
-            if (waveFilenames.Count > 1)
+            if (File.Exists(masterAudioFilename))
             {
-                arguments += $" -filter_complex amix=inputs={waveFilenames.Count}";
-                foreach (var fn in waveFilenames)
-                {
-                    arguments += $" -i \"{fn}\"";
-                }
+                arguments += $" -i \"{masterAudioFilename}\"";
                 arguments += " -acodec aac";
             }
 

@@ -10,6 +10,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using NAudio.Dsp;
 using NAudio.Wave;
+using NAudio.Wave.SampleProviders;
 using NReplayGain;
 using SidWiz.Outputs;
 using SidWiz.Triggers;
@@ -18,24 +19,13 @@ namespace SidWiz
 {
     public partial class Form1 : Form
     {
-        private Form2 _frm;
-
         private readonly string[] _args;
         private string _ffPath;
 
         public Form1(string[] args)
         {
             _args = args;
-            _frm = null;
             InitializeComponent();
-        }
-
-        private static int GetSample(IList<IList<int>> channels, int channelIndex, int sampleIndex)
-        {
-            // We may look "outside" the sample - so we return zeroes there
-            return sampleIndex < 0 || sampleIndex >= channels[channelIndex].Count
-                ? 0
-                : channels[channelIndex][sampleIndex];
         }
 
         private void Start_Click(object sender, EventArgs e)
@@ -62,11 +52,37 @@ namespace SidWiz
                 return;
             }
 
-            go(sfd.FileName, getInputFilenames(), Convert.ToInt32(widthTextBox.Text),
-                Convert.ToInt32(heightTextBox.Text), Convert.ToInt32(numFps.Value), null, null, null, 16, -1, true, 1);
+            Enabled = false;
+
+            try
+            {
+                Go(
+                    filename: sfd.FileName,
+                    filenames: GetInputFilenames(),
+                    width: int.Parse(widthTextBox.Text),
+                    height: int.Parse(heightTextBox.Text),
+                    fps: (int) numFps.Value,
+                    background: null,
+                    logo: null,
+                    vgmFile: null,
+                    previewFrameskip: 16,
+                    highPassFrequency: -1,
+                    scale: 1,
+                    triggerAlgorithm: typeof(PeakSpeedTrigger),
+                    viewSamples: int.Parse(samplesTextBox.Text),
+                    numColumns: (int) numColumns.Value,
+                    ffMpegPath: _ffPath,
+                    ffMpegExtraArgs: ffOutArgs.Text, 
+                    masterAudioFilename: null,
+                    autoScale: -1);
+            }
+            finally
+            {
+                Enabled = true;
+            }
         }
 
-        private IList<string> getInputFilenames()
+        private IList<string> GetInputFilenames()
         {
             return groupBox3.Controls
                 .OfType<TextBox>()
@@ -76,27 +92,14 @@ namespace SidWiz
                 .ToList();
         }
 
-        private void go(string filename, IList<string> filenames, int width, int height, int fps, string background,
-            string logo, string vgmFile, int previewFrameskip, float highPassFrequency, bool replayGainChannels, float scale)
+        private static void Go(string filename, ICollection<string> filenames, int width, int height, int fps,
+            string background,
+            string logo, string vgmFile, int previewFrameskip, float highPassFrequency, float scale,
+            Type triggerAlgorithm, int viewSamples, int numColumns, string ffMpegPath, string ffMpegExtraArgs,
+            string masterAudioFilename, float autoScale)
         {
             filename = Path.GetFullPath(filename);
-            Start.Enabled = false;
-            var colors = new[]
-            {
-                Color.FromName(cmbClr1.Text),
-                Color.FromName(cmbClr2.Text),
-                Color.FromName(cmbClr3.Text),
-                Color.FromName(cmbClr4.Text),
-                Color.FromName(cmbClr5.Text),
-                Color.FromName(cmbClr6.Text),
-                Color.FromName(cmbClr7.Text),
-                Color.FromName(cmbClr8.Text),
-                Color.FromName(cmbClr9.Text),
-            }.Select(c => c.ToArgb()).ToList();
-
-            int viewSamp = int.Parse(samplesTextBox.Text);
-            Enabled = false;
-            WaitForm waitForm = new WaitForm();
+            var waitForm = new WaitForm();
             waitForm.Show();
 
             int sampleRate;
@@ -105,7 +108,8 @@ namespace SidWiz
                 sampleRate = reader.WaveFormat.SampleRate;
             }
 
-            int stepsPerFile = 1 + (highPassFrequency > 0 ? 1 : 0) + (replayGainChannels ? 1 : 0) + (replayGainChannels || scale != 1 ? 1 : 0);
+            // ReSharper disable once CompareOfFloatsByEqualityOperator
+            int stepsPerFile = 1 + (highPassFrequency > 0 ? 1 : 0) + 2;
             int totalProgress = filenames.Count * stepsPerFile;
             int progress = 0;
 
@@ -114,75 +118,61 @@ namespace SidWiz
                 // Do a parallel read of all files
                 var channels = filenames.AsParallel().Select((wavFilename, channelIndex) =>
                 {
+                    var reader = new WaveFileReader(wavFilename);
+                    var buffer = new float[reader.SampleCount];
+
                     // We read the file and convert to mono
-                    using (var reader = new WaveFileReader(wavFilename))
+                    reader.ToSampleProvider().ToMono().Read(buffer, 0, (int) reader.SampleCount);
+                    Interlocked.Increment(ref progress);
+
+                    // We don't care about ones where the samples are all equal
+                    // ReSharper disable once CompareOfFloatsByEqualityOperator
+                    if (buffer.Length == 0 || buffer.All(s => s == buffer[0]))
                     {
-                        var buffer = new float[reader.SampleCount];
-                        reader.ToSampleProvider().ToMono().Read(buffer, 0, (int) reader.SampleCount);
-                        Interlocked.Increment(ref progress);
-                        // ReSharper disable once CompareOfFloatsByEqualityOperator
-                        // We don't care about ones where the samples are all equal
-                        if (buffer.Length == 0 || buffer.All(s => s == buffer[0]))
-                        {
-                            // So we skip steps here
-                            Interlocked.Add(ref progress, stepsPerFile - 1);
-                            return null;
-                        }
-
-                        if (highPassFrequency > 0)
-                        {
-                            // Apply the high pass filter
-                            var filter = BiQuadFilter.HighPassFilter(reader.WaveFormat.SampleRate, highPassFrequency, 1);
-                            for (int i = 0; i < buffer.Length; ++i)
-                            {
-                                buffer[i] = filter.Transform(buffer[i]);
-                            }
-
-                            Interlocked.Increment(ref progress);
-                        }
-
-                        var trackGain = new TrackGain(reader.WaveFormat.SampleRate);
-                        if (replayGainChannels)
-                        {
-                            // We do want to do some analysis here...
-                            trackGain.AnalyzeSamples(buffer, buffer);
-                            Interlocked.Increment(ref progress);
-                        }
-
-                        return new {Data = buffer, TrackGain = trackGain};
+                        // So we skip steps here
+                        reader.Dispose();
+                        Interlocked.Add(ref progress, stepsPerFile - 1);
+                        return null;
                     }
+
+                    if (highPassFrequency > 0)
+                    {
+                        // Apply the high pass filter
+                        var filter = BiQuadFilter.HighPassFilter(reader.WaveFormat.SampleRate, highPassFrequency, 1);
+                        for (int i = 0; i < buffer.Length; ++i)
+                        {
+                            buffer[i] = filter.Transform(buffer[i]);
+                        }
+
+                        Interlocked.Increment(ref progress);
+                    }
+
+                    float max = float.MinValue;
+                    foreach (var sample in buffer)
+                    {
+                        max = Math.Max(max, Math.Abs(sample));
+                    }
+
+                    return new {Data = buffer, WavReader = reader, Max = max};
                 }).Where(ch => ch != null).ToList();
 
-                if (replayGainChannels)
+                if (autoScale > 0)
                 {
-                    // Then normalize...
-                    var totalGain = new AlbumGain();
-                    foreach (var channel in channels)
-                    {
-                        totalGain.AppendTrackData(channel.TrackGain);
-                    }
-
-                    var gain = totalGain.GetGain();
-
-                    // We convert the gain from DB to a multiplier.
-                    scale *= (float)Math.Pow(10, gain / 20);
-                }
-
-                // ...and we apply it
-                if (scale != 1)
-                {
+                    // Calculate the scaling
+                    float multiplier = autoScale / channels.Max(channel => channel.Max);
+                    // ...and we apply it
                     channels.AsParallel().Select(channel => channel.Data).ForAll(samples =>
                     {
                         for (int i = 0; i < samples.Length; ++i)
                         {
-                            samples[i] *= scale;
+                            samples[i] *= multiplier;
                         }
 
                         Interlocked.Increment(ref progress);
                     });
                 }
 
-                return channels.Select(channel => channel.Data).ToList();
+                return channels.ToList();
             });
 
             while (!loadTask.IsCompleted)
@@ -192,10 +182,46 @@ namespace SidWiz
                 waitForm.Progress("Reading data...", (double) progress / totalProgress);
             }
 
-            var voiceData = loadTask.Result;
+            var voiceData = loadTask.Result.Select(channel => channel.Data).ToList();
 
             waitForm.Close();
-            Enabled = true;
+
+            // Emit normalised data to a WAV file for later mixing
+            if (masterAudioFilename == null)
+            {
+                // Generate a temp filename
+                masterAudioFilename = filename + ".wav";
+                // Mix the audio. We should probably not be re-reading it here... should do this in one pass.
+                foreach (var reader in loadTask.Result.Select(channel => channel.WavReader))
+                {
+                    reader.Position = 0;
+                }
+                var mixer = new MixingSampleProvider(loadTask.Result.Select(channel => channel.WavReader.ToSampleProvider()));
+                var length = (int) loadTask.Result.Max(channel => channel.WavReader.SampleCount);
+                var mixedData = new float[length * mixer.WaveFormat.Channels];
+                mixer.Read(mixedData, 0, mixedData.Length);
+                // Then we want to deinterleave it
+                var leftChannel = new float[length];
+                var rightChannel = new float[length];
+                for (int i = 0; i < length; ++i)
+                {
+                    leftChannel[i] = mixedData[i * 2];
+                    rightChannel[i] = mixedData[i * 2 + 1];
+                }
+                // Then Replay Gain it
+                var replayGain = new TrackGain(sampleRate);
+                replayGain.AnalyzeSamples(leftChannel, rightChannel);
+                float multiplier = (float)Math.Pow(10, replayGain.GetGain() / 20);
+                Debug.WriteLine($"ReplayGain multiplier is {multiplier}");
+                // And apply it
+                for (int i = 0; i < length; ++i)
+                {
+                    mixedData[i] *= multiplier;
+                }
+                WaveFileWriter.CreateWaveFile(
+                    masterAudioFilename, 
+                    new FloatArraySampleProvider(mixedData, sampleRate).ToWaveProvider());
+            }
 
             var backgroundImage = new BackgroundRenderer(width, height, Color.Black);
             if (background != null)
@@ -219,7 +245,7 @@ namespace SidWiz
                 var info = Gd3Parser.GetTagInfo(vgmFile);
                 if (info.Length > 0)
                 {
-                    backgroundImage.Add(new TextInfo(info, "Arial", 16, ContentAlignment.BottomLeft, FontStyle.Regular,
+                    backgroundImage.Add(new TextInfo(info, "Tahoma", 16, ContentAlignment.BottomLeft, FontStyle.Regular,
                         DockStyle.Bottom, Color.White));
                 }
             }
@@ -227,24 +253,24 @@ namespace SidWiz
             var renderer = new WaveformRenderer
             {
                 BackgroundImage = backgroundImage.Image,
-                Columns = (int) numColumns.Value,
+                Columns = numColumns,
                 FramesPerSecond = fps,
                 Width = width,
                 Height = height,
                 SamplingRate = sampleRate,
-                RenderedLineWidthInSamples = viewSamp,
+                RenderedLineWidthInSamples = viewSamples,
                 RenderingBounds = backgroundImage.WaveArea
             };
 
             foreach (var channel in voiceData)
             {
-                renderer.AddChannel(new Channel(channel, Color.White, 3, "", new PeakSpeedTrigger()));
+                renderer.AddChannel(new Channel(channel, Color.White, 3, "", Activator.CreateInstance(triggerAlgorithm) as ITriggerAlgorithm));
             }
 
             var outputs = new List<IGraphicsOutput>();
-            if (_ffPath != null)
+            if (ffMpegPath != null)
             {
-                outputs.Add(new FfmpegOutput(_ffPath, filename, width, height, fps, ffOutArgs.Text, filenames));
+                outputs.Add(new FfmpegOutput(ffMpegPath, filename, width, height, fps, ffMpegExtraArgs, masterAudioFilename));
             }
 
             if (previewFrameskip > 0)
@@ -267,12 +293,7 @@ namespace SidWiz
                     graphicsOutput.Dispose();
                 }
             }
-
-            Start.Enabled = true; //you can click start again. this was causing some fun problems ;)
         }
-
-//------end of start button click
-
 
         //populates cmbClr boxes with a list of every color - sorts by hue and sat/bright 
         private void Form1_Load(object sender, EventArgs e)
@@ -332,12 +353,14 @@ namespace SidWiz
             string multidumper = null;
             int previewFrameskip = 0;
             double highPassFrequency = -1;
-            bool replayGainChannels = true;
             double scale = 1.0;
             IList<string> inputWavs = null;
+            Type triggerAlgorithm = typeof(PeakSpeedTrigger);
+            float autoScale = -1;
+            string masterAudioFile = null;
             for (int i = 0; i < _args.Length - 1; i += 2)
             {
-                var arg = _args[i];
+                var arg = _args[i].ToLowerInvariant();
                 var value = _args[i + 1];
                 switch (arg)
                 {
@@ -348,13 +371,16 @@ namespace SidWiz
                         ffOutArgs.Text = value;
                         break;
                     case "--numvoices":
-                        numVoices.Value = Convert.ToInt32(value);
+                        numVoices.Value = int.Parse(value);
                         break;
                     case "--columns":
-                        numColumns.Value = Convert.ToInt32(value);
+                        numColumns.Value = int.Parse(value);
                         break;
                     case "--samples":
                         samplesTextBox.Text = value;
+                        break;
+                    case "--fps":
+                        numFps.Value = int.Parse(value);
                         break;
                     case "--width":
                         widthTextBox.Text = value;
@@ -382,16 +408,27 @@ namespace SidWiz
                         multidumper = value;
                         break;
                     case "--previewframeskip":
-                        previewFrameskip = Convert.ToInt32(value);
+                        previewFrameskip = int.Parse(value);
                         break;
                     case "--highpassfilter":
                         highPassFrequency = Convert.ToDouble(value);
                         break;
-                    case "--replaygainchannels":
-                        replayGainChannels = Convert.ToBoolean(value);
-                        break;
                     case "--scale":
                         scale = Convert.ToDouble(value);
+                        break;
+                    case "--triggeralgorithm":
+                        triggerAlgorithm = AppDomain.CurrentDomain
+                            .GetAssemblies()
+                            .SelectMany(a => a.GetTypes())
+                            .FirstOrDefault(t => 
+                                typeof(ITriggerAlgorithm).IsAssignableFrom(t) &&
+                                t.Name.ToLowerInvariant().Equals(value.ToLowerInvariant()));
+                        break;
+                    case "--autoscale":
+                        autoScale = float.Parse(value) / 100;
+                        break;
+                    case "--masteraudio":
+                        masterAudioFile = value;
                         break;
                 }
             }
@@ -427,8 +464,25 @@ namespace SidWiz
 
             if (destFile != null)
             {
-                go(destFile, inputWavs, Convert.ToInt32(widthTextBox.Text), Convert.ToInt32(heightTextBox.Text),
-                    Convert.ToInt32(numFps.Value), background, logo, vgmfile, previewFrameskip, (float)highPassFrequency, replayGainChannels, (float)scale);
+                Go(
+                    destFile, 
+                    inputWavs, 
+                    int.Parse(widthTextBox.Text), 
+                    int.Parse(heightTextBox.Text),
+                    (int)numFps.Value, 
+                    background, 
+                    logo, 
+                    vgmfile, 
+                    previewFrameskip, 
+                    (float)highPassFrequency, 
+                    (float)scale, 
+                    triggerAlgorithm,
+                    int.Parse(samplesTextBox.Text),
+                    int.Parse(numColumns.Text),
+                    _ffPath,
+                    ffOutArgs.Text,
+                    masterAudioFile,
+                    autoScale);
                 Close();
             }
             else if (inputWavs != null)
@@ -524,8 +578,6 @@ namespace SidWiz
         private void Stop_Click(object sender, EventArgs e)
         {
             Start.Enabled = true;
-            _frm.toolStripStatusLabel2.Text = "Ready";
-            _frm.Close();
         }
 
         private void checkBox1_CheckedChanged(object sender, EventArgs e)
@@ -678,5 +730,42 @@ namespace SidWiz
                 }
             }
         }
+    }
+
+    internal class FloatArraySampleProvider : ISampleProvider
+    {
+        private readonly float[] _data;
+        private int _index;
+
+        public FloatArraySampleProvider(float[] data, int samplingRate)
+        {
+            _data = data;
+            _index = 0;
+            WaveFormat = WaveFormat.CreateIeeeFloatWaveFormat(samplingRate, 2);
+        }
+
+        public int Read(float[] buffer, int offset, int count)
+        {
+            offset += _index;
+            count = Math.Min(_data.Length - offset, count);
+            if (count > 0)
+            {
+                // Array.Copy(_data, offset, buffer, 0, count);
+                // Can't use Array.Copy here because NAudio is cheating under the covers by having arrays of different types "pointing" at the same memory
+                for (int i = 0; i < count; ++i)
+                {
+                    buffer[i] = _data[offset + i];
+                }
+            }
+            else
+            {
+                count = 0;
+            }
+
+            _index += count;
+            return count;
+        }
+
+        public WaveFormat WaveFormat { get; }
     }
 }
