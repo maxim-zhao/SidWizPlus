@@ -211,10 +211,10 @@ namespace SidWiz
                 // Then Replay Gain it
                 var replayGain = new TrackGain(sampleRate);
                 replayGain.AnalyzeSamples(leftChannel, rightChannel);
-                float multiplier = (float)Math.Pow(10, replayGain.GetGain() / 20);
+                float multiplier = (float)Math.Pow(10, (replayGain.GetGain() + 3) / 20);
                 Debug.WriteLine($"ReplayGain multiplier is {multiplier}");
                 // And apply it
-                for (int i = 0; i < length; ++i)
+                for (int i = 0; i < mixedData.Length; ++i)
                 {
                     mixedData[i] *= multiplier;
                 }
