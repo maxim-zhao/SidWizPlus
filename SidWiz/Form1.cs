@@ -5,7 +5,9 @@ using System.Linq;
 using System.Windows.Forms;
 using System.Reflection;
 using System.Diagnostics;
+using System.Globalization;
 using System.IO;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using NAudio.Dsp;
@@ -74,7 +76,8 @@ namespace SidWiz
                     ffMpegPath: _ffPath,
                     ffMpegExtraArgs: ffOutArgs.Text, 
                     masterAudioFilename: null,
-                    autoScale: -1);
+                    autoScale: -1, 
+                    gridColor: Color.Empty);
             }
             finally
             {
@@ -96,7 +99,7 @@ namespace SidWiz
             string background,
             string logo, string vgmFile, int previewFrameskip, float highPassFrequency, float scale,
             Type triggerAlgorithm, int viewSamples, int numColumns, string ffMpegPath, string ffMpegExtraArgs,
-            string masterAudioFilename, float autoScale)
+            string masterAudioFilename, float autoScale, Color gridColor)
         {
             filename = Path.GetFullPath(filename);
             var waitForm = new WaitForm();
@@ -259,7 +262,8 @@ namespace SidWiz
                 Height = height,
                 SamplingRate = sampleRate,
                 RenderedLineWidthInSamples = viewSamples,
-                RenderingBounds = backgroundImage.WaveArea
+                RenderingBounds = backgroundImage.WaveArea,
+                GridColor = gridColor
             };
 
             foreach (var channel in voiceData)
@@ -358,6 +362,7 @@ namespace SidWiz
             Type triggerAlgorithm = typeof(PeakSpeedTrigger);
             float autoScale = -1;
             string masterAudioFile = null;
+            Color gridColor = Color.Empty;
             for (int i = 0; i < _args.Length - 1; i += 2)
             {
                 var arg = _args[i].ToLowerInvariant();
@@ -430,6 +435,9 @@ namespace SidWiz
                     case "--masteraudio":
                         masterAudioFile = value;
                         break;
+                    case "--gridcolor":
+                        gridColor = ParseColor(value);
+                        break;
                 }
             }
 
@@ -482,7 +490,8 @@ namespace SidWiz
                     _ffPath,
                     ffOutArgs.Text,
                     masterAudioFile,
-                    autoScale);
+                    autoScale,
+                    gridColor);
                 Close();
             }
             else if (inputWavs != null)
@@ -495,6 +504,43 @@ namespace SidWiz
                     numVoices.Value = groupBox3.Controls.OfType<TextBox>().Count(c => c.Text.Length > 0);
                 }
             }
+        }
+
+        private Color ParseColor(string value)
+        {
+            // If it looks like hex, use that.
+            // We support 3, 6 or 8 hex chars.
+            var match = Regex.Match(value, "^#?(?<hex>[0-9a-fA-F]{3}([0-9a-fA-F]{3})?([0-9a-fA-F]{2})?)$");
+            if (match.Success)
+            {
+                var hex = match.Groups["hex"].Value;
+                if (hex.Length == 3)
+                {
+                    hex = $"{hex[0]}{hex[0]}{hex[1]}{hex[1]}{hex[2]}{hex[2]}";
+                }
+
+                if (hex.Length == 6)
+                {
+                    hex = "ff" + hex;
+                }
+                int alpha = Convert.ToInt32(hex.Substring(0, 2), 16);
+                int red = Convert.ToInt32(hex.Substring(2, 2), 16);
+                int green = Convert.ToInt32(hex.Substring(4, 2), 16);
+                int blue = Convert.ToInt32(hex.Substring(6, 2), 16);
+                return Color.FromArgb(alpha, red, green, blue);
+            }
+            // Then try named colors
+            var property = typeof(Color)
+                .GetProperties(BindingFlags.Static | BindingFlags.DeclaredOnly | BindingFlags.Public)
+                .FirstOrDefault(p =>
+                    p.PropertyType == typeof(Color) &&
+                    p.Name.Equals(value, StringComparison.InvariantCultureIgnoreCase));
+            if (property == null)
+            {
+                throw new Exception($"Could not parse colour {value}");
+            }
+
+            return (Color)property.GetValue(null);
         }
 
         //references sender, so only need this one. Draws the color rectangles in cmbClr boxes.

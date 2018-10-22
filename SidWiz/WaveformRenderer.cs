@@ -24,6 +24,7 @@ namespace SidWiz
         public Color BackgroundColor { get; set; } = Color.Black;
         public Image BackgroundImage { get; set; }
         public Rectangle RenderingBounds { get; set; }
+        public Color GridColor { get; set; }
 
         public void AddChannel(Channel channel)
         {
@@ -33,6 +34,16 @@ namespace SidWiz
         public void Render(IList<IGraphicsOutput> outputs)
         {
             int sampleLength = _channels.Max(c => c.Samples.Count);
+
+            var renderingBounds = RenderingBounds;
+            if (renderingBounds.Width == 0 || renderingBounds.Height == 0)
+            {
+                // Default to no bounds
+                renderingBounds = new Rectangle(0, 0, Width, Height);
+            }
+
+            int viewWidth = renderingBounds.Width / Columns;
+            int viewHeight = renderingBounds.Height / (int)Math.Ceiling((double)_channels.Count / Columns);
 
             // We generate our "base image"
             var template = new Bitmap(Width, Height, PixelFormat.Format24bppRgb);
@@ -51,13 +62,29 @@ namespace SidWiz
                         g.FillRectangle(brush, 0, 0, Width, Height);
                     }
                 }
-            }
 
-            var renderingBounds = RenderingBounds;
-            if (renderingBounds.Width == 0 || renderingBounds.Height == 0)
-            {
-                // Default to no bounds
-                renderingBounds = new Rectangle(0, 0, Width, Height);
+                if (GridColor != Color.Empty)
+                {
+                    using (var pen = new Pen(GridColor))
+                    {
+                        // Verticals
+                        for (int c = 1; c < Columns; ++c)
+                        {
+                            g.DrawLine(
+                                pen, 
+                                renderingBounds.Left + viewWidth * c, renderingBounds.Top, 
+                                renderingBounds.Left + viewWidth * c, renderingBounds.Bottom);
+                        }
+                        // Horizontals
+                        for (int r = 1; r < _channels.Count / Columns; ++r)
+                        {
+                            g.DrawLine(
+                                pen, 
+                                renderingBounds.Left, renderingBounds.Top + viewHeight * r,
+                                renderingBounds.Right, renderingBounds.Top + viewHeight * r);
+                        }
+                    }
+                }
             }
 
             // This is the raw data buffer we use to store the generated image.
@@ -74,8 +101,6 @@ namespace SidWiz
                 var pens = _channels.Select(c => new Pen(c.Color, c.LineWidth) {MiterLimit = c.LineWidth, LineJoin = LineJoin.Bevel}).ToList();
 
                 int numFrames = sampleLength * FramesPerSecond / SamplingRate;
-                int viewWidth = renderingBounds.Width / Columns;
-                int viewHeight = renderingBounds.Height / (int)Math.Ceiling((double)_channels.Count / Columns);
                 var points = new PointF[viewWidth];
 
                 for (int frameIndex = 0; frameIndex < numFrames; ++frameIndex)
