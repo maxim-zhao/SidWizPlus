@@ -78,7 +78,8 @@ namespace SidWiz
                     autoScale: -1, 
                     gridColor: Color.Empty, gridWidth: 0, gridOuter: false, 
                     zeroLineColor: Color.Empty, 
-                    zeroLineWidth: 0);
+                    zeroLineWidth: 0, 
+                    lineWidth: 3);
             }
             finally
             {
@@ -101,7 +102,7 @@ namespace SidWiz
             string logo, string vgmFile, int previewFrameskip, float highPassFrequency, float scale,
             Type triggerAlgorithm, int viewSamples, int numColumns, string ffMpegPath, string ffMpegExtraArgs,
             string masterAudioFilename, float autoScale, Color gridColor, float gridWidth, bool gridOuter,
-            Color zeroLineColor, float zeroLineWidth)
+            Color zeroLineColor, float zeroLineWidth, float lineWidth)
         {
             filename = Path.GetFullPath(filename);
             var waitForm = new WaitForm();
@@ -224,6 +225,7 @@ namespace SidWiz
                     rightChannel[i] = mixedData[i * 2 + 1];
                 }
                 // Then Replay Gain it
+                // The +3 is to make it at "YouTube loudness", which is a lot louder than ReplayGain defaults to.
                 var replayGain = new TrackGain(sampleRate);
                 replayGain.AnalyzeSamples(leftChannel, rightChannel);
                 float multiplier = (float)Math.Pow(10, (replayGain.GetGain() + 3) / 20);
@@ -297,7 +299,7 @@ namespace SidWiz
 
             foreach (var channel in voiceData)
             {
-                renderer.AddChannel(new Channel(channel, Color.White, 3, "Hello world", Activator.CreateInstance(triggerAlgorithm) as ITriggerAlgorithm));
+                renderer.AddChannel(new Channel(channel, Color.White, lineWidth, "Hello world", Activator.CreateInstance(triggerAlgorithm) as ITriggerAlgorithm));
             }
 
             var outputs = new List<IGraphicsOutput>();
@@ -396,6 +398,7 @@ namespace SidWiz
             bool gridOuter = false;
             Color zeroLineColor = Color.Empty;
             float zeroLineWidth = 1;
+            float lineWidth = 3;
             for (int i = 0; i < _args.Length - 1; i += 2)
             {
                 var arg = _args[i].ToLowerInvariant();
@@ -483,6 +486,9 @@ namespace SidWiz
                     case "--zerolinewidth":
                         zeroLineWidth = float.Parse(value);
                         break;
+                    case "--linewidth":
+                        lineWidth = float.Parse(value);
+                        break;
                 }
             }
 
@@ -542,7 +548,8 @@ namespace SidWiz
                     gridWidth, 
                     gridOuter,
                     zeroLineColor,
-                    zeroLineWidth);
+                    zeroLineWidth,
+                    lineWidth);
                 Close();
             }
             else if (inputWavs != null)
