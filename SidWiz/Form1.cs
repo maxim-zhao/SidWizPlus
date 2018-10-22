@@ -259,10 +259,11 @@ namespace SidWiz
 
             if (vgmFile != null)
             {
-                var info = Gd3Parser.GetTagInfo(vgmFile);
-                if (info.Length > 0)
+                var gd3 = Gd3Tag.LoadFromVgm(vgmFile);
+                var gd3Text = gd3.ToString();
+                if (gd3Text.Length > 0)
                 {
-                    backgroundImage.Add(new TextInfo(info, "Tahoma", 16, ContentAlignment.BottomLeft, FontStyle.Regular,
+                    backgroundImage.Add(new TextInfo(gd3Text, "Tahoma", 16, ContentAlignment.BottomLeft, FontStyle.Regular,
                         DockStyle.Bottom, Color.White));
                 }
             }

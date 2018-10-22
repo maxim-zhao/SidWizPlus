@@ -80,7 +80,7 @@
     <Compile Include="Form3.Designer.cs">
       <DependentUpon>Form3.cs</DependentUpon>
     </Compile>
-    <Compile Include="GD3Parser.cs" />
+    <Compile Include="Gd3Tag.cs" />
     <Compile Include="IGraphicsOutput.cs" />
     <Compile Include="ImageInfo.cs" />
     <Compile Include="Outputs\FfmpegOutput.cs" />
