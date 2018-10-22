@@ -77,7 +77,7 @@ namespace SidWiz
                     ffMpegExtraArgs: ffOutArgs.Text, 
                     masterAudioFilename: null,
                     autoScale: -1, 
-                    gridColor: Color.Empty);
+                    gridColor: Color.Empty, gridWidth: 0, gridOuter: false);
             }
             finally
             {
@@ -99,7 +99,7 @@ namespace SidWiz
             string background,
             string logo, string vgmFile, int previewFrameskip, float highPassFrequency, float scale,
             Type triggerAlgorithm, int viewSamples, int numColumns, string ffMpegPath, string ffMpegExtraArgs,
-            string masterAudioFilename, float autoScale, Color gridColor)
+            string masterAudioFilename, float autoScale, Color gridColor, float gridWidth, bool gridOuter)
         {
             filename = Path.GetFullPath(filename);
             var waitForm = new WaitForm();
@@ -262,9 +262,17 @@ namespace SidWiz
                 Height = height,
                 SamplingRate = sampleRate,
                 RenderedLineWidthInSamples = viewSamples,
-                RenderingBounds = backgroundImage.WaveArea,
-                GridColor = gridColor
+                RenderingBounds = backgroundImage.WaveArea
             };
+            if (gridColor != Color.Empty && gridWidth > 0)
+            {
+                renderer.Grid = new WaveformRenderer.GridConfig
+                {
+                    Color = gridColor,
+                    Width = gridWidth,
+                    IncludeOuter = gridOuter
+                };
+            }
 
             foreach (var channel in voiceData)
             {
@@ -363,6 +371,8 @@ namespace SidWiz
             float autoScale = -1;
             string masterAudioFile = null;
             Color gridColor = Color.Empty;
+            float gridWidth = 3;
+            bool gridOuter = false;
             for (int i = 0; i < _args.Length - 1; i += 2)
             {
                 var arg = _args[i].ToLowerInvariant();
@@ -438,6 +448,12 @@ namespace SidWiz
                     case "--gridcolor":
                         gridColor = ParseColor(value);
                         break;
+                    case "--gridwidth":
+                        gridWidth = float.Parse(value);
+                        break;
+                    case "--gridouter":
+                        gridOuter = value == "1" || value.ToLowerInvariant().StartsWith("t");
+                        break;
                 }
             }
 
@@ -491,7 +507,9 @@ namespace SidWiz
                     ffOutArgs.Text,
                     masterAudioFile,
                     autoScale,
-                    gridColor);
+                    gridColor, 
+                    gridWidth, 
+                    gridOuter);
                 Close();
             }
             else if (inputWavs != null)

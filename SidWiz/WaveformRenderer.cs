@@ -24,7 +24,14 @@ namespace SidWiz
         public Color BackgroundColor { get; set; } = Color.Black;
         public Image BackgroundImage { get; set; }
         public Rectangle RenderingBounds { get; set; }
-        public Color GridColor { get; set; }
+        public GridConfig Grid { get; set; }
+
+        public class GridConfig
+        {
+            public Color Color { get; set; }
+            public float Width { get; set; }
+            public bool IncludeOuter { get; set; }
+        }
 
         public void AddChannel(Channel channel)
         {
@@ -63,9 +70,9 @@ namespace SidWiz
                     }
                 }
 
-                if (GridColor != Color.Empty)
+                if (Grid != null)
                 {
-                    using (var pen = new Pen(GridColor))
+                    using (var pen = new Pen(Grid.Color, Grid.Width))
                     {
                         // Verticals
                         for (int c = 1; c < Columns; ++c)
@@ -82,6 +89,11 @@ namespace SidWiz
                                 pen, 
                                 renderingBounds.Left, renderingBounds.Top + viewHeight * r,
                                 renderingBounds.Right, renderingBounds.Top + viewHeight * r);
+                        }
+
+                        if (Grid.IncludeOuter)
+                        {
+                            g.DrawRectangle(pen, renderingBounds);
                         }
                     }
                 }
