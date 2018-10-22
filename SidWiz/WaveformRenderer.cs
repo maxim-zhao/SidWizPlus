@@ -25,6 +25,7 @@ namespace SidWiz
         public Image BackgroundImage { get; set; }
         public Rectangle RenderingBounds { get; set; }
         public GridConfig Grid { get; set; }
+        public ZeroLineConfig ZeroLine { get; set; }
 
         public class GridConfig
         {
@@ -56,6 +57,9 @@ namespace SidWiz
             var template = new Bitmap(Width, Height, PixelFormat.Format24bppRgb);
             using (var g = Graphics.FromImage(template))
             {
+                g.SmoothingMode = SmoothingMode.HighQuality;
+                g.InterpolationMode = InterpolationMode.HighQualityBicubic;
+
                 if (BackgroundImage != null)
                 {
                     // Fill with the background image
@@ -94,6 +98,22 @@ namespace SidWiz
                         if (Grid.IncludeOuter)
                         {
                             g.DrawRectangle(pen, renderingBounds);
+                        }
+                    }
+                }
+
+                if (ZeroLine != null)
+                {
+                    using (var pen = new Pen(ZeroLine.Color, ZeroLine.Width))
+                    {
+                        for (int channelIndex = 0; channelIndex < _channels.Count; ++channelIndex)
+                        {
+                            // Compute the initial x, y to render the line from.
+                            var yBase = renderingBounds.Top + channelIndex / Columns * viewHeight + viewHeight / 2;
+                            var xBase = renderingBounds.Left + (channelIndex % Columns) * renderingBounds.Width / Columns ;
+
+                            // Draw the zero line
+                            g.DrawLine(pen, xBase, yBase, xBase + viewWidth, yBase);
                         }
                     }
                 }
@@ -168,6 +188,12 @@ namespace SidWiz
             }
 
             pinnedArray.Free();
+        }
+
+        public class ZeroLineConfig
+        {
+            public Color Color { get; set; }
+            public float Width { get; set; }
         }
     }
 }

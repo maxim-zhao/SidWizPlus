@@ -61,6 +61,7 @@
   <ItemGroup>
     <Compile Include="BackgroundRenderer.cs" />
     <Compile Include="Channel.cs" />
+    <Compile Include="Extensions.cs" />
     <Compile Include="Form1.cs">
       <SubType>Form</SubType>
     </Compile>

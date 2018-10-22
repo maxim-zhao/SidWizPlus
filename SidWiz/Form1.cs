@@ -5,7 +5,6 @@ using System.Linq;
 using System.Windows.Forms;
 using System.Reflection;
 using System.Diagnostics;
-using System.Globalization;
 using System.IO;
 using System.Text.RegularExpressions;
 using System.Threading;
@@ -77,7 +76,9 @@ namespace SidWiz
                     ffMpegExtraArgs: ffOutArgs.Text, 
                     masterAudioFilename: null,
                     autoScale: -1, 
-                    gridColor: Color.Empty, gridWidth: 0, gridOuter: false);
+                    gridColor: Color.Empty, gridWidth: 0, gridOuter: false, 
+                    zeroLineColor: Color.Empty, 
+                    zeroLineWidth: 0);
             }
             finally
             {
@@ -99,7 +100,8 @@ namespace SidWiz
             string background,
             string logo, string vgmFile, int previewFrameskip, float highPassFrequency, float scale,
             Type triggerAlgorithm, int viewSamples, int numColumns, string ffMpegPath, string ffMpegExtraArgs,
-            string masterAudioFilename, float autoScale, Color gridColor, float gridWidth, bool gridOuter)
+            string masterAudioFilename, float autoScale, Color gridColor, float gridWidth, bool gridOuter,
+            Color zeroLineColor, float zeroLineWidth)
         {
             filename = Path.GetFullPath(filename);
             var waitForm = new WaitForm();
@@ -159,10 +161,20 @@ namespace SidWiz
                     return new {Data = buffer, WavReader = reader, Max = max};
                 }).Where(ch => ch != null).ToList();
 
-                if (autoScale > 0)
+                if (autoScale > 0 || scale > 1)
                 {
-                    // Calculate the scaling
-                    float multiplier = autoScale / channels.Max(channel => channel.Max);
+                    // Calculate the multiplier
+                    float multiplier = 1.0f;
+                    if (autoScale > 0)
+                    {
+                        multiplier = autoScale / channels.Max(channel => channel.Max);
+                    }
+
+                    if (scale > 1)
+                    {
+                        multiplier *= scale;
+                    }
+
                     // ...and we apply it
                     channels.AsParallel().Select(channel => channel.Data).ForAll(samples =>
                     {
@@ -274,9 +286,18 @@ namespace SidWiz
                 };
             }
 
+            if (zeroLineColor != Color.Empty && zeroLineWidth > 0)
+            {
+                renderer.ZeroLine = new WaveformRenderer.ZeroLineConfig
+                {
+                    Color = zeroLineColor,
+                    Width = zeroLineWidth
+                };
+            }
+
             foreach (var channel in voiceData)
             {
-                renderer.AddChannel(new Channel(channel, Color.White, 3, "", Activator.CreateInstance(triggerAlgorithm) as ITriggerAlgorithm));
+                renderer.AddChannel(new Channel(channel, Color.White, 3, "Hello world", Activator.CreateInstance(triggerAlgorithm) as ITriggerAlgorithm));
             }
 
             var outputs = new List<IGraphicsOutput>();
@@ -373,6 +394,8 @@ namespace SidWiz
             Color gridColor = Color.Empty;
             float gridWidth = 3;
             bool gridOuter = false;
+            Color zeroLineColor = Color.Empty;
+            float zeroLineWidth = 1;
             for (int i = 0; i < _args.Length - 1; i += 2)
             {
                 var arg = _args[i].ToLowerInvariant();
@@ -454,6 +477,12 @@ namespace SidWiz
                     case "--gridouter":
                         gridOuter = value == "1" || value.ToLowerInvariant().StartsWith("t");
                         break;
+                    case "--zerolinecolor":
+                        zeroLineColor = ParseColor(value);
+                        break;
+                    case "--zerolinewidth":
+                        zeroLineWidth = float.Parse(value);
+                        break;
                 }
             }
 
@@ -480,8 +509,10 @@ namespace SidWiz
 
                     // And try again
                     inputWavs = Directory.EnumerateFiles(
-                        Path.GetDirectoryName(vgmfile),
-                        Path.GetFileNameWithoutExtension(vgmfile) + " - *.wav").ToList();
+                            Path.GetDirectoryName(vgmfile),
+                            Path.GetFileNameWithoutExtension(vgmfile) + " - *.wav")
+                        .OrderByAlphaNumeric(s => s)
+                        .ToList();
                 }
             }
 
@@ -509,7 +540,9 @@ namespace SidWiz
                     autoScale,
                     gridColor, 
                     gridWidth, 
-                    gridOuter);
+                    gridOuter,
+                    zeroLineColor,
+                    zeroLineWidth);
                 Close();
             }
             else if (inputWavs != null)
