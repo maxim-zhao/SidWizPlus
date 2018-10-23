@@ -92,6 +92,13 @@ namespace SidWizPlus
             [Option("zerolinewith", HelpText = "Zero line width", DefaultValue = 0)]
             public float ZeroLineWidth { get; set; }
 
+            [Option("gd3font", HelpText = "Font for GD3 info", DefaultValue = "Tahoma")]
+            public string Gd3Font { get; set; }
+            [Option("gd3fontsize", HelpText = "Font size (in points) for GD3 info", DefaultValue = 16)]
+            public float Gd3FontSize { get; set; }
+            [Option("gd3fontcolor", HelpText = "Font colour for GD3 info", DefaultValue = "white")]
+            public string Gd3FontColor { get; set; }
+
             [HelpOption]
             public string GetUsage()
             {
@@ -282,8 +289,8 @@ namespace SidWizPlus
                 var gd3Text = gd3.ToString();
                 if (gd3Text.Length > 0)
                 {
-                    backgroundImage.Add(new TextInfo(gd3Text, "Tahoma", 16, ContentAlignment.BottomLeft, FontStyle.Regular,
-                        DockStyle.Bottom, Color.White));
+                    backgroundImage.Add(new TextInfo(gd3Text, settings.Gd3Font, settings.Gd3FontSize, ContentAlignment.BottomLeft, FontStyle.Regular,
+                        DockStyle.Bottom, ParseColor(settings.Gd3FontColor)));
                 }
             }
 
@@ -318,7 +325,7 @@ namespace SidWizPlus
                 };
             }
 
-            foreach (var channel in loader.SampleData)
+            foreach (var channel in loader.Data)
             {
                 renderer.AddChannel(new Channel(channel, Color.White, settings.LineWidth, "Hello world", CreateTriggerAlgorithm(settings.TriggerAlgorithm)));
             }
