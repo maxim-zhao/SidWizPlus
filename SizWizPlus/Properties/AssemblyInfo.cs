@@ -6,11 +6,11 @@ using System.Runtime.InteropServices;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 [assembly: AssemblyTitle("SidWizPlus")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyDescription("Oscilloscope view generator")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("")]
+[assembly: AssemblyCompany("https://github.com/maxim-zhao/SidWiz")]
 [assembly: AssemblyProduct("SidWizPlus")]
-[assembly: AssemblyCopyright("Copyright ©  2018")]
+[assembly: AssemblyCopyright("Licenced under MIT Licence")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 

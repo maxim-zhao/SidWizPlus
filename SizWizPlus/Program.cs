@@ -9,6 +9,7 @@ using System.Reflection;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
 using CommandLine;
+using CommandLine.Text;
 using LibSidWiz;
 using LibSidWiz.Outputs;
 using LibSidWiz.Triggers;
@@ -23,13 +24,16 @@ namespace SidWizPlus
             [OptionList('f', "file", ' ', HelpText = "Input WAV files")] 
             public List<string> InputFiles { get; set; }
 
+            [Option('v', "vgm", Required = false, HelpText = "VGM file, if specified GD3 text is drawn")]
+            public string VgmFile { get; set; }
+
             [Option('m', "master", Required = false, HelpText = "Master audio file, if not specified then the inputs will be mixed to a new file")]
             public string MasterAudioFile { get; set; }
 
             [Option('o', "output", Required = false, HelpText = "Output file")]
             public string OutputFile { get; set; }
 
-            [Option('w', "width", Required = true, HelpText = "Width of image rendered", DefaultValue = 1024)]
+            [Option('w', "width", Required = false, HelpText = "Width of image rendered", DefaultValue = 1024)]
             public int Width { get; set; }
 
             [Option('h', "height", Required = false, HelpText = "Height of image rendered", DefaultValue = 720)]
@@ -47,30 +51,35 @@ namespace SidWizPlus
             [Option('l', "linewidth", Required = false, HelpText = "Line width", DefaultValue = 3)]
             public float LineWidth { get; set; }
 
+            [Option("highpassfilter", Required = false, HelpText = "Enable high pass filtering with the given value as the cutoff frequency. A value of 10 works well to remove DC offsets.")]
+            public float HighPassFilterFrequency { get; set; }
+
+            [Option('s', "scale", Required = false, HelpText = "Vertical scale factor. This is applied as a multiplier after auto scaling.")]
+            public float VerticalScaleMultiplier { get; set; }
+
+            [Option('a', "autoscale", Required = false, HelpText = "Automatic scaling percentage. A value of 100 will make the peak amplitude just fit in the rendered area.")]
+            public float AutoScalePercentage { get; set; }
+
+            [Option('t', "triggeralgorithm", Required = false, HelpText = "Trigger algorithm name", DefaultValue = nameof(PeakSpeedTrigger))]
+            public string TriggerAlgorithm { get; set; }
+
+            [Option('p', "previewframeskip", Required = false, HelpText = "Enable a preview window with the specified frameskip - higher values give faster rendering by not drawing every frame to the screen.")]
+            public int PreviewFrameskip { get; set; }
+
             [Option("ffmpeg", Required = false, HelpText = "Path to FFMPEG. If not given, no output is produced.")]
             public string FfMpegPath { get; set; }
             [Option("ffmpegoptions", Required = false, HelpText = "Extra commandline options for FFMPEG, e.g. to set the output format", DefaultValue = "")]
             public string FfMpegExtraOptions { get; set; }
 
-            [Option("background", Required = false, HelpText = "Background image, drawn transparently in the background")]
-            public string BackgroundImageFile { get; set; }
-            [Option("logo", Required = false, HelpText = "Logo image, drawn in the lower right")]
-            public string LogoImageFile { get; set; }
-            [Option('v', "vgm", Required = false, HelpText = "VGM file, if specified GD3 text is drawn")]
-            public string VgmFile { get; set; }
             [Option("multidumper", Required = false, HelpText = "Path to MultiDumper, if specified with --vgm and no --files then it will be invoked for the VGM")]
             public string MultidumperPath { get; set; }
-            [Option('p', "previewframeskip", Required = false, HelpText = "Enable a preview window with the specified frameskip - higher values give faster rendering by not drawing every frame to the screen.")]
-            public int PreviewFrameskip { get; set; }
-            [Option("highpassfilter", Required = false, HelpText = "Enable high pass filtering with the given value as the cutoff frequency. A value of 10 works well to remove DC offsets.")]
-            public float HighPassFilterFrequency { get; set; }
-            [Option('s', "scale", Required = false, HelpText = "Vertical scale factor. This is applied as a multiplier after auto scaling.")]
-            public float VerticalScaleMultiplier { get; set; }
-            [Option('a', "autoscale", Required = false, HelpText = "Automatic scaling percentage. A value of 100 will make the peak amplitude just fit in the rendered area.")]
-            public float AutoScalePercentage { get; set; }
-            [Option('t', "triggeralgorithm", Required = false, HelpText = "Trigger algorithm name", DefaultValue = nameof(PeakSpeedTrigger))]
-            public string TriggerAlgorithm { get; set; }
 
+            [Option("background", Required = false, HelpText = "Background image, drawn transparently in the background")]
+            public string BackgroundImageFile { get; set; }
+            
+            [Option("logo", Required = false, HelpText = "Logo image, drawn in the lower right")]
+            public string LogoImageFile { get; set; }
+            
             [Option("gridcolor", Required = false, HelpText = "Grid color, can be hex or a .net color name", DefaultValue = "white")]
             public string GridColor { get; set; }
             [Option("gridwidth", Required = false, HelpText = "Grid line width", DefaultValue = 0)]
@@ -82,6 +91,21 @@ namespace SidWizPlus
             public string ZeroLineColor { get; set; }
             [Option("zerolinewith", HelpText = "Zero line width", DefaultValue = 0)]
             public float ZeroLineWidth { get; set; }
+
+            [HelpOption]
+            public string GetUsage()
+            {
+                var help = new HelpText {
+                    Heading = new HeadingInfo("SidWizPlus", "0.5"),
+                    Copyright = new CopyrightInfo("Maxim", 2018),
+                    AdditionalNewLineAfterOption = false,
+                    AddDashesToOption = true,
+                    MaximumDisplayWidth = Console.WindowWidth
+                };
+                help.AddPreOptionsLine("Licensed under MIT License");
+                help.AddOptions(this);
+                return help;
+            }
         }
 
         static void Main(string[] args)
@@ -95,8 +119,9 @@ namespace SidWizPlus
                     x.IgnoreUnknownArguments = true;
                 }))
                 {
-                    if (!parser.ParseArgumentsStrict(args, settings))
+                    if (!parser.ParseArguments(args, settings))
                     {
+                        Console.Error.WriteLine(settings.GetUsage());
                         return;
                     }
                 }
@@ -115,6 +140,12 @@ namespace SidWizPlus
                         .ToList();
                 }
 
+                if (settings.InputFiles == null || !settings.InputFiles.Any())
+                {
+                    Console.Error.WriteLine(settings.GetUsage());
+                    throw new Exception("No inputs specified");
+                }
+
                 var loader = new AudioLoader
                 {
                     AutoScalePercentage = settings.AutoScalePercentage,
@@ -127,7 +158,7 @@ namespace SidWizPlus
             }
             catch (Exception e)
             {
-                Console.WriteLine($"Fatal: {e}");
+                Console.Error.WriteLine($"Fatal: {e}");
             }
         }
 
@@ -310,7 +341,7 @@ namespace SidWizPlus
                 renderer.Render(outputs);
                 sw.Stop();
                 int numFrames = (int) (loader.Length.TotalSeconds * settings.FramesPerSecond);
-                Console.WriteLine($"Rendering complete in {sw.Elapsed}, average {numFrames / sw.Elapsed.TotalSeconds:N} fps");
+                Console.WriteLine($"Rendering complete in {sw.Elapsed:g}, average {numFrames / sw.Elapsed.TotalSeconds:N} fps");
             }
             catch (Exception ex)
             {
