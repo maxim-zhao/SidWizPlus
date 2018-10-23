@@ -1,7 +1,7 @@
 ﻿using System;
 using NAudio.Wave;
 
-namespace SidWizPlus
+namespace LibSidWiz
 {
     internal class FloatArraySampleProvider : ISampleProvider
     {

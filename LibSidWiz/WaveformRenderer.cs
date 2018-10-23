@@ -174,13 +174,15 @@ namespace LibSidWiz
                         }
 
                         // Then draw them all in one go...
-                        //g.DrawLines(pens[channelIndex], points);
-
+                        g.DrawLines(pens[channelIndex], points);
+                        /*
+                        // This can do "filled paths" - maybe?
                         var path = new GraphicsPath();
                         path.AddLine(points[0].X, yBase, points[0].X, points[0].Y);
                         path.AddLines(points);
                         path.AddLine(points[points.Length-1].X, points[points.Length-1].Y, points[points.Length-1].X, yBase);
                         g.DrawPath(pens[channelIndex], path);
+                        */
                     }
 
                     // Emit

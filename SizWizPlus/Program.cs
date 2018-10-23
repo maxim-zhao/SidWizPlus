@@ -7,16 +7,11 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using CommandLine;
 using LibSidWiz;
 using LibSidWiz.Outputs;
 using LibSidWiz.Triggers;
-using NAudio.Dsp;
-using NAudio.Wave;
-using NAudio.Wave.SampleProviders;
-using NReplayGain;
 
 namespace SidWizPlus
 {
@@ -25,26 +20,38 @@ namespace SidWizPlus
         [SuppressMessage("ReSharper", "UnusedAutoPropertyAccessor.Local")]
         private class Settings
         {
+            [OptionList('f', "file", ' ', HelpText = "Input WAV files")] 
+            public List<string> InputFiles { get; set; }
+
+            [Option('m', "master", Required = false, HelpText = "Master audio file, if not specified then the inputs will be mixed to a new file")]
+            public string MasterAudioFile { get; set; }
+
+            [Option('o', "output", Required = false, HelpText = "Output file")]
+            public string OutputFile { get; set; }
+
             [Option('w', "width", Required = true, HelpText = "Width of image rendered", DefaultValue = 1024)]
             public int Width { get; set; }
+
             [Option('h', "height", Required = false, HelpText = "Height of image rendered", DefaultValue = 720)]
             public int Height { get; set; }
+
             [Option('c', "columns", Required = false, HelpText = "Number of columns to render", DefaultValue = 1)]
             public int Columns { get; set; }
+
             [Option("viewms", Required = false, HelpText = "Rendered view width in ms", DefaultValue = 35)]
             public int ViewWidthMs { get; set; }
+
             [Option('r', "fps", Required = false, HelpText = "Frame rate", DefaultValue = 60)]
             public int FramesPerSecond { get; set; }
+
             [Option('l', "linewidth", Required = false, HelpText = "Line width", DefaultValue = 3)]
             public float LineWidth { get; set; }
+
             [Option("ffmpeg", Required = false, HelpText = "Path to FFMPEG. If not given, no output is produced.")]
             public string FfMpegPath { get; set; }
             [Option("ffmpegoptions", Required = false, HelpText = "Extra commandline options for FFMPEG, e.g. to set the output format", DefaultValue = "")]
             public string FfMpegExtraOptions { get; set; }
-            [OptionList('f', "file", ' ', HelpText = "Input WAV files")] 
-            public List<string> InputFiles { get; set; }
-            [Option('o', "output", Required = false, HelpText = "Output file")]
-            public string OutputFile { get; set; }
+
             [Option("background", Required = false, HelpText = "Background image, drawn transparently in the background")]
             public string BackgroundImageFile { get; set; }
             [Option("logo", Required = false, HelpText = "Logo image, drawn in the lower right")]
@@ -63,8 +70,6 @@ namespace SidWizPlus
             public float AutoScalePercentage { get; set; }
             [Option('t', "triggeralgorithm", Required = false, HelpText = "Trigger algorithm name", DefaultValue = nameof(PeakSpeedTrigger))]
             public string TriggerAlgorithm { get; set; }
-            [Option('m', "master", Required = false, HelpText = "Master audio file, if not specified then the inputs will be mixed to a new file")]
-            public string MasterAudioFile { get; set; }
 
             [Option("gridcolor", Required = false, HelpText = "Grid color, can be hex or a .net color name", DefaultValue = "white")]
             public string GridColor { get; set; }
@@ -77,9 +82,6 @@ namespace SidWizPlus
             public string ZeroLineColor { get; set; }
             [Option("zerolinewith", HelpText = "Zero line width", DefaultValue = 0)]
             public float ZeroLineWidth { get; set; }
-
-            // These are not options...
-            public int SampleRate;
         }
 
         static void Main(string[] args)
@@ -99,7 +101,11 @@ namespace SidWizPlus
                     }
                 }
 
-                if (settings.InputFiles != null)
+                if (settings.InputFiles == null)
+                {
+                    RunMultiDumper(ref settings);
+                }
+                else
                 {
                     // We want to expand any wildcards in the input file list (and also fully qualify them)
                     settings.InputFiles = settings.InputFiles
@@ -109,11 +115,15 @@ namespace SidWizPlus
                         .ToList();
                 }
 
-                RunMultiDumper(ref settings);
+                var loader = new AudioLoader
+                {
+                    AutoScalePercentage = settings.AutoScalePercentage,
+                    HighPassFilterFrequency = settings.HighPassFilterFrequency,
+                    VerticalScaleMultiplier = settings.VerticalScaleMultiplier,
+                };
+                loader.LoadAudio(settings.InputFiles);
 
-                var channelData = LoadAudio(ref settings);
-
-                Render(settings, channelData);
+                Render(settings, loader);
             }
             catch (Exception e)
             {
@@ -160,197 +170,58 @@ namespace SidWizPlus
 
         private static void RunMultiDumper(ref Settings settings)
         {
-            if (settings.MultidumperPath != null && settings.VgmFile != null && settings.InputFiles == null)
+            if (settings.MultidumperPath == null || settings.VgmFile == null || settings.InputFiles != null)
             {
-                // We normalize the VGM path here because we need to know its directory...
-                settings.VgmFile = Path.GetFullPath(settings.VgmFile);
-                // Check if we have WAVs. Note that we use "natural" sorting to make sure 10 comes after 9.
+                return;
+            }
+            // We normalize the VGM path here because we need to know its directory...
+            settings.VgmFile = Path.GetFullPath(settings.VgmFile);
+            // Check if we have WAVs. Note that we use "natural" sorting to make sure 10 comes after 9.
+            settings.InputFiles = Directory.EnumerateFiles(
+                    Path.GetDirectoryName(settings.VgmFile),
+                    Path.GetFileNameWithoutExtension(settings.VgmFile) + " - *.wav")
+                .OrderByAlphaNumeric(s => s)
+                .ToList();
+            if (!settings.InputFiles.Any())
+            {
+                Console.Write("Running MultiDumper...");
+                // Let's run it
+                using (var p = Process.Start(new ProcessStartInfo
+                {
+                    FileName = settings.MultidumperPath,
+                    Arguments = $"\"{settings.VgmFile}\" 0",
+                    RedirectStandardOutput = true,
+                    UseShellExecute = false
+                }))
+                {
+                    // We don;t actually consume its stdout, we just want to have it not shown as it makes it much slower...
+                    p.BeginOutputReadLine();
+                    p.WaitForExit();
+                }
+                // And try again
                 settings.InputFiles = Directory.EnumerateFiles(
                         Path.GetDirectoryName(settings.VgmFile),
                         Path.GetFileNameWithoutExtension(settings.VgmFile) + " - *.wav")
                     .OrderByAlphaNumeric(s => s)
                     .ToList();
-                if (!settings.InputFiles.Any())
-                {
-                    Console.Write("Running MultiDumper...");
-                    // Let's run it
-                    using (var p = Process.Start(new ProcessStartInfo
-                    {
-                        FileName = settings.MultidumperPath,
-                        Arguments = $"\"{settings.VgmFile}\" 0",
-                        RedirectStandardOutput = true,
-                        UseShellExecute = false
-                    }))
-                    {
-                        // We don;t actually consume its stdout, we just want to have it not shown as it makes it much slower...
-                        p.BeginOutputReadLine();
-                        p.WaitForExit();
-                    }
-                    // And try again
-                    settings.InputFiles = Directory.EnumerateFiles(
-                            Path.GetDirectoryName(settings.VgmFile),
-                            Path.GetFileNameWithoutExtension(settings.VgmFile) + " - *.wav")
-                        .OrderByAlphaNumeric(s => s)
-                        .ToList();
-                    Console.WriteLine($" done. {settings.InputFiles.Count} files found.");
-                }
-                else
-                {
-                    Console.WriteLine($"Skipping MultiDumper as {settings.InputFiles.Count} files were already present.");
-                }
+                Console.WriteLine($" done. {settings.InputFiles.Count} files found.");
+            }
+            else
+            {
+                Console.WriteLine($"Skipping MultiDumper as {settings.InputFiles.Count} files were already present.");
             }
         }
 
-        private class ChannelData
+        private static void Render(Settings settings, AudioLoader loader)
         {
-            public float[] Data { get; set; }
-            public WaveFileReader WavReader { get; set; }
-            public float Max { get; set; }
-        }
-
-        private static List<ChannelData> LoadAudio(ref Settings settings)
-        {
-            // TODO need to move this into the lib
-            // TODO file load feedback for GUI?
-            Console.WriteLine("Loading audio files...");
-            using (var reader = new WaveFileReader(settings.InputFiles.First()))
+            if (settings.OutputFile != null)
             {
-                settings.SampleRate = reader.WaveFormat.SampleRate;
-            }
-
-            // ReSharper disable once CompareOfFloatsByEqualityOperator
-            // int stepsPerFile = 3 + (settings.HighPassFilterFrequency > 0 ? 1 : 0);
-            // int totalProgress = settings.InputFiles.Count * stepsPerFile;
-            // int progress = 0;
-
-            // We have to copy the reference to make it "safe" for threads
-            var settings1 = settings;
-            var loadTask = Task.Run(() =>
-            {
-                // Do a parallel read of all files
-                var channels = settings1.InputFiles.AsParallel().Select((wavFilename, channelIndex) =>
+                // Emit normalized data to a WAV file for later mixing
+                if (settings.MasterAudioFile == null)
                 {
-                    var filename = Path.GetFileName(wavFilename);
-                    Console.WriteLine($"- Reading {filename}");
-                    var reader = new WaveFileReader(wavFilename);
-                    var buffer = new float[reader.SampleCount];
-
-                    // We read the file and convert to mono
-                    reader.ToSampleProvider().ToMono().Read(buffer, 0, (int) reader.SampleCount);
-                    // Interlocked.Increment(ref progress);
-
-                    // We don't care about ones where the samples are all equal
-                    // ReSharper disable once CompareOfFloatsByEqualityOperator
-                    if (buffer.Length == 0 || buffer.All(s => s == buffer[0]))
-                    {
-                        Console.WriteLine($"- Skipping {filename} because it is silent");
-                        // So we skip steps here
-                        reader.Dispose();
-                        // Interlocked.Add(ref progress, stepsPerFile - 1);
-                        return null;
-                    }
-
-                    if (settings1.HighPassFilterFrequency > 0)
-                    {
-                        Console.WriteLine($"- High-pass filtering {filename}");
-                        // Apply the high pass filter
-                        var filter = BiQuadFilter.HighPassFilter(reader.WaveFormat.SampleRate, settings1.HighPassFilterFrequency, 1);
-                        for (int i = 0; i < buffer.Length; ++i)
-                        {
-                            buffer[i] = filter.Transform(buffer[i]);
-                        }
-
-                        // Interlocked.Increment(ref progress);
-                    }
-
-                    float max = float.MinValue;
-                    foreach (var sample in buffer)
-                    {
-                        max = Math.Max(max, Math.Abs(sample));
-                    }
-
-                    return new ChannelData{Data = buffer, WavReader = reader, Max = max};
-                }).Where(ch => ch != null).ToList();
-
-                if (settings1.AutoScalePercentage > 0 || settings1.VerticalScaleMultiplier > 1)
-                {
-                    // Calculate the multiplier
-                    float multiplier = 1.0f;
-                    if (settings1.AutoScalePercentage > 0)
-                    {
-                        multiplier = settings1.AutoScalePercentage / 100 / channels.Max(channel => channel.Max);
-                    }
-
-                    if (settings1.VerticalScaleMultiplier > 1)
-                    {
-                        multiplier *= settings1.VerticalScaleMultiplier;
-                    }
-
-                    // ...and we apply it
-                    Console.WriteLine($"- Applying scaling (x{multiplier:N})...");
-                    channels.AsParallel().Select(channel => channel.Data).ForAll(samples =>
-                    {
-                        for (int i = 0; i < samples.Length; ++i)
-                        {
-                            samples[i] *= multiplier;
-                        }
-
-                        // Interlocked.Increment(ref progress);
-                    });
+                    settings.MasterAudioFile = settings.OutputFile + ".wav";
+                    loader.MixToMaster(settings.MasterAudioFile);
                 }
-
-                return channels.ToList();
-            });
-
-            loadTask.Wait();
-
-            return loadTask.Result;
-        }
-
-        private static void Render(Settings settings, IReadOnlyCollection<ChannelData> channelData)
-        {
-            var outputFile = Path.GetFullPath(settings.OutputFile);
-
-            // Emit normalized data to a WAV file for later mixing
-            if (settings.MasterAudioFile == null)
-            {
-                Console.WriteLine("Mixing per-channel data...");
-                // Mix the audio. We should probably not be re-reading it here... should do this in one pass.
-                foreach (var reader in channelData.Select(channel => channel.WavReader))
-                {
-                    reader.Position = 0;
-                }
-                var mixer = new MixingSampleProvider(channelData.Select(channel => channel.WavReader.ToSampleProvider()));
-                var length = (int) channelData.Max(channel => channel.WavReader.SampleCount);
-                var mixedData = new float[length * mixer.WaveFormat.Channels];
-                mixer.Read(mixedData, 0, mixedData.Length);
-                // Then we want to deinterleave it
-                var leftChannel = new float[length];
-                var rightChannel = new float[length];
-                for (int i = 0; i < length; ++i)
-                {
-                    leftChannel[i] = mixedData[i * 2];
-                    rightChannel[i] = mixedData[i * 2 + 1];
-                }
-                // Then Replay Gain it
-                // The +3 is to make it at "YouTube loudness", which is a lot louder than ReplayGain defaults to.
-                Console.WriteLine("Computing ReplayGain...");
-                var replayGain = new TrackGain(settings.SampleRate);
-                replayGain.AnalyzeSamples(leftChannel, rightChannel);
-                var gain = replayGain.GetGain() + 3;
-                float multiplier = (float)Math.Pow(10, gain / 20);
-                // And apply it
-                Console.WriteLine($"Applying ReplayGain ({gain:N} dB)...");
-                for (int i = 0; i < mixedData.Length; ++i)
-                {
-                    mixedData[i] *= multiplier;
-                }
-                // Generate a temp filename
-                settings.MasterAudioFile = outputFile + ".wav";
-                Console.WriteLine($"Saving to {settings.MasterAudioFile}");
-                WaveFileWriter.CreateWaveFile(
-                    settings.MasterAudioFile, 
-                    new FloatArraySampleProvider(mixedData, settings.SampleRate).ToWaveProvider());
             }
 
             Console.WriteLine("Generating background image...");
@@ -390,8 +261,8 @@ namespace SidWizPlus
                 FramesPerSecond = settings.FramesPerSecond,
                 Width = settings.Width,
                 Height = settings.Height,
-                SamplingRate = settings.SampleRate,
-                RenderedLineWidthInSamples = settings.ViewWidthMs * settings.SampleRate / 1000,
+                SamplingRate = loader.SampleRate,
+                RenderedLineWidthInSamples = settings.ViewWidthMs * loader.SampleRate / 1000,
                 RenderingBounds = backgroundImage.WaveArea
             };
 
@@ -414,7 +285,7 @@ namespace SidWizPlus
                 };
             }
 
-            foreach (var channel in channelData)
+            foreach (var channel in loader.Data)
             {
                 renderer.AddChannel(new Channel(channel.Data, Color.White, settings.LineWidth, "Hello world", CreateTriggerAlgorithm(settings.TriggerAlgorithm)));
             }
@@ -423,7 +294,7 @@ namespace SidWizPlus
             if (settings.FfMpegPath != null)
             {
                 Console.WriteLine("Adding FFMPEG renderer...");
-                outputs.Add(new FfmpegOutput(settings.FfMpegPath, outputFile, settings.Width, settings.Height, settings.FramesPerSecond, settings.FfMpegExtraOptions, settings.MasterAudioFile));
+                outputs.Add(new FfmpegOutput(settings.FfMpegPath, settings.OutputFile, settings.Width, settings.Height, settings.FramesPerSecond, settings.FfMpegExtraOptions, settings.MasterAudioFile));
             }
 
             if (settings.PreviewFrameskip > 0)
@@ -438,7 +309,7 @@ namespace SidWizPlus
                 var sw = Stopwatch.StartNew();
                 renderer.Render(outputs);
                 sw.Stop();
-                int numFrames = channelData.Max(x => x.Data.Length) * settings.FramesPerSecond / settings.SampleRate;
+                int numFrames = (int) (loader.Length.TotalSeconds * settings.FramesPerSecond);
                 Console.WriteLine($"Rendering complete in {sw.Elapsed}, average {numFrames / sw.Elapsed.TotalSeconds:N} fps");
             }
             catch (Exception ex)

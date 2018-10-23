@@ -56,7 +56,6 @@
   <ItemGroup>
     <Compile Include="BackgroundRenderer.cs" />
     <Compile Include="Extensions.cs" />
-    <Compile Include="FloatArraySampleProvider.cs" />
     <Compile Include="Gd3Tag.cs" />
     <Compile Include="ImageInfo.cs" />
     <Compile Include="Program.cs" />

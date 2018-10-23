@@ -25,7 +25,7 @@ namespace LibSidWiz.Outputs
         {
             if (!_form.Visible)
             {
-                throw new Exception("Display form closed");
+                throw new Exception("Preview window closed");
             }
 
             if (++_frameIndex % _frameSkip != 0)
