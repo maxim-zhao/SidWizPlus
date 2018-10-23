@@ -1,6 +1,6 @@
-﻿namespace SidWiz
+﻿namespace LibSidWiz.Outputs
 {
-    partial class Form2
+    partial class PreviewOutputForm
     {
         /// <summary>
         /// Required designer variable.

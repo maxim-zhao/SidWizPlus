@@ -1,6 +1,6 @@
-﻿namespace SidWiz.Triggers
+﻿namespace LibSidWiz.Triggers
 {
-    internal interface ITriggerAlgorithm
+    public interface ITriggerAlgorithm
     {
         /// <summary>
         /// Finds a "trigger point" within a channel's samples

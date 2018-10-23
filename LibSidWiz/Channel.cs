@@ -1,13 +1,13 @@
 ﻿using System.Collections.Generic;
 using System.Drawing;
-using SidWiz.Triggers;
+using LibSidWiz.Triggers;
 
-namespace SidWiz
+namespace LibSidWiz
 {
     /// <summary>
     /// Wraps a single "voice"
     /// </summary>
-    internal class Channel
+    public class Channel
     {
         private readonly ITriggerAlgorithm _algorithm;
 

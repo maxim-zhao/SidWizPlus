@@ -1,4 +1,4 @@
-﻿namespace SidWiz.Triggers
+﻿namespace LibSidWiz.Triggers
 {
     /// <summary>
     /// Finds the positive edge which most quickly reaches the peak value in the sample range.
@@ -10,7 +10,7 @@
     /// This algorithm is based code from オップナー2608.
     /// This algorithm can show good stability for waves which cross the zero point more than once.
     /// </summary>
-    class PeakSpeedTrigger : ITriggerAlgorithm
+    public class PeakSpeedTrigger : ITriggerAlgorithm
     {
         public int GetTriggerPoint(Channel channel, int startIndex, int endIndex)
         {

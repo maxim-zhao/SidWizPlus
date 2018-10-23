@@ -9,12 +9,13 @@ using System.IO;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
+using LibSidWiz;
+using LibSidWiz.Outputs;
+using LibSidWiz.Triggers;
 using NAudio.Dsp;
 using NAudio.Wave;
 using NAudio.Wave.SampleProviders;
 using NReplayGain;
-using SidWiz.Outputs;
-using SidWiz.Triggers;
 
 namespace SidWiz
 {

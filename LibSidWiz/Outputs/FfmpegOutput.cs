@@ -1,12 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 
-namespace SidWiz.Outputs
+namespace LibSidWiz.Outputs
 {
-    internal class FfmpegOutput : IGraphicsOutput
+    public class FfmpegOutput : IGraphicsOutput
     {
         private readonly Process _process;
         private readonly BinaryWriter _writer;

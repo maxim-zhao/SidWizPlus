@@ -6,12 +6,12 @@ using System.Drawing.Imaging;
 using System.Linq;
 using System.Runtime.InteropServices;
 
-namespace SidWiz
+namespace LibSidWiz
 {
     /// <summary>
     /// Class responsible for rendering
     /// </summary>
-    internal class WaveformRenderer
+    public class WaveformRenderer
     {
         private readonly List<Channel> _channels = new List<Channel>();
 

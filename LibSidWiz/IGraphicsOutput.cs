@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Drawing;
 
-namespace SidWiz
+namespace LibSidWiz
 {
-    internal interface IGraphicsOutput: IDisposable
+    public interface IGraphicsOutput: IDisposable
     {
         void Write(byte[] data, Image image, double fractionComplete);
     }

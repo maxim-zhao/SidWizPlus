@@ -1,4 +1,4 @@
-﻿namespace SidWiz.Triggers
+﻿namespace LibSidWiz.Triggers
 {
     /// <summary>
     /// Trigger that finds the rising edge of the wave.
