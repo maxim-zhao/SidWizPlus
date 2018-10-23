@@ -146,15 +146,17 @@ namespace SidWizPlus
                     throw new Exception("No inputs specified");
                 }
 
-                var loader = new AudioLoader
+                using (var loader = new AudioLoader
                 {
                     AutoScalePercentage = settings.AutoScalePercentage,
                     HighPassFilterFrequency = settings.HighPassFilterFrequency,
                     VerticalScaleMultiplier = settings.VerticalScaleMultiplier,
-                };
-                loader.LoadAudio(settings.InputFiles);
+                })
+                {
+                    loader.LoadAudio(settings.InputFiles);
+                    Render(settings, loader);
+                }
 
-                Render(settings, loader);
             }
             catch (Exception e)
             {
@@ -316,9 +318,9 @@ namespace SidWizPlus
                 };
             }
 
-            foreach (var channel in loader.Data)
+            foreach (var channel in loader.SampleData)
             {
-                renderer.AddChannel(new Channel(channel.Data, Color.White, settings.LineWidth, "Hello world", CreateTriggerAlgorithm(settings.TriggerAlgorithm)));
+                renderer.AddChannel(new Channel(channel, Color.White, settings.LineWidth, "Hello world", CreateTriggerAlgorithm(settings.TriggerAlgorithm)));
             }
 
             var outputs = new List<IGraphicsOutput>();

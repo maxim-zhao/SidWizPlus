@@ -10,23 +10,23 @@ using NReplayGain;
 
 namespace LibSidWiz
 {
-    public class AudioLoader
+    public class AudioLoader: IDisposable
     {
-        public int SampleRate { get; private set; }
         public float HighPassFilterFrequency { get; set; }
         public float VerticalScaleMultiplier { get; set; }
         public float AutoScalePercentage { get; set; }
+        public TimeSpan Length { get; private set; }
+        public int SampleRate { get; private set; }
+        public IEnumerable<IList<float>> Data => _data.Select(channel => channel.Data);
 
-        // TODO we don't really want to expose this?
-        public class ChannelData
+        private class ChannelData
         {
             public float[] Data { get; set; }
             public WaveFileReader WavReader { get; set; }
             public float Max { get; set; }
         }
 
-        public List<ChannelData> Data { get; private set; }
-        public TimeSpan Length { get; private set; }
+        private List<ChannelData> _data;
 
         public void LoadAudio(IList<string> filenames)
         {
@@ -122,20 +122,20 @@ namespace LibSidWiz
 
             loadTask.Wait();
 
-            Data = loadTask.Result;
-            Length = TimeSpan.FromSeconds((double)Data.Max(x => x.Data.Length) / SampleRate);
+            _data = loadTask.Result;
+            Length = TimeSpan.FromSeconds((double)_data.Max(x => x.Data.Length) / SampleRate);
         }
 
         public void MixToMaster(string filename)
         {
                 Console.WriteLine("Mixing per-channel data...");
                 // Mix the audio. We should probably not be re-reading it here... should do this in one pass.
-                foreach (var reader in Data.Select(channel => channel.WavReader))
+                foreach (var reader in _data.Select(channel => channel.WavReader))
                 {
                     reader.Position = 0;
                 }
-                var mixer = new MixingSampleProvider(Data.Select(channel => channel.WavReader.ToSampleProvider()));
-                var length = (int) Data.Max(channel => channel.WavReader.SampleCount);
+                var mixer = new MixingSampleProvider(_data.Select(channel => channel.WavReader.ToSampleProvider()));
+                var length = (int) _data.Max(channel => channel.WavReader.SampleCount);
                 var mixedData = new float[length * mixer.WaveFormat.Channels];
                 mixer.Read(mixedData, 0, mixedData.Length);
                 // Then we want to deinterleave it
@@ -164,6 +164,16 @@ namespace LibSidWiz
                 WaveFileWriter.CreateWaveFile(
                     filename, 
                     new FloatArraySampleProvider(mixedData, SampleRate).ToWaveProvider());
+        }
+
+        public void Dispose()
+        {
+            foreach (var channelData in _data)
+            {
+                channelData.WavReader.Dispose();
+                channelData.WavReader = null;
+                channelData.Data = null;
+            }
         }
     }
 }
