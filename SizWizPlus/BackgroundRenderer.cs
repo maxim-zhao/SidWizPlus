@@ -16,10 +16,10 @@ namespace SidWizPlus
         private readonly int _width;
         private readonly int _height;
 
-        public BackgroundRenderer(Size size, Color backgroundColor)
+        public BackgroundRenderer(int width, int height, Color backgroundColor)
         {
-            _width = size.Width;
-            _height = size.Height;
+            _width = width;
+            _height = height;
             _aspectRatio = _width / (double) _height;
 
             Image = new Bitmap(_width, _height, PixelFormat.Format32bppArgb);

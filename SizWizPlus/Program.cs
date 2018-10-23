@@ -1,14 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
-using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using CommandLine;
 using LibSidWiz;
 using LibSidWiz.Outputs;
 using LibSidWiz.Triggers;
@@ -21,52 +22,63 @@ namespace SidWizPlus
 {
     class Program
     {
-        struct Settings
+        [SuppressMessage("ReSharper", "UnusedAutoPropertyAccessor.Local")]
+        private class Settings
         {
-            public Size Size;
-            public int Columns;
-            public TimeSpan ViewWidth;
-            public int FramesPerSecond;
-            public float LineWidth;
+            [Option('w', "width", Required = true, HelpText = "Width of image rendered", DefaultValue = 1024)]
+            public int Width { get; set; }
+            [Option('h', "height", Required = false, HelpText = "Height of image rendered", DefaultValue = 720)]
+            public int Height { get; set; }
+            [Option('c', "columns", Required = false, HelpText = "Number of columns to render", DefaultValue = 1)]
+            public int Columns { get; set; }
+            [Option("viewms", Required = false, HelpText = "Rendered view width in ms", DefaultValue = 35)]
+            public int ViewWidthMs { get; set; }
+            [Option('r', "fps", Required = false, HelpText = "Frame rate", DefaultValue = 60)]
+            public int FramesPerSecond { get; set; }
+            [Option('l', "linewidth", Required = false, HelpText = "Line width", DefaultValue = 3)]
+            public float LineWidth { get; set; }
+            [Option("ffmpeg", Required = false, HelpText = "Path to FFMPEG. If not given, no output is produced.")]
+            public string FfMpegPath { get; set; }
+            [Option("ffmpegoptions", Required = false, HelpText = "Extra commandline options for FFMPEG, e.g. to set the output format", DefaultValue = "")]
+            public string FfMpegExtraOptions { get; set; }
+            [OptionList('f', "file", ' ', HelpText = "Input WAV files")] 
+            public List<string> InputFiles { get; set; }
+            [Option('o', "output", Required = false, HelpText = "Output file")]
+            public string OutputFile { get; set; }
+            [Option("background", Required = false, HelpText = "Background image, drawn transparently in the background")]
+            public string BackgroundImageFile { get; set; }
+            [Option("logo", Required = false, HelpText = "Logo image, drawn in the lower right")]
+            public string LogoImageFile { get; set; }
+            [Option('v', "vgm", Required = false, HelpText = "VGM file, if specified GD3 text is drawn")]
+            public string VgmFile { get; set; }
+            [Option("multidumper", Required = false, HelpText = "Path to MultiDumper, if specified with --vgm and no --files then it will be invoked for the VGM")]
+            public string MultidumperPath { get; set; }
+            [Option('p', "previewframeskip", Required = false, HelpText = "Enable a preview window with the specified frameskip - higher values give faster rendering by not drawing every frame to the screen.")]
+            public int PreviewFrameskip { get; set; }
+            [Option("highpassfilter", Required = false, HelpText = "Enable high pass filtering with the given value as the cutoff frequency. A value of 10 works well to remove DC offsets.")]
+            public float HighPassFilterFrequency { get; set; }
+            [Option('s', "scale", Required = false, HelpText = "Vertical scale factor. This is applied as a multiplier after auto scaling.")]
+            public float VerticalScaleMultiplier { get; set; }
+            [Option('a', "autoscale", Required = false, HelpText = "Automatic scaling percentage. A value of 100 will make the peak amplitude just fit in the rendered area.")]
+            public float AutoScalePercentage { get; set; }
+            [Option('t', "triggeralgorithm", Required = false, HelpText = "Trigger algorithm name", DefaultValue = nameof(PeakSpeedTrigger))]
+            public string TriggerAlgorithm { get; set; }
+            [Option('m', "master", Required = false, HelpText = "Master audio file, if not specified then the inputs will be mixed to a new file")]
+            public string MasterAudioFile { get; set; }
 
-            public struct FfMpegSettings
-            {
-                public string Path;
-                public string ExtraOptions;
-            }
+            [Option("gridcolor", Required = false, HelpText = "Grid color, can be hex or a .net color name", DefaultValue = "white")]
+            public string GridColor { get; set; }
+            [Option("gridwidth", Required = false, HelpText = "Grid line width", DefaultValue = 0)]
+            public float GridLineWidth { get; set; }
+            [Option("gridborder", HelpText = "Draw a border around the waves as well as between them")]
+            public bool GridBorder { get; set; }
 
-            public FfMpegSettings FfMpeg;
+            [Option("zerolinecolor", HelpText = "Zero line color", DefaultValue = "white")]
+            public string ZeroLineColor { get; set; }
+            [Option("zerolinewith", HelpText = "Zero line width", DefaultValue = 0)]
+            public float ZeroLineWidth { get; set; }
 
-            public List<string> InputFiles;
-            public string OutputFile;
-
-            public string BackgroundImageFile;
-            public string LogoImageFile;
-            
-            public string VgmFile;
-            public string MultidumperPath;
-            public int PreviewFrameskip;
-            public float HighPassFilterFrequency;
-            public float VerticalScaleMultiplier;
-            public float AutoScale;
-            public Type TriggerAlgorithm;
-            public string MasterAudioFile;
-
-            public struct GridSettings
-            {
-                public Color Color;
-                public float LineWidth;
-                public bool DrawBorder;
-            }
-
-            public GridSettings Grid;
-            public struct ZeroLineSettings
-            {
-                public Color Color;
-                public float LineWidth;
-            }
-
-            public ZeroLineSettings ZeroLine;
+            // These are not options...
             public int SampleRate;
         }
 
@@ -74,9 +86,28 @@ namespace SidWizPlus
         {
             try
             {
-                // TODO add a better arg parsing lib here, giving things like help
+                var settings = new Settings();
+                using (var parser = new CommandLine.Parser(x =>
+                {
+                    x.CaseSensitive = false;
+                    x.IgnoreUnknownArguments = true;
+                }))
+                {
+                    if (!parser.ParseArgumentsStrict(args, settings))
+                    {
+                        return;
+                    }
+                }
 
-                var settings = ParseArgs(args);
+                if (settings.InputFiles != null)
+                {
+                    // We want to expand any wildcards in the input file list (and also fully qualify them)
+                    settings.InputFiles = settings.InputFiles
+                        .SelectMany(s => Directory
+                            .EnumerateFiles(Directory.GetCurrentDirectory(), s)
+                            .OrderByAlphaNumeric(x => x))
+                        .ToList();
+                }
 
                 RunMultiDumper(ref settings);
 
@@ -88,115 +119,6 @@ namespace SidWizPlus
             {
                 Console.WriteLine($"Fatal: {e}");
             }
-        }
-
-        private static Settings ParseArgs(IReadOnlyList<string> args)
-        {
-            var settings = new Settings
-            {
-                // We default some settings...
-                Size = new Size(1024, 720),
-                AutoScale = 100,
-                Columns = 1,
-                FramesPerSecond = 60,
-                LineWidth = 3,
-                ViewWidth = TimeSpan.FromMilliseconds(35),
-                TriggerAlgorithm = typeof(PeakSpeedTrigger)
-            };
-
-            // We have a dumb parser which just processes "--key value" pairs.
-            for (int i = 0; i < args.Count - 1; i += 2)
-            {
-                var arg = args[i].ToLowerInvariant();
-                var value = args[i + 1];
-                switch (arg)
-                {
-                    case "--ffmpeg":
-                        settings.FfMpeg.Path = value;
-                        break;
-                    case "--ffmpegoptions":
-                        settings.FfMpeg.ExtraOptions = value;
-                        break;
-                    case "--columns":
-                        settings.Columns = int.Parse(value);
-                        break;
-                    case "--viewms":
-                        settings.ViewWidth = TimeSpan.FromMilliseconds(double.Parse(value));
-                        break;
-                    case "--fps":
-                        settings.FramesPerSecond = int.Parse(value);
-                        break;
-                    case "--width":
-                        settings.Size.Width = int.Parse(value);
-                        break;
-                    case "--height":
-                        settings.Size.Height = int.Parse(value);
-                        break;
-                    case "--file":
-                        // We support wildcards...
-                        settings.InputFiles = Directory.EnumerateFiles(Directory.GetCurrentDirectory(), value).OrderBy(x => x)
-                            .ToList();
-                        break;
-                    case "--output":
-                        settings.OutputFile = value;
-                        break;
-                    case "--background":
-                        settings.BackgroundImageFile = value;
-                        break;
-                    case "--logo":
-                        settings.LogoImageFile = value;
-                        break;
-                    case "--vgm":
-                        settings.VgmFile = Path.GetFullPath(value);
-                        break;
-                    case "--multidumper":
-                        settings.MultidumperPath = value;
-                        break;
-                    case "--previewframeskip":
-                        settings.PreviewFrameskip = int.Parse(value);
-                        break;
-                    case "--highpassfilter":
-                        settings.HighPassFilterFrequency = float.Parse(value);
-                        break;
-                    case "--scale":
-                        settings.VerticalScaleMultiplier = float.Parse(value);
-                        break;
-                    case "--triggeralgorithm":
-                        settings.TriggerAlgorithm = AppDomain.CurrentDomain
-                            .GetAssemblies()
-                            .SelectMany(a => a.GetTypes())
-                            .FirstOrDefault(t =>
-                                typeof(ITriggerAlgorithm).IsAssignableFrom(t) &&
-                                t.Name.ToLowerInvariant().Equals(value.ToLowerInvariant()));
-                        break;
-                    case "--autoscale":
-                        settings.AutoScale = float.Parse(value) / 100;
-                        break;
-                    case "--masteraudio":
-                        settings.MasterAudioFile = value;
-                        break;
-                    case "--gridcolor":
-                        settings.Grid.Color = ParseColor(value);
-                        break;
-                    case "--gridwidth":
-                        settings.Grid.LineWidth = float.Parse(value);
-                        break;
-                    case "--gridborder":
-                        settings.Grid.DrawBorder = value == "1" || value.ToLowerInvariant().StartsWith("t");
-                        break;
-                    case "--zerolinecolor":
-                        settings.ZeroLine.Color = ParseColor(value);
-                        break;
-                    case "--zerolinewidth":
-                        settings.ZeroLine.LineWidth = float.Parse(value);
-                        break;
-                    case "--linewidth":
-                        settings.LineWidth = float.Parse(value);
-                        break;
-                }
-            }
-
-            return settings;
         }
 
         private static Color ParseColor(string value)
@@ -240,7 +162,9 @@ namespace SidWizPlus
         {
             if (settings.MultidumperPath != null && settings.VgmFile != null && settings.InputFiles == null)
             {
-                // Check if we have WAVs
+                // We normalize the VGM path here because we need to know its directory...
+                settings.VgmFile = Path.GetFullPath(settings.VgmFile);
+                // Check if we have WAVs. Note that we use "natural" sorting to make sure 10 comes after 9.
                 settings.InputFiles = Directory.EnumerateFiles(
                         Path.GetDirectoryName(settings.VgmFile),
                         Path.GetFileNameWithoutExtension(settings.VgmFile) + " - *.wav")
@@ -258,6 +182,7 @@ namespace SidWizPlus
                         UseShellExecute = false
                     }))
                     {
+                        // We don;t actually consume its stdout, we just want to have it not shown as it makes it much slower...
                         p.BeginOutputReadLine();
                         p.WaitForExit();
                     }
@@ -294,9 +219,9 @@ namespace SidWizPlus
             }
 
             // ReSharper disable once CompareOfFloatsByEqualityOperator
-            int stepsPerFile = 3 + (settings.HighPassFilterFrequency > 0 ? 1 : 0);
-            int totalProgress = settings.InputFiles.Count * stepsPerFile;
-            int progress = 0;
+            // int stepsPerFile = 3 + (settings.HighPassFilterFrequency > 0 ? 1 : 0);
+            // int totalProgress = settings.InputFiles.Count * stepsPerFile;
+            // int progress = 0;
 
             // We have to copy the reference to make it "safe" for threads
             var settings1 = settings;
@@ -305,28 +230,29 @@ namespace SidWizPlus
                 // Do a parallel read of all files
                 var channels = settings1.InputFiles.AsParallel().Select((wavFilename, channelIndex) =>
                 {
-                    Console.WriteLine($"- Reading {wavFilename}");
+                    var filename = Path.GetFileName(wavFilename);
+                    Console.WriteLine($"- Reading {filename}");
                     var reader = new WaveFileReader(wavFilename);
                     var buffer = new float[reader.SampleCount];
 
                     // We read the file and convert to mono
                     reader.ToSampleProvider().ToMono().Read(buffer, 0, (int) reader.SampleCount);
-                    Interlocked.Increment(ref progress);
+                    // Interlocked.Increment(ref progress);
 
                     // We don't care about ones where the samples are all equal
                     // ReSharper disable once CompareOfFloatsByEqualityOperator
                     if (buffer.Length == 0 || buffer.All(s => s == buffer[0]))
                     {
-                        Console.WriteLine($"- Skipping {wavFilename} because it is silent");
+                        Console.WriteLine($"- Skipping {filename} because it is silent");
                         // So we skip steps here
                         reader.Dispose();
-                        Interlocked.Add(ref progress, stepsPerFile - 1);
+                        // Interlocked.Add(ref progress, stepsPerFile - 1);
                         return null;
                     }
 
                     if (settings1.HighPassFilterFrequency > 0)
                     {
-                        Console.WriteLine($"- High-pass filtering {wavFilename}");
+                        Console.WriteLine($"- High-pass filtering {filename}");
                         // Apply the high pass filter
                         var filter = BiQuadFilter.HighPassFilter(reader.WaveFormat.SampleRate, settings1.HighPassFilterFrequency, 1);
                         for (int i = 0; i < buffer.Length; ++i)
@@ -334,7 +260,7 @@ namespace SidWizPlus
                             buffer[i] = filter.Transform(buffer[i]);
                         }
 
-                        Interlocked.Increment(ref progress);
+                        // Interlocked.Increment(ref progress);
                     }
 
                     float max = float.MinValue;
@@ -346,13 +272,13 @@ namespace SidWizPlus
                     return new ChannelData{Data = buffer, WavReader = reader, Max = max};
                 }).Where(ch => ch != null).ToList();
 
-                if (settings1.AutoScale > 0 || settings1.VerticalScaleMultiplier > 1)
+                if (settings1.AutoScalePercentage > 0 || settings1.VerticalScaleMultiplier > 1)
                 {
                     // Calculate the multiplier
                     float multiplier = 1.0f;
-                    if (settings1.AutoScale > 0)
+                    if (settings1.AutoScalePercentage > 0)
                     {
-                        multiplier = settings1.AutoScale / channels.Max(channel => channel.Max);
+                        multiplier = settings1.AutoScalePercentage / 100 / channels.Max(channel => channel.Max);
                     }
 
                     if (settings1.VerticalScaleMultiplier > 1)
@@ -369,7 +295,7 @@ namespace SidWizPlus
                             samples[i] *= multiplier;
                         }
 
-                        Interlocked.Increment(ref progress);
+                        // Interlocked.Increment(ref progress);
                     });
                 }
 
@@ -429,7 +355,7 @@ namespace SidWizPlus
 
             Console.WriteLine("Generating background image...");
 
-            var backgroundImage = new BackgroundRenderer(settings.Size, Color.Black);
+            var backgroundImage = new BackgroundRenderer(settings.Width, settings.Height, Color.Black);
             if (settings.BackgroundImageFile != null)
             {
                 using (var bm = Image.FromFile(settings.BackgroundImageFile))
@@ -462,42 +388,42 @@ namespace SidWizPlus
                 BackgroundImage = backgroundImage.Image,
                 Columns = settings.Columns,
                 FramesPerSecond = settings.FramesPerSecond,
-                Width = settings.Size.Width,
-                Height = settings.Size.Height,
+                Width = settings.Width,
+                Height = settings.Height,
                 SamplingRate = settings.SampleRate,
-                RenderedLineWidthInSamples = (int) (settings.ViewWidth.TotalSeconds * settings.SampleRate),
+                RenderedLineWidthInSamples = settings.ViewWidthMs * settings.SampleRate / 1000,
                 RenderingBounds = backgroundImage.WaveArea
             };
 
-            if (settings.Grid.Color != Color.Empty && settings.Grid.LineWidth > 0)
+            if (settings.GridLineWidth > 0)
             {
                 renderer.Grid = new WaveformRenderer.GridConfig
                 {
-                    Color = settings.Grid.Color,
-                    Width = settings.Grid.LineWidth,
-                    DrawBorder = settings.Grid.DrawBorder
+                    Color = ParseColor(settings.GridColor),
+                    Width = settings.GridLineWidth,
+                    DrawBorder = settings.GridBorder
                 };
             }
 
-            if (settings.ZeroLine.Color != Color.Empty && settings.ZeroLine.LineWidth > 0)
+            if (settings.ZeroLineWidth > 0)
             {
                 renderer.ZeroLine = new WaveformRenderer.ZeroLineConfig
                 {
-                    Color = settings.ZeroLine.Color,
-                    Width = settings.ZeroLine.LineWidth
+                    Color = ParseColor(settings.ZeroLineColor),
+                    Width = settings.ZeroLineWidth
                 };
             }
 
             foreach (var channel in channelData)
             {
-                renderer.AddChannel(new Channel(channel.Data, Color.White, settings.LineWidth, "Hello world", Activator.CreateInstance(settings.TriggerAlgorithm) as ITriggerAlgorithm));
+                renderer.AddChannel(new Channel(channel.Data, Color.White, settings.LineWidth, "Hello world", CreateTriggerAlgorithm(settings.TriggerAlgorithm)));
             }
 
             var outputs = new List<IGraphicsOutput>();
-            if (settings.FfMpeg.Path != null)
+            if (settings.FfMpegPath != null)
             {
                 Console.WriteLine("Adding FFMPEG renderer...");
-                outputs.Add(new FfmpegOutput(settings.FfMpeg.Path, outputFile, settings.Size.Width, settings.Size.Height, settings.FramesPerSecond, settings.FfMpeg.ExtraOptions, settings.MasterAudioFile));
+                outputs.Add(new FfmpegOutput(settings.FfMpegPath, outputFile, settings.Width, settings.Height, settings.FramesPerSecond, settings.FfMpegExtraOptions, settings.MasterAudioFile));
             }
 
             if (settings.PreviewFrameskip > 0)
@@ -527,6 +453,21 @@ namespace SidWizPlus
                     graphicsOutput.Dispose();
                 }
             }
+        }
+
+        private static ITriggerAlgorithm CreateTriggerAlgorithm(string name)
+        {
+            var type = AppDomain.CurrentDomain
+                .GetAssemblies()
+                .SelectMany(a => a.GetTypes())
+                .FirstOrDefault(t =>
+                    typeof(ITriggerAlgorithm).IsAssignableFrom(t) &&
+                    t.Name.ToLowerInvariant().Equals(name.ToLowerInvariant()));
+            if (type == null)
+            {
+                throw new Exception($"Unknown trigger algorithm \"{name}\"");
+            }
+            return Activator.CreateInstance(type) as ITriggerAlgorithm;
         }
     }
 }
