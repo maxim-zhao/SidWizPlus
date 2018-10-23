@@ -286,7 +286,7 @@ namespace SidWiz
                 {
                     Color = gridColor,
                     Width = gridWidth,
-                    IncludeOuter = gridOuter
+                    DrawBorder = gridOuter
                 };
             }
 
@@ -516,10 +516,9 @@ namespace SidWiz
                     }
 
                     // And try again
-                    inputWavs = Directory.EnumerateFiles(
+                    inputWavs = LibSidWiz.Extensions.OrderByAlphaNumeric(Directory.EnumerateFiles(
                             Path.GetDirectoryName(vgmfile),
-                            Path.GetFileNameWithoutExtension(vgmfile) + " - *.wav")
-                        .OrderByAlphaNumeric(s => s)
+                            Path.GetFileNameWithoutExtension(vgmfile) + " - *.wav"), s => s)
                         .ToList();
                 }
             }
@@ -564,43 +563,6 @@ namespace SidWiz
                     numVoices.Value = groupBox3.Controls.OfType<TextBox>().Count(c => c.Text.Length > 0);
                 }
             }
-        }
-
-        private Color ParseColor(string value)
-        {
-            // If it looks like hex, use that.
-            // We support 3, 6 or 8 hex chars.
-            var match = Regex.Match(value, "^#?(?<hex>[0-9a-fA-F]{3}([0-9a-fA-F]{3})?([0-9a-fA-F]{2})?)$");
-            if (match.Success)
-            {
-                var hex = match.Groups["hex"].Value;
-                if (hex.Length == 3)
-                {
-                    hex = $"{hex[0]}{hex[0]}{hex[1]}{hex[1]}{hex[2]}{hex[2]}";
-                }
-
-                if (hex.Length == 6)
-                {
-                    hex = "ff" + hex;
-                }
-                int alpha = Convert.ToInt32(hex.Substring(0, 2), 16);
-                int red = Convert.ToInt32(hex.Substring(2, 2), 16);
-                int green = Convert.ToInt32(hex.Substring(4, 2), 16);
-                int blue = Convert.ToInt32(hex.Substring(6, 2), 16);
-                return Color.FromArgb(alpha, red, green, blue);
-            }
-            // Then try named colors
-            var property = typeof(Color)
-                .GetProperties(BindingFlags.Static | BindingFlags.DeclaredOnly | BindingFlags.Public)
-                .FirstOrDefault(p =>
-                    p.PropertyType == typeof(Color) &&
-                    p.Name.Equals(value, StringComparison.InvariantCultureIgnoreCase));
-            if (property == null)
-            {
-                throw new Exception($"Could not parse colour {value}");
-            }
-
-            return (Color)property.GetValue(null);
         }
 
         //references sender, so only need this one. Draws the color rectangles in cmbClr boxes.
@@ -836,42 +798,5 @@ namespace SidWiz
                 }
             }
         }
-    }
-
-    internal class FloatArraySampleProvider : ISampleProvider
-    {
-        private readonly float[] _data;
-        private int _index;
-
-        public FloatArraySampleProvider(float[] data, int samplingRate)
-        {
-            _data = data;
-            _index = 0;
-            WaveFormat = WaveFormat.CreateIeeeFloatWaveFormat(samplingRate, 2);
-        }
-
-        public int Read(float[] buffer, int offset, int count)
-        {
-            offset += _index;
-            count = Math.Min(_data.Length - offset, count);
-            if (count > 0)
-            {
-                // Array.Copy(_data, offset, buffer, 0, count);
-                // Can't use Array.Copy here because NAudio is cheating under the covers by having arrays of different types "pointing" at the same memory
-                for (int i = 0; i < count; ++i)
-                {
-                    buffer[i] = _data[offset + i];
-                }
-            }
-            else
-            {
-                count = 0;
-            }
-
-            _index += count;
-            return count;
-        }
-
-        public WaveFormat WaveFormat { get; }
     }
 }

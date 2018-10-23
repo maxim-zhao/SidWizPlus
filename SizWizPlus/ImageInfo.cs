@@ -1,7 +1,7 @@
 ﻿using System.Drawing;
 using System.Windows.Forms;
 
-namespace SidWiz
+namespace SidWizPlus
 {
     internal class ImageInfo
     {

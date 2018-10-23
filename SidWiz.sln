@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SidWiz", "SidWiz\SidWiz.csp
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LibSidWiz", "LibSidWiz\LibSidWiz.csproj", "{75DD5F75-A354-4348-8A2F-7EE0F6AD6D18}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SidWizPlus", "SizWizPlus\SidWizPlus.csproj", "{6E0D8279-E2FA-4FF5-921F-A408915A93A0}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{75DD5F75-A354-4348-8A2F-7EE0F6AD6D18}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{75DD5F75-A354-4348-8A2F-7EE0F6AD6D18}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{75DD5F75-A354-4348-8A2F-7EE0F6AD6D18}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6E0D8279-E2FA-4FF5-921F-A408915A93A0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6E0D8279-E2FA-4FF5-921F-A408915A93A0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6E0D8279-E2FA-4FF5-921F-A408915A93A0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6E0D8279-E2FA-4FF5-921F-A408915A93A0}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -31,7 +31,7 @@ namespace LibSidWiz
         {
             public Color Color { get; set; }
             public float Width { get; set; }
-            public bool IncludeOuter { get; set; }
+            public bool DrawBorder { get; set; }
         }
 
         public void AddChannel(Channel channel)
@@ -95,7 +95,7 @@ namespace LibSidWiz
                                 renderingBounds.Right, renderingBounds.Top + viewHeight * r);
                         }
 
-                        if (Grid.IncludeOuter)
+                        if (Grid.DrawBorder)
                         {
                             g.DrawRectangle(pen, renderingBounds);
                         }
@@ -174,7 +174,13 @@ namespace LibSidWiz
                         }
 
                         // Then draw them all in one go...
-                        g.DrawLines(pens[channelIndex], points);
+                        //g.DrawLines(pens[channelIndex], points);
+
+                        var path = new GraphicsPath();
+                        path.AddLine(points[0].X, yBase, points[0].X, points[0].Y);
+                        path.AddLines(points);
+                        path.AddLine(points[points.Length-1].X, points[points.Length-1].Y, points[points.Length-1].X, yBase);
+                        g.DrawPath(pens[channelIndex], path);
                     }
 
                     // Emit

@@ -50,6 +50,8 @@ namespace LibSidWiz.Outputs
 
         public void Dispose()
         {
+            // This triggers a shutdown
+            _process?.StandardInput.Close();
             _process?.Dispose();
             _writer?.Dispose();
         }

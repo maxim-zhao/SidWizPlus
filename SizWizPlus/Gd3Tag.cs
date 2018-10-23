@@ -3,7 +3,7 @@ using System.IO;
 using System.IO.Compression;
 using System.Text;
 
-namespace SidWiz
+namespace SidWizPlus
 {
     internal class Gd3Tag
     {
