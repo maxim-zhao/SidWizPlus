@@ -26,6 +26,14 @@ namespace LibSidWiz
         public Rectangle RenderingBounds { get; set; }
         public GridConfig Grid { get; set; }
         public ZeroLineConfig ZeroLine { get; set; }
+        public LabelConfig ChannelLabels { get; set; }
+
+        public class LabelConfig
+        {
+            public Color Color { get; set; }
+            public string FontName { get; set; }
+            public float Size { get; set; }
+        }
 
         public class GridConfig
         {
@@ -117,6 +125,20 @@ namespace LibSidWiz
                         }
                     }
                 }
+
+                if (ChannelLabels != null)
+                {
+                    using (var font = new Font(ChannelLabels.FontName, ChannelLabels.Size))
+                    using (var brush = new SolidBrush(ChannelLabels.Color))
+                    {
+                        for (int channelIndex = 0; channelIndex < _channels.Count; ++channelIndex)
+                        {
+                            var y = renderingBounds.Top + channelIndex / Columns * viewHeight;
+                            var x = renderingBounds.Left + (channelIndex % Columns) * renderingBounds.Width / Columns;
+                            g.DrawString(_channels[channelIndex].Name, font, brush, x, y);
+                        }
+                    }
+                }
             }
 
             // This is the raw data buffer we use to store the generated image.
@@ -197,6 +219,7 @@ namespace LibSidWiz
 
             pinnedArray.Free();
         }
+
 
         public class ZeroLineConfig
         {

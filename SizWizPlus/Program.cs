@@ -47,9 +47,12 @@ namespace SidWizPlus
 
             [Option('r', "fps", Required = false, HelpText = "Frame rate", DefaultValue = 60)]
             public int FramesPerSecond { get; set; }
-
-            [Option('l', "linewidth", Required = false, HelpText = "Line width", DefaultValue = 3)]
+            
+            [Option("linewidth", Required = false, HelpText = "Line width", DefaultValue = 3)]
             public float LineWidth { get; set; }
+
+            [Option("linecolor", Required = false, HelpText = "Line color, can be hex of a .net color name", DefaultValue = "white")]
+            public string LineColor { get; set; }
 
             [Option("highpassfilter", Required = false, HelpText = "Enable high pass filtering with the given value as the cutoff frequency. A value of 10 works well to remove DC offsets.")]
             public float HighPassFilterFrequency { get; set; }
@@ -74,6 +77,9 @@ namespace SidWizPlus
             [Option("multidumper", Required = false, HelpText = "Path to MultiDumper, if specified with --vgm and no --files then it will be invoked for the VGM")]
             public string MultidumperPath { get; set; }
 
+            [Option("backgroundcolor", Required = false, HelpText = "Background color, can be hex of a .net color name", DefaultValue = "black")]
+            public string BackgroundColor { get; set; }
+
             [Option("background", Required = false, HelpText = "Background image, drawn transparently in the background")]
             public string BackgroundImageFile { get; set; }
             
@@ -94,10 +100,17 @@ namespace SidWizPlus
 
             [Option("gd3font", HelpText = "Font for GD3 info", DefaultValue = "Tahoma")]
             public string Gd3Font { get; set; }
-            [Option("gd3fontsize", HelpText = "Font size (in points) for GD3 info", DefaultValue = 16)]
+            [Option("gd3size", HelpText = "Font size (in points) for GD3 info", DefaultValue = 16)]
             public float Gd3FontSize { get; set; }
-            [Option("gd3fontcolor", HelpText = "Font colour for GD3 info", DefaultValue = "white")]
+            [Option("gd3color", HelpText = "Font colour for GD3 info", DefaultValue = "white")]
             public string Gd3FontColor { get; set; }
+
+            [Option("labelsfont", HelpText = "Font for channel labels")]
+            public string ChannelLabelsFont { get; set; }
+            [Option("labelssize", HelpText = "Font size for channel labels", DefaultValue = 8)]
+            public float ChannelLabelsSize { get; set; }
+            [Option("labelscolor", HelpText = "Font colour for channel labels", DefaultValue = "white")]
+            public string ChannelLabelsColor { get; set; }
 
             [HelpOption]
             public string GetUsage()
@@ -266,7 +279,7 @@ namespace SidWizPlus
 
             Console.WriteLine("Generating background image...");
 
-            var backgroundImage = new BackgroundRenderer(settings.Width, settings.Height, Color.Black);
+            var backgroundImage = new BackgroundRenderer(settings.Width, settings.Height, ParseColor(settings.BackgroundColor));
             if (settings.BackgroundImageFile != null)
             {
                 using (var bm = Image.FromFile(settings.BackgroundImageFile))
@@ -325,9 +338,23 @@ namespace SidWizPlus
                 };
             }
 
-            foreach (var channel in loader.Data)
+            // Add the data to the renderer
+            // TODO better names?
+            foreach (var channel in loader.Data.Select((samples, index) => new
+                {Samples = samples, Filename = Path.GetFileNameWithoutExtension(settings.InputFiles[index])}))
             {
-                renderer.AddChannel(new Channel(channel, Color.White, settings.LineWidth, "Hello world", CreateTriggerAlgorithm(settings.TriggerAlgorithm)));
+                renderer.AddChannel(new Channel(channel.Samples, ParseColor(settings.LineColor), settings.LineWidth, channel.Filename,
+                    CreateTriggerAlgorithm(settings.TriggerAlgorithm)));
+            }
+
+            if (settings.ChannelLabelsFont != null)
+            {
+                renderer.ChannelLabels = new WaveformRenderer.LabelConfig
+                {
+                    Color = ParseColor(settings.ChannelLabelsColor),
+                    FontName = settings.ChannelLabelsFont,
+                    Size = settings.ChannelLabelsSize
+                };
             }
 
             var outputs = new List<IGraphicsOutput>();
