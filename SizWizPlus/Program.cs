@@ -339,11 +339,13 @@ namespace SidWizPlus
             }
 
             // Add the data to the renderer
-            // TODO better names?
-            foreach (var channel in loader.Data.Select((samples, index) => new
-                {Samples = samples, Filename = Path.GetFileNameWithoutExtension(settings.InputFiles[index])}))
+            foreach (var channel in loader.Data)
             {
-                renderer.AddChannel(new Channel(channel.Samples, ParseColor(settings.LineColor), settings.LineWidth, GuessChannelName(channel.Filename),
+                renderer.AddChannel(new Channel(
+                    channel.Samples, 
+                    ParseColor(settings.LineColor), 
+                    settings.LineWidth, 
+                    GuessChannelName(channel.Filename),
                     CreateTriggerAlgorithm(settings.TriggerAlgorithm)));
             }
 
@@ -393,15 +395,51 @@ namespace SidWizPlus
             }
         }
 
+        [SuppressMessage("ReSharper", "StringIndexOfIsCultureSpecific.1")]
         private static string GuessChannelName(string filename)
         {
-            // Guesses a better name based on the filename
-            if (filename.Contains(" - "))
+            var namePart = Path.GetFileNameWithoutExtension(filename);
+            if (namePart == null)
             {
-                return filename.Substring(filename.LastIndexOf(" - ") + 3);
+                return filename;
+            }
+            var index = namePart.IndexOf(" - YM2413 #");
+            if (index > -1)
+            {
+                index = int.Parse(namePart.Substring(index + 11));
+                if (index < 9)
+                {
+                    return $"YM2413 tone {index + 1}";
+                }
+
+                switch (index)
+                {
+                    case 9: return "YM2413 Hi-Hat";
+                    case 10: return "YM2413 Cymbal";
+                    case 11: return "YM2413 Tom-Tom";
+                    case 12: return "YM2413 Snare Drum";
+                    case 13: return "YM2413 Bass Drum";
+                }
             }
 
-            return filename;
+            index = namePart.IndexOf(" - SEGA PSG #");
+            if (index > -1)
+            {
+                index = int.Parse(namePart.Substring(13));
+                if (index < 3)
+                {
+                    return $"Sega PSG Square {index}";
+                }
+
+                return "Sega PSG Noise";
+            }
+            // Guesses a better name based on the filename
+            if (namePart.Contains(" - "))
+            {
+                return namePart.Substring(namePart.LastIndexOf(" - ") + 3);
+            }
+
+            return namePart;
         }
 
         private static ITriggerAlgorithm CreateTriggerAlgorithm(string name)

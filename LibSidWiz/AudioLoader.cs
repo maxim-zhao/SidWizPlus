@@ -17,13 +17,20 @@ namespace LibSidWiz
         public float AutoScalePercentage { get; set; }
         public TimeSpan Length { get; private set; }
         public int SampleRate { get; private set; }
-        public IEnumerable<IList<float>> Data => _data.Select(channel => channel.Data);
+
+        public class Channel
+        {
+            public IList<float> Samples { get; set; }
+            public string Filename { get; set; }
+        }
+        public IEnumerable<Channel> Data => _data.Select(channel => new Channel{Samples = channel.Data, Filename = channel.Filename});
 
         private class ChannelData
         {
             public float[] Data { get; set; }
             public WaveFileReader WavReader { get; set; }
             public float Max { get; set; }
+            public string Filename { get; set; }
         }
 
         private List<ChannelData> _data;
@@ -87,7 +94,7 @@ namespace LibSidWiz
                         max = Math.Max(max, Math.Abs(sample));
                     }
 
-                    return new ChannelData{Data = buffer, WavReader = reader, Max = max};
+                    return new ChannelData{Data = buffer, WavReader = reader, Max = max, Filename = filename};
                 }).Where(ch => ch != null).ToList();
 
                 if (AutoScalePercentage > 0 || VerticalScaleMultiplier > 1)
