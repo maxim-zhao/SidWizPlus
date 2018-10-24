@@ -343,7 +343,7 @@ namespace SidWizPlus
             foreach (var channel in loader.Data.Select((samples, index) => new
                 {Samples = samples, Filename = Path.GetFileNameWithoutExtension(settings.InputFiles[index])}))
             {
-                renderer.AddChannel(new Channel(channel.Samples, ParseColor(settings.LineColor), settings.LineWidth, channel.Filename,
+                renderer.AddChannel(new Channel(channel.Samples, ParseColor(settings.LineColor), settings.LineWidth, GuessChannelName(channel.Filename),
                     CreateTriggerAlgorithm(settings.TriggerAlgorithm)));
             }
 
@@ -391,6 +391,17 @@ namespace SidWizPlus
                     graphicsOutput.Dispose();
                 }
             }
+        }
+
+        private static string GuessChannelName(string filename)
+        {
+            // Guesses a better name based on the filename
+            if (filename.Contains(" - "))
+            {
+                return filename.Substring(filename.LastIndexOf(" - ") + 3);
+            }
+
+            return filename;
         }
 
         private static ITriggerAlgorithm CreateTriggerAlgorithm(string name)
