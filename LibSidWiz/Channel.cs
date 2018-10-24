@@ -10,13 +10,15 @@ namespace LibSidWiz
     public class Channel
     {
         private readonly ITriggerAlgorithm _algorithm;
+        private readonly int _triggerLookahead;
 
-        public Channel(IList<float> samples, Color color, float lineWidth, string name, ITriggerAlgorithm algorithm)
+        public Channel(IList<float> samples, Color color, float lineWidth, string name, ITriggerAlgorithm algorithm, int triggerLookahead)
         {
             Samples = samples;
             Color = color;
             Name = name;
             _algorithm = algorithm;
+            _triggerLookahead = triggerLookahead;
             LineWidth = lineWidth;
         }
 
@@ -32,7 +34,7 @@ namespace LibSidWiz
 
         public int GetTriggerPoint(int frameIndexSamples, int frameSamples)
         {
-            return _algorithm.GetTriggerPoint(this, frameIndexSamples, frameSamples);
+            return _algorithm.GetTriggerPoint(this, frameIndexSamples, frameIndexSamples + frameSamples * (_triggerLookahead + 1));
         }
     }
 }

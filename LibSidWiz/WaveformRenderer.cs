@@ -173,7 +173,7 @@ namespace LibSidWiz
                         var channel = _channels[channelIndex];
 
                         // Compute the "trigger point".. This will be the centre of our rendering.
-                        var triggerPoint = channel.GetTriggerPoint(frameIndexSamples, frameIndexSamples + frameSamples);
+                        var triggerPoint = channel.GetTriggerPoint(frameIndexSamples, frameSamples);
 
                         // Compute the initial x, y to render the line from.
                         var yBase = renderingBounds.Top + channelIndex / Columns * viewHeight + viewHeight / 2;

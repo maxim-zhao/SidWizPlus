@@ -300,7 +300,7 @@ namespace SidWiz
 
             foreach (var channel in voiceData)
             {
-                renderer.AddChannel(new Channel(channel, Color.White, lineWidth, "Hello world", Activator.CreateInstance(triggerAlgorithm) as ITriggerAlgorithm));
+                renderer.AddChannel(new Channel(channel, Color.White, lineWidth, "Hello world", Activator.CreateInstance(triggerAlgorithm) as ITriggerAlgorithm, 0));
             }
 
             var outputs = new List<IGraphicsOutput>();

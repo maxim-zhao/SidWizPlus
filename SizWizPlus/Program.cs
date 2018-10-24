@@ -21,7 +21,7 @@ namespace SidWizPlus
         [SuppressMessage("ReSharper", "UnusedAutoPropertyAccessor.Local")]
         private class Settings
         {
-            [OptionList('f', "file", ' ', HelpText = "Input WAV files")] 
+            [OptionList('f', "files", Separator = ',', HelpText = "Input WAV files, comma-separated")] 
             public List<string> InputFiles { get; set; }
 
             [Option('v', "vgm", Required = false, HelpText = "VGM file, if specified GD3 text is drawn")]
@@ -29,6 +29,12 @@ namespace SidWizPlus
 
             [Option('m', "master", Required = false, HelpText = "Master audio file, if not specified then the inputs will be mixed to a new file")]
             public string MasterAudioFile { get; set; }
+
+            [Option("nomastermix", HelpText = "Disable automatic generation of master audio file (on by default)")]
+            public bool NoMasterMix { get; set;}
+
+            [Option("nomastermixreplaygain", HelpText = "Disable automatic ReplayGain adjustment of automatically generated master audio file (on by default)")]
+            public bool NoMasterMixReplayGain { get; set;}
 
             [Option('o', "output", Required = false, HelpText = "Output file")]
             public string OutputFile { get; set; }
@@ -65,6 +71,8 @@ namespace SidWizPlus
 
             [Option('t', "triggeralgorithm", Required = false, HelpText = "Trigger algorithm name", DefaultValue = nameof(PeakSpeedTrigger))]
             public string TriggerAlgorithm { get; set; }
+            [Option("triggerlookahead", Required = false, HelpText = "Number of frames to allow the trigger to look ahead, zero means no lookahead", DefaultValue = 0)]
+            public int TriggerLookahead { get; set; }
 
             [Option('p', "previewframeskip", Required = false, HelpText = "Enable a preview window with the specified frameskip - higher values give faster rendering by not drawing every frame to the screen.")]
             public int PreviewFrameskip { get; set; }
@@ -270,10 +278,10 @@ namespace SidWizPlus
             if (settings.OutputFile != null)
             {
                 // Emit normalized data to a WAV file for later mixing
-                if (settings.MasterAudioFile == null)
+                if (settings.MasterAudioFile == null && !settings.NoMasterMix)
                 {
                     settings.MasterAudioFile = settings.OutputFile + ".wav";
-                    loader.MixToMaster(settings.MasterAudioFile);
+                    loader.MixToFile(settings.MasterAudioFile, !settings.NoMasterMixReplayGain);
                 }
             }
 
@@ -346,7 +354,8 @@ namespace SidWizPlus
                     ParseColor(settings.LineColor), 
                     settings.LineWidth, 
                     GuessChannelName(channel.Filename),
-                    CreateTriggerAlgorithm(settings.TriggerAlgorithm)));
+                    CreateTriggerAlgorithm(settings.TriggerAlgorithm),
+                    settings.TriggerLookahead));
             }
 
             if (settings.ChannelLabelsFont != null)
@@ -399,46 +408,57 @@ namespace SidWizPlus
         private static string GuessChannelName(string filename)
         {
             var namePart = Path.GetFileNameWithoutExtension(filename);
-            if (namePart == null)
+            try
             {
-                return filename;
-            }
-            var index = namePart.IndexOf(" - YM2413 #");
-            if (index > -1)
-            {
-                index = int.Parse(namePart.Substring(index + 11));
-                if (index < 9)
+                if (namePart == null)
                 {
-                    return $"YM2413 tone {index + 1}";
+                    return filename;
                 }
 
-                switch (index)
+                var index = namePart.IndexOf(" - YM2413 #");
+                if (index > -1)
                 {
-                    case 9: return "YM2413 Hi-Hat";
-                    case 10: return "YM2413 Cymbal";
-                    case 11: return "YM2413 Tom-Tom";
-                    case 12: return "YM2413 Snare Drum";
-                    case 13: return "YM2413 Bass Drum";
+                    index = int.Parse(namePart.Substring(index + 11));
+                    if (index < 9)
+                    {
+                        return $"YM2413 tone {index + 1}";
+                    }
+
+                    switch (index)
+                    {
+                        case 9: return "YM2413 Hi-Hat";
+                        case 10: return "YM2413 Cymbal";
+                        case 11: return "YM2413 Tom-Tom";
+                        case 12: return "YM2413 Snare Drum";
+                        case 13: return "YM2413 Bass Drum";
+                    }
+                }
+
+                index = namePart.IndexOf(" - SEGA PSG #");
+                if (index > -1)
+                {
+                    index = int.Parse(namePart.Substring(index + 13));
+                    if (index < 3)
+                    {
+                        return $"Sega PSG Square {index + 1}";
+                    }
+
+                    return "Sega PSG Noise";
+                }
+
+                // Guess it's the bit after the last " - "
+                index = namePart.LastIndexOf(" - ");
+                if (index > -1)
+                {
+                    return namePart.Substring(index + 3);
                 }
             }
-
-            index = namePart.IndexOf(" - SEGA PSG #");
-            if (index > -1)
+            catch (Exception ex)
             {
-                index = int.Parse(namePart.Substring(13));
-                if (index < 3)
-                {
-                    return $"Sega PSG Square {index}";
-                }
-
-                return "Sega PSG Noise";
-            }
-            // Guesses a better name based on the filename
-            if (namePart.Contains(" - "))
-            {
-                return namePart.Substring(namePart.LastIndexOf(" - ") + 3);
+                Console.Error.WriteLine($"Error guessing channel name for {filename}: {ex}");
             }
 
+            // Default to just the filename
             return namePart;
         }
 
