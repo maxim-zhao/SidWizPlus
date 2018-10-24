@@ -95,7 +95,7 @@ namespace LibSidWiz
                                 renderingBounds.Left + viewWidth * c, renderingBounds.Bottom);
                         }
                         // Horizontals
-                        for (int r = 1; r < _channels.Count / Columns; ++r)
+                        for (int r = 1; r < (float)_channels.Count / Columns; ++r)
                         {
                             g.DrawLine(
                                 pen, 
