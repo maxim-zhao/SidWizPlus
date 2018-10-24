@@ -133,44 +133,54 @@ namespace LibSidWiz
             Length = TimeSpan.FromSeconds((double)_data.Max(x => x.Data.Length) / SampleRate);
         }
 
-        public void MixToMaster(string filename)
+        public void MixToFile(string filename, bool applyReplayGain)
         {
-                Console.WriteLine("Mixing per-channel data...");
-                // Mix the audio. We should probably not be re-reading it here... should do this in one pass.
+            Console.WriteLine("Mixing per-channel data...");
+            Console.WriteLine("Computing ReplayGain...");
+            // Mix the audio. We should probably not be re-reading it here... we could do this in the same pass as loading.
+            foreach (var reader in _data.Select(channel => channel.WavReader))
+            {
+                reader.Position = 0;
+            }
+
+            if (applyReplayGain)
+            {
+                // We read it in a second at a time, to calculate Replay Gains
+                var mixer = new MixingSampleProvider(_data.Select(channel => channel.WavReader.ToSampleProvider().ToStereo()));
+                var buffer = new float[mixer.WaveFormat.SampleRate * 2];
+                var replayGain = new TrackGain(SampleRate);
+                for (;;)
+                {
+                    int numRead = mixer.Read(buffer, 0, buffer.Length);
+                    if (numRead == 0)
+                    {
+                        break;
+                    }
+
+                    // And analyze
+                    replayGain.AnalyzeSamples(buffer, numRead);
+                }
+
+                // The +3 is to make it at "YouTube loudness", which is a lot louder than ReplayGain defaults to.
+                var gain = replayGain.GetGain() + 3;
+
+                Console.WriteLine($"Applying ReplayGain ({gain:N} dB) and saving to {filename}");
+
+                // Reset the readers again
                 foreach (var reader in _data.Select(channel => channel.WavReader))
                 {
                     reader.Position = 0;
                 }
-                var mixer = new MixingSampleProvider(_data.Select(channel => channel.WavReader.ToSampleProvider()));
-                var length = (int) _data.Max(channel => channel.WavReader.SampleCount);
-                var mixedData = new float[length * mixer.WaveFormat.Channels];
-                mixer.Read(mixedData, 0, mixedData.Length);
-                // Then we want to deinterleave it
-                var leftChannel = new float[length];
-                var rightChannel = new float[length];
-                for (int i = 0; i < length; ++i)
-                {
-                    leftChannel[i] = mixedData[i * 2];
-                    rightChannel[i] = mixedData[i * 2 + 1];
-                }
-                // Then Replay Gain it
-                // The +3 is to make it at "YouTube loudness", which is a lot louder than ReplayGain defaults to.
-                Console.WriteLine("Computing ReplayGain...");
-                var replayGain = new TrackGain(SampleRate);
-                replayGain.AnalyzeSamples(leftChannel, rightChannel);
-                var gain = replayGain.GetGain() + 3;
-                float multiplier = (float)Math.Pow(10, gain / 20);
-                // And apply it
-                Console.WriteLine($"Applying ReplayGain ({gain:N} dB)...");
-                for (int i = 0; i < mixedData.Length; ++i)
-                {
-                    mixedData[i] *= multiplier;
-                }
-                // Generate a temp filename
-                Console.WriteLine($"Saving to {filename}");
-                WaveFileWriter.CreateWaveFile(
-                    filename, 
-                    new FloatArraySampleProvider(mixedData, SampleRate).ToWaveProvider());
+
+                mixer = new MixingSampleProvider(_data.Select(channel => channel.WavReader.ToSampleProvider().ToStereo()));
+                var amplifier = new VolumeSampleProvider(mixer) {Volume = (float) Math.Pow(10, gain / 20)};
+                WaveFileWriter.CreateWaveFile(filename, amplifier.ToWaveProvider());
+            }
+            else
+            {
+                var mixer = new MixingSampleProvider(_data.Select(channel => channel.WavReader.ToSampleProvider().ToStereo()));
+                WaveFileWriter.CreateWaveFile(filename, mixer.ToWaveProvider());
+            }
         }
 
         public void Dispose()
