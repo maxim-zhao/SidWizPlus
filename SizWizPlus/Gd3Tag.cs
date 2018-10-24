@@ -70,7 +70,7 @@ namespace SidWizPlus
         {
             var title = Title.ToString();
             var game = Game.ToString();
-            var system = System.ToString();
+            var system = System.English;
             var composer = Composer.ToString();
             
             var sb = new StringBuilder();
