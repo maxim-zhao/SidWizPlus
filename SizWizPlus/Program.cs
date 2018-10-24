@@ -426,11 +426,11 @@ namespace SidWizPlus
 
                     switch (index)
                     {
-                        case 9: return "YM2413 Hi-Hat";
-                        case 10: return "YM2413 Cymbal";
+                        case 9: return "YM2413 Bass Drum";
+                        case 10: return "YM2413 Snare Drum";
                         case 11: return "YM2413 Tom-Tom";
-                        case 12: return "YM2413 Snare Drum";
-                        case 13: return "YM2413 Bass Drum";
+                        case 12: return "YM2413 Cymbal";
+                        case 13: return "YM2413 Hi-Hat";
                     }
                 }
 
