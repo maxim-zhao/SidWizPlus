@@ -24,6 +24,7 @@ namespace SidWizPlus
         public MultiLanguageTag Composer { get; set; }
         public string Date { get; set; }
         public string Ripper { get; set; }
+        public string Notes { get; set; }
 
         public static Gd3Tag LoadFromVgm(string filename)
         {
@@ -63,6 +64,7 @@ namespace SidWizPlus
                 Composer = new MultiLanguageTag {English = tags[6], Japanese = tags[7]},
                 Date = tags[8],
                 Ripper = tags[9],
+                Notes = tags[10]
             };
         }
 
