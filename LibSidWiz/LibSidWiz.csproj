@@ -48,8 +48,7 @@
   <ItemGroup>
     <Compile Include="AudioLoader.cs" />
     <Compile Include="Channel.cs" />
-    <Compile Include="FloatArraySampleProvider.cs" />
-    <Compile Include="IGraphicsOutput.cs" />
+    <Compile Include="Outputs\IGraphicsOutput.cs" />
     <Compile Include="Outputs\FfmpegOutput.cs" />
     <Compile Include="Outputs\PreviewOutputForm.cs">
       <SubType>Form</SubType>

@@ -37,7 +37,7 @@ namespace LibSidWiz.Outputs
             // - take a copy of the image
             // - BeginInvoke an action to render it
             // - Make GUI driver run the render on a worker thread
-            // This may help with the framerate. It's never going to be that fast though...
+            // This may help with the frame rate. It's never going to be that fast though...
 
             _form.pictureBox1.Image = image;
             _form.pictureBox1.Refresh();

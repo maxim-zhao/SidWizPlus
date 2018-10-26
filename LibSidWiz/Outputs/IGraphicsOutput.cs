@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Drawing;
 
-namespace LibSidWiz
+namespace LibSidWiz.Outputs
 {
     public interface IGraphicsOutput: IDisposable
     {

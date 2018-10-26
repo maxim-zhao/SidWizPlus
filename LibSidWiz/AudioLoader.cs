@@ -44,11 +44,6 @@ namespace LibSidWiz
                 SampleRate = reader.WaveFormat.SampleRate;
             }
 
-            // ReSharper disable once CompareOfFloatsByEqualityOperator
-            // int stepsPerFile = 3 + (settings.HighPassFilterFrequency > 0 ? 1 : 0);
-            // int totalProgress = settings.InputFiles.Count * stepsPerFile;
-            // int progress = 0;
-
             // We have to copy the reference to make it "safe" for threads
             var loadTask = Task.Run(() =>
             {
@@ -62,7 +57,6 @@ namespace LibSidWiz
 
                     // We read the file and convert to mono
                     reader.ToSampleProvider().ToMono().Read(buffer, 0, (int) reader.SampleCount);
-                    // Interlocked.Increment(ref progress);
 
                     // We don't care about ones where the samples are all equal
                     // ReSharper disable once CompareOfFloatsByEqualityOperator
@@ -71,7 +65,6 @@ namespace LibSidWiz
                         Console.WriteLine($"- Skipping {filename} because it is silent");
                         // So we skip steps here
                         reader.Dispose();
-                        // Interlocked.Add(ref progress, stepsPerFile - 1);
                         return null;
                     }
 
@@ -84,15 +77,9 @@ namespace LibSidWiz
                         {
                             buffer[i] = filter.Transform(buffer[i]);
                         }
-
-                        // Interlocked.Increment(ref progress);
                     }
 
-                    float max = float.MinValue;
-                    foreach (var sample in buffer)
-                    {
-                        max = Math.Max(max, Math.Abs(sample));
-                    }
+                    float max = buffer.Select(Math.Abs).Max();
 
                     return new ChannelData{Data = buffer, WavReader = reader, Max = max, Filename = filename};
                 }).Where(ch => ch != null).ToList();

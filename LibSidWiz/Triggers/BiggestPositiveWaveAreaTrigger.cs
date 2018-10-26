@@ -3,7 +3,7 @@
 namespace LibSidWiz.Triggers
 {
     /// <summary>
-    /// Finds the positive wave with the biggest area (= sum of absolute samples)
+    /// Finds the wave with the biggest positive area (= sum of positive samples)
     /// </summary>
     // ReSharper disable once UnusedMember.Global
     internal class BiggestPositiveWaveAreaTrigger : ITriggerAlgorithm

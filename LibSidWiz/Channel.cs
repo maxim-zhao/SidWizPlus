@@ -83,7 +83,7 @@ namespace LibSidWiz
                 }
 
                 // Guess it's the bit after the last " - "
-                index = namePart.LastIndexOf(" - ");
+                index = namePart.LastIndexOf(" - ", StringComparison.Ordinal);
                 if (index > -1)
                 {
                     return namePart.Substring(index + 3);
