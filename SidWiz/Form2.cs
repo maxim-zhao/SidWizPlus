@@ -9,12 +9,18 @@ using System.Windows.Forms;
 
 namespace SidWiz
 {
-    public partial class Form3 : Form
+    public partial class Form2 : Form
     {
-        public Form3()
+        
+        public Form2()
         {
             InitializeComponent();
         }
 
+        private void Stop_Click(object sender, EventArgs e)
+        {
+            
+        }
     }
+
 }

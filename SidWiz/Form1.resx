@@ -117,6 +117,31 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <metadata name="toolTip1.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+    <value>14, 21</value>
+  </metadata>
+  <data name="label2.ToolTip" xml:space="preserve">
+    <value>(not yet implemented)
+
+Scales the volume of the audio to 90% of max volume.
+
+Individual scanes each file individually and normalizes relative to that value.  
+This makes every channel as loud as possible but may be inaccurate as a quieter channel will look as loud as a louder one.
+
+Overall scans all files and finds the highest and lowest volumes and normalizes relative to this value.  
+Not all channels will be as loud as possible, but they will be correct relative to the others.</value>
+  </data>
+  <data name="comboBox1.ToolTip" xml:space="preserve">
+    <value>(not yet implemented)
+
+Scales the volume of the audio to 90% of max volume.
+
+Individual scanes each file individually and normalizes relative to that value.  
+This makes every channel as loud as possible but may be inaccurate as a quieter channel will look as loud as a louder one.
+
+Overall scans all files and finds the highest and lowest volumes and normalizes relative to this value.  
+Not all channels will be as loud as possible, but they will be correct relative to the others.</value>
+  </data>
   <metadata name="$this.TrayHeight" type="System.Int32, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
     <value>25</value>
   </metadata>

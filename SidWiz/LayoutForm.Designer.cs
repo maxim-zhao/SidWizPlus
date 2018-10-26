@@ -1,6 +1,6 @@
 ﻿namespace SidWiz
 {
-    partial class Form3
+    partial class LayoutForm
     {
         /// <summary>
         /// Required designer variable.
@@ -28,34 +28,23 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.label1 = new System.Windows.Forms.Label();
             this.SuspendLayout();
             // 
-            // label1
-            // 
-            this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(12, 9);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(35, 13);
-            this.label1.TabIndex = 0;
-            this.label1.Text = "label1";
-            // 
-            // Form3
+            // LayoutForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(288, 38);
+            this.ClientSize = new System.Drawing.Size(284, 261);
             this.ControlBox = false;
-            this.Controls.Add(this.label1);
-            this.Name = "Form3";
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
+            this.Name = "LayoutForm";
+            this.RightToLeft = System.Windows.Forms.RightToLeft.No;
+            this.Text = "Layout Manager";
+            this.Load += new System.EventHandler(this.LayoutForm_Load);
             this.ResumeLayout(false);
-            this.PerformLayout();
 
         }
 
         #endregion
-
-        public System.Windows.Forms.Label label1;
-
     }
 }
