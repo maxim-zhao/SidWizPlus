@@ -6,7 +6,6 @@ using System.Linq;
 using System.Windows.Forms;
 using System.Reflection;
 using System.Drawing.Imaging;
-using AviFile;
 using System.Diagnostics;
 using System.IO;
 using System.Runtime;
@@ -23,11 +22,10 @@ namespace SidWiz {
         Form lay = new LayoutForm();
         bool outputWindow = true;
         int voices = 0;
-        Form2 frm;
         bool flag = false;
         int ResX = 0;
         int ResY = 0;
-		float fps = 60f;
+        float fps = 60f;
         int prevVoice = 0;
         Color clr = new Color();
         public Form1()
@@ -37,6 +35,7 @@ namespace SidWiz {
 
         private void Start_Click(object sender, EventArgs e)
         {
+#if false
             //Stopwatch Setup = new Stopwatch();
             //Stopwatch ReadFromDisk = new Stopwatch();
             //Stopwatch Synchronization = new Stopwatch();
@@ -119,7 +118,7 @@ namespace SidWiz {
             int cols = (int)(numColumns.Value) - 1;
             int columns = cols + 1;
             int yMax, yMin;
-			fps = float.Parse(tboxFps.Text);
+            fps = float.Parse(tboxFps.Text);
 
             int triggerLevel = 135;
             SaveFileDialog sfd = new SaveFileDialog();
@@ -187,17 +186,17 @@ namespace SidWiz {
                 //add a new video stream and one frame to the new file
                 aviStream = aviManager.AddVideoStream(true, 60, ResX * ResY * 3, ResX, ResY, PixelFormat.Format24bppRgb);
             }
-			else
-			{
-				ffProc = new Process();
-				ffProc.StartInfo.FileName = ffPath;
-				ffProc.StartInfo.Arguments = String.Format("-y -f rawvideo -pixel_format bgr24 -video_size {0}x{1} -framerate {2} -i pipe: {3} \"{4}\"",
-					ResX, ResY, fps, ffOutArgs.Text, Path.GetFullPath(sfd.FileName));
-				ffProc.StartInfo.UseShellExecute = false;
-				ffProc.StartInfo.RedirectStandardInput = true;
-				ffProc.Start();
-				ffWriter = new BinaryWriter(ffProc.StandardInput.BaseStream);
-			}
+            else
+            {
+                ffProc = new Process();
+                ffProc.StartInfo.FileName = ffPath;
+                ffProc.StartInfo.Arguments = String.Format("-y -f rawvideo -pixel_format bgr24 -video_size {0}x{1} -framerate {2} -i pipe: {3} \"{4}\"",
+                    ResX, ResY, fps, ffOutArgs.Text, Path.GetFullPath(sfd.FileName));
+                ffProc.StartInfo.UseShellExecute = false;
+                ffProc.StartInfo.RedirectStandardInput = true;
+                ffProc.Start();
+                ffWriter = new BinaryWriter(ffProc.StandardInput.BaseStream);
+            }
             float resScaler = (float)Math.Ceiling((float)voices/(float)columns);
             int slotSize = ResY / (int)resScaler;
 
@@ -779,7 +778,7 @@ namespace SidWiz {
                                     {
                                         Pen blackPen = new Pen(Color.White, 1);
                                         Pen dark = new Pen(Color.Black, 1);
-										int rows = (int)Math.Ceiling((double)voices / columns);
+                                        int rows = (int)Math.Ceiling((double)voices / columns);
                                         using (var graphics = Graphics.FromImage(framebuffer))
                                         {
 
@@ -813,14 +812,14 @@ namespace SidWiz {
 
                                     //note that this code easily takes the longest time to execute at 25ms or so.  Look for ways to improve this.  Threading AVI output doesn't seem to work.
 
-					if (ffPath != "")
-					{
-						IntPtr ptr = bitmapData.Scan0;
-						int s = Math.Abs(bitmapData.Stride) * bitmapData.Height;
-						byte[] data = new byte[s];
-						Marshal.Copy(ptr, data, 0, s);
-						ffWriter.Write(data);
-					}
+                    if (ffPath != "")
+                    {
+                        IntPtr ptr = bitmapData.Scan0;
+                        int s = Math.Abs(bitmapData.Stride) * bitmapData.Height;
+                        byte[] data = new byte[s];
+                        Marshal.Copy(ptr, data, 0, s);
+                        ffWriter.Write(data);
+                    }
 
                     if (Application.OpenForms.Count == 0) break;  //if the program is closed, jump out of loop and exit gracefully.
 
@@ -860,7 +859,7 @@ namespace SidWiz {
                     }
                     catch { }
                     
-					if (ffPath == "") aviStream.AddFrame(framebuffer);    //add frame to AVI
+                    if (ffPath == "") aviStream.AddFrame(framebuffer);    //add frame to AVI
 
                     try
                     {
@@ -888,33 +887,33 @@ namespace SidWiz {
                     //SaveAvi.Reset();
                 }
 
-			if (ffPath == "")
-			{
-				aviManager.Close();     //file is done being written, close the stream
-				
-				#region process with MKVMerge
+            if (ffPath == "")
+            {
+                aviManager.Close();     //file is done being written, close the stream
+                
+                #region process with MKVMerge
 
-				Process p = new Process();
-				// Redirect the output stream of the child process.
-				p.StartInfo.UseShellExecute = false;
-				p.StartInfo.RedirectStandardOutput = true;
-				p.StartInfo.FileName = "mkvmerge.exe";
-				p.StartInfo.Arguments = "-o \"" + sfd.FileName + "\" " + tempavi + " \"" + masterFile + "\"";
-				p.Start();
-				String strT = "";
-				strT = p.StandardOutput.ReadToEnd();
-				p.WaitForExit();
-				//MessageBox.Show(strT);
+                Process p = new Process();
+                // Redirect the output stream of the child process.
+                p.StartInfo.UseShellExecute = false;
+                p.StartInfo.RedirectStandardOutput = true;
+                p.StartInfo.FileName = "mkvmerge.exe";
+                p.StartInfo.Arguments = "-o \"" + sfd.FileName + "\" " + tempavi + " \"" + masterFile + "\"";
+                p.Start();
+                String strT = "";
+                strT = p.StandardOutput.ReadToEnd();
+                p.WaitForExit();
+                //MessageBox.Show(strT);
 
-				if (File.Exists(tempavi)) File.Delete(tempavi);
+                if (File.Exists(tempavi)) File.Delete(tempavi);
 
-				#endregion
-			}
-			else
-			{
-				ffWriter.Close();
-				ffProc.Close();
-			}
+                #endregion
+            }
+            else
+            {
+                ffWriter.Close();
+                ffProc.Close();
+            }
 
             Start.Enabled = true;   //you can click start again. this was causing some fun problems ;)
             frm.Hide();
@@ -927,6 +926,7 @@ namespace SidWiz {
                 voiceData[i].Close();
             }
             #endregion
+#endif
         } //------end of start button click
 
 
@@ -1114,44 +1114,44 @@ namespace SidWiz {
                 lay.BringToFront();
             }
             catch { }
-		}
+        }
 
-		[Serializable]
-		class saveData      //for saving templates
-		{
-			//these are all indices of combo boxes
-			public int voices;
-			public int columns;
-			public int scale;
-			public int thickness;
-			public int resolution;
-			public bool block;
-			public bool[] altSync;
+        [Serializable]
+        class saveData      //for saving templates
+        {
+            //these are all indices of combo boxes
+            public int voices;
+            public int columns;
+            public int scale;
+            public int thickness;
+            public int resolution;
+            public bool block;
+            public bool[] altSync;
 
-			public bool grid;
-			public bool showOutput;
+            public bool grid;
+            public bool showOutput;
 
-			//files
-			public String master;
-			public String[] voiceFiles;
-			public Color[] colors;
-			public String folder;
+            //files
+            public String master;
+            public String[] voiceFiles;
+            public Color[] colors;
+            public String folder;
 
-			//sidwiz 2.1 fields
-			public bool savedInSw21;
-			public String sw21Scale;
-			public String sw21Fps;
-			public int sw21Width;
-			public int sw21Height;
-			public String sw21FFPath;
-			public String sw21FFArgs;
-		}
+            //sidwiz 2.1 fields
+            public bool savedInSw21;
+            public String sw21Scale;
+            public String sw21Fps;
+            public int sw21Width;
+            public int sw21Height;
+            public String sw21FFPath;
+            public String sw21FFArgs;
+        }
 
-		private void button4_Click(object sender, EventArgs e) //save template
+        private void button4_Click(object sender, EventArgs e) //save template
         {
             // values are altered for compatibility with rushjet1's original version
             saveData data = new saveData();
-			data.savedInSw21 = true;
+            data.savedInSw21 = true;
             int voices = (int)numVoices.Value;
             data.voices = voices - 1;
             data.columns = (int)numColumns.Value - 1;
@@ -1161,14 +1161,14 @@ namespace SidWiz {
             data.block = chkBlock.Checked;
             data.showOutput = checkBox2.Checked;
             data.grid = chkGrid.Checked;
-			data.sw21Scale = tboxScale.Text;
-			data.sw21Fps = tboxFps.Text;
-			data.sw21Width = int.Parse(tboxWidth.Text);
-			data.sw21Height = int.Parse(tboxHeight.Text);
-			data.sw21FFPath = ffPath;
-			data.sw21FFArgs = ffOutArgs.Text;
+            data.sw21Scale = tboxScale.Text;
+            data.sw21Fps = tboxFps.Text;
+            data.sw21Width = int.Parse(tboxWidth.Text);
+            data.sw21Height = int.Parse(tboxHeight.Text);
+            data.sw21FFPath = ffPath;
+            data.sw21FFArgs = ffOutArgs.Text;
 
-			data.master = button2.Text;
+            data.master = button2.Text;
             data.voiceFiles = new String[voices];
             data.colors = new Color[voices];
             data.altSync = new bool[voices];
@@ -1220,9 +1220,9 @@ namespace SidWiz {
             }
         }
 
-		String[] sw20Widths = new String[4]{ "852", "1280", "1920", "2560" };
-		String[] sw20Heights = new String[4]{ "480", "720", "1080", "1440" };
-		private void button3_Click(object sender, EventArgs e)      //load template
+        String[] sw20Widths = new String[4]{ "852", "1280", "1920", "2560" };
+        String[] sw20Heights = new String[4]{ "480", "720", "1080", "1440" };
+        private void button3_Click(object sender, EventArgs e)      //load template
         {
             OpenFileDialog ofd = new OpenFileDialog();
             ofd.Filter = "SidWiz2 Template (.sdt)|*.sdt";
@@ -1241,27 +1241,27 @@ namespace SidWiz {
             catch { }
             numVoices.Value = data.voices + 1;
             numColumns.Value = data.columns + 1;
-			numThick.Value = data.thickness + 2;
-			checkBox2.Checked = data.showOutput;
-			chkGrid.Checked = data.grid;
-			button2.Text = data.master;
-			if (data.savedInSw21)
-			{
-				tboxScale.Text = data.sw21Scale;
-				tboxFps.Text = data.sw21Fps;
-				tboxWidth.Text = data.sw21Width.ToString();
-				tboxHeight.Text = data.sw21Height.ToString();
-				ffPath = data.sw21FFPath;
-				ffOutArgs.Enabled = true;
-				enableFFBox.Checked = true; // this will automatically trigger exe check routine
-				ffOutArgs.Text = data.sw21FFArgs;
-			}
-			else
-			{
-				tboxScale.Text = (Math.Pow(2, data.scale - 3)).ToString();
-				tboxWidth.Text = sw20Widths[data.resolution];
-				tboxHeight.Text = sw20Heights[data.resolution];
-			}
+            numThick.Value = data.thickness + 2;
+            checkBox2.Checked = data.showOutput;
+            chkGrid.Checked = data.grid;
+            button2.Text = data.master;
+            if (data.savedInSw21)
+            {
+                tboxScale.Text = data.sw21Scale;
+                tboxFps.Text = data.sw21Fps;
+                tboxWidth.Text = data.sw21Width.ToString();
+                tboxHeight.Text = data.sw21Height.ToString();
+                ffPath = data.sw21FFPath;
+                ffOutArgs.Enabled = true;
+                enableFFBox.Checked = true; // this will automatically trigger exe check routine
+                ffOutArgs.Text = data.sw21FFArgs;
+            }
+            else
+            {
+                tboxScale.Text = (Math.Pow(2, data.scale - 3)).ToString();
+                tboxWidth.Text = sw20Widths[data.resolution];
+                tboxHeight.Text = sw20Heights[data.resolution];
+            }
 
             //data.voiceFiles = new String[voices];
             //data.colors = new Color[voices];
