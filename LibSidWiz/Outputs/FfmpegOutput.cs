@@ -52,6 +52,8 @@ namespace LibSidWiz.Outputs
         {
             // This triggers a shutdown
             _process?.StandardInput.Close();
+            // And we wait for it to finish...
+            _process?.WaitForExit();
             _process?.Dispose();
             _writer?.Dispose();
         }
