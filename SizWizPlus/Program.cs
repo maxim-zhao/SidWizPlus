@@ -585,13 +585,12 @@ namespace SidWizPlus
                             break;
                         case UploadStatus.Failed:
                             Console.Error.WriteLine($"Upload failed: {progress.Exception}");
-                            // Google API says we can retry if we get a non-API error, a 4xx error code or one of these four 5xx error codes
+                            // Google API says we can retry if we get a non-API error, or one of these four 5xx error codes
                             shouldRetry = !(progress.Exception is GoogleApiException errorCode) 
                                 || new[] {
                                     HttpStatusCode.InternalServerError, HttpStatusCode.BadGateway,
                                     HttpStatusCode.ServiceUnavailable, HttpStatusCode.GatewayTimeout
-                                }.Contains(errorCode.HttpStatusCode) || 
-                                (int)errorCode.HttpStatusCode / 100 == 4;
+                                }.Contains(errorCode.HttpStatusCode);
                             if (shouldRetry)
                             {
                                 Console.WriteLine("Retrying...");
