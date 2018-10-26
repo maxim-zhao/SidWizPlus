@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Reflection;
 using System.Text.RegularExpressions;
 using System.Threading;
@@ -13,6 +13,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using CommandLine;
 using CommandLine.Text;
+using Google;
 using Google.Apis.Auth.OAuth2;
 using Google.Apis.Services;
 using Google.Apis.Upload;
@@ -131,20 +132,22 @@ namespace SidWizPlus
 
             [Option("youtubesecret", HelpText = "YouTube client secret JSON file")]
             public string YouTubeUploadClientSecret { get; set; }
+            [Option("youtubetitle", HelpText = "YouTube video title. If a VGM is specified then you can reference GD3 tags like [title], [system], [game], [composer]")]
+            public string YouTubeTitle { get; set; }
             [Option("youtubecategory", HelpText = "YouTube video category", DefaultValue = "Gaming")]
             public string YouTubeCategory { get; set; }
             [Option("youtubetags", HelpText = "YouTube video tags, comma separated")]
             public string YouTubeTags { get; set; }
             [Option("youtubetagsfromgd3", HelpText = "Populate additional tags from the GD3 tag")]
             public bool YouTubeTagsFromGd3 { get; set; }
-            [Option("youtubeplaylist", HelpText = "YouTube playlist title")]
+            [Option("youtubeplaylist", HelpText = "YouTube playlist title. If a VGM is specified then you can reference GD3 tags like [title], [system], [game], [composer]")]
             public string YouTubePlaylist { get; set; }
-            [Option("youtubeplaylistfromgd3", HelpText = "Autogenerate YouTube playlist title using this as a template, you can use tags like [title], [system], [game], [composer]")]
-            public string YouTubePlaylistFromGd3 { get; set; }
-            [Option("youtubetitle", HelpText = "YouTube video title")]
-            public string YouTubeTitle { get; set; }
-            [Option("youtubetitlefromgd3", HelpText = "Autogenerate YouTube video title using this as a template, you can use tags like [title], [system], [game], [composer]")]
-            public string YouTubeTitleFromGd3 { get; set; }
+            [Option("youtubeplaylistdescriptionfile", HelpText = "Use the specified file for the playlist description")]
+            public string YouTubePlaylistDescriptionFile { get; set; }
+            [Option("youtubedescriptionsextratext", HelpText = "Extra text to append to descriptions")]
+            public string YouTubeDescriptionsExtra { get; set; }
+            [Option("youtubeonly", HelpText = "Only upload to YouTube")]
+            public bool YouTubeOnly { get; set; }
 
             [HelpOption]
             public string GetUsage()
@@ -180,45 +183,45 @@ namespace SidWizPlus
                     }
                 }
 
-                /*
-                if (settings.InputFiles == null)
+                if (!settings.YouTubeOnly)
                 {
-                    RunMultiDumper(ref settings);
-                }
-                else
-                {
-                    // We want to expand any wildcards in the input file list (and also fully qualify them)
-                    settings.InputFiles = settings.InputFiles
-                        .SelectMany(s => Directory
-                            .EnumerateFiles(Directory.GetCurrentDirectory(), s)
-                            .OrderByAlphaNumeric(x => x))
-                        .ToList();
+                    if (settings.InputFiles == null)
+                    {
+                        RunMultiDumper(ref settings);
+                    }
+                    else
+                    {
+                        // We want to expand any wildcards in the input file list (and also fully qualify them)
+                        settings.InputFiles = settings.InputFiles
+                            .SelectMany(s => Directory
+                                .EnumerateFiles(Directory.GetCurrentDirectory(), s)
+                                .OrderByAlphaNumeric(x => x))
+                            .ToList();
+                    }
+
+                    if (settings.InputFiles == null || !settings.InputFiles.Any())
+                    {
+                        Console.Error.WriteLine(settings.GetUsage());
+                        throw new Exception("No inputs specified");
+                    }
+
+                    using (var loader = new AudioLoader
+                    {
+                        AutoScalePercentage = settings.AutoScalePercentage,
+                        HighPassFilterFrequency = settings.HighPassFilterFrequency,
+                        VerticalScaleMultiplier = settings.VerticalScaleMultiplier,
+                    })
+                    {
+                        loader.LoadAudio(settings.InputFiles);
+                        Render(settings, loader);
+                    }
                 }
 
-                if (settings.InputFiles == null || !settings.InputFiles.Any())
-                {
-                    Console.Error.WriteLine(settings.GetUsage());
-                    throw new Exception("No inputs specified");
-                }
-
-                using (var loader = new AudioLoader
-                {
-                    AutoScalePercentage = settings.AutoScalePercentage,
-                    HighPassFilterFrequency = settings.HighPassFilterFrequency,
-                    VerticalScaleMultiplier = settings.VerticalScaleMultiplier,
-                })
-                {
-                    loader.LoadAudio(settings.InputFiles);
-                    Render(settings, loader);
-                }
-                */
                 if (settings.YouTubeUploadClientSecret != null)
                 {
                     var task = UploadToYouTube(settings);
                     task.Wait();
-                    Console.WriteLine($"Video ID is {task.Result}");
                 }
-
             }
             catch (Exception e)
             {
@@ -463,15 +466,16 @@ namespace SidWizPlus
                     // This OAuth 2.0 access scope allows an application to upload files to the
                     // authenticated user's YouTube channel, but doesn't allow other types of access.
                     new[] { YouTubeService.Scope.YoutubeUpload, YouTubeService.Scope.YoutubeForceSsl },
-                    "SidWiz",
+                    "SidWizPlus",
                     CancellationToken.None
                 );
             }
 
-            var youtubeService = new YouTubeService(new BaseClientService.Initializer()
+            var youtubeService = new YouTubeService(new BaseClientService.Initializer
             {
                 HttpClientInitializer = credential,
-                ApplicationName = Assembly.GetExecutingAssembly().GetName().Name
+                ApplicationName = Assembly.GetExecutingAssembly().GetName().Name,
+                GZipEnabled = true
             });
 
             var video = new Video
@@ -479,7 +483,6 @@ namespace SidWizPlus
                 Snippet = new VideoSnippet
                 {
                     Title = settings.YouTubeTitle,
-                    Description = $"Uploaded {settings.OutputFile} va SidWiz",
                     CategoryId = "10" // Music
                 },
                 Status = new VideoStatus {PrivacyStatus = "public"}
@@ -500,10 +503,14 @@ namespace SidWizPlus
 
             if (gd3 != null)
             {
-                video.Snippet.Description = $"Oscilloscope View of {gd3.Game}";
+                video.Snippet.Description = $"Oscilloscope View of {gd3.Title}";
+                if (gd3.Game.English.Length > 0)
+                {
+                    video.Snippet.Description += $" from the game {gd3.Game.English}";
+                }
                 if (gd3.System.English.Length > 0)
                 {
-                    video.Snippet.Description += $"for the {gd3.System.English}";
+                    video.Snippet.Description += $" for the {gd3.System.English}";
                 }
                 if (gd3.Composer.English.Length > 0)
                 {
@@ -518,7 +525,15 @@ namespace SidWizPlus
                 {
                     video.Snippet.Description += "\n\nNotes:\n" + gd3.Notes;
                 }
+
             }
+
+            if (settings.YouTubeDescriptionsExtra != null)
+            {
+                video.Snippet.Description += "\n" + settings.YouTubeDescriptionsExtra;
+            }
+
+            video.Snippet.Description += "\n\nVideo created using SidWizPlus - https://github.com/maxim-zhao/SidWizPlus";
 
             if (settings.YouTubeTagsFromGd3 && gd3 != null)
             {
@@ -527,7 +542,7 @@ namespace SidWizPlus
                 tags.AddRange(gd3.Composer.English.Split(';'));
             }
 
-            tags = tags.Where(t => !string.IsNullOrEmpty(t)).Select(t => t.Trim()).ToList();
+            video.Snippet.Tags = tags.Where(t => !string.IsNullOrEmpty(t)).Select(t => t.Trim()).ToList();
 
             if (settings.YouTubeCategory != null)
             {
@@ -544,23 +559,47 @@ namespace SidWizPlus
                 }
             }
 
-            if (settings.YouTubeTitleFromGd3 != null && gd3 != null)
+            if (gd3 != null)
             {
-                video.Snippet.Title = FormatFromGd3(settings.YouTubeTitleFromGd3, gd3);
+                video.Snippet.Title = FormatFromGd3(video.Snippet.Title, gd3);
+            }
+
+            if (video.Snippet.Title.Length > 100)
+            {
+                video.Snippet.Title = video.Snippet.Title.Substring(0, 97) + "...";
             }
 
             using (var fileStream = new FileStream(settings.OutputFile, FileMode.Open))
             {
                 var videosInsertRequest = youtubeService.Videos.Insert(video, "snippet,status", fileStream, "video/*");
+                videosInsertRequest.ChunkSize = ResumableUpload.MinimumChunkSize;
+                long totalSize = fileStream.Length;
+                bool shouldRetry = true;
+                var sw = Stopwatch.StartNew();
                 videosInsertRequest.ProgressChanged += progress =>
                 {
                     switch (progress.Status)
                     {
                         case UploadStatus.Uploading:
-                            Console.WriteLine($"{progress.BytesSent / 1024 / 1024:F}MB sent");
+                            Console.Write($"\r{(double)progress.BytesSent / 1024 / 1024:f}MB sent ({(double)progress.BytesSent / totalSize:P}, average {progress.BytesSent / sw.Elapsed.TotalSeconds / 1024:f}KB/s)");
                             break;
                         case UploadStatus.Failed:
                             Console.Error.WriteLine($"Upload failed: {progress.Exception}");
+                            // Google API says we can retry if we get a non-API error, a 4xx error code or one of these four 5xx error codes
+                            shouldRetry = !(progress.Exception is GoogleApiException errorCode) 
+                                || new[] {
+                                    HttpStatusCode.InternalServerError, HttpStatusCode.BadGateway,
+                                    HttpStatusCode.ServiceUnavailable, HttpStatusCode.GatewayTimeout
+                                }.Contains(errorCode.HttpStatusCode) || 
+                                (int)errorCode.HttpStatusCode / 100 == 4;
+                            if (shouldRetry)
+                            {
+                                Console.WriteLine("Retrying...");
+                            }
+                            break;
+                        case UploadStatus.Completed:
+                            Console.WriteLine($"Progress: {progress.Status}");
+                            shouldRetry = false;
                             break;
                         default:
                             Console.WriteLine($"Progress: {progress.Status}");
@@ -570,17 +609,36 @@ namespace SidWizPlus
                 videosInsertRequest.ResponseReceived += video1 =>
                 {
                     video.Id = video1.Id;
-                    Console.WriteLine($"Upload completed: video ID is {video1.Id}");
+                    Console.WriteLine($"\nUpload completed: video ID is {video1.Id}");
                 };
 
-                videosInsertRequest.Upload();
+                try
+                {
+                    videosInsertRequest.Upload();
+                }
+                catch (Exception ex)
+                {
+                    Console.Error.WriteLine($"Upload failed: {ex}");
+                }
+
+                while (shouldRetry)
+                {
+                    try
+                    {
+                        videosInsertRequest.Resume();
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.Error.WriteLine($"Upload failed: {ex}");
+                    }
+                }
             }
 
-            if (settings.YouTubePlaylist != null || (settings.YouTubePlaylistFromGd3 != null && gd3 != null))
+            if (settings.YouTubePlaylist != null)
             {
-                if (settings.YouTubePlaylistFromGd3 != null)
+                if (gd3 != null)
                 {
-                    settings.YouTubePlaylist = FormatFromGd3(settings.YouTubePlaylistFromGd3, gd3);
+                    settings.YouTubePlaylist = FormatFromGd3(settings.YouTubePlaylist, gd3);
                 }
                 
                 // We need to decide if it's an existing playlist
@@ -604,17 +662,20 @@ namespace SidWizPlus
                             PrivacyStatus = "public"
                         }
                     };
-                    if (gd3 != null)
+                    if (settings.YouTubePlaylistDescriptionFile != null)
                     {
-                        // TODO: want pack details here?
-                        // TODO: what if tags are empty
-                        // TODO: link to VGM pack
-                        playlist.Snippet.Description = $"Soundtrack for {gd3.Game.English} for {gd3.System.English}. Composed by {gd3.Composer.English}. Ripped by {gd3.Ripper}.";
+                        playlist.Snippet.Description = File.ReadAllText(settings.YouTubePlaylistDescriptionFile);
+                    }
+
+                    if (settings.YouTubeDescriptionsExtra != null)
+                    {
+                        playlist.Snippet.Description += "\n\n" + settings.YouTubeDescriptionsExtra;
                     }
 
                     playlist = youtubeService.Playlists.Insert(playlist, "snippet, status").Execute();
                     Console.WriteLine($"Created playlist \"{settings.YouTubePlaylist} with ID {playlist.Id}\"");
                 }
+
                 // Add to it
                 var newPlaylistItem = new PlaylistItem
                 {
@@ -625,7 +686,7 @@ namespace SidWizPlus
                     }
                 };
                 newPlaylistItem = await youtubeService.PlaylistItems.Insert(newPlaylistItem, "snippet").ExecuteAsync();
-                Console.WriteLine($"Added video {video} to playlist \"{playlist}\" as item {newPlaylistItem}");
+                Console.WriteLine($"Added video {video.Id} ({video.Snippet.Title}) to playlist {playlist.Id} ({playlist.Snippet.Title}) as item {newPlaylistItem.Id}");
             }
 
             return video.Id;
