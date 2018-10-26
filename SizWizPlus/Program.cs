@@ -40,9 +40,11 @@ namespace SidWizPlus
             [Option('m', "master", Required = false, HelpText = "Master audio file, if not specified then the inputs will be mixed to a new file")]
             public string MasterAudioFile { get; set; }
 
+            // ReSharper disable once StringLiteralTypo
             [Option("nomastermix", HelpText = "Disable automatic generation of master audio file (on by default)")]
             public bool NoMasterMix { get; set;}
 
+            // ReSharper disable once StringLiteralTypo
             [Option("nomastermixreplaygain", HelpText = "Disable automatic ReplayGain adjustment of automatically generated master audio file (on by default)")]
             public bool NoMasterMixReplayGain { get; set;}
 
@@ -58,43 +60,56 @@ namespace SidWizPlus
             [Option('c', "columns", Required = false, HelpText = "Number of columns to render", DefaultValue = 1)]
             public int Columns { get; set; }
 
+            // ReSharper disable once StringLiteralTypo
             [Option("viewms", Required = false, HelpText = "Rendered view width in ms", DefaultValue = 35)]
             public int ViewWidthMs { get; set; }
 
             [Option('r', "fps", Required = false, HelpText = "Frame rate", DefaultValue = 60)]
             public int FramesPerSecond { get; set; }
             
+            // ReSharper disable once StringLiteralTypo
             [Option("linewidth", Required = false, HelpText = "Line width", DefaultValue = 3)]
             public float LineWidth { get; set; }
 
+            // ReSharper disable once StringLiteralTypo
             [Option("linecolor", Required = false, HelpText = "Line color, can be hex of a .net color name", DefaultValue = "white")]
             public string LineColor { get; set; }
 
+            // ReSharper disable once StringLiteralTypo
             [Option("highpassfilter", Required = false, HelpText = "Enable high pass filtering with the given value as the cutoff frequency. A value of 10 works well to remove DC offsets.")]
             public float HighPassFilterFrequency { get; set; }
 
             [Option('s', "scale", Required = false, HelpText = "Vertical scale factor. This is applied as a multiplier after auto scaling.")]
             public float VerticalScaleMultiplier { get; set; }
 
+            // ReSharper disable once StringLiteralTypo
             [Option('a', "autoscale", Required = false, HelpText = "Automatic scaling percentage. A value of 100 will make the peak amplitude just fit in the rendered area.")]
             public float AutoScalePercentage { get; set; }
 
+            // ReSharper disable once StringLiteralTypo
             [Option('t', "triggeralgorithm", Required = false, HelpText = "Trigger algorithm name", DefaultValue = nameof(PeakSpeedTrigger))]
             public string TriggerAlgorithm { get; set; }
+            // ReSharper disable once StringLiteralTypo
             [Option("triggerlookahead", Required = false, HelpText = "Number of frames to allow the trigger to look ahead, zero means no lookahead", DefaultValue = 0)]
             public int TriggerLookahead { get; set; }
 
+            // ReSharper disable once StringLiteralTypo
             [Option('p', "previewframeskip", Required = false, HelpText = "Enable a preview window with the specified frameskip - higher values give faster rendering by not drawing every frame to the screen.")]
             public int PreviewFrameskip { get; set; }
 
+            // ReSharper disable once StringLiteralTypo
             [Option("ffmpeg", Required = false, HelpText = "Path to FFMPEG. If not given, no output is produced.")]
             public string FfMpegPath { get; set; }
+            // ReSharper disable once StringLiteralTypo
             [Option("ffmpegoptions", Required = false, HelpText = "Extra commandline options for FFMPEG, e.g. to set the output format", DefaultValue = "")]
             public string FfMpegExtraOptions { get; set; }
 
+            // ReSharper disable once StringLiteralTypo
             [Option("multidumper", Required = false, HelpText = "Path to MultiDumper, if specified with --vgm and no --files then it will be invoked for the VGM")]
+            // ReSharper disable once IdentifierTypo
             public string MultidumperPath { get; set; }
 
+            // ReSharper disable once StringLiteralTypo
             [Option("backgroundcolor", Required = false, HelpText = "Background color, can be hex of a .net color name", DefaultValue = "black")]
             public string BackgroundColor { get; set; }
 
@@ -104,48 +119,66 @@ namespace SidWizPlus
             [Option("logo", Required = false, HelpText = "Logo image, drawn in the lower right")]
             public string LogoImageFile { get; set; }
             
+            // ReSharper disable once StringLiteralTypo
             [Option("gridcolor", Required = false, HelpText = "Grid color, can be hex or a .net color name", DefaultValue = "white")]
             public string GridColor { get; set; }
+            // ReSharper disable once StringLiteralTypo
             [Option("gridwidth", Required = false, HelpText = "Grid line width", DefaultValue = 0)]
             public float GridLineWidth { get; set; }
+            // ReSharper disable once StringLiteralTypo
             [Option("gridborder", HelpText = "Draw a border around the waves as well as between them")]
             public bool GridBorder { get; set; }
 
+            // ReSharper disable once StringLiteralTypo
             [Option("zerolinecolor", HelpText = "Zero line color", DefaultValue = "white")]
             public string ZeroLineColor { get; set; }
+            // ReSharper disable once StringLiteralTypo
             [Option("zerolinewith", HelpText = "Zero line width", DefaultValue = 0)]
             public float ZeroLineWidth { get; set; }
 
+            // ReSharper disable once StringLiteralTypo
             [Option("gd3font", HelpText = "Font for GD3 info", DefaultValue = "Tahoma")]
             public string Gd3Font { get; set; }
             [Option("gd3size", HelpText = "Font size (in points) for GD3 info", DefaultValue = 16)]
             public float Gd3FontSize { get; set; }
-            [Option("gd3color", HelpText = "Font colour for GD3 info", DefaultValue = "white")]
+            [Option("gd3color", HelpText = "Font color for GD3 info", DefaultValue = "white")]
             public string Gd3FontColor { get; set; }
 
+            // ReSharper disable once StringLiteralTypo
             [Option("labelsfont", HelpText = "Font for channel labels")]
             public string ChannelLabelsFont { get; set; }
+            // ReSharper disable once StringLiteralTypo
             [Option("labelssize", HelpText = "Font size for channel labels", DefaultValue = 8)]
             public float ChannelLabelsSize { get; set; }
-            [Option("labelscolor", HelpText = "Font colour for channel labels", DefaultValue = "white")]
+            // ReSharper disable once StringLiteralTypo
+            [Option("labelscolor", HelpText = "Font color for channel labels", DefaultValue = "white")]
             public string ChannelLabelsColor { get; set; }
 
+            // ReSharper disable once StringLiteralTypo
             [Option("youtubesecret", HelpText = "YouTube client secret JSON file")]
             public string YouTubeUploadClientSecret { get; set; }
+            // ReSharper disable once StringLiteralTypo
             [Option("youtubetitle", HelpText = "YouTube video title. If a VGM is specified then you can reference GD3 tags like [title], [system], [game], [composer]")]
             public string YouTubeTitle { get; set; }
+            // ReSharper disable once StringLiteralTypo
             [Option("youtubecategory", HelpText = "YouTube video category", DefaultValue = "Gaming")]
             public string YouTubeCategory { get; set; }
+            // ReSharper disable once StringLiteralTypo
             [Option("youtubetags", HelpText = "YouTube video tags, comma separated")]
             public string YouTubeTags { get; set; }
+            // ReSharper disable once StringLiteralTypo
             [Option("youtubetagsfromgd3", HelpText = "Populate additional tags from the GD3 tag")]
             public bool YouTubeTagsFromGd3 { get; set; }
+            // ReSharper disable once StringLiteralTypo
             [Option("youtubeplaylist", HelpText = "YouTube playlist title. If a VGM is specified then you can reference GD3 tags like [title], [system], [game], [composer]")]
             public string YouTubePlaylist { get; set; }
+            // ReSharper disable once StringLiteralTypo
             [Option("youtubeplaylistdescriptionfile", HelpText = "Use the specified file for the playlist description")]
             public string YouTubePlaylistDescriptionFile { get; set; }
+            // ReSharper disable once StringLiteralTypo
             [Option("youtubedescriptionsextratext", HelpText = "Extra text to append to descriptions")]
             public string YouTubeDescriptionsExtra { get; set; }
+            // ReSharper disable once StringLiteralTypo
             [Option("youtubeonly", HelpText = "Only upload to YouTube")]
             public bool YouTubeOnly { get; set; }
 
@@ -170,6 +203,7 @@ namespace SidWizPlus
             try
             {
                 var settings = new Settings();
+                // ReSharper disable once RedundantNameQualifier
                 using (var parser = new CommandLine.Parser(x =>
                 {
                     x.CaseSensitive = false;
@@ -276,7 +310,7 @@ namespace SidWizPlus
             settings.VgmFile = Path.GetFullPath(settings.VgmFile);
             // Check if we have WAVs. Note that we use "natural" sorting to make sure 10 comes after 9.
             settings.InputFiles = Directory.EnumerateFiles(
-                    Path.GetDirectoryName(settings.VgmFile),
+                    Path.GetDirectoryName(settings.VgmFile) ?? throw new Exception($"Can't get path from VGM \"{settings.VgmFile}\""),
                     Path.GetFileNameWithoutExtension(settings.VgmFile) + " - *.wav")
                 .OrderByAlphaNumeric(s => s)
                 .ToList();
@@ -292,13 +326,16 @@ namespace SidWizPlus
                     UseShellExecute = false
                 }))
                 {
-                    // We don;t actually consume its stdout, we just want to have it not shown as it makes it much slower...
-                    p.BeginOutputReadLine();
-                    p.WaitForExit();
+                    // We don't actually consume its stdout, we just want to have it not shown as it makes it much slower...
+                    if (p != null)
+                    {
+                        p.BeginOutputReadLine();
+                        p.WaitForExit();
+                    }
                 }
                 // And try again
                 settings.InputFiles = Directory.EnumerateFiles(
-                        Path.GetDirectoryName(settings.VgmFile),
+                        Path.GetDirectoryName(settings.VgmFile) ?? throw new Exception($"Can't get path from VGM \"{settings.VgmFile}\""),
                         Path.GetFileNameWithoutExtension(settings.VgmFile) + " - *.wav")
                     .OrderByAlphaNumeric(s => s)
                     .ToList();
