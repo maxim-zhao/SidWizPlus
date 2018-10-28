@@ -13,7 +13,6 @@ namespace LibSidWiz
     public class AudioLoader: IDisposable
     {
         public float HighPassFilterFrequency { get; set; }
-        public float VerticalScaleMultiplier { get; set; }
         public float AutoScalePercentage { get; set; }
         public TimeSpan Length { get; private set; }
         public int SampleRate { get; private set; }
@@ -84,18 +83,13 @@ namespace LibSidWiz
                     return new ChannelData{Data = buffer, WavReader = reader, Max = max, Filename = filename};
                 }).Where(ch => ch != null).ToList();
 
-                if (AutoScalePercentage > 0 || VerticalScaleMultiplier > 1)
+                if (AutoScalePercentage > 0)
                 {
                     // Calculate the multiplier
                     float multiplier = 1.0f;
                     if (AutoScalePercentage > 0)
                     {
                         multiplier = AutoScalePercentage / 100 / channels.Max(channel => channel.Max);
-                    }
-
-                    if (VerticalScaleMultiplier > 1)
-                    {
-                        multiplier *= VerticalScaleMultiplier;
                     }
 
                     // ...and we apply it
