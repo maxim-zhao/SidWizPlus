@@ -27,6 +27,16 @@ namespace SidWiz
             }
         }
 
+        public string Filename
+        {
+            get => _filename;
+            set
+            {
+                _filename = value;
+                TitleLabel.Text = Path.GetFileNameWithoutExtension(_filename);
+            }
+        }
+
         private void FilenameButtonClick(object sender, EventArgs e)
         {
             using (var ofd = new OpenFileDialog() {Filter = "WAV files (*.wav)|*.wav|All files (*.*)|*.*"})
@@ -36,17 +46,17 @@ namespace SidWiz
                     return;
                 }
                 _filename = ofd.FileName;
-                filenameButton.Text = Path.GetFileNameWithoutExtension(_filename);
-                if (LabelTextBox.Text == "")
-                {
-                    LabelTextBox.Text = filenameButton.Text;
-                }
             }
         }
 
         private void highPassFilterCheckBox_CheckedChanged(object sender, EventArgs e)
         {
             highPassFilterFrequency.Enabled = HighPassFilterCheckbox.Checked;
+        }
+
+        private void ConfigureToggleButton_Click(object sender, EventArgs e)
+        {
+            tableLayoutPanel1.Visible = !tableLayoutPanel1.Visible;
         }
     }
 }

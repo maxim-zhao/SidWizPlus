@@ -29,16 +29,11 @@
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(SidWizPlusGUI));
             this.LayoutPanel = new System.Windows.Forms.Panel();
             this.panel1 = new System.Windows.Forms.Panel();
             this.label1 = new System.Windows.Forms.Label();
             this.ColumnsControl = new System.Windows.Forms.NumericUpDown();
             this.checkBox1 = new System.Windows.Forms.CheckBox();
-            this.toolStrip1 = new System.Windows.Forms.ToolStrip();
-            this.toolStripButton1 = new System.Windows.Forms.ToolStripDropDownButton();
-            this.wAVFileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.vGMFileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.label2 = new System.Windows.Forms.Label();
             this.numericUpDown1 = new System.Windows.Forms.NumericUpDown();
             this.label3 = new System.Windows.Forms.Label();
@@ -87,9 +82,12 @@
             this.colorButton3 = new SidWiz.ColorButton(this.components);
             this.label20 = new System.Windows.Forms.Label();
             this.label21 = new System.Windows.Forms.Label();
+            this.pictureBox1 = new System.Windows.Forms.PictureBox();
+            this.button1 = new System.Windows.Forms.Button();
+            this.button3 = new System.Windows.Forms.Button();
+            this.AddAFile = new System.Windows.Forms.Button();
             this.panel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.ColumnsControl)).BeginInit();
-            this.toolStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDown1)).BeginInit();
             this.groupBox2.SuspendLayout();
             this.tabControl1.SuspendLayout();
@@ -101,15 +99,16 @@
             this.groupBox3.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDown2)).BeginInit();
             this.groupBox4.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             this.SuspendLayout();
             // 
             // LayoutPanel
             // 
-            this.LayoutPanel.BackColor = System.Drawing.SystemColors.AppWorkspace;
+            this.LayoutPanel.BackColor = System.Drawing.Color.Black;
             this.LayoutPanel.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.LayoutPanel.Location = new System.Drawing.Point(0, 348);
+            this.LayoutPanel.Location = new System.Drawing.Point(0, 309);
             this.LayoutPanel.Name = "LayoutPanel";
-            this.LayoutPanel.Size = new System.Drawing.Size(1508, 628);
+            this.LayoutPanel.Size = new System.Drawing.Size(1508, 667);
             this.LayoutPanel.TabIndex = 1;
             this.LayoutPanel.Resize += new System.EventHandler(this.LayoutPanel_Resize);
             // 
@@ -118,7 +117,7 @@
             this.panel1.AutoSize = true;
             this.panel1.Controls.Add(this.tabControl1);
             this.panel1.Dock = System.Windows.Forms.DockStyle.Top;
-            this.panel1.Location = new System.Drawing.Point(0, 39);
+            this.panel1.Location = new System.Drawing.Point(0, 0);
             this.panel1.Name = "panel1";
             this.panel1.Padding = new System.Windows.Forms.Padding(4);
             this.panel1.Size = new System.Drawing.Size(1508, 309);
@@ -142,7 +141,7 @@
             0,
             0});
             this.ColumnsControl.Name = "ColumnsControl";
-            this.ColumnsControl.Size = new System.Drawing.Size(96, 31);
+            this.ColumnsControl.Size = new System.Drawing.Size(102, 31);
             this.ColumnsControl.TabIndex = 1;
             this.ColumnsControl.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
             this.ColumnsControl.Value = new decimal(new int[] {
@@ -161,40 +160,6 @@
             this.checkBox1.TabIndex = 2;
             this.checkBox1.Text = "Enabled";
             this.checkBox1.UseVisualStyleBackColor = true;
-            // 
-            // toolStrip1
-            // 
-            this.toolStrip1.ImageScalingSize = new System.Drawing.Size(32, 32);
-            this.toolStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.toolStripButton1});
-            this.toolStrip1.Location = new System.Drawing.Point(0, 0);
-            this.toolStrip1.Name = "toolStrip1";
-            this.toolStrip1.Size = new System.Drawing.Size(1508, 39);
-            this.toolStrip1.TabIndex = 1;
-            this.toolStrip1.Text = "toolStrip1";
-            // 
-            // toolStripButton1
-            // 
-            this.toolStripButton1.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.wAVFileToolStripMenuItem,
-            this.vGMFileToolStripMenuItem});
-            this.toolStripButton1.Image = ((System.Drawing.Image)(resources.GetObject("toolStripButton1.Image")));
-            this.toolStripButton1.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.toolStripButton1.Name = "toolStripButton1";
-            this.toolStripButton1.Size = new System.Drawing.Size(128, 36);
-            this.toolStripButton1.Text = "Open";
-            // 
-            // wAVFileToolStripMenuItem
-            // 
-            this.wAVFileToolStripMenuItem.Name = "wAVFileToolStripMenuItem";
-            this.wAVFileToolStripMenuItem.Size = new System.Drawing.Size(324, 38);
-            this.wAVFileToolStripMenuItem.Text = "&WAV file...";
-            // 
-            // vGMFileToolStripMenuItem
-            // 
-            this.vGMFileToolStripMenuItem.Name = "vGMFileToolStripMenuItem";
-            this.vGMFileToolStripMenuItem.Size = new System.Drawing.Size(324, 38);
-            this.vGMFileToolStripMenuItem.Text = "&VGM file...";
             // 
             // label2
             // 
@@ -510,6 +475,7 @@
             // 
             // tabPage1
             // 
+            this.tabPage1.Controls.Add(this.AddAFile);
             this.tabPage1.Controls.Add(this.label1);
             this.tabPage1.Controls.Add(this.ColumnsControl);
             this.tabPage1.Controls.Add(this.label16);
@@ -673,12 +639,15 @@
             // 
             // groupBox4
             // 
+            this.groupBox4.Controls.Add(this.button3);
+            this.groupBox4.Controls.Add(this.button1);
+            this.groupBox4.Controls.Add(this.pictureBox1);
             this.groupBox4.Controls.Add(this.label21);
             this.groupBox4.Controls.Add(this.colorButton3);
             this.groupBox4.Controls.Add(this.label20);
-            this.groupBox4.Location = new System.Drawing.Point(261, 23);
+            this.groupBox4.Location = new System.Drawing.Point(242, 7);
             this.groupBox4.Name = "groupBox4";
-            this.groupBox4.Size = new System.Drawing.Size(378, 244);
+            this.groupBox4.Size = new System.Drawing.Size(378, 241);
             this.groupBox4.TabIndex = 5;
             this.groupBox4.TabStop = false;
             this.groupBox4.Text = "Background";
@@ -690,10 +659,11 @@
             this.colorButton3.ForeColor = System.Drawing.Color.White;
             this.colorButton3.Location = new System.Drawing.Point(149, 30);
             this.colorButton3.Name = "colorButton3";
-            this.colorButton3.Size = new System.Drawing.Size(121, 46);
+            this.colorButton3.Size = new System.Drawing.Size(223, 46);
             this.colorButton3.TabIndex = 14;
             this.colorButton3.Text = "Black";
             this.colorButton3.UseVisualStyleBackColor = false;
+            this.colorButton3.BackColorChanged += new System.EventHandler(this.colorButton3_BackColorChanged);
             // 
             // label20
             // 
@@ -713,6 +683,43 @@
             this.label21.TabIndex = 15;
             this.label21.Text = "Image";
             // 
+            // pictureBox1
+            // 
+            this.pictureBox1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.pictureBox1.Location = new System.Drawing.Point(149, 83);
+            this.pictureBox1.Name = "pictureBox1";
+            this.pictureBox1.Size = new System.Drawing.Size(223, 142);
+            this.pictureBox1.TabIndex = 16;
+            this.pictureBox1.TabStop = false;
+            // 
+            // button1
+            // 
+            this.button1.Location = new System.Drawing.Point(15, 120);
+            this.button1.Name = "button1";
+            this.button1.Size = new System.Drawing.Size(110, 47);
+            this.button1.TabIndex = 17;
+            this.button1.Text = "Load";
+            this.button1.UseVisualStyleBackColor = true;
+            // 
+            // button3
+            // 
+            this.button3.Location = new System.Drawing.Point(15, 173);
+            this.button3.Name = "button3";
+            this.button3.Size = new System.Drawing.Size(110, 47);
+            this.button3.TabIndex = 18;
+            this.button3.Text = "Clear";
+            this.button3.UseVisualStyleBackColor = true;
+            // 
+            // AddAFile
+            // 
+            this.AddAFile.Location = new System.Drawing.Point(419, 13);
+            this.AddAFile.Name = "AddAFile";
+            this.AddAFile.Size = new System.Drawing.Size(187, 50);
+            this.AddAFile.TabIndex = 17;
+            this.AddAFile.Text = "Add a file...";
+            this.AddAFile.UseVisualStyleBackColor = true;
+            this.AddAFile.Click += new System.EventHandler(this.button4_Click);
+            // 
             // SidWizPlusGUI
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(12F, 25F);
@@ -720,13 +727,10 @@
             this.ClientSize = new System.Drawing.Size(1508, 976);
             this.Controls.Add(this.LayoutPanel);
             this.Controls.Add(this.panel1);
-            this.Controls.Add(this.toolStrip1);
             this.Name = "SidWizPlusGUI";
             this.Text = "SidWizPlusGUI";
             this.panel1.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.ColumnsControl)).EndInit();
-            this.toolStrip1.ResumeLayout(false);
-            this.toolStrip1.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDown1)).EndInit();
             this.groupBox2.ResumeLayout(false);
             this.groupBox2.PerformLayout();
@@ -744,6 +748,7 @@
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDown2)).EndInit();
             this.groupBox4.ResumeLayout(false);
             this.groupBox4.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -772,10 +777,6 @@
         private System.Windows.Forms.CheckBox checkBox1;
         private System.Windows.Forms.TextBox textBox1;
         private System.Windows.Forms.Label label4;
-        private System.Windows.Forms.ToolStrip toolStrip1;
-        private System.Windows.Forms.ToolStripDropDownButton toolStripButton1;
-        private System.Windows.Forms.ToolStripMenuItem wAVFileToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem vGMFileToolStripMenuItem;
         private System.Windows.Forms.Button button2;
         private System.Windows.Forms.CheckBox checkBox4;
         private System.Windows.Forms.CheckBox checkBox3;
@@ -807,5 +808,9 @@
         private System.Windows.Forms.Label label21;
         private ColorButton colorButton3;
         private System.Windows.Forms.Label label20;
+        private System.Windows.Forms.Button button3;
+        private System.Windows.Forms.Button button1;
+        private System.Windows.Forms.PictureBox pictureBox1;
+        private System.Windows.Forms.Button AddAFile;
     }
 }

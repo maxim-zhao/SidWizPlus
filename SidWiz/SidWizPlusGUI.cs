@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -18,14 +19,6 @@ namespace SidWiz
         public SidWizPlusGUI()
         {
             InitializeComponent();
-        }
-
-        private void addToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            var control = new ChannelControl();
-            _channels.Add(control);
-            LayoutPanel.Controls.Add(control);
-            LayoutChannels();
         }
 
         private void LayoutChannels()
@@ -47,39 +40,78 @@ namespace SidWiz
             }
         }
 
-        private void addToolStripMenuItem1_Click(object sender, EventArgs e)
-        {
-            ++_columns;
-            LayoutChannels();
-        }
-
-        private void removeToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            if (_columns > 1)
-            {
-                --_columns;
-            }
-            LayoutChannels();
-        }
-
         private void LayoutPanel_Resize(object sender, EventArgs e)
         {
             LayoutChannels();
-        }
-
-        private void exitToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            Close();
-        }
-
-        private void openWAVsToolStripMenuItem_Click(object sender, EventArgs e)
-        {
         }
 
         private void ColumnsControl_ValueChanged(object sender, EventArgs e)
         {
             _columns = (int) ColumnsControl.Value;
             LayoutChannels();
+        }
+
+        private void button4_Click(object sender, EventArgs e)
+        {
+            using (var ofd = new OpenFileDialog()
+            {
+                CheckFileExists = true,
+                Filter =
+                    "All supported files (*.wav;*.vgm)|*.wav;*.vgm|" +
+                    "Wave audio files (*.wav)|*.wav|" +
+                    "VGM music files (*.vgm)|*.vgm|" +
+                    "All files (*.*)|*.*",
+                Multiselect = true
+            })
+            {
+                if (ofd.ShowDialog(this) != DialogResult.OK)
+                {
+                    return;
+                }
+
+                var errors = new List<string>();
+                foreach (var filename in ofd.FileNames)
+                {
+                    var path = Path.GetFullPath(filename);
+                    switch (Path.GetExtension(filename)?.ToLowerInvariant())
+                    {
+                        case ".vgm":
+                            loadVgm(path);
+                            break;
+                        case ".wav":
+                            loadWav(path);
+                            break;
+                        default:
+                            errors.Add($"Could not load \"{filename}\"");
+                            break;
+                    }
+                }
+
+                if (errors.Count > 0)
+                {
+                    MessageBox.Show(this, "Error(s) loading files:\n" + string.Join("\n", errors));
+                }
+            }
+        }
+
+        private void loadWav(string filename)
+        {
+            // We create a new ChannelControl
+            var control = new ChannelControl();
+            control.Filename = filename;
+            _channels.Add(control);
+            LayoutPanel.Controls.Add(control);
+            LayoutChannels();
+        }
+
+        private void loadVgm(string filename)
+        {
+            throw new NotImplementedException();
+        }
+
+        private void colorButton3_BackColorChanged(object sender, EventArgs e)
+        {
+            LayoutPanel.BackColor = colorButton3.Color;
         }
     }
 }

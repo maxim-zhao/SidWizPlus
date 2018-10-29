@@ -29,36 +29,29 @@
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
-            this.filenameButton = new System.Windows.Forms.Button();
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(ChannelControl));
             this.LabelTextBox = new System.Windows.Forms.TextBox();
             this.LineWidthControl = new System.Windows.Forms.NumericUpDown();
             this.label1 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
             this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
+            this.label5 = new System.Windows.Forms.Label();
             this.label3 = new System.Windows.Forms.Label();
             this.algorithmsCombo = new System.Windows.Forms.ComboBox();
             this.label4 = new System.Windows.Forms.Label();
             this.highPassFilterFrequency = new System.Windows.Forms.TextBox();
             this.HighPassFilterCheckbox = new System.Windows.Forms.CheckBox();
-            this.label5 = new System.Windows.Forms.Label();
             this.LookaheadControl = new System.Windows.Forms.NumericUpDown();
+            this.TitleLabel = new System.Windows.Forms.Label();
+            this.button1 = new System.Windows.Forms.Button();
+            this.panel1 = new System.Windows.Forms.Panel();
+            this.ConfigureToggleButton = new System.Windows.Forms.Button();
             this.colorButton1 = new SidWiz.ColorButton(this.components);
             ((System.ComponentModel.ISupportInitialize)(this.LineWidthControl)).BeginInit();
             this.tableLayoutPanel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.LookaheadControl)).BeginInit();
+            this.panel1.SuspendLayout();
             this.SuspendLayout();
-            // 
-            // filenameButton
-            // 
-            this.tableLayoutPanel1.SetColumnSpan(this.filenameButton, 2);
-            this.filenameButton.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.filenameButton.Location = new System.Drawing.Point(3, 3);
-            this.filenameButton.Name = "filenameButton";
-            this.filenameButton.Size = new System.Drawing.Size(630, 39);
-            this.filenameButton.TabIndex = 0;
-            this.filenameButton.Text = "Filename";
-            this.filenameButton.UseVisualStyleBackColor = true;
-            this.filenameButton.Click += new System.EventHandler(this.FilenameButtonClick);
             // 
             // LabelTextBox
             // 
@@ -113,10 +106,8 @@
             this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
             this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
             this.tableLayoutPanel1.Controls.Add(this.label5, 0, 6);
-            this.tableLayoutPanel1.Controls.Add(this.filenameButton, 0, 0);
             this.tableLayoutPanel1.Controls.Add(this.LineWidthControl, 1, 2);
             this.tableLayoutPanel1.Controls.Add(this.label2, 0, 1);
-            this.tableLayoutPanel1.Controls.Add(this.label1, 0, 2);
             this.tableLayoutPanel1.Controls.Add(this.LabelTextBox, 1, 1);
             this.tableLayoutPanel1.Controls.Add(this.label3, 0, 3);
             this.tableLayoutPanel1.Controls.Add(this.algorithmsCombo, 1, 4);
@@ -125,8 +116,8 @@
             this.tableLayoutPanel1.Controls.Add(this.HighPassFilterCheckbox, 0, 5);
             this.tableLayoutPanel1.Controls.Add(this.LookaheadControl, 1, 6);
             this.tableLayoutPanel1.Controls.Add(this.colorButton1, 1, 3);
-            this.tableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.tableLayoutPanel1.Location = new System.Drawing.Point(0, 0);
+            this.tableLayoutPanel1.Controls.Add(this.label1, 0, 2);
+            this.tableLayoutPanel1.Location = new System.Drawing.Point(180, 95);
             this.tableLayoutPanel1.Name = "tableLayoutPanel1";
             this.tableLayoutPanel1.RowCount = 7;
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 14.28531F));
@@ -138,6 +129,16 @@
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 14.28816F));
             this.tableLayoutPanel1.Size = new System.Drawing.Size(636, 319);
             this.tableLayoutPanel1.TabIndex = 7;
+            this.tableLayoutPanel1.Visible = false;
+            // 
+            // label5
+            // 
+            this.label5.AutoSize = true;
+            this.label5.Location = new System.Drawing.Point(3, 270);
+            this.label5.Name = "label5";
+            this.label5.Size = new System.Drawing.Size(186, 25);
+            this.label5.TabIndex = 12;
+            this.label5.Text = "Trigger lookahead";
             // 
             // label3
             // 
@@ -188,21 +189,57 @@
             this.HighPassFilterCheckbox.UseVisualStyleBackColor = true;
             this.HighPassFilterCheckbox.CheckedChanged += new System.EventHandler(this.highPassFilterCheckBox_CheckedChanged);
             // 
-            // label5
-            // 
-            this.label5.AutoSize = true;
-            this.label5.Location = new System.Drawing.Point(3, 270);
-            this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(186, 25);
-            this.label5.TabIndex = 12;
-            this.label5.Text = "Trigger lookahead";
-            // 
             // LookaheadControl
             // 
             this.LookaheadControl.Location = new System.Drawing.Point(321, 273);
             this.LookaheadControl.Name = "LookaheadControl";
             this.LookaheadControl.Size = new System.Drawing.Size(120, 31);
             this.LookaheadControl.TabIndex = 13;
+            // 
+            // TitleLabel
+            // 
+            this.TitleLabel.BackColor = System.Drawing.SystemColors.ActiveCaption;
+            this.TitleLabel.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.TitleLabel.Font = new System.Drawing.Font("Tahoma", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.TitleLabel.ForeColor = System.Drawing.SystemColors.ActiveCaptionText;
+            this.TitleLabel.Location = new System.Drawing.Point(0, 0);
+            this.TitleLabel.Name = "TitleLabel";
+            this.TitleLabel.Size = new System.Drawing.Size(951, 56);
+            this.TitleLabel.TabIndex = 8;
+            this.TitleLabel.Text = "Title";
+            this.TitleLabel.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            // 
+            // button1
+            // 
+            this.button1.Dock = System.Windows.Forms.DockStyle.Right;
+            this.button1.Image = ((System.Drawing.Image)(resources.GetObject("button1.Image")));
+            this.button1.Location = new System.Drawing.Point(899, 0);
+            this.button1.Name = "button1";
+            this.button1.Size = new System.Drawing.Size(52, 56);
+            this.button1.TabIndex = 9;
+            this.button1.UseVisualStyleBackColor = true;
+            // 
+            // panel1
+            // 
+            this.panel1.Controls.Add(this.ConfigureToggleButton);
+            this.panel1.Controls.Add(this.button1);
+            this.panel1.Controls.Add(this.TitleLabel);
+            this.panel1.Dock = System.Windows.Forms.DockStyle.Top;
+            this.panel1.Location = new System.Drawing.Point(0, 0);
+            this.panel1.Name = "panel1";
+            this.panel1.Size = new System.Drawing.Size(951, 56);
+            this.panel1.TabIndex = 10;
+            // 
+            // ConfigureToggleButton
+            // 
+            this.ConfigureToggleButton.Dock = System.Windows.Forms.DockStyle.Right;
+            this.ConfigureToggleButton.Image = ((System.Drawing.Image)(resources.GetObject("ConfigureToggleButton.Image")));
+            this.ConfigureToggleButton.Location = new System.Drawing.Point(847, 0);
+            this.ConfigureToggleButton.Name = "ConfigureToggleButton";
+            this.ConfigureToggleButton.Size = new System.Drawing.Size(52, 56);
+            this.ConfigureToggleButton.TabIndex = 10;
+            this.ConfigureToggleButton.UseVisualStyleBackColor = true;
+            this.ConfigureToggleButton.Click += new System.EventHandler(this.ConfigureToggleButton_Click);
             // 
             // colorButton1
             // 
@@ -224,19 +261,19 @@
             this.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
             this.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.Controls.Add(this.tableLayoutPanel1);
+            this.Controls.Add(this.panel1);
             this.Name = "ChannelControl";
-            this.Size = new System.Drawing.Size(636, 319);
+            this.Size = new System.Drawing.Size(951, 524);
             ((System.ComponentModel.ISupportInitialize)(this.LineWidthControl)).EndInit();
             this.tableLayoutPanel1.ResumeLayout(false);
             this.tableLayoutPanel1.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.LookaheadControl)).EndInit();
+            this.panel1.ResumeLayout(false);
             this.ResumeLayout(false);
 
         }
 
         #endregion
-
-        private System.Windows.Forms.Button filenameButton;
         private System.Windows.Forms.TextBox LabelTextBox;
         private System.Windows.Forms.NumericUpDown LineWidthControl;
         private System.Windows.Forms.Label label1;
@@ -250,5 +287,9 @@
         private System.Windows.Forms.Label label5;
         private System.Windows.Forms.NumericUpDown LookaheadControl;
         private ColorButton colorButton1;
+        private System.Windows.Forms.Button button1;
+        private System.Windows.Forms.Panel panel1;
+        private System.Windows.Forms.Button ConfigureToggleButton;
+        private System.Windows.Forms.Label TitleLabel;
     }
 }
