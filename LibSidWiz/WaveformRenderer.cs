@@ -50,7 +50,7 @@ namespace LibSidWiz
 
         public void Render(IList<IGraphicsOutput> outputs)
         {
-            int sampleLength = _channels.Max(c => c.Samples.Count);
+            int sampleLength = _channels.Max(c => c.SampleCount);
 
             var renderingBounds = RenderingBounds;
             if (renderingBounds.Width == 0 || renderingBounds.Height == 0)

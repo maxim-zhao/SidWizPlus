@@ -236,15 +236,43 @@ namespace SidWizPlus
                         throw new Exception("No inputs specified");
                     }
 
-                    using (var loader = new AudioLoader
+                    var channels = settings.InputFiles
+                        .AsParallel()
+                        .Select(filename =>
                     {
-                        AutoScalePercentage = settings.AutoScalePercentage,
-                        HighPassFilterFrequency = settings.HighPassFilterFrequency,
-                    })
+                        var channel = new Channel
+                        {
+                            Filename = filename,
+                            HighPassFilterFrequency = settings.HighPassFilterFrequency,
+                            Color = ParseColor(settings.LineColor),
+                            LineWidth = settings.LineWidth,
+                            Name = Channel.GuessNameFromMultidumperFilename(filename),
+                            Algorithm = CreateTriggerAlgorithm(settings.TriggerAlgorithm),
+                            TriggerLookaheadFrames = settings.TriggerLookahead
+                        };
+                        channel.LoadData();
+                        return channel;
+                    }).Where(ch => ch.SampleCount > 0).ToList();
+                    if (settings.AutoScalePercentage > 0)
                     {
-                        loader.LoadAudio(settings.InputFiles);
-                        Render(settings, loader);
+                        var scale = settings.AutoScalePercentage / 100 / channels.Max(ch => ch.Max);
+                        foreach (var channel in channels)
+                        {
+                            channel.Scale = scale;
+                        }
                     }
+                        
+                    if (settings.OutputFile != null)
+                    {
+                        // Emit normalized data to a WAV file for later mixing
+                        if (settings.MasterAudioFile == null && !settings.NoMasterMix)
+                        {
+                            settings.MasterAudioFile = settings.OutputFile + ".wav";
+                            Mixer.MixToFile(channels, settings.MasterAudioFile, !settings.NoMasterMixReplayGain);
+                        }
+                    }
+
+                    Render(settings, channels);
                 }
 
                 if (settings.YouTubeUploadClientSecret != null)
@@ -343,18 +371,8 @@ namespace SidWizPlus
             }
         }
 
-        private static void Render(Settings settings, AudioLoader loader)
+        private static void Render(Settings settings, IReadOnlyCollection<Channel> channels)
         {
-            if (settings.OutputFile != null)
-            {
-                // Emit normalized data to a WAV file for later mixing
-                if (settings.MasterAudioFile == null && !settings.NoMasterMix)
-                {
-                    settings.MasterAudioFile = settings.OutputFile + ".wav";
-                    loader.MixToFile(settings.MasterAudioFile, !settings.NoMasterMixReplayGain);
-                }
-            }
-
             Console.WriteLine("Generating background image...");
 
             var backgroundImage = new BackgroundRenderer(settings.Width, settings.Height, ParseColor(settings.BackgroundColor));
@@ -392,8 +410,8 @@ namespace SidWizPlus
                 FramesPerSecond = settings.FramesPerSecond,
                 Width = settings.Width,
                 Height = settings.Height,
-                SamplingRate = loader.SampleRate,
-                RenderedLineWidthInSamples = settings.ViewWidthMs * loader.SampleRate / 1000,
+                SamplingRate = channels.First().SampleRate,
+                RenderedLineWidthInSamples = settings.ViewWidthMs * channels.First().SampleRate / 1000,
                 RenderingBounds = backgroundImage.WaveArea
             };
 
@@ -417,15 +435,9 @@ namespace SidWizPlus
             }
 
             // Add the data to the renderer
-            foreach (var channel in loader.Data)
+            foreach (var channel in channels)
             {
-                renderer.AddChannel(new Channel(
-                    channel.Samples, 
-                    ParseColor(settings.LineColor), 
-                    settings.LineWidth, 
-                    Channel.GuessNameFromMultidumperFilename(channel.Filename),
-                    CreateTriggerAlgorithm(settings.TriggerAlgorithm),
-                    settings.TriggerLookahead));
+                renderer.AddChannel(channel);
             }
 
             if (settings.ChannelLabelsFont != null)
@@ -457,7 +469,7 @@ namespace SidWizPlus
                 var sw = Stopwatch.StartNew();
                 renderer.Render(outputs);
                 sw.Stop();
-                int numFrames = (int) (loader.Length.TotalSeconds * settings.FramesPerSecond);
+                int numFrames = (int) (channels.Max(x => x.Length).TotalSeconds * settings.FramesPerSecond);
                 Console.WriteLine($"Rendering complete in {sw.Elapsed:g}, average {numFrames / sw.Elapsed.TotalSeconds:N} fps");
             }
             catch (Exception ex)

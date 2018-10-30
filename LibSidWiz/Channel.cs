@@ -1,46 +1,87 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
 using System.IO;
+using System.Linq;
 using LibSidWiz.Triggers;
+using NAudio.Dsp;
+using NAudio.Wave;
 
 namespace LibSidWiz
 {
     /// <summary>
-    /// Wraps a single "voice"
+    /// Wraps a single "voice", and also deals with loading the data into memory
     /// </summary>
     public class Channel
     {
-        private readonly ITriggerAlgorithm _algorithm;
-        private readonly int _triggerLookahead;
+        private IList<float> _samples;
 
-        public Channel(IList<float> samples, Color color, float lineWidth, string name, ITriggerAlgorithm algorithm, int triggerLookahead)
+        public void LoadData()
         {
-            Samples = samples;
-            Color = color;
-            Name = name;
-            _algorithm = algorithm;
-            _triggerLookahead = triggerLookahead;
-            LineWidth = lineWidth;
+            Console.WriteLine($"- Reading {Filename}");
+            float[] buffer;
+            using (var reader = new WaveFileReader(Filename))
+            {
+                SampleRate = reader.WaveFormat.SampleRate;
+                Length = TimeSpan.FromSeconds((double) reader.SampleCount / reader.WaveFormat.SampleRate);
+
+                // We read the file and convert to mono
+                buffer = new float[reader.SampleCount];
+                reader.ToSampleProvider().ToMono().Read(buffer, 0, (int) reader.SampleCount);
+            }
+
+            // We don't care about ones where the samples are all equal
+            // ReSharper disable once CompareOfFloatsByEqualityOperator
+            if (buffer.Length == 0 || buffer.All(s => s == buffer[0]))
+            {
+                Console.WriteLine($"- {Filename} is silent");
+                // So we skip steps here
+                _samples = null;
+            }
+
+            if (HighPassFilterFrequency > 0)
+            {
+                Console.WriteLine($"- High-pass filtering {Filename}");
+                // Apply the high pass filter
+                var filter = BiQuadFilter.HighPassFilter(SampleRate, HighPassFilterFrequency, 1);
+                for (int i = 0; i < buffer.Length; ++i)
+                {
+                    buffer[i] = filter.Transform(buffer[i]);
+                }
+            }
+
+            Max = buffer.Select(Math.Abs).Max();
+            Console.WriteLine($"- Peak sample amplitude for {Filename} is {Max}");
+
+            _samples = buffer;
         }
 
-        public IList<float> Samples { get; }
-        public Color Color { get; }
-        public string Name { get; }
-        public float LineWidth { get; }
+        public ITriggerAlgorithm Algorithm { get; set; }
+        public int TriggerLookaheadFrames { get; set; }
+
+        public Color Color { get; set; } = Color.White;
+        public string Name { get; set; } = "";
+        public float LineWidth { get; set; } = 3;
+
+        public float HighPassFilterFrequency { get; set; } = -1;
+
+        public float Max { get; private set; }
+        public float Scale { get; set; } = 1.0f;
+        public int SampleCount => _samples?.Count ?? 0;
+        public TimeSpan Length { get; private set; }
+        public string Filename { get; set; }
+        public int SampleRate { get; private set; }
 
         public float GetSample(int sampleIndex)
         {
-            return sampleIndex < 0 || sampleIndex >= Samples.Count ? 0 : Samples[sampleIndex];
+            return sampleIndex < 0 || sampleIndex >= _samples.Count ? 0 : _samples[sampleIndex] * Scale;
         }
 
         public int GetTriggerPoint(int frameIndexSamples, int frameSamples)
         {
-            return _algorithm.GetTriggerPoint(this, frameIndexSamples, frameIndexSamples + frameSamples * (_triggerLookahead + 1));
+            return Algorithm.GetTriggerPoint(this, frameIndexSamples, frameIndexSamples + frameSamples * (TriggerLookaheadFrames + 1));
         }
 
-        [SuppressMessage("ReSharper", "StringIndexOfIsCultureSpecific.1")]
         public static string GuessNameFromMultidumperFilename(string filename)
         {
             var namePart = Path.GetFileNameWithoutExtension(filename);
@@ -51,10 +92,10 @@ namespace LibSidWiz
                     return filename;
                 }
 
-                var index = namePart.IndexOf(" - YM2413 #");
+                var index = namePart.IndexOf(" - YM2413 #", StringComparison.Ordinal);
                 if (index > -1)
                 {
-                    index = Int32.Parse(namePart.Substring(index + 11));
+                    index = int.Parse(namePart.Substring(index + 11));
                     if (index < 9)
                     {
                         return $"YM2413 tone {index + 1}";
@@ -70,7 +111,7 @@ namespace LibSidWiz
                     }
                 }
 
-                index = namePart.IndexOf(" - SEGA PSG #");
+                index = namePart.IndexOf(" - SEGA PSG #", StringComparison.Ordinal);
                 if (index > -1)
                 {
                     index = Int32.Parse(namePart.Substring(index + 13));
