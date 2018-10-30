@@ -52,7 +52,7 @@ namespace LibSidWiz.Outputs
 
         public void Dispose()
         {
-            // This triggers a shutdown
+            // This triggers a shutdown (TODO: doesn't?)
             _process?.StandardInput.Close();
             // And we wait for it to finish...
             _process?.WaitForExit();
