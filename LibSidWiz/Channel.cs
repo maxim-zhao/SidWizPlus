@@ -1,8 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Drawing;
+using System.Drawing.Design;
+using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Reflection;
+using System.Windows.Forms.Design;
 using LibSidWiz.Triggers;
 using NAudio.Dsp;
 using NAudio.Wave;
@@ -12,9 +17,20 @@ namespace LibSidWiz
     /// <summary>
     /// Wraps a single "voice", and also deals with loading the data into memory
     /// </summary>
-    public class Channel
+    public class Channel: INotifyPropertyChanged
     {
         private IList<float> _samples;
+        private string _filename;
+        private ITriggerAlgorithm _algorithm;
+        private int _triggerLookaheadFrames;
+        private Color _color = Color.White;
+        private string _name = "";
+        private float _lineWidth = 3;
+        private float _highPassFilterFrequency = -1;
+        private float _scale = 1.0f;
+        private float _max;
+        private TimeSpan _length;
+        private int _sampleRate;
 
         public void LoadData()
         {
@@ -37,6 +53,7 @@ namespace LibSidWiz
                 Console.WriteLine($"- {Filename} is silent");
                 // So we skip steps here
                 _samples = null;
+                return;
             }
 
             if (HighPassFilterFrequency > 0)
@@ -56,21 +73,143 @@ namespace LibSidWiz
             _samples = buffer;
         }
 
-        public ITriggerAlgorithm Algorithm { get; set; }
-        public int TriggerLookaheadFrames { get; set; }
+        [Category("Source")]
+        [Editor(typeof(FileNameEditor), typeof(UITypeEditor))]
+        [Description("The filename to be rendered")]
+        public string Filename
+        {
+            get => _filename;
+            set
+            {
+                _filename = value;
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Filename)));
+            }
+        }
 
-        public Color Color { get; set; } = Color.White;
-        public string Name { get; set; } = "";
-        public float LineWidth { get; set; } = 3;
+        [Category("Triggering")]
+        [Description("The algorithm to use for rendering")]
+        [TypeConverter(typeof(TriggerAlgorithmTypeConverter))]
+        public ITriggerAlgorithm Algorithm
+        {
+            get => _algorithm;
+            set
+            {
+                _algorithm = value;
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Algorithm)));
+            }
+        }
 
-        public float HighPassFilterFrequency { get; set; } = -1;
+        [Category("Triggering")]
+        [Description("How many frames to allow the triggering algorithm to look ahead. Zero means only look within the current frame. Set to larger numbers to support sync to low frequencies, but too large numbers can cause erroneous matches.")]
+        public int TriggerLookaheadFrames
+        {
+            get => _triggerLookaheadFrames;
+            set
+            {
+                _triggerLookaheadFrames = value;
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Filename)));
+            }
+        }
 
-        public float Max { get; private set; }
-        public float Scale { get; set; } = 1.0f;
+        [Category("Display")]
+        [Description("The line colour")]
+        public Color Color
+        {
+            get => _color;
+            set
+            {
+                _color = value;
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Color)));
+            }
+        }
+
+        [Category("Display")]
+        [Description("The label for the channel")]
+        public string Name
+        {
+            get => _name;
+            set
+            {
+                _name = value;
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Name)));
+            }
+        }
+
+        [Category("Display")]
+        [Description("The line width, in pixels. Fractional values are supported.")]
+        public float LineWidth
+        {
+            get => _lineWidth;
+            set
+            {
+                _lineWidth = value;
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Filename)));
+            }
+        }
+
+        [Category("Adjustment")]
+        [Description("High pass frequency adjustment. -1 means disabled. Use a value like 10 to remove DC offsets.")]
+        public float HighPassFilterFrequency
+        {
+            get => _highPassFilterFrequency;
+            set
+            {
+                _highPassFilterFrequency = value;
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(HighPassFilterFrequency)));
+            }
+        }
+
+        [Category("Adjustment")]
+        [Description("Vertical scaling. This may be set by the auto-scaler.")]
+        public float Scale
+        {
+            get => _scale;
+            set
+            {
+                _scale = value;
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Scale)));
+            }
+        }
+
+        [Category("Data information")]
+        [Description("Peak amplitude for the channel")]
+        public float Max
+        {
+            get => _max;
+            private set
+            {
+                _max = value;
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Max)));
+            }
+        }
+
+        [Category("Data information")]
+        [Description("Number of samples in the channel")]
         public int SampleCount => _samples?.Count ?? 0;
-        public TimeSpan Length { get; private set; }
-        public string Filename { get; set; }
-        public int SampleRate { get; private set; }
+
+        [Category("Data information")]
+        [Description("Duration of the channel")]
+        public TimeSpan Length
+        {
+            get => _length;
+            private set
+            {
+                _length = value;
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Length)));
+            }
+        }
+
+        [Category("Data information")]
+        [Description("Sampling rate of the channel")]
+        public int SampleRate
+        {
+            get => _sampleRate;
+            private set
+            {
+                _sampleRate = value;
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(SampleRate)));
+            }
+        }
 
         public float GetSample(int sampleIndex)
         {
@@ -114,13 +253,18 @@ namespace LibSidWiz
                 index = namePart.IndexOf(" - SEGA PSG #", StringComparison.Ordinal);
                 if (index > -1)
                 {
-                    index = Int32.Parse(namePart.Substring(index + 13));
-                    if (index < 3)
+                    if (int.TryParse(namePart.Substring(index + 13), out index))
                     {
-                        return $"Sega PSG Square {index + 1}";
+                        switch (index)
+                        {
+                            case 0:
+                            case 1:
+                            case 2:
+                                return $"Sega PSG Square {index + 1}";
+                            case 3:
+                                return "Sega PSG Noise";
+                        }
                     }
-
-                    return "Sega PSG Noise";
                 }
 
                 // Guess it's the bit after the last " - "
@@ -138,5 +282,54 @@ namespace LibSidWiz
             // Default to just the filename
             return namePart;
         }
+
+        /// <summary>
+        /// This allows us to use a property grid to select a trigger algorithm
+        /// </summary>
+        public class TriggerAlgorithmTypeConverter: StringConverter
+        {
+            public override bool GetStandardValuesExclusive(ITypeDescriptorContext context)
+            {
+                return true;
+            }
+
+            public override bool GetStandardValuesSupported(ITypeDescriptorContext context)
+            {
+                return true;
+            }
+
+            public override StandardValuesCollection GetStandardValues(ITypeDescriptorContext context)
+            {
+                return new StandardValuesCollection(
+                    Assembly.GetExecutingAssembly()
+                        .GetTypes()
+                        .Where(t => typeof(ITriggerAlgorithm).IsAssignableFrom(t) && t != typeof(ITriggerAlgorithm))
+                        .Select(t => t.Name)
+                        .ToList());
+            }
+
+            public override bool CanConvertFrom(ITypeDescriptorContext context, Type sourceType)
+            {
+                return sourceType == typeof(string) || base.CanConvertFrom(context, sourceType);
+            }
+
+            public override object ConvertFrom(ITypeDescriptorContext context, CultureInfo culture, object value)
+            {
+                if (value is string)
+                {
+                    var type = Assembly.GetExecutingAssembly()
+                        .GetTypes()
+                        .FirstOrDefault(t => typeof(ITriggerAlgorithm).IsAssignableFrom(t) && t.Name.ToLowerInvariant().Equals(value.ToString().ToLowerInvariant()));
+                    if (type != null)
+                    {
+                        return Activator.CreateInstance(type) as ITriggerAlgorithm;
+                    }
+                }
+
+                return base.ConvertFrom(context, culture, value);
+            }
+        }
+
+        public event PropertyChangedEventHandler PropertyChanged;
     }
 }
