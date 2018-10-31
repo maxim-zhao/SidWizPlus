@@ -8,6 +8,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using LibSidWiz;
+using LibSidWiz.Triggers;
 
 namespace SidWiz
 {
@@ -79,7 +81,7 @@ namespace SidWiz
                             loadVgm(path);
                             break;
                         case ".wav":
-                            loadWav(path);
+                            LoadWav(path);
                             break;
                         default:
                             errors.Add($"Could not load \"{filename}\"");
@@ -94,11 +96,14 @@ namespace SidWiz
             }
         }
 
-        private void loadWav(string filename)
+        private void LoadWav(string filename)
         {
             // We create a new ChannelControl
-            var control = new ChannelControl();
-            control.Filename = filename;
+            var control = new ChannelControl(new Channel
+            {
+                Filename = filename,
+                Algorithm = new PeakSpeedTrigger()
+            });
             _channels.Add(control);
             LayoutPanel.Controls.Add(control);
             LayoutChannels();
@@ -111,7 +116,7 @@ namespace SidWiz
 
         private void colorButton3_BackColorChanged(object sender, EventArgs e)
         {
-            LayoutPanel.BackColor = colorButton3.Color;
+            //LayoutPanel.BackColor = colorButton3.Color;
         }
     }
 }

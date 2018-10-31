@@ -83,6 +83,10 @@ namespace LibSidWiz
             {
                 _filename = value;
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Filename)));
+                if (_filename != "" && string.IsNullOrEmpty(_name))
+                {
+                    Name = GuessNameFromMultidumperFilename(_filename);
+                }
             }
         }
 

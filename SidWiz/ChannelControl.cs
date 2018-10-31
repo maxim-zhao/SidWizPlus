@@ -1,62 +1,34 @@
 ﻿using System;
+using System.ComponentModel;
 using System.IO;
-using System.Linq;
 using System.Windows.Forms;
-using LibSidWiz.Triggers;
+using LibSidWiz;
 
 namespace SidWiz
 {
     public partial class ChannelControl : UserControl
     {
-        private string _filename;
+        private readonly Channel _channel;
 
-        public ChannelControl()
+        public ChannelControl(Channel channel)
         {
+            _channel = channel;
             InitializeComponent();
-
-            if (!DesignMode)
-            {
-                // Make sure we have LibSidWiz loaded
-                var i = typeof(ITriggerAlgorithm);
-                algorithmsCombo.Items.AddRange(AppDomain.CurrentDomain
-                    .GetAssemblies()
-                    .SelectMany(a => a.GetTypes())
-                    .Where(t => i.IsAssignableFrom(t) && t != i)
-                    .ToArray<object>());
-                algorithmsCombo.SelectedItem = typeof(PeakSpeedTrigger);
-            }
+            PropertyGrid.SelectedObject = _channel;
+            _channel.PropertyChanged += ChannelOnPropertyChanged;
+            TitleLabel.Text = _channel.Name;
         }
 
-        public string Filename
+        private void ChannelOnPropertyChanged(object sender, PropertyChangedEventArgs e)
         {
-            get => _filename;
-            set
-            {
-                _filename = value;
-                TitleLabel.Text = Path.GetFileNameWithoutExtension(_filename);
-            }
-        }
-
-        private void FilenameButtonClick(object sender, EventArgs e)
-        {
-            using (var ofd = new OpenFileDialog() {Filter = "WAV files (*.wav)|*.wav|All files (*.*)|*.*"})
-            {
-                if (ofd.ShowDialog(this) != DialogResult.OK)
-                {
-                    return;
-                }
-                _filename = ofd.FileName;
-            }
-        }
-
-        private void highPassFilterCheckBox_CheckedChanged(object sender, EventArgs e)
-        {
-            highPassFilterFrequency.Enabled = HighPassFilterCheckbox.Checked;
+            PropertyGrid.SelectedObject = _channel;
+            TitleLabel.Text = _channel.Name;
         }
 
         private void ConfigureToggleButton_Click(object sender, EventArgs e)
         {
-            tableLayoutPanel1.Visible = !tableLayoutPanel1.Visible;
+            // TODO: put it in a popup?
+            PropertyGrid.Visible = !PropertyGrid.Visible;
         }
     }
 }
