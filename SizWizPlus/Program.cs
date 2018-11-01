@@ -678,7 +678,7 @@ namespace SidWizPlus
                 }
             }
 
-            if (settings.YouTubePlaylist != null)
+            if (settings.YouTubePlaylist != null && !string.IsNullOrEmpty(video.Id))
             {
                 if (gd3 != null)
                 {
