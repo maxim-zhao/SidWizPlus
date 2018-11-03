@@ -13,7 +13,7 @@ namespace SidWiz
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new SidWizPlusGUI());
+            Application.Run(new SidWizPlusGui());
         }
     }
 }

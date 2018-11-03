@@ -7,6 +7,8 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Windows.Forms.Design;
 using LibSidWiz.Triggers;
 using NAudio.Dsp;
@@ -29,48 +31,75 @@ namespace LibSidWiz
         private float _highPassFilterFrequency = -1;
         private float _scale = 1.0f;
         private float _max;
+        private int _maxOffset;
         private TimeSpan _length;
         private int _sampleRate;
 
-        public void LoadData()
+        public void LoadData(CancellationToken token = new CancellationToken())
         {
-            Console.WriteLine($"- Reading {Filename}");
-            float[] buffer;
-            using (var reader = new WaveFileReader(Filename))
+            try
             {
-                SampleRate = reader.WaveFormat.SampleRate;
-                Length = TimeSpan.FromSeconds((double) reader.SampleCount / reader.WaveFormat.SampleRate);
+                Console.WriteLine($"- Reading {Filename}");
+                float[] buffer;
+                using (var reader = new WaveFileReader(Filename))
+                {
+                    // We read the file and convert to mono
+                    buffer = new float[reader.SampleCount];
+                    reader.ToSampleProvider().ToMono().Read(buffer, 0, (int) reader.SampleCount);
 
-                // We read the file and convert to mono
-                buffer = new float[reader.SampleCount];
-                reader.ToSampleProvider().ToMono().Read(buffer, 0, (int) reader.SampleCount);
-            }
+                    SampleRate = reader.WaveFormat.SampleRate;
+                    Length = TimeSpan.FromSeconds((double) reader.SampleCount / reader.WaveFormat.SampleRate);
+                }
 
-            // We don't care about ones where the samples are all equal
-            // ReSharper disable once CompareOfFloatsByEqualityOperator
-            if (buffer.Length == 0 || buffer.All(s => s == buffer[0]))
-            {
-                Console.WriteLine($"- {Filename} is silent");
-                // So we skip steps here
-                _samples = null;
-                return;
-            }
+                token.ThrowIfCancellationRequested();
 
-            if (HighPassFilterFrequency > 0)
-            {
-                Console.WriteLine($"- High-pass filtering {Filename}");
-                // Apply the high pass filter
-                var filter = BiQuadFilter.HighPassFilter(SampleRate, HighPassFilterFrequency, 1);
+                // We don't care about ones where the samples are all equal
+                // ReSharper disable once CompareOfFloatsByEqualityOperator
+                if (buffer.Length == 0 || buffer.All(s => s == buffer[0]))
+                {
+                    Console.WriteLine($"- {Filename} is silent");
+                    // So we skip steps here
+                    _samples = null;
+                    return;
+                }
+
+                if (HighPassFilterFrequency > 0)
+                {
+                    Console.WriteLine($"- High-pass filtering {Filename}");
+                    // Apply the high pass filter
+                    var filter = BiQuadFilter.HighPassFilter(SampleRate, HighPassFilterFrequency, 1);
+                    for (int i = 0; i < buffer.Length; ++i)
+                    {
+                        buffer[i] = filter.Transform(buffer[i]);
+                    }
+                }
+
+                token.ThrowIfCancellationRequested();
+
+                _max = 0;
+                _maxOffset = 0;
                 for (int i = 0; i < buffer.Length; ++i)
                 {
-                    buffer[i] = filter.Transform(buffer[i]);
+                    if (Math.Abs(buffer[i]) > _max)
+                    {
+                        _max = Math.Abs(buffer[i]);
+                        _maxOffset = i;
+                    }
                 }
+
+                Console.WriteLine($"- Peak sample amplitude for {Filename} is {Max}");
+
+                _samples = buffer;
             }
-
-            Max = buffer.Select(Math.Abs).Max();
-            Console.WriteLine($"- Peak sample amplitude for {Filename} is {Max}");
-
-            _samples = buffer;
+            catch (TaskCanceledException)
+            {
+                // Blank out if cancelled
+                _max = 0;
+                _maxOffset = 0;
+                SampleRate = 0;
+                Length = TimeSpan.Zero;
+                _samples = null;
+            }
         }
 
         [Category("Source")]
@@ -177,15 +206,11 @@ namespace LibSidWiz
 
         [Category("Data information")]
         [Description("Peak amplitude for the channel")]
-        public float Max
-        {
-            get => _max;
-            private set
-            {
-                _max = value;
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Max)));
-            }
-        }
+        public float Max => _max;
+
+        [Category("Data information")]
+        [Description("Offset of peak amplitude for the channel")]
+        public int MaxOffset => _maxOffset;
 
         [Category("Data information")]
         [Description("Number of samples in the channel")]
