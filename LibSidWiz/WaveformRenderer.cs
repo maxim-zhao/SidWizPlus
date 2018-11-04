@@ -70,8 +70,7 @@ namespace LibSidWiz
                                 output.Write(rawData, bm, fractionComplete);
                             }
                         },
-                        0,
-                        int.MaxValue);
+                        0, numFrames);
                 }
             }
             finally
