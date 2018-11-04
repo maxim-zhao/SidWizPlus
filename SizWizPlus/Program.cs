@@ -248,9 +248,10 @@ namespace SidWizPlus
                             LineWidth = settings.LineWidth,
                             Name = Channel.GuessNameFromMultidumperFilename(filename),
                             Algorithm = CreateTriggerAlgorithm(settings.TriggerAlgorithm),
-                            TriggerLookaheadFrames = settings.TriggerLookahead
+                            TriggerLookaheadFrames = settings.TriggerLookahead,
+                            ViewWidthInMilliseconds = settings.ViewWidthMs
                         };
-                        channel.LoadData();
+                        Task.WaitAll(channel.LoadDataAsync());
                         return channel;
                     }).Where(ch => ch.SampleCount > 0).ToList();
                     if (settings.AutoScalePercentage > 0)
@@ -411,7 +412,6 @@ namespace SidWizPlus
                 Width = settings.Width,
                 Height = settings.Height,
                 SamplingRate = channels.First().SampleRate,
-                RenderedLineWidthInSamples = settings.ViewWidthMs * channels.First().SampleRate / 1000,
                 RenderingBounds = backgroundImage.WaveArea
             };
 
