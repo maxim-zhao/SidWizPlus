@@ -249,9 +249,9 @@ namespace SidWizPlus
                             Name = Channel.GuessNameFromMultidumperFilename(filename),
                             Algorithm = CreateTriggerAlgorithm(settings.TriggerAlgorithm),
                             TriggerLookaheadFrames = settings.TriggerLookahead,
-                            ViewWidthInMilliseconds = settings.ViewWidthMs
                         };
                         Task.WaitAll(channel.LoadDataAsync());
+                        channel.ViewWidthInMilliseconds = settings.ViewWidthMs;
                         return channel;
                     }).Where(ch => ch.SampleCount > 0).ToList();
                     if (settings.AutoScalePercentage > 0)
