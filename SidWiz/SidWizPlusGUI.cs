@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using LibSidWiz;
 using LibSidWiz.Triggers;
@@ -13,7 +12,7 @@ namespace SidWiz
     public partial class SidWizPlusGui : Form
     {
         private int _columns = 1;
-        private readonly List<ChannelControl> _channels = new List<ChannelControl>();
+        private readonly List<Channel> _channels = new List<Channel>();
         private string _multiDumperPath;
 
         public SidWizPlusGui()
@@ -21,34 +20,10 @@ namespace SidWiz
             InitializeComponent();
         }
 
-        private void LayoutChannels()
-        {
-            if (_channels.Count == 0)
-            {
-                return;
-            }
-            var rows = _channels.Count / _columns + (_channels.Count % _columns == 0 ? 0 : 1);
-            var width = LayoutPanel.Width / _columns;
-            var height = LayoutPanel.Height / rows;
-            for (int i = 0; i < _channels.Count; ++i)
-            {
-                var control = _channels[i];
-                control.Left = width * (i % _columns);
-                control.Top = height * (i / _columns);
-                control.Width = width;
-                control.Height = height;
-            }
-        }
-
-        private void LayoutPanel_Resize(object sender, EventArgs e)
-        {
-            LayoutChannels();
-        }
-
         private void ColumnsControl_ValueChanged(object sender, EventArgs e)
         {
             _columns = (int) Columns.Value;
-            LayoutChannels();
+            Render();
         }
 
         private void AddAFileClick(object sender, EventArgs e)
@@ -96,17 +71,20 @@ namespace SidWiz
 
         private void LoadWav(string filename)
         {
-            // We create a new ChannelControl
-            var control = new ChannelControl(this);
-            _channels.Add(control);
-            LayoutPanel.Controls.Add(control);
-            LayoutChannels();
-            // We create the Channel object a little later to allow it to render properly
-            control.Channel = new Channel
+            // We create a new Channel
+            var channel = new Channel
             {
                 Filename = filename,
                 Algorithm = new PeakSpeedTrigger()
             };
+            channel.Changed += ChannelOnChanged;
+            channel.LoadDataAsync(); // in a worker thread
+            _channels.Add(channel);
+        }
+
+        private void ChannelOnChanged()
+        {
+            Render();
         }
 
         private void LoadVgm(string filename)
@@ -174,46 +152,107 @@ namespace SidWiz
 
         private void AutoScale_Click(object sender, EventArgs e)
         {
-            var loadTasks = _channels.Select(control => control.LoadTask).ToArray();
-            while (loadTasks.Any(t => t == null || !t.IsCompleted))
+            // Apply to all channels which have loaded
+            if (float.TryParse(VerticalScaling.Text, out var percentage) && _channels.Count > 0)
             {
-                // We wait for them to finish loading
-                Task.WaitAll(loadTasks, TimeSpan.FromSeconds(0.1));
-                Application.DoEvents();
-            }
-            // Then apply it
-            if (float.TryParse(VerticalScaling.Text, out var percentage))
-            {
-                var scale = percentage / 100 / _channels.Max(control => control.Channel.Max);
-                foreach (var channel in _channels.Select(control => control.Channel))
+                var scale = percentage / 100 / _channels.Max(channel => channel.Max);
+                foreach (var channel in _channels)
                 {
                     channel.Scale = scale;
                 }
             }
         }
 
-        internal void RemoveChannel(ChannelControl control)
+        private void Render()
         {
-            _channels.Remove(control);
-            LayoutChannels();
-            control.Dispose();
+            var renderer = new WaveformRenderer
+            {
+                BackgroundColor = BackgroundColorButton.Color,
+                BackgroundImage = BackgroundImageControl.Image,
+                Width = int.Parse(WidthControl.Text),
+                Height = int.Parse(HeightControl.Text),
+                Columns = _columns,
+                FramesPerSecond = int.Parse(FrameRate.Text),
+                //RenderingBounds = new Rectangle()
+                // TODO more
+            };
+            foreach (var channel in _channels)
+            {
+                renderer.AddChannel(channel);
+            }
+
+            var bitmap = renderer.RenderFrame();
+            var oldImage = Preview.Image;
+            Preview.Image = bitmap;
+            oldImage?.Dispose();
         }
 
-        internal void MoveChannel(ChannelControl control, int amount)
+        private void LeftButton_Click(object sender, EventArgs e)
         {
-            var index = _channels.IndexOf(control);
+            MoveChannel(PropertyGrid.SelectedObject as Channel, -1);
+        }
+        private void RightButton_Click(object sender, EventArgs e)
+        {
+            MoveChannel(PropertyGrid.SelectedObject as Channel, +1);
+        }
+
+        private void MoveChannel(Channel channel, int delta)
+        {
+            var index = _channels.IndexOf(channel);
             if (index == -1)
             {
                 return;
             }
-            var newIndex = index + amount;
+            var newIndex = index + delta;
             if (newIndex < 0 || newIndex >= _channels.Count)
             {
                 return;
             }
             _channels.RemoveAt(index);
-            _channels.Insert(newIndex, control);
-            LayoutChannels();
+            _channels.Insert(newIndex, channel);
+            Render();
+        }
+
+        private void RemoveButton_Click(object sender, EventArgs e)
+        {
+            if (!(PropertyGrid.SelectedObject is Channel channel))
+            {
+                return;
+            }
+            channel.Changed -= ChannelOnChanged;
+            var index = _channels.IndexOf(channel);
+            if (index > -1)
+            {
+                _channels.RemoveAt(index);
+                PropertyGrid.SelectedObject = null;
+                Render();
+            }
+        }
+
+        private void Preview_Resize(object sender, EventArgs e)
+        {
+            //Render();
+            Text = $"Size is now {Preview.Width}x{Preview.Height}";
+        }
+
+        private void Preview_MouseClick(object sender, MouseEventArgs e)
+        {
+            if (e.Button != MouseButtons.Left)
+            {
+                return;
+            }
+            // Determine which channel was clicked
+            var column = e.X * _columns / Preview.Width;
+            var row = e.Y * _channels.Count / (Preview.Height * _columns);
+            var index = row * _columns + column;
+            if (index >= _channels.Count)
+            {
+                PropertyGrid.SelectedObject = null;
+            }
+            else
+            {
+                PropertyGrid.SelectedObject = _channels[index];
+            }
         }
     }
 }

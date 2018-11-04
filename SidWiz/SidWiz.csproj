@@ -76,12 +76,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ChannelControl.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Include="ChannelControl.Designer.cs">
-      <DependentUpon>ChannelControl.cs</DependentUpon>
-    </Compile>
     <Compile Include="ColorButton.cs">
       <SubType>Component</SubType>
     </Compile>
@@ -126,9 +120,6 @@
     <Compile Include="SidWizPlusGUI.Designer.cs">
       <DependentUpon>SidWizPlusGUI.cs</DependentUpon>
     </Compile>
-    <EmbeddedResource Include="ChannelControl.resx">
-      <DependentUpon>ChannelControl.cs</DependentUpon>
-    </EmbeddedResource>
     <EmbeddedResource Include="Form1.resx">
       <DependentUpon>Form1.cs</DependentUpon>
     </EmbeddedResource>
