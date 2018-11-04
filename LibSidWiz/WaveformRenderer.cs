@@ -21,7 +21,6 @@ namespace LibSidWiz
         public int Columns { get; set; }
         public int SamplingRate { get; set; }
         public int FramesPerSecond { get; set; }
-        public int RenderedLineWidthInSamples { get; set; }
         public Color BackgroundColor { get; set; } = Color.Black;
         public Image BackgroundImage { get; set; }
         public Rectangle RenderingBounds { get; set; }
@@ -50,167 +49,196 @@ namespace LibSidWiz
 
         public void Render(IList<IGraphicsOutput> outputs)
         {
-            int sampleLength = _channels.Max(c => c.SampleCount);
+            // This is the raw data buffer we use to store the generated image.
+            // We need it in this form so we can pass it to FFMPEG.
+            var rawData = new byte[Width * Height * 3];
+            // We also need to "pin" it so the bitmap can be based on it.
+            GCHandle pinnedArray = GCHandle.Alloc(rawData, GCHandleType.Pinned);
+            try
+            {
+                using (var bm = new Bitmap(Width, Height, Width * 3, PixelFormat.Format24bppRgb, pinnedArray.AddrOfPinnedObject()))
+                {
+                    int numFrames = _channels.Max(c => c.SampleCount) * FramesPerSecond / SamplingRate;
 
+                    int frameIndex = 0;
+                    Render(bm, () =>
+                        {
+                            double fractionComplete = (double) ++frameIndex / numFrames;
+                            foreach (var output in outputs)
+                            {
+                                // ReSharper disable once AccessToDisposedClosure
+                                output.Write(rawData, bm, fractionComplete);
+                            }
+                        },
+                        0,
+                        int.MaxValue);
+                }
+            }
+            finally
+            {
+                pinnedArray.Free();
+            }
+        }
+
+        private void Render(Image destination, Action onFrame, int startFrame, int endFrame)
+        {
+            // Default rendering bounds if not set
             var renderingBounds = RenderingBounds;
             if (renderingBounds.Width == 0 || renderingBounds.Height == 0)
             {
-                // Default to no bounds
                 renderingBounds = new Rectangle(0, 0, Width, Height);
             }
 
             int viewWidth = renderingBounds.Width / Columns;
-            int viewHeight = renderingBounds.Height / (int)Math.Ceiling((double)_channels.Count / Columns);
+            int viewHeight = renderingBounds.Height / (int)Math.Ceiling((double)(Math.Max(_channels.Count,1)) / Columns);
 
             // We generate our "base image"
-            using (var template = new Bitmap(Width, Height, PixelFormat.Format24bppRgb))
+            using (var template = GenerateTemplate(renderingBounds, viewWidth, viewHeight))
             {
-                using (var g = Graphics.FromImage(template))
+                using (var g = Graphics.FromImage(destination))
                 {
+                    // Enable anti-aliased lines
                     g.SmoothingMode = SmoothingMode.HighQuality;
-                    g.InterpolationMode = InterpolationMode.HighQualityBicubic;
 
-                    if (BackgroundImage != null)
+                    // Prepare the pens we will use
+                    var pens = _channels.Select(MakePen).ToList();
+
+                    // Prepare a buffer to hold the line coordinates
+                    int maxViewWidthInSamples = _channels.Count == 0 ? 0 : _channels.Max(channel => channel.ViewWidthInSamples);
+                    var points = new PointF[maxViewWidthInSamples];
+
+                    for (int frameIndex = startFrame; frameIndex < endFrame; ++frameIndex)
                     {
-                        // Fill with the background image
-                        g.DrawImage(BackgroundImage, 0, 0, Width, Height);
-                    }
-                    else
-                    {
-                        // Fill background
-                        using (var brush = new SolidBrush(BackgroundColor))
+                        // Compute the start of the sample window
+                        int frameIndexSamples = frameIndex * SamplingRate / FramesPerSecond;
+
+                        // Copy from the template
+                        g.DrawImageUnscaled(template, 0, 0);
+
+                        var frameSamples = SamplingRate / FramesPerSecond;
+
+                        // For each channel...
+                        for (int channelIndex = 0; channelIndex < _channels.Count; ++channelIndex)
                         {
-                            g.FillRectangle(brush, 0, 0, Width, Height);
-                        }
-                    }
+                            var channel = _channels[channelIndex];
 
-                    if (Grid != null)
-                    {
-                        using (var pen = new Pen(Grid.Color, Grid.Width))
-                        {
-                            // Verticals
-                            for (int c = 1; c < Columns; ++c)
+                            // Compute the initial x, y to render the line from.
+                            var yBase = renderingBounds.Top + channelIndex / Columns * viewHeight + viewHeight / 2;
+                            var xBase = renderingBounds.Left + (channelIndex % Columns) * renderingBounds.Width / Columns;
+
+                            if (channel.SampleCount == 0)
                             {
-                                g.DrawLine(
-                                    pen,
-                                    renderingBounds.Left + viewWidth * c, renderingBounds.Top,
-                                    renderingBounds.Left + viewWidth * c, renderingBounds.Bottom);
+                                // No data
+                                g.DrawString("No data for this channel", SystemFonts.DefaultFont, Brushes.Red, xBase, yBase);
                             }
-
-                            // Horizontals
-                            for (int r = 1; r < (float) _channels.Count / Columns; ++r)
+                            else
                             {
-                                g.DrawLine(
-                                    pen,
-                                    renderingBounds.Left, renderingBounds.Top + viewHeight * r,
-                                    renderingBounds.Right, renderingBounds.Top + viewHeight * r);
-                            }
+                                // Compute the "trigger point".. This will be the centre of our rendering.
+                                var triggerPoint = channel.GetTriggerPoint(frameIndexSamples, frameSamples);
 
-                            if (Grid.DrawBorder)
-                            {
-                                g.DrawRectangle(pen, renderingBounds);
+                                RenderWave(g, channel, triggerPoint, xBase, yBase, viewWidth, viewHeight, pens[channelIndex], points);
                             }
                         }
+
+                        // Emit
+                        onFrame();
                     }
 
-                    if (ZeroLine != null)
+                    foreach (var pen in pens)
                     {
-                        using (var pen = new Pen(ZeroLine.Color, ZeroLine.Width))
-                        {
-                            for (int channelIndex = 0; channelIndex < _channels.Count; ++channelIndex)
-                            {
-                                // Compute the initial x, y to render the line from.
-                                var yBase = renderingBounds.Top + channelIndex / Columns * viewHeight + viewHeight / 2;
-                                var xBase = renderingBounds.Left +
-                                            (channelIndex % Columns) * renderingBounds.Width / Columns;
-
-                                // Draw the zero line
-                                g.DrawLine(pen, xBase, yBase, xBase + viewWidth, yBase);
-                            }
-                        }
+                        pen.Dispose();
                     }
-
-                    if (ChannelLabels != null)
-                    {
-                        using (var font = new Font(ChannelLabels.FontName, ChannelLabels.Size))
-                        using (var brush = new SolidBrush(ChannelLabels.Color))
-                        {
-                            for (int channelIndex = 0; channelIndex < _channels.Count; ++channelIndex)
-                            {
-                                var y = renderingBounds.Top + channelIndex / Columns * viewHeight;
-                                var x = renderingBounds.Left +
-                                        (channelIndex % Columns) * renderingBounds.Width / Columns;
-                                g.DrawString(_channels[channelIndex].Name, font, brush, x, y);
-                            }
-                        }
-                    }
-                }
-
-                // This is the raw data buffer we use to store the generated image.
-                // We need it in this form so we can pass it to FFMPEG.
-                var rawData = new byte[Width * Height * 3];
-                // We also need to "pin" it so the bitmap can be based on it.
-                var pinnedArray = GCHandle.Alloc(rawData, GCHandleType.Pinned);
-                try
-                {
-                    using (var bm = new Bitmap(Width, Height, Width * 3, PixelFormat.Format24bppRgb,
-                        pinnedArray.AddrOfPinnedObject()))
-                    {
-                        using (var g = PrepareGraphics(bm))
-                        {
-                            var pens = _channels.Select(MakePen).ToList();
-
-                            int numFrames = sampleLength * FramesPerSecond / SamplingRate;
-                            var points = new PointF[viewWidth];
-
-                            for (int frameIndex = 0; frameIndex < numFrames; ++frameIndex)
-                            {
-                                // Compute the start of the sample window
-                                int frameIndexSamples = frameIndex * SamplingRate / FramesPerSecond;
-
-                                // Copy from the template
-                                g.DrawImageUnscaled(template, 0, 0);
-
-                                var frameSamples = SamplingRate / FramesPerSecond;
-
-                                // For each channel...
-                                for (int channelIndex = 0; channelIndex < _channels.Count; ++channelIndex)
-                                {
-                                    var channel = _channels[channelIndex];
-
-                                    // Compute the initial x, y to render the line from.
-                                    var yBase = renderingBounds.Top + channelIndex / Columns * viewHeight +
-                                                viewHeight / 2;
-                                    var xBase = renderingBounds.Left +
-                                                (channelIndex % Columns) * renderingBounds.Width / Columns;
-
-                                    // Compute the "trigger point".. This will be the centre of our rendering.
-                                    var triggerPoint = channel.GetTriggerPoint(frameIndexSamples, frameSamples);
-
-                                    RenderWave(g, channel, triggerPoint, xBase, yBase, viewWidth, viewHeight,
-                                        pens[channelIndex], points);
-                                }
-
-                                // Emit
-                                double fractionComplete = (double) (frameIndex + 1) / numFrames;
-                                foreach (var output in outputs)
-                                {
-                                    output.Write(rawData, bm, fractionComplete);
-                                }
-                            }
-
-                            foreach (var pen in pens)
-                            {
-                                pen.Dispose();
-                            }
-                        }
-                    }
-                }
-                finally
-                {
-                    pinnedArray.Free();
                 }
             }
+        }
+
+        private Bitmap GenerateTemplate(Rectangle renderingBounds, int viewWidth, int viewHeight)
+        {
+            var template = new Bitmap(Width, Height, PixelFormat.Format24bppRgb);
+            
+            // Draw it
+            using (var g = Graphics.FromImage(template))
+            {
+                g.SmoothingMode = SmoothingMode.HighQuality;
+                g.InterpolationMode = InterpolationMode.HighQualityBicubic;
+
+                if (BackgroundImage != null)
+                {
+                    // Fill with the background image
+                    g.DrawImage(BackgroundImage, 0, 0, Width, Height);
+                }
+                else
+                {
+                    // Fill background
+                    using (var brush = new SolidBrush(BackgroundColor))
+                    {
+                        g.FillRectangle(brush, -1, -1, Width + 1, Height + 1);
+                    }
+                }
+
+                if (Grid != null)
+                {
+                    using (var pen = new Pen(Grid.Color, Grid.Width))
+                    {
+                        // Verticals
+                        for (int c = 1; c < Columns; ++c)
+                        {
+                            g.DrawLine(
+                                pen,
+                                renderingBounds.Left + viewWidth * c, renderingBounds.Top,
+                                renderingBounds.Left + viewWidth * c, renderingBounds.Bottom);
+                        }
+
+                        // Horizontals
+                        for (int r = 1; r < (float) _channels.Count / Columns; ++r)
+                        {
+                            g.DrawLine(
+                                pen,
+                                renderingBounds.Left, renderingBounds.Top + viewHeight * r,
+                                renderingBounds.Right, renderingBounds.Top + viewHeight * r);
+                        }
+
+                        if (Grid.DrawBorder)
+                        {
+                            g.DrawRectangle(pen, renderingBounds);
+                        }
+                    }
+                }
+
+                if (ZeroLine != null)
+                {
+                    using (var pen = new Pen(ZeroLine.Color, ZeroLine.Width))
+                    {
+                        for (int channelIndex = 0; channelIndex < _channels.Count; ++channelIndex)
+                        {
+                            // Compute the initial x, y to render the line from.
+                            var yBase = renderingBounds.Top + channelIndex / Columns * viewHeight + viewHeight / 2;
+                            var xBase = renderingBounds.Left +
+                                        (channelIndex % Columns) * renderingBounds.Width / Columns;
+
+                            // Draw the zero line
+                            g.DrawLine(pen, xBase, yBase, xBase + viewWidth, yBase);
+                        }
+                    }
+                }
+
+                if (ChannelLabels != null)
+                {
+                    using (var font = new Font(ChannelLabels.FontName, ChannelLabels.Size))
+                    using (var brush = new SolidBrush(ChannelLabels.Color))
+                    {
+                        for (int channelIndex = 0; channelIndex < _channels.Count; ++channelIndex)
+                        {
+                            var y = renderingBounds.Top + channelIndex / Columns * viewHeight;
+                            var x = renderingBounds.Left +
+                                    (channelIndex % Columns) * renderingBounds.Width / Columns;
+                            g.DrawString(_channels[channelIndex].Name, font, brush, x, y);
+                        }
+                    }
+                }
+            }
+
+            return template;
         }
 
         private Pen MakePen(Channel c)
@@ -222,30 +250,16 @@ namespace LibSidWiz
             };
         }
 
-        private Graphics PrepareGraphics(Image bm)
-        {
-            var g = Graphics.FromImage(bm);
-            // Enable anti-aliased lines
-            g.SmoothingMode = SmoothingMode.HighQuality;
-            return g;
-        }
-
         private void RenderWave(Graphics g, Channel channel, int triggerPoint, int xBase, int yBase, int viewWidth, int viewHeight, Pen pen, PointF[] points)
         {
             // And the initial sample index
-            var leftmostSampleIndex = triggerPoint - RenderedLineWidthInSamples / 2;
+            var leftmostSampleIndex = triggerPoint - channel.ViewWidthInSamples / 2;
 
-            // Then, for each pixel, compute the Y coordinate for the waveform
-            for (int x = 0; x < viewWidth; x++)
+            for (int i = 0; i < channel.ViewWidthInSamples; ++i)
             {
-                var sampleIndex = leftmostSampleIndex + x * RenderedLineWidthInSamples / viewWidth;
-                var sampleValue = channel.GetSample(sampleIndex);
-
-                // Compute the Y coordinate
-                var y = yBase - sampleValue * viewHeight / 2;
-
-                points[x].X = x + xBase;
-                points[x].Y = y;
+                var sampleValue = channel.GetSample(leftmostSampleIndex + i);
+                points[i].X = xBase + (float)viewWidth * i / channel.ViewWidthInSamples;
+                points[i].Y = yBase - sampleValue * viewHeight / 2;
             }
 
             // Then draw them all in one go...
@@ -263,15 +277,11 @@ namespace LibSidWiz
         /// <summary>
         /// Version for rendering a single frame for previewing
         /// </summary>
-        public void RenderFrame(Bitmap bitmap, Channel channel, int sampleIndex)
+        public Bitmap RenderFrame()
         {
-            var points = new PointF[bitmap.Width];
-            using (var g = PrepareGraphics(bitmap))
-            using (var pen = MakePen(channel))
-            {
-                g.FillRectangle(Brushes.IndianRed, 0,0,50,50);
-                RenderWave(g, channel, sampleIndex, 0, bitmap.Height / 2, bitmap.Width, bitmap.Height, pen, points);
-            }
+            var bitmap = new Bitmap(Width, Height);
+            Render(bitmap, () => { }, 0, 1);
+            return bitmap;
         }
 
         public class ZeroLineConfig

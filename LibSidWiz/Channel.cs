@@ -19,7 +19,7 @@ namespace LibSidWiz
     /// <summary>
     /// Wraps a single "voice", and also deals with loading the data into memory
     /// </summary>
-    public class Channel: INotifyPropertyChanged
+    public class Channel
     {
         private IList<float> _samples;
         private string _filename;
@@ -30,76 +30,83 @@ namespace LibSidWiz
         private float _lineWidth = 3;
         private float _highPassFilterFrequency = -1;
         private float _scale = 1.0f;
-        private float _max;
-        private int _maxOffset;
         private TimeSpan _length;
         private int _sampleRate;
+        private int _viewWidthInSamples = 1500;
 
-        public void LoadData(CancellationToken token = new CancellationToken())
+        public event Action Changed;
+
+        public Task<bool> LoadDataAsync(CancellationToken token = new CancellationToken())
         {
-            try
+            return Task.Factory.StartNew(() =>
             {
-                Console.WriteLine($"- Reading {Filename}");
-                float[] buffer;
-                using (var reader = new WaveFileReader(Filename))
+                try
                 {
-                    // We read the file and convert to mono
-                    buffer = new float[reader.SampleCount];
-                    reader.ToSampleProvider().ToMono().Read(buffer, 0, (int) reader.SampleCount);
+                    Console.WriteLine($"- Reading {Filename}");
+                    float[] buffer;
+                    using (var reader = new WaveFileReader(Filename))
+                    {
+                        // We read the file and convert to mono
+                        buffer = new float[reader.SampleCount];
+                        reader.ToSampleProvider().ToMono().Read(buffer, 0, (int) reader.SampleCount);
 
-                    SampleRate = reader.WaveFormat.SampleRate;
-                    Length = TimeSpan.FromSeconds((double) reader.SampleCount / reader.WaveFormat.SampleRate);
-                }
+                        SampleRate = reader.WaveFormat.SampleRate;
+                        Length = TimeSpan.FromSeconds((double) reader.SampleCount / reader.WaveFormat.SampleRate);
+                    }
 
-                token.ThrowIfCancellationRequested();
+                    token.ThrowIfCancellationRequested();
 
-                // We don't care about ones where the samples are all equal
-                // ReSharper disable once CompareOfFloatsByEqualityOperator
-                if (buffer.Length == 0 || buffer.All(s => s == buffer[0]))
-                {
-                    Console.WriteLine($"- {Filename} is silent");
-                    // So we skip steps here
-                    _samples = null;
-                    return;
-                }
+                    // We don't care about ones where the samples are all equal
+                    // ReSharper disable once CompareOfFloatsByEqualityOperator
+                    if (buffer.Length == 0 || buffer.All(s => s == buffer[0]))
+                    {
+                        Console.WriteLine($"- {Filename} is silent");
+                        // So we skip steps here
+                        _samples = null;
+                        return false;
+                    }
 
-                if (HighPassFilterFrequency > 0)
-                {
-                    Console.WriteLine($"- High-pass filtering {Filename}");
-                    // Apply the high pass filter
-                    var filter = BiQuadFilter.HighPassFilter(SampleRate, HighPassFilterFrequency, 1);
+                    if (HighPassFilterFrequency > 0)
+                    {
+                        Console.WriteLine($"- High-pass filtering {Filename}");
+                        // Apply the high pass filter
+                        var filter = BiQuadFilter.HighPassFilter(SampleRate, HighPassFilterFrequency, 1);
+                        for (int i = 0; i < buffer.Length; ++i)
+                        {
+                            buffer[i] = filter.Transform(buffer[i]);
+                        }
+                    }
+
+                    token.ThrowIfCancellationRequested();
+
+                    Max = 0;
+                    MaxOffset = 0;
                     for (int i = 0; i < buffer.Length; ++i)
                     {
-                        buffer[i] = filter.Transform(buffer[i]);
+                        if (Math.Abs(buffer[i]) > Max)
+                        {
+                            Max = Math.Abs(buffer[i]);
+                            MaxOffset = i;
+                        }
                     }
+
+                    Console.WriteLine($"- Peak sample amplitude for {Filename} is {Max}");
+
+                    _samples = buffer;
+                    Changed?.Invoke();
+                    return true;
                 }
-
-                token.ThrowIfCancellationRequested();
-
-                _max = 0;
-                _maxOffset = 0;
-                for (int i = 0; i < buffer.Length; ++i)
+                catch (TaskCanceledException)
                 {
-                    if (Math.Abs(buffer[i]) > _max)
-                    {
-                        _max = Math.Abs(buffer[i]);
-                        _maxOffset = i;
-                    }
+                    // Blank out if cancelled
+                    Max = 0;
+                    MaxOffset = 0;
+                    SampleRate = 0;
+                    Length = TimeSpan.Zero;
+                    _samples = null;
+                    return false;
                 }
-
-                Console.WriteLine($"- Peak sample amplitude for {Filename} is {Max}");
-
-                _samples = buffer;
-            }
-            catch (TaskCanceledException)
-            {
-                // Blank out if cancelled
-                _max = 0;
-                _maxOffset = 0;
-                SampleRate = 0;
-                Length = TimeSpan.Zero;
-                _samples = null;
-            }
+            }, token);
         }
 
         [Category("Source")]
@@ -111,7 +118,7 @@ namespace LibSidWiz
             set
             {
                 _filename = value;
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Filename)));
+                Changed?.Invoke();
                 if (_filename != "" && string.IsNullOrEmpty(_name))
                 {
                     Name = GuessNameFromMultidumperFilename(_filename);
@@ -128,7 +135,7 @@ namespace LibSidWiz
             set
             {
                 _algorithm = value;
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Algorithm)));
+                Changed?.Invoke();
             }
         }
 
@@ -140,7 +147,7 @@ namespace LibSidWiz
             set
             {
                 _triggerLookaheadFrames = value;
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Filename)));
+                Changed?.Invoke();
             }
         }
 
@@ -152,7 +159,7 @@ namespace LibSidWiz
             set
             {
                 _color = value;
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Color)));
+                Changed?.Invoke();
             }
         }
 
@@ -164,7 +171,7 @@ namespace LibSidWiz
             set
             {
                 _name = value;
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Name)));
+                Changed?.Invoke();
             }
         }
 
@@ -176,7 +183,7 @@ namespace LibSidWiz
             set
             {
                 _lineWidth = value;
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Filename)));
+                Changed?.Invoke();
             }
         }
 
@@ -188,7 +195,7 @@ namespace LibSidWiz
             set
             {
                 _highPassFilterFrequency = value;
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(HighPassFilterFrequency)));
+                Changed?.Invoke();
             }
         }
 
@@ -200,17 +207,41 @@ namespace LibSidWiz
             set
             {
                 _scale = value;
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Scale)));
+                Changed?.Invoke();
+            }
+        }
+
+        [Category("Adjustment")]
+        [Description("View width, in ms")]
+        public float ViewWidthInMilliseconds
+        {
+            get => _sampleRate == 0 ? 0 : (float)_viewWidthInSamples * 1000 / _sampleRate;
+            set
+            {
+                _viewWidthInSamples = (int) (value / 1000 * _sampleRate);
+                Changed?.Invoke();
+            }
+        }
+
+        [Category("Adjustment")]
+        [Description("View width, in samples")]
+        public int ViewWidthInSamples
+        {
+            get => _viewWidthInSamples;
+            set
+            {
+                _viewWidthInSamples = value;
+                Changed?.Invoke();
             }
         }
 
         [Category("Data information")]
         [Description("Peak amplitude for the channel")]
-        public float Max => _max;
+        public float Max { get; private set; }
 
         [Category("Data information")]
         [Description("Offset of peak amplitude for the channel")]
-        public int MaxOffset => _maxOffset;
+        public int MaxOffset { get; private set; }
 
         [Category("Data information")]
         [Description("Number of samples in the channel")]
@@ -224,7 +255,7 @@ namespace LibSidWiz
             private set
             {
                 _length = value;
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Length)));
+                Changed?.Invoke();
             }
         }
 
@@ -236,7 +267,7 @@ namespace LibSidWiz
             private set
             {
                 _sampleRate = value;
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(SampleRate)));
+                Changed?.Invoke();
             }
         }
 
@@ -358,7 +389,5 @@ namespace LibSidWiz
                 return base.ConvertFrom(context, culture, value);
             }
         }
-
-        public event PropertyChangedEventHandler PropertyChanged;
     }
 }
