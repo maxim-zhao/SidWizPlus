@@ -95,6 +95,8 @@
             this.LeftButton = new System.Windows.Forms.ToolStripButton();
             this.RightButton = new System.Windows.Forms.ToolStripButton();
             this.RemoveButton = new System.Windows.Forms.ToolStripButton();
+            this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
+            this.CopySettingsButton = new System.Windows.Forms.ToolStripButton();
             this.panel1.SuspendLayout();
             this.tabControl1.SuspendLayout();
             this.tabPage1.SuspendLayout();
@@ -125,9 +127,9 @@
             this.panel1.Controls.Add(this.AddAFile);
             this.panel1.Dock = System.Windows.Forms.DockStyle.Top;
             this.panel1.Location = new System.Drawing.Point(0, 0);
-            this.panel1.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.panel1.Margin = new System.Windows.Forms.Padding(2);
             this.panel1.Name = "panel1";
-            this.panel1.Padding = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.panel1.Padding = new System.Windows.Forms.Padding(2);
             this.panel1.Size = new System.Drawing.Size(594, 163);
             this.panel1.TabIndex = 2;
             // 
@@ -140,7 +142,7 @@
             this.tabControl1.Controls.Add(this.tabPage3);
             this.tabControl1.Controls.Add(this.tabPage4);
             this.tabControl1.Location = new System.Drawing.Point(2, 2);
-            this.tabControl1.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.tabControl1.Margin = new System.Windows.Forms.Padding(2);
             this.tabControl1.Name = "tabControl1";
             this.tabControl1.SelectedIndex = 0;
             this.tabControl1.Size = new System.Drawing.Size(483, 157);
@@ -167,9 +169,9 @@
             this.tabPage1.Controls.Add(this.label11);
             this.tabPage1.Controls.Add(this.label12);
             this.tabPage1.Location = new System.Drawing.Point(4, 22);
-            this.tabPage1.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.tabPage1.Margin = new System.Windows.Forms.Padding(2);
             this.tabPage1.Name = "tabPage1";
-            this.tabPage1.Padding = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.tabPage1.Padding = new System.Windows.Forms.Padding(2);
             this.tabPage1.Size = new System.Drawing.Size(475, 131);
             this.tabPage1.TabIndex = 0;
             this.tabPage1.Text = "Basic settings";
@@ -178,7 +180,7 @@
             // AutoScaleButton
             // 
             this.AutoScaleButton.Location = new System.Drawing.Point(206, 99);
-            this.AutoScaleButton.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.AutoScaleButton.Margin = new System.Windows.Forms.Padding(2);
             this.AutoScaleButton.Name = "AutoScaleButton";
             this.AutoScaleButton.Size = new System.Drawing.Size(94, 25);
             this.AutoScaleButton.TabIndex = 18;
@@ -199,7 +201,7 @@
             // Columns
             // 
             this.Columns.Location = new System.Drawing.Point(96, 5);
-            this.Columns.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.Columns.Margin = new System.Windows.Forms.Padding(2);
             this.Columns.Minimum = new decimal(new int[] {
             1,
             0,
@@ -249,7 +251,7 @@
             // WidthControl
             // 
             this.WidthControl.Location = new System.Drawing.Point(96, 24);
-            this.WidthControl.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.WidthControl.Margin = new System.Windows.Forms.Padding(2);
             this.WidthControl.Name = "WidthControl";
             this.WidthControl.Size = new System.Drawing.Size(52, 20);
             this.WidthControl.TabIndex = 1;
@@ -279,7 +281,7 @@
             // VerticalScaling
             // 
             this.VerticalScaling.Location = new System.Drawing.Point(96, 104);
-            this.VerticalScaling.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.VerticalScaling.Margin = new System.Windows.Forms.Padding(2);
             this.VerticalScaling.Name = "VerticalScaling";
             this.VerticalScaling.Size = new System.Drawing.Size(52, 20);
             this.VerticalScaling.TabIndex = 15;
@@ -289,7 +291,7 @@
             // HeightControl
             // 
             this.HeightControl.Location = new System.Drawing.Point(96, 43);
-            this.HeightControl.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.HeightControl.Margin = new System.Windows.Forms.Padding(2);
             this.HeightControl.Name = "HeightControl";
             this.HeightControl.Size = new System.Drawing.Size(52, 20);
             this.HeightControl.TabIndex = 3;
@@ -299,7 +301,7 @@
             // FrameRate
             // 
             this.FrameRate.Location = new System.Drawing.Point(96, 84);
-            this.FrameRate.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.FrameRate.Margin = new System.Windows.Forms.Padding(2);
             this.FrameRate.Name = "FrameRate";
             this.FrameRate.Size = new System.Drawing.Size(52, 20);
             this.FrameRate.TabIndex = 12;
@@ -329,7 +331,7 @@
             // ViewWidth
             // 
             this.ViewWidth.Location = new System.Drawing.Point(96, 64);
-            this.ViewWidth.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.ViewWidth.Margin = new System.Windows.Forms.Padding(2);
             this.ViewWidth.Name = "ViewWidth";
             this.ViewWidth.Size = new System.Drawing.Size(52, 20);
             this.ViewWidth.TabIndex = 7;
@@ -371,10 +373,10 @@
             this.tabPage2.Controls.Add(this.groupBox3);
             this.tabPage2.Controls.Add(this.groupBox1);
             this.tabPage2.Location = new System.Drawing.Point(4, 22);
-            this.tabPage2.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.tabPage2.Margin = new System.Windows.Forms.Padding(2);
             this.tabPage2.Name = "tabPage2";
-            this.tabPage2.Padding = new System.Windows.Forms.Padding(2, 2, 2, 2);
-            this.tabPage2.Size = new System.Drawing.Size(605, 131);
+            this.tabPage2.Padding = new System.Windows.Forms.Padding(2);
+            this.tabPage2.Size = new System.Drawing.Size(475, 131);
             this.tabPage2.TabIndex = 1;
             this.tabPage2.Text = "Lines";
             this.tabPage2.UseVisualStyleBackColor = true;
@@ -387,9 +389,9 @@
             this.groupBox3.Controls.Add(this.label19);
             this.groupBox3.Controls.Add(this.numericUpDown2);
             this.groupBox3.Location = new System.Drawing.Point(166, 5);
-            this.groupBox3.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.groupBox3.Margin = new System.Windows.Forms.Padding(2);
             this.groupBox3.Name = "groupBox3";
-            this.groupBox3.Padding = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.groupBox3.Padding = new System.Windows.Forms.Padding(2);
             this.groupBox3.Size = new System.Drawing.Size(149, 123);
             this.groupBox3.TabIndex = 9;
             this.groupBox3.TabStop = false;
@@ -401,7 +403,7 @@
             this.colorButton2.Color = System.Drawing.Color.White;
             this.colorButton2.ForeColor = System.Drawing.Color.Black;
             this.colorButton2.Location = new System.Drawing.Point(73, 28);
-            this.colorButton2.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.colorButton2.Margin = new System.Windows.Forms.Padding(2);
             this.colorButton2.Name = "colorButton2";
             this.colorButton2.Size = new System.Drawing.Size(60, 24);
             this.colorButton2.TabIndex = 12;
@@ -412,7 +414,7 @@
             // 
             this.checkBox5.AutoSize = true;
             this.checkBox5.Location = new System.Drawing.Point(8, 14);
-            this.checkBox5.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.checkBox5.Margin = new System.Windows.Forms.Padding(2);
             this.checkBox5.Name = "checkBox5";
             this.checkBox5.Size = new System.Drawing.Size(65, 17);
             this.checkBox5.TabIndex = 7;
@@ -443,7 +445,7 @@
             // 
             this.numericUpDown2.DecimalPlaces = 1;
             this.numericUpDown2.Location = new System.Drawing.Point(73, 55);
-            this.numericUpDown2.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.numericUpDown2.Margin = new System.Windows.Forms.Padding(2);
             this.numericUpDown2.Minimum = new decimal(new int[] {
             1,
             0,
@@ -467,9 +469,9 @@
             this.groupBox1.Controls.Add(this.label3);
             this.groupBox1.Controls.Add(this.numericUpDown1);
             this.groupBox1.Location = new System.Drawing.Point(8, 3);
-            this.groupBox1.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.groupBox1.Margin = new System.Windows.Forms.Padding(2);
             this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Padding = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.groupBox1.Padding = new System.Windows.Forms.Padding(2);
             this.groupBox1.Size = new System.Drawing.Size(155, 125);
             this.groupBox1.TabIndex = 8;
             this.groupBox1.TabStop = false;
@@ -481,7 +483,7 @@
             this.colorButton1.Color = System.Drawing.Color.White;
             this.colorButton1.ForeColor = System.Drawing.Color.Black;
             this.colorButton1.Location = new System.Drawing.Point(74, 30);
-            this.colorButton1.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.colorButton1.Margin = new System.Windows.Forms.Padding(2);
             this.colorButton1.Name = "colorButton1";
             this.colorButton1.Size = new System.Drawing.Size(60, 24);
             this.colorButton1.TabIndex = 8;
@@ -492,7 +494,7 @@
             // 
             this.checkBox1.AutoSize = true;
             this.checkBox1.Location = new System.Drawing.Point(10, 16);
-            this.checkBox1.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.checkBox1.Margin = new System.Windows.Forms.Padding(2);
             this.checkBox1.Name = "checkBox1";
             this.checkBox1.Size = new System.Drawing.Size(65, 17);
             this.checkBox1.TabIndex = 2;
@@ -503,7 +505,7 @@
             // 
             this.checkBox2.AutoSize = true;
             this.checkBox2.Location = new System.Drawing.Point(12, 80);
-            this.checkBox2.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.checkBox2.Margin = new System.Windows.Forms.Padding(2);
             this.checkBox2.Name = "checkBox2";
             this.checkBox2.Size = new System.Drawing.Size(99, 17);
             this.checkBox2.TabIndex = 7;
@@ -534,7 +536,7 @@
             // 
             this.numericUpDown1.DecimalPlaces = 1;
             this.numericUpDown1.Location = new System.Drawing.Point(74, 57);
-            this.numericUpDown1.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.numericUpDown1.Margin = new System.Windows.Forms.Padding(2);
             this.numericUpDown1.Minimum = new decimal(new int[] {
             1,
             0,
@@ -555,10 +557,10 @@
             this.tabPage3.Controls.Add(this.checkBox4);
             this.tabPage3.Controls.Add(this.checkBox3);
             this.tabPage3.Location = new System.Drawing.Point(4, 22);
-            this.tabPage3.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.tabPage3.Margin = new System.Windows.Forms.Padding(2);
             this.tabPage3.Name = "tabPage3";
-            this.tabPage3.Padding = new System.Windows.Forms.Padding(2, 2, 2, 2);
-            this.tabPage3.Size = new System.Drawing.Size(605, 131);
+            this.tabPage3.Padding = new System.Windows.Forms.Padding(2);
+            this.tabPage3.Size = new System.Drawing.Size(475, 131);
             this.tabPage3.TabIndex = 2;
             this.tabPage3.Text = "Audio";
             this.tabPage3.UseVisualStyleBackColor = true;
@@ -566,7 +568,7 @@
             // button2
             // 
             this.button2.Location = new System.Drawing.Point(8, 45);
-            this.button2.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.button2.Margin = new System.Windows.Forms.Padding(2);
             this.button2.Name = "button2";
             this.button2.Size = new System.Drawing.Size(99, 23);
             this.button2.TabIndex = 2;
@@ -579,7 +581,7 @@
             this.checkBox4.Checked = true;
             this.checkBox4.CheckState = System.Windows.Forms.CheckState.Checked;
             this.checkBox4.Location = new System.Drawing.Point(8, 27);
-            this.checkBox4.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.checkBox4.Margin = new System.Windows.Forms.Padding(2);
             this.checkBox4.Name = "checkBox4";
             this.checkBox4.Size = new System.Drawing.Size(110, 17);
             this.checkBox4.TabIndex = 1;
@@ -592,7 +594,7 @@
             this.checkBox3.Checked = true;
             this.checkBox3.CheckState = System.Windows.Forms.CheckState.Checked;
             this.checkBox3.Location = new System.Drawing.Point(8, 9);
-            this.checkBox3.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.checkBox3.Margin = new System.Windows.Forms.Padding(2);
             this.checkBox3.Name = "checkBox3";
             this.checkBox3.Size = new System.Drawing.Size(90, 17);
             this.checkBox3.TabIndex = 0;
@@ -604,10 +606,10 @@
             this.tabPage4.Controls.Add(this.groupBox4);
             this.tabPage4.Controls.Add(this.groupBox2);
             this.tabPage4.Location = new System.Drawing.Point(4, 22);
-            this.tabPage4.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.tabPage4.Margin = new System.Windows.Forms.Padding(2);
             this.tabPage4.Name = "tabPage4";
-            this.tabPage4.Padding = new System.Windows.Forms.Padding(2, 2, 2, 2);
-            this.tabPage4.Size = new System.Drawing.Size(605, 131);
+            this.tabPage4.Padding = new System.Windows.Forms.Padding(2);
+            this.tabPage4.Size = new System.Drawing.Size(475, 131);
             this.tabPage4.TabIndex = 3;
             this.tabPage4.Text = "Background";
             this.tabPage4.UseVisualStyleBackColor = true;
@@ -621,9 +623,9 @@
             this.groupBox4.Controls.Add(this.BackgroundColorButton);
             this.groupBox4.Controls.Add(this.label20);
             this.groupBox4.Location = new System.Drawing.Point(121, 4);
-            this.groupBox4.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.groupBox4.Margin = new System.Windows.Forms.Padding(2);
             this.groupBox4.Name = "groupBox4";
-            this.groupBox4.Padding = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.groupBox4.Padding = new System.Windows.Forms.Padding(2);
             this.groupBox4.Size = new System.Drawing.Size(189, 125);
             this.groupBox4.TabIndex = 5;
             this.groupBox4.TabStop = false;
@@ -632,7 +634,7 @@
             // button3
             // 
             this.button3.Location = new System.Drawing.Point(8, 90);
-            this.button3.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.button3.Margin = new System.Windows.Forms.Padding(2);
             this.button3.Name = "button3";
             this.button3.Size = new System.Drawing.Size(55, 24);
             this.button3.TabIndex = 18;
@@ -642,7 +644,7 @@
             // button1
             // 
             this.button1.Location = new System.Drawing.Point(8, 62);
-            this.button1.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.button1.Margin = new System.Windows.Forms.Padding(2);
             this.button1.Name = "button1";
             this.button1.Size = new System.Drawing.Size(55, 24);
             this.button1.TabIndex = 17;
@@ -653,7 +655,7 @@
             // 
             this.BackgroundImageControl.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.BackgroundImageControl.Location = new System.Drawing.Point(74, 43);
-            this.BackgroundImageControl.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.BackgroundImageControl.Margin = new System.Windows.Forms.Padding(2);
             this.BackgroundImageControl.Name = "BackgroundImageControl";
             this.BackgroundImageControl.Size = new System.Drawing.Size(112, 75);
             this.BackgroundImageControl.TabIndex = 16;
@@ -675,7 +677,7 @@
             this.BackgroundColorButton.Color = System.Drawing.Color.Black;
             this.BackgroundColorButton.ForeColor = System.Drawing.Color.White;
             this.BackgroundColorButton.Location = new System.Drawing.Point(74, 16);
-            this.BackgroundColorButton.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.BackgroundColorButton.Margin = new System.Windows.Forms.Padding(2);
             this.BackgroundColorButton.Name = "BackgroundColorButton";
             this.BackgroundColorButton.Size = new System.Drawing.Size(112, 24);
             this.BackgroundColorButton.TabIndex = 14;
@@ -704,9 +706,9 @@
             this.groupBox2.Controls.Add(this.textBox3);
             this.groupBox2.Controls.Add(this.label6);
             this.groupBox2.Location = new System.Drawing.Point(3, 3);
-            this.groupBox2.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.groupBox2.Margin = new System.Windows.Forms.Padding(2);
             this.groupBox2.Name = "groupBox2";
-            this.groupBox2.Padding = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.groupBox2.Padding = new System.Windows.Forms.Padding(2);
             this.groupBox2.Size = new System.Drawing.Size(110, 102);
             this.groupBox2.TabIndex = 4;
             this.groupBox2.TabStop = false;
@@ -715,7 +717,7 @@
             // textBox6
             // 
             this.textBox6.Location = new System.Drawing.Point(50, 81);
-            this.textBox6.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.textBox6.Margin = new System.Windows.Forms.Padding(2);
             this.textBox6.Name = "textBox6";
             this.textBox6.Size = new System.Drawing.Size(52, 20);
             this.textBox6.TabIndex = 9;
@@ -734,7 +736,7 @@
             // textBox5
             // 
             this.textBox5.Location = new System.Drawing.Point(50, 58);
-            this.textBox5.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.textBox5.Margin = new System.Windows.Forms.Padding(2);
             this.textBox5.Name = "textBox5";
             this.textBox5.Size = new System.Drawing.Size(52, 20);
             this.textBox5.TabIndex = 7;
@@ -753,7 +755,7 @@
             // textBox4
             // 
             this.textBox4.Location = new System.Drawing.Point(50, 37);
-            this.textBox4.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.textBox4.Margin = new System.Windows.Forms.Padding(2);
             this.textBox4.Name = "textBox4";
             this.textBox4.Size = new System.Drawing.Size(52, 20);
             this.textBox4.TabIndex = 5;
@@ -772,7 +774,7 @@
             // textBox3
             // 
             this.textBox3.Location = new System.Drawing.Point(50, 16);
-            this.textBox3.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.textBox3.Margin = new System.Windows.Forms.Padding(2);
             this.textBox3.Name = "textBox3";
             this.textBox3.Size = new System.Drawing.Size(52, 20);
             this.textBox3.TabIndex = 3;
@@ -792,7 +794,7 @@
             // 
             this.AddAFile.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.AddAFile.Location = new System.Drawing.Point(494, 6);
-            this.AddAFile.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.AddAFile.Margin = new System.Windows.Forms.Padding(2);
             this.AddAFile.Name = "AddAFile";
             this.AddAFile.Size = new System.Drawing.Size(94, 26);
             this.AddAFile.TabIndex = 17;
@@ -804,9 +806,9 @@
             // 
             this.PropertyGrid.Dock = System.Windows.Forms.DockStyle.Fill;
             this.PropertyGrid.Location = new System.Drawing.Point(0, 25);
-            this.PropertyGrid.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.PropertyGrid.Margin = new System.Windows.Forms.Padding(2);
             this.PropertyGrid.Name = "PropertyGrid";
-            this.PropertyGrid.Size = new System.Drawing.Size(235, 185);
+            this.PropertyGrid.Size = new System.Drawing.Size(233, 185);
             this.PropertyGrid.TabIndex = 12;
             // 
             // panel2
@@ -814,7 +816,7 @@
             this.panel2.Controls.Add(this.splitContainer1);
             this.panel2.Dock = System.Windows.Forms.DockStyle.Fill;
             this.panel2.Location = new System.Drawing.Point(0, 163);
-            this.panel2.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.panel2.Margin = new System.Windows.Forms.Padding(2);
             this.panel2.Name = "panel2";
             this.panel2.Size = new System.Drawing.Size(594, 210);
             this.panel2.TabIndex = 3;
@@ -824,7 +826,7 @@
             this.splitContainer1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.splitContainer1.FixedPanel = System.Windows.Forms.FixedPanel.Panel2;
             this.splitContainer1.Location = new System.Drawing.Point(0, 0);
-            this.splitContainer1.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.splitContainer1.Margin = new System.Windows.Forms.Padding(2);
             this.splitContainer1.Name = "splitContainer1";
             // 
             // splitContainer1.Panel1
@@ -837,7 +839,7 @@
             this.splitContainer1.Panel2.Controls.Add(this.PropertyGrid);
             this.splitContainer1.Panel2.Controls.Add(this.toolStrip1);
             this.splitContainer1.Size = new System.Drawing.Size(594, 210);
-            this.splitContainer1.SplitterDistance = 357;
+            this.splitContainer1.SplitterDistance = 359;
             this.splitContainer1.SplitterWidth = 2;
             this.splitContainer1.TabIndex = 13;
             // 
@@ -845,14 +847,13 @@
             // 
             this.Preview.Dock = System.Windows.Forms.DockStyle.Fill;
             this.Preview.Location = new System.Drawing.Point(0, 0);
-            this.Preview.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.Preview.Margin = new System.Windows.Forms.Padding(2);
             this.Preview.Name = "Preview";
-            this.Preview.Size = new System.Drawing.Size(357, 210);
+            this.Preview.Size = new System.Drawing.Size(359, 210);
             this.Preview.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
             this.Preview.TabIndex = 0;
             this.Preview.TabStop = false;
             this.Preview.MouseClick += new System.Windows.Forms.MouseEventHandler(this.Preview_MouseClick);
-            this.Preview.Resize += new System.EventHandler(this.Preview_Resize);
             // 
             // toolStrip1
             // 
@@ -860,11 +861,13 @@
             this.toolStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.LeftButton,
             this.RightButton,
-            this.RemoveButton});
+            this.RemoveButton,
+            this.toolStripSeparator1,
+            this.CopySettingsButton});
             this.toolStrip1.Location = new System.Drawing.Point(0, 0);
             this.toolStrip1.Name = "toolStrip1";
-            this.toolStrip1.Padding = new System.Windows.Forms.Padding(0, 0, 0, 0);
-            this.toolStrip1.Size = new System.Drawing.Size(235, 25);
+            this.toolStrip1.Padding = new System.Windows.Forms.Padding(0);
+            this.toolStrip1.Size = new System.Drawing.Size(233, 25);
             this.toolStrip1.TabIndex = 13;
             this.toolStrip1.Text = "toolStrip1";
             // 
@@ -899,6 +902,21 @@
             this.RemoveButton.Text = "Remove channel";
             this.RemoveButton.Click += new System.EventHandler(this.RemoveButton_Click);
             // 
+            // toolStripSeparator1
+            // 
+            this.toolStripSeparator1.Name = "toolStripSeparator1";
+            this.toolStripSeparator1.Size = new System.Drawing.Size(6, 25);
+            // 
+            // CopySettingsButton
+            // 
+            this.CopySettingsButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.CopySettingsButton.Image = ((System.Drawing.Image)(resources.GetObject("CopySettingsButton.Image")));
+            this.CopySettingsButton.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.CopySettingsButton.Name = "CopySettingsButton";
+            this.CopySettingsButton.Size = new System.Drawing.Size(23, 22);
+            this.CopySettingsButton.Text = "Copy settings to all channels";
+            this.CopySettingsButton.Click += new System.EventHandler(this.CopySettingsButton_Click);
+            // 
             // SidWizPlusGui
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -906,7 +924,7 @@
             this.ClientSize = new System.Drawing.Size(594, 373);
             this.Controls.Add(this.panel2);
             this.Controls.Add(this.panel1);
-            this.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.Margin = new System.Windows.Forms.Padding(2);
             this.Name = "SidWizPlusGui";
             this.Text = "SidWizPlusGUI";
             this.panel1.ResumeLayout(false);
@@ -1009,5 +1027,7 @@
         private System.Windows.Forms.ToolStripButton RightButton;
         private System.Windows.Forms.ToolStripButton RemoveButton;
         private System.Windows.Forms.PictureBox Preview;
+        private System.Windows.Forms.ToolStripSeparator toolStripSeparator1;
+        private System.Windows.Forms.ToolStripButton CopySettingsButton;
     }
 }

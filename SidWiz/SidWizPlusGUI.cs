@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Windows.Forms;
 using LibSidWiz;
 using LibSidWiz.Triggers;
@@ -229,12 +230,6 @@ namespace SidWiz
             }
         }
 
-        private void Preview_Resize(object sender, EventArgs e)
-        {
-            //Render();
-            Text = $"Size is now {Preview.Width}x{Preview.Height}";
-        }
-
         private void Preview_MouseClick(object sender, MouseEventArgs e)
         {
             if (e.Button != MouseButtons.Left)
@@ -252,6 +247,29 @@ namespace SidWiz
             else
             {
                 PropertyGrid.SelectedObject = _channels[index];
+            }
+        }
+
+        private void CopySettingsButton_Click(object sender, EventArgs e)
+        {
+            var source = PropertyGrid.SelectedObject as Channel;
+            if (source == null)
+            {
+                return;
+            }
+
+            foreach (var propertyInfo in typeof(Channel)
+                .GetProperties(BindingFlags.Instance | BindingFlags.Public)
+                .Where(p => p.CanWrite && 
+                    p.Name != nameof(Channel.Filename) && 
+                    p.Name != nameof(Channel.Name)))
+            {
+                var sourceValue = propertyInfo.GetValue(source);
+
+                foreach (var channel in _channels.Where(channel => channel != source))
+                {
+                    propertyInfo.SetValue(channel, sourceValue);
+                }
             }
         }
     }
