@@ -33,6 +33,7 @@ namespace LibSidWiz
         private TimeSpan _length;
         private int _sampleRate;
         private int _viewWidthInSamples = 1500;
+        private Color _fillColor = Color.Transparent;
 
         public event Action Changed;
 
@@ -177,7 +178,15 @@ namespace LibSidWiz
 
         [Category("Display")]
         [Description("The fill colour. Set to transparent to have no fill.")]
-        public Color FillColor { get; set; } = Color.Transparent;
+        public Color FillColor
+        {
+            get => _fillColor;
+            set
+            {
+                _fillColor = value;
+                Changed?.Invoke();
+            }
+        }
 
         [Category("Display")]
         [Description("The label for the channel")]

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -146,11 +147,6 @@ namespace SidWiz
             }
         }
 
-        private void colorButton3_BackColorChanged(object sender, EventArgs e)
-        {
-            //LayoutPanel.BackColor = colorButton3.Color;
-        }
-
         private void AutoScale_Click(object sender, EventArgs e)
         {
             // Apply to all channels which have loaded
@@ -166,16 +162,38 @@ namespace SidWiz
 
         private void Render()
         {
+            var width = int.Parse(WidthControl.Text);
+            var height = int.Parse(HeightControl.Text);
+            var marginTop = (int) MarginTopControl.Value;
+            var marginLeft = (int) MarginLeftControl.Value;
+            var marginRight = (int) MarginRightControl.Value;
+            var marginBottom = (int) MarginBottomControl.Value;
+            var bounds = new Rectangle(
+                marginLeft,
+                marginTop,
+                width - marginLeft - marginRight,
+                height - marginTop - marginBottom);
             var renderer = new WaveformRenderer
             {
                 BackgroundColor = BackgroundColorButton.Color,
                 BackgroundImage = BackgroundImageControl.Image,
-                Width = int.Parse(WidthControl.Text),
-                Height = int.Parse(HeightControl.Text),
+                Width = width,
+                Height = height,
                 Columns = _columns,
-                FramesPerSecond = int.Parse(FrameRate.Text),
-                //RenderingBounds = new Rectangle()
-                // TODO more
+                FramesPerSecond = (int) FrameRateControl.Value,
+                RenderingBounds = bounds,
+                Grid = GridEnabled.Checked ? new WaveformRenderer.GridConfig
+                {
+                    Color = GridColor.Color,
+                    DrawBorder = GridBorders.Checked,
+                    Width = (float) GridWidth.Value
+                } : null,
+                ZeroLine = ZeroLineEnabled.Checked ? new WaveformRenderer.ZeroLineConfig
+                {
+                    Color = ZeroLineColor.Color,
+                    Width = (float)ZeroLineWidth.Value
+                } : null
+                // TODO more?
             };
             foreach (var channel in _channels)
             {
@@ -271,6 +289,11 @@ namespace SidWiz
                     propertyInfo.SetValue(channel, sourceValue);
                 }
             }
+        }
+
+        private void UpdatePreview(object sender, EventArgs e)
+        {
+            Render();
         }
     }
 }
