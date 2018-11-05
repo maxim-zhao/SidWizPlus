@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Drawing;
+using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 using System.Drawing.Text;
 using System.Windows.Forms;
@@ -63,17 +64,18 @@ namespace SidWizPlus
 
             // Compute where to draw it
             var rect = AlignedRect(imageInfo.Alignment, _width, _height, imageWidth, imageHeight);
+            var ia = new ImageAttributes();
+            if (imageInfo.StretchToFit)
+            {
+                // Make sure stretched images don't have fuzzy edges
+                ia.SetWrapMode(WrapMode.TileFlipXY);
+            }
             // Apply any alpha
             if (imageInfo.Alpha < 1.0)
             {
-                var ia = new ImageAttributes();
                 ia.SetColorMatrix(new ColorMatrix {Matrix33 = imageInfo.Alpha});
-                _graphics.DrawImage(imageInfo.Image, rect, 0, 0, imageInfo.Image.Width, imageInfo.Image.Height, GraphicsUnit.Pixel, ia);
             }
-            else
-            {
-                _graphics.DrawImage(imageInfo.Image, rect);
-            }
+            _graphics.DrawImage(imageInfo.Image, rect, 0, 0, imageInfo.Image.Width, imageInfo.Image.Height, GraphicsUnit.Pixel, ia);
             // Apply constriction
             Constrain(rect, imageInfo.ConstrainWaves);
         }
