@@ -58,7 +58,7 @@ namespace LibSidWiz
             {
                 using (var bm = new Bitmap(Width, Height, Width * 3, PixelFormat.Format24bppRgb, pinnedArray.AddrOfPinnedObject()))
                 {
-                    int numFrames = _channels.Max(c => c.SampleCount) * FramesPerSecond / SamplingRate;
+                    int numFrames = (int)((long)_channels.Max(c => c.SampleCount) * FramesPerSecond / SamplingRate);
 
                     int frameIndex = 0;
                     Render(bm, () =>
