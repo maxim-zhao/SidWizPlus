@@ -119,7 +119,7 @@ namespace LibSidWiz
                     for (int frameIndex = startFrame; frameIndex < endFrame; ++frameIndex)
                     {
                         // Compute the start of the sample window
-                        int frameIndexSamples = frameIndex * SamplingRate / FramesPerSecond;
+                        int frameIndexSamples = (int)((long)frameIndex * SamplingRate / FramesPerSecond);
 
                         // Copy from the template
                         g.DrawImageUnscaled(template, 0, 0);
