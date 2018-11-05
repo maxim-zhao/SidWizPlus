@@ -25,7 +25,7 @@ namespace LibSidWiz
         private string _filename;
         private ITriggerAlgorithm _algorithm;
         private int _triggerLookaheadFrames;
-        private Color _color = Color.White;
+        private Color _lineColor = Color.White;
         private string _name = "";
         private float _lineWidth = 3;
         private float _highPassFilterFrequency = -1;
@@ -119,7 +119,7 @@ namespace LibSidWiz
             {
                 _filename = value;
                 Changed?.Invoke();
-                if (_filename != "" && string.IsNullOrEmpty(_name))
+                if (_filename != "" && String.IsNullOrEmpty(_name))
                 {
                     Name = GuessNameFromMultidumperFilename(_filename);
                 }
@@ -153,24 +153,12 @@ namespace LibSidWiz
 
         [Category("Display")]
         [Description("The line colour")]
-        public Color Color
+        public Color LineColor
         {
-            get => _color;
+            get => _lineColor;
             set
             {
-                _color = value;
-                Changed?.Invoke();
-            }
-        }
-
-        [Category("Display")]
-        [Description("The label for the channel")]
-        public string Name
-        {
-            get => _name;
-            set
-            {
-                _name = value;
+                _lineColor = value;
                 Changed?.Invoke();
             }
         }
@@ -183,6 +171,22 @@ namespace LibSidWiz
             set
             {
                 _lineWidth = value;
+                Changed?.Invoke();
+            }
+        }
+
+        [Category("Display")]
+        [Description("The fill colour. Set to transparent to have no fill.")]
+        public Color FillColor { get; set; } = Color.Transparent;
+
+        [Category("Display")]
+        [Description("The label for the channel")]
+        public string Name
+        {
+            get => _name;
+            set
+            {
+                _name = value;
                 Changed?.Invoke();
             }
         }
@@ -294,7 +298,7 @@ namespace LibSidWiz
                 var index = namePart.IndexOf(" - YM2413 #", StringComparison.Ordinal);
                 if (index > -1)
                 {
-                    index = int.Parse(namePart.Substring(index + 11));
+                    index = Int32.Parse(namePart.Substring(index + 11));
                     if (index < 9)
                     {
                         return $"YM2413 tone {index + 1}";
@@ -313,7 +317,7 @@ namespace LibSidWiz
                 index = namePart.IndexOf(" - SEGA PSG #", StringComparison.Ordinal);
                 if (index > -1)
                 {
-                    if (int.TryParse(namePart.Substring(index + 13), out index))
+                    if (Int32.TryParse(namePart.Substring(index + 13), out index))
                     {
                         switch (index)
                         {

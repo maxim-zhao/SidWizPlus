@@ -72,8 +72,12 @@ namespace SidWizPlus
             public float LineWidth { get; set; }
 
             // ReSharper disable once StringLiteralTypo
-            [Option("linecolor", Required = false, HelpText = "Line color, can be hex of a .net color name", DefaultValue = "white")]
+            [Option("linecolor", Required = false, HelpText = "Line color, can be hex or a .net color name", DefaultValue = "white")]
             public string LineColor { get; set; }
+
+            // ReSharper disable once StringLiteralTypo
+            [Option("fillcolor", Required = false, HelpText = "Line color, can be hex or a .net color name", DefaultValue = "transparent")]
+            public string FillColor { get; set; }
 
             // ReSharper disable once StringLiteralTypo
             [Option("highpassfilter", Required = false, HelpText = "Enable high pass filtering with the given value as the cutoff frequency. A value of 10 works well to remove DC offsets.")]
@@ -107,7 +111,7 @@ namespace SidWizPlus
             public string MultidumperPath { get; set; }
 
             // ReSharper disable once StringLiteralTypo
-            [Option("backgroundcolor", Required = false, HelpText = "Background color, can be hex of a .net color name", DefaultValue = "black")]
+            [Option("backgroundcolor", Required = false, HelpText = "Background color, can be hex or a .net color name", DefaultValue = "black")]
             public string BackgroundColor { get; set; }
 
             [Option("background", Required = false, HelpText = "Background image, drawn transparently in the background")]
@@ -244,13 +248,14 @@ namespace SidWizPlus
                         {
                             Filename = filename,
                             HighPassFilterFrequency = settings.HighPassFilterFrequency,
-                            Color = ParseColor(settings.LineColor),
+                            LineColor = ParseColor(settings.LineColor),
                             LineWidth = settings.LineWidth,
+                            FillColor = ParseColor(settings.FillColor),
                             Name = Channel.GuessNameFromMultidumperFilename(filename),
                             Algorithm = CreateTriggerAlgorithm(settings.TriggerAlgorithm),
                             TriggerLookaheadFrames = settings.TriggerLookahead,
                         };
-                        Task.WaitAll(channel.LoadDataAsync());
+                        channel.LoadDataAsync().Wait();
                         channel.ViewWidthInMilliseconds = settings.ViewWidthMs;
                         return channel;
                     }).Where(ch => ch.SampleCount > 0).ToList();
@@ -626,8 +631,15 @@ namespace SidWizPlus
                     switch (progress.Status)
                     {
                         case UploadStatus.Uploading:
-                            Console.Write($"\r{(double)progress.BytesSent / 1024 / 1024:f}MB sent ({(double)progress.BytesSent / totalSize:P}, average {progress.BytesSent / sw.Elapsed.TotalSeconds / 1024:f}KB/s)");
+                        {
+                            var elapsedSeconds = sw.Elapsed.TotalSeconds;
+                            var fractionComplete = (double) progress.BytesSent / totalSize;
+                            var eta = TimeSpan.FromSeconds(elapsedSeconds / fractionComplete - elapsedSeconds);
+                            var sent = (double) progress.BytesSent / 1024 / 1024;
+                            var kbPerSecond = progress.BytesSent / sw.Elapsed.TotalSeconds / 1024;
+                            Console.Write($"\r{sent:f}MB sent ({fractionComplete:P}, average {kbPerSecond:f}KB/s, ETA {eta:g})");
                             break;
+                        }
                         case UploadStatus.Failed:
                             Console.Error.WriteLine($"Upload failed: {progress.Exception}");
                             // Google API says we can retry if we get a non-API error, or one of these four 5xx error codes

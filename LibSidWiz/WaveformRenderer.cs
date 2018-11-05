@@ -99,12 +99,22 @@ namespace LibSidWiz
                     // Enable anti-aliased lines
                     g.SmoothingMode = SmoothingMode.HighQuality;
 
-                    // Prepare the pens we will use
-                    var pens = _channels.Select(MakePen).ToList();
+                    // Prepare the pens and brushes we will use
+                    var pens = _channels.Select(c => c.LineColor == Color.Transparent || c.LineWidth <= 0
+                        ? null
+                        : new Pen(c.LineColor, c.LineWidth)
+                        {
+                            MiterLimit = c.LineWidth,
+                            LineJoin = LineJoin.Bevel
+                        }).ToList();
+                    var brushes = _channels.Select(c => c.FillColor == Color.Transparent 
+                        ? null 
+                        : new SolidBrush(c.FillColor)).ToList();
 
                     // Prepare a buffer to hold the line coordinates
                     int maxViewWidthInSamples = _channels.Count == 0 ? 0 : _channels.Max(channel => channel.ViewWidthInSamples);
                     var points = new PointF[maxViewWidthInSamples];
+                    var path = new GraphicsPath();
 
                     for (int frameIndex = startFrame; frameIndex < endFrame; ++frameIndex)
                     {
@@ -132,10 +142,10 @@ namespace LibSidWiz
                             }
                             else
                             {
-                                // Compute the "trigger point".. This will be the centre of our rendering.
+                                // Compute the "trigger point". This will be the centre of our rendering.
                                 var triggerPoint = channel.GetTriggerPoint(frameIndexSamples, frameSamples);
 
-                                RenderWave(g, channel, triggerPoint, xBase, yBase, viewWidth, viewHeight, pens[channelIndex], points);
+                                RenderWave(g, channel, triggerPoint, xBase, yBase, viewWidth, viewHeight, pens[channelIndex], brushes[channelIndex], points, path);
                             }
                         }
 
@@ -145,7 +155,11 @@ namespace LibSidWiz
 
                     foreach (var pen in pens)
                     {
-                        pen.Dispose();
+                        pen?.Dispose();
+                    }
+                    foreach (var brush in brushes)
+                    {
+                        brush?.Dispose();
                     }
                 }
             }
@@ -240,16 +254,7 @@ namespace LibSidWiz
             return template;
         }
 
-        private Pen MakePen(Channel c)
-        {
-            return new Pen(c.Color, c.LineWidth)
-            {
-                MiterLimit = c.LineWidth, 
-                LineJoin = LineJoin.Bevel
-            };
-        }
-
-        private void RenderWave(Graphics g, Channel channel, int triggerPoint, int xBase, int yBase, int viewWidth, int viewHeight, Pen pen, PointF[] points)
+        private void RenderWave(Graphics g, Channel channel, int triggerPoint, int xBase, int yBase, int viewWidth, int viewHeight, Pen pen, Brush brush, PointF[] points, GraphicsPath path)
         {
             // And the initial sample index
             var leftmostSampleIndex = triggerPoint - channel.ViewWidthInSamples / 2;
@@ -262,15 +267,19 @@ namespace LibSidWiz
             }
 
             // Then draw them all in one go...
-            g.DrawLines(pen, points);
-            /*
-            // This can do "filled paths" - maybe?
-            var path = new GraphicsPath();
-            path.AddLine(points[0].X, yBase, points[0].X, points[0].Y);
-            path.AddLines(points);
-            path.AddLine(points[points.Length-1].X, points[points.Length-1].Y, points[points.Length-1].X, yBase);
-            g.DrawPath(pens[channelIndex], path);
-            */
+            if (pen != null)
+            {
+                g.DrawLines(pen, points);
+            }
+
+            if (brush != null)
+            {
+                path.Reset();
+                path.AddLine(points[0].X, yBase, points[0].X, points[0].Y);
+                path.AddLines(points);
+                path.AddLine(points[points.Length - 1].X, points[points.Length - 1].Y, points[points.Length - 1].X, yBase);
+                g.FillPath(brush, path);
+            }
         }
 
         /// <summary>
