@@ -272,10 +272,11 @@ namespace LibSidWiz
         /// <summary>
         /// Version for rendering a single frame for previewing
         /// </summary>
-        public Bitmap RenderFrame()
+        public Bitmap RenderFrame(float position = 0)
         {
+            var frameIndex = (int)(position * _channels.Max(c => c.SampleCount) * FramesPerSecond / SamplingRate);
             var bitmap = new Bitmap(Width, Height);
-            Render(bitmap, () => { }, 0, 1);
+            Render(bitmap, () => { }, frameIndex, frameIndex + 1);
             return bitmap;
         }
     }

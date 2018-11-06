@@ -172,7 +172,7 @@ namespace SidWiz
             var renderer = CreateWaveformRenderer();
 
             // Render a bitmap
-            var bitmap = renderer.RenderFrame();
+            var bitmap = renderer.RenderFrame((float)PreviewTrackbar.Value / PreviewTrackbar.Maximum);
 
             // Swap it with whatever is in the preview control
             var oldImage = Preview.Image;

@@ -105,6 +105,7 @@
             this.imageList1 = new System.Windows.Forms.ImageList(this.components);
             this.GridColor = new SidWiz.ColorButton(this.components);
             this.BackgroundColorButton = new SidWiz.ColorButton(this.components);
+            this.PreviewTrackbar = new System.Windows.Forms.TrackBar();
             this.panel2.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
@@ -131,6 +132,7 @@
             this.groupBox3.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.FrameRateControl)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.PreviewFrameskip)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.PreviewTrackbar)).BeginInit();
             this.SuspendLayout();
             // 
             // panel2
@@ -154,6 +156,7 @@
             // splitContainer1.Panel1
             // 
             this.splitContainer1.Panel1.AutoScroll = true;
+            this.splitContainer1.Panel1.Controls.Add(this.PreviewTrackbar);
             this.splitContainer1.Panel1.Controls.Add(this.Preview);
             // 
             // splitContainer1.Panel2
@@ -1027,6 +1030,21 @@
             this.BackgroundColorButton.UseVisualStyleBackColor = false;
             this.BackgroundColorButton.BackColorChanged += new System.EventHandler(this.UpdatePreview);
             // 
+            // PreviewTrackbar
+            // 
+            this.PreviewTrackbar.AutoSize = false;
+            this.PreviewTrackbar.Dock = System.Windows.Forms.DockStyle.Bottom;
+            this.PreviewTrackbar.LargeChange = 100;
+            this.PreviewTrackbar.Location = new System.Drawing.Point(0, 407);
+            this.PreviewTrackbar.Maximum = 1000;
+            this.PreviewTrackbar.Name = "PreviewTrackbar";
+            this.PreviewTrackbar.Size = new System.Drawing.Size(626, 26);
+            this.PreviewTrackbar.SmallChange = 10;
+            this.PreviewTrackbar.TabIndex = 1;
+            this.PreviewTrackbar.TickFrequency = 100;
+            this.PreviewTrackbar.TickStyle = System.Windows.Forms.TickStyle.None;
+            this.PreviewTrackbar.ValueChanged += new System.EventHandler(this.UpdatePreview);
+            // 
             // SidWizPlusGui
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -1071,6 +1089,7 @@
             this.groupBox3.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.FrameRateControl)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.PreviewFrameskip)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.PreviewTrackbar)).EndInit();
             this.ResumeLayout(false);
 
         }
@@ -1151,5 +1170,6 @@
         private System.Windows.Forms.Button RenderButton;
         private System.Windows.Forms.TextBox FfmpegParameters;
         private System.Windows.Forms.Label label18;
+        private System.Windows.Forms.TrackBar PreviewTrackbar;
     }
 }
