@@ -43,6 +43,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Extensions.cs" />
     <Compile Include="Mixer.cs" />
     <Compile Include="Channel.cs" />
     <Compile Include="Outputs\IGraphicsOutput.cs" />

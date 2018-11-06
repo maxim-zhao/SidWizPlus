@@ -47,7 +47,7 @@ namespace SidWiz
                 }
 
                 var errors = new List<string>();
-                foreach (var filename in ofd.FileNames)
+                foreach (var filename in ofd.FileNames.OrderByAlphaNumeric(x => x))
                 {
                     var path = Path.GetFullPath(filename);
                     switch (Path.GetExtension(filename).ToLowerInvariant())
@@ -294,6 +294,26 @@ namespace SidWiz
         private void UpdatePreview(object sender, EventArgs e)
         {
             Render();
+        }
+
+        private void BackgroundImageControl_Click(object sender, EventArgs e)
+        {
+            using (var ofd = new OpenFileDialog()
+            {
+                Title = "Select an image",
+                Filter =
+                    "Image files (*.png;*.gif;*.jpg;*.jpeg;*.bmp;*.wmf)|*.png;*.gif;*.jpg;*.jpeg;*.bmp;*.wmf|All files (*.*)|*.*"
+            })
+            {
+                if (ofd.ShowDialog(this) != DialogResult.OK)
+                {
+                    BackgroundImageControl.Image = null;
+                }
+                else
+                {
+                    BackgroundImageControl.ImageLocation = ofd.FileName;
+                }
+            }
         }
     }
 }

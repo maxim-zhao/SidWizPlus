@@ -120,7 +120,7 @@ namespace LibSidWiz
             {
                 _filename = value;
                 Changed?.Invoke();
-                if (_filename != "" && String.IsNullOrEmpty(_name))
+                if (_filename != "" && string.IsNullOrEmpty(_name))
                 {
                     Name = GuessNameFromMultidumperFilename(_filename);
                 }
@@ -307,7 +307,7 @@ namespace LibSidWiz
                 var index = namePart.IndexOf(" - YM2413 #", StringComparison.Ordinal);
                 if (index > -1)
                 {
-                    index = Int32.Parse(namePart.Substring(index + 11));
+                    index = int.Parse(namePart.Substring(index + 11));
                     if (index < 9)
                     {
                         return $"YM2413 tone {index + 1}";
@@ -326,7 +326,7 @@ namespace LibSidWiz
                 index = namePart.IndexOf(" - SEGA PSG #", StringComparison.Ordinal);
                 if (index > -1)
                 {
-                    if (Int32.TryParse(namePart.Substring(index + 13), out index))
+                    if (int.TryParse(namePart.Substring(index + 13), out index))
                     {
                         switch (index)
                         {
