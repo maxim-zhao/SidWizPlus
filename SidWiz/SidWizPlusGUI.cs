@@ -7,6 +7,7 @@ using System.Linq;
 using System.Reflection;
 using System.Windows.Forms;
 using LibSidWiz;
+using LibSidWiz.Outputs;
 using LibSidWiz.Triggers;
 
 namespace SidWiz
@@ -167,6 +168,20 @@ namespace SidWiz
 
         private void Render()
         {
+            // Create a renderer
+            var renderer = CreateWaveformRenderer();
+
+            // Render a bitmap
+            var bitmap = renderer.RenderFrame();
+
+            // Swap it with whatever is in the preview control
+            var oldImage = Preview.Image;
+            Preview.Image = bitmap;
+            oldImage?.Dispose();
+        }
+
+        private WaveformRenderer CreateWaveformRenderer()
+        {
             var width = int.Parse(WidthControl.Text);
             var height = int.Parse(HeightControl.Text);
             var marginTop = (int) MarginTopControl.Value;
@@ -187,23 +202,26 @@ namespace SidWiz
                 Columns = _columns,
                 FramesPerSecond = (int) FrameRateControl.Value,
                 RenderingBounds = bounds,
-                Grid = GridEnabled.Checked ? new WaveformRenderer.GridConfig
-                {
-                    Color = GridColor.Color,
-                    DrawBorder = GridBorders.Checked,
-                    Width = (float) GridWidth.Value
-                } : null,
-                // TODO more?
+                Grid = GridEnabled.Checked
+                    ? new WaveformRenderer.GridConfig
+                    {
+                        Color = GridColor.Color,
+                        DrawBorder = GridBorders.Checked,
+                        Width = (float) GridWidth.Value
+                    }
+                    : null,
             };
+            if (_channels.Count > 0)
+            {
+                // We don't support multiple sampling rates, but this lets us ignore "empty" tracks.
+                renderer.SamplingRate = _channels.Max(c => c.SampleRate);
+            }
             foreach (var channel in _channels)
             {
                 renderer.AddChannel(channel);
             }
 
-            var bitmap = renderer.RenderFrame();
-            var oldImage = Preview.Image;
-            Preview.Image = bitmap;
-            oldImage?.Dispose();
+            return renderer;
         }
 
         private void LeftButton_Click(object sender, EventArgs e)
@@ -308,6 +326,78 @@ namespace SidWiz
                 else
                 {
                     BackgroundImageControl.ImageLocation = ofd.FileName;
+                }
+            }
+        }
+
+        private void FfmpegLocation_Click(object sender, EventArgs e)
+        {
+            using (var ofd = new OpenFileDialog
+            {
+                Title = "Locate FFMPEG",
+                Filter = "FFMPEG executable (ffmpeg.exe)|ffmpeg.exe|All files (*.*)|*.*"
+            })
+            {
+                if (ofd.ShowDialog(this) != DialogResult.OK)
+                {
+                    return;
+                }
+
+                FfmpegLocation.Text = ofd.FileName;
+            }
+        }
+
+        private void RenderButton_Click(object sender, EventArgs e)
+        {
+            var outputs = new List<IGraphicsOutput>();
+
+            if (PreviewCheckBox.Checked)
+            {
+                outputs.Add(new PreviewOutput((int) PreviewFrameskip.Value));
+            }
+
+            if (EncodeCheckBox.Checked)
+            {
+                using (var sfd = new SaveFileDialog
+                {
+                    Title = "Select destination",
+                    Filter = "Video files (*.mp4;*.mkv;*.avi;*.qt)|*.mp4;*.mkv;*.avi;*.qt|All files (*.*)|*.*"
+                })
+                {
+                    if (sfd.ShowDialog(this) == DialogResult.OK)
+                    {
+                        outputs.Add(new FfmpegOutput(
+                            FfmpegLocation.Text, 
+                            sfd.FileName, 
+                            int.Parse(WidthControl.Text), 
+                            int.Parse(HeightControl.Text),
+                            (int) FrameRateControl.Value,
+                            FfmpegParameters.Text,
+                            ""));
+                    }
+                }
+            }
+
+            if (outputs.Count == 0)
+            {
+                // Nothing to do
+                return;
+            }
+
+            try
+            {
+                var renderer = CreateWaveformRenderer();
+                renderer.Render(outputs);
+            }
+            catch (Exception exception)
+            {
+                MessageBox.Show(exception.Message);
+            }
+            finally
+            {
+                foreach (var graphicsOutput in outputs)
+                {
+                    graphicsOutput.Dispose();
                 }
             }
         }
