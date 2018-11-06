@@ -53,12 +53,12 @@ namespace SidWizPlus
                 {
                     // Image has a wider aspect ratio
                     imageWidth = _width;
-                    imageHeight = (int) Math.Round(_width * imageAspectRatio);
+                    imageHeight = (int) Math.Round(_width / imageAspectRatio);
                 }
                 else
                 {
                     imageHeight = _height;
-                    imageWidth = (int) Math.Round(_height / imageAspectRatio);
+                    imageWidth = (int) Math.Round(_height * imageAspectRatio);
                 }
             }
 
