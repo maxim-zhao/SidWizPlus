@@ -15,7 +15,7 @@ namespace LibSidWiz.Outputs
         public FfmpegOutput(string pathToExe, string filename, int width, int height, int fps, string extraArgs, string masterAudioFilename)
         {
             // Build the FFMPEG commandline
-            var arguments = "-y"; // Overwrite
+            var arguments = "-y -no_banner"; // Overwrite, don't show banner at startup
 
             // Audio part
             if (File.Exists(masterAudioFilename))
