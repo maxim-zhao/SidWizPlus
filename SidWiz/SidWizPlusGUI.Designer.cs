@@ -70,12 +70,6 @@
             this.label11 = new System.Windows.Forms.Label();
             this.label12 = new System.Windows.Forms.Label();
             this.tabPage4 = new System.Windows.Forms.TabPage();
-            this.groupBox3 = new System.Windows.Forms.GroupBox();
-            this.ZeroLineColor = new SidWiz.ColorButton(this.components);
-            this.ZeroLineEnabled = new System.Windows.Forms.CheckBox();
-            this.label18 = new System.Windows.Forms.Label();
-            this.label19 = new System.Windows.Forms.Label();
-            this.ZeroLineWidth = new System.Windows.Forms.NumericUpDown();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.GridColor = new SidWiz.ColorButton(this.components);
             this.GridEnabled = new System.Windows.Forms.CheckBox();
@@ -117,8 +111,6 @@
             ((System.ComponentModel.ISupportInitialize)(this.MarginTopControl)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.Columns)).BeginInit();
             this.tabPage4.SuspendLayout();
-            this.groupBox3.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.ZeroLineWidth)).BeginInit();
             this.groupBox1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.GridWidth)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.BackgroundImageControl)).BeginInit();
@@ -609,7 +601,6 @@
             // 
             // tabPage4
             // 
-            this.tabPage4.Controls.Add(this.groupBox3);
             this.tabPage4.Controls.Add(this.groupBox1);
             this.tabPage4.Controls.Add(this.label20);
             this.tabPage4.Controls.Add(this.BackgroundImageControl);
@@ -623,88 +614,6 @@
             this.tabPage4.TabIndex = 3;
             this.tabPage4.Text = "Background";
             this.tabPage4.UseVisualStyleBackColor = true;
-            // 
-            // groupBox3
-            // 
-            this.groupBox3.Controls.Add(this.ZeroLineColor);
-            this.groupBox3.Controls.Add(this.ZeroLineEnabled);
-            this.groupBox3.Controls.Add(this.label18);
-            this.groupBox3.Controls.Add(this.label19);
-            this.groupBox3.Controls.Add(this.ZeroLineWidth);
-            this.groupBox3.Location = new System.Drawing.Point(4, 220);
-            this.groupBox3.Margin = new System.Windows.Forms.Padding(2);
-            this.groupBox3.Name = "groupBox3";
-            this.groupBox3.Padding = new System.Windows.Forms.Padding(2);
-            this.groupBox3.Size = new System.Drawing.Size(201, 91);
-            this.groupBox3.TabIndex = 20;
-            this.groupBox3.TabStop = false;
-            this.groupBox3.Text = "Zero line";
-            // 
-            // ZeroLineColor
-            // 
-            this.ZeroLineColor.BackColor = System.Drawing.Color.White;
-            this.ZeroLineColor.Color = System.Drawing.Color.White;
-            this.ZeroLineColor.ForeColor = System.Drawing.Color.Black;
-            this.ZeroLineColor.Location = new System.Drawing.Point(81, 32);
-            this.ZeroLineColor.Margin = new System.Windows.Forms.Padding(2);
-            this.ZeroLineColor.Name = "ZeroLineColor";
-            this.ZeroLineColor.Size = new System.Drawing.Size(112, 24);
-            this.ZeroLineColor.TabIndex = 12;
-            this.ZeroLineColor.Text = "White";
-            this.ZeroLineColor.UseVisualStyleBackColor = false;
-            this.ZeroLineColor.BackColorChanged += new System.EventHandler(this.UpdatePreview);
-            // 
-            // ZeroLineEnabled
-            // 
-            this.ZeroLineEnabled.AutoSize = true;
-            this.ZeroLineEnabled.Location = new System.Drawing.Point(8, 17);
-            this.ZeroLineEnabled.Margin = new System.Windows.Forms.Padding(2);
-            this.ZeroLineEnabled.Name = "ZeroLineEnabled";
-            this.ZeroLineEnabled.Size = new System.Drawing.Size(65, 17);
-            this.ZeroLineEnabled.TabIndex = 7;
-            this.ZeroLineEnabled.Text = "Enabled";
-            this.ZeroLineEnabled.UseVisualStyleBackColor = true;
-            this.ZeroLineEnabled.CheckedChanged += new System.EventHandler(this.UpdatePreview);
-            // 
-            // label18
-            // 
-            this.label18.AutoSize = true;
-            this.label18.Location = new System.Drawing.Point(4, 38);
-            this.label18.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
-            this.label18.Name = "label18";
-            this.label18.Size = new System.Drawing.Size(31, 13);
-            this.label18.TabIndex = 9;
-            this.label18.Text = "Color";
-            // 
-            // label19
-            // 
-            this.label19.AutoSize = true;
-            this.label19.Location = new System.Drawing.Point(5, 62);
-            this.label19.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
-            this.label19.Name = "label19";
-            this.label19.Size = new System.Drawing.Size(35, 13);
-            this.label19.TabIndex = 10;
-            this.label19.Text = "Width";
-            // 
-            // ZeroLineWidth
-            // 
-            this.ZeroLineWidth.DecimalPlaces = 1;
-            this.ZeroLineWidth.Location = new System.Drawing.Point(81, 60);
-            this.ZeroLineWidth.Margin = new System.Windows.Forms.Padding(2);
-            this.ZeroLineWidth.Minimum = new decimal(new int[] {
-            1,
-            0,
-            0,
-            65536});
-            this.ZeroLineWidth.Name = "ZeroLineWidth";
-            this.ZeroLineWidth.Size = new System.Drawing.Size(112, 20);
-            this.ZeroLineWidth.TabIndex = 11;
-            this.ZeroLineWidth.Value = new decimal(new int[] {
-            1,
-            0,
-            0,
-            0});
-            this.ZeroLineWidth.ValueChanged += new System.EventHandler(this.UpdatePreview);
             // 
             // groupBox1
             // 
@@ -1013,9 +922,6 @@
             ((System.ComponentModel.ISupportInitialize)(this.Columns)).EndInit();
             this.tabPage4.ResumeLayout(false);
             this.tabPage4.PerformLayout();
-            this.groupBox3.ResumeLayout(false);
-            this.groupBox3.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.ZeroLineWidth)).EndInit();
             this.groupBox1.ResumeLayout(false);
             this.groupBox1.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.GridWidth)).EndInit();
@@ -1073,12 +979,6 @@
         private System.Windows.Forms.Label label8;
         private System.Windows.Forms.Label label7;
         private System.Windows.Forms.Label label6;
-        private System.Windows.Forms.GroupBox groupBox3;
-        private ColorButton ZeroLineColor;
-        private System.Windows.Forms.CheckBox ZeroLineEnabled;
-        private System.Windows.Forms.Label label18;
-        private System.Windows.Forms.Label label19;
-        private System.Windows.Forms.NumericUpDown ZeroLineWidth;
         private System.Windows.Forms.GroupBox groupBox1;
         private ColorButton GridColor;
         private System.Windows.Forms.CheckBox GridEnabled;

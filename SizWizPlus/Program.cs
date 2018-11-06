@@ -254,6 +254,8 @@ namespace SidWizPlus
                             Name = Channel.GuessNameFromMultidumperFilename(filename),
                             Algorithm = CreateTriggerAlgorithm(settings.TriggerAlgorithm),
                             TriggerLookaheadFrames = settings.TriggerLookahead,
+                            ZeroLineWidth = settings.ZeroLineWidth,
+                            ZeroLineColor = ParseColor(settings.ZeroLineColor),
                         };
                         channel.LoadDataAsync().Wait();
                         channel.ViewWidthInMilliseconds = settings.ViewWidthMs;
@@ -427,15 +429,6 @@ namespace SidWizPlus
                     Color = ParseColor(settings.GridColor),
                     Width = settings.GridLineWidth,
                     DrawBorder = settings.GridBorder
-                };
-            }
-
-            if (settings.ZeroLineWidth > 0)
-            {
-                renderer.ZeroLine = new WaveformRenderer.ZeroLineConfig
-                {
-                    Color = ParseColor(settings.ZeroLineColor),
-                    Width = settings.ZeroLineWidth
                 };
             }
 

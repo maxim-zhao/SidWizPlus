@@ -78,12 +78,6 @@
     <Compile Include="ColorButton.Designer.cs">
       <DependentUpon>ColorButton.cs</DependentUpon>
     </Compile>
-    <Compile Include="LayoutForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="LayoutForm.Designer.cs">
-      <DependentUpon>LayoutForm.cs</DependentUpon>
-    </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SidWizPlusGUI.cs">
@@ -92,9 +86,6 @@
     <Compile Include="SidWizPlusGUI.Designer.cs">
       <DependentUpon>SidWizPlusGUI.cs</DependentUpon>
     </Compile>
-    <EmbeddedResource Include="LayoutForm.resx">
-      <DependentUpon>LayoutForm.cs</DependentUpon>
-    </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>

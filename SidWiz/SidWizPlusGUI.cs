@@ -193,11 +193,6 @@ namespace SidWiz
                     DrawBorder = GridBorders.Checked,
                     Width = (float) GridWidth.Value
                 } : null,
-                ZeroLine = ZeroLineEnabled.Checked ? new WaveformRenderer.ZeroLineConfig
-                {
-                    Color = ZeroLineColor.Color,
-                    Width = (float)ZeroLineWidth.Value
-                } : null
                 // TODO more?
             };
             foreach (var channel in _channels)

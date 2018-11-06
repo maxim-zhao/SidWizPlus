@@ -25,7 +25,6 @@ namespace LibSidWiz
         public Image BackgroundImage { get; set; }
         public Rectangle RenderingBounds { get; set; }
         public GridConfig Grid { get; set; }
-        public ZeroLineConfig ZeroLine { get; set; }
         public LabelConfig ChannelLabels { get; set; }
 
         public class LabelConfig
@@ -218,16 +217,16 @@ namespace LibSidWiz
                     }
                 }
 
-                if (ZeroLine != null)
+                for (int channelIndex = 0; channelIndex < _channels.Count; ++channelIndex)
                 {
-                    using (var pen = new Pen(ZeroLine.Color, ZeroLine.Width))
+                    var channel = _channels[channelIndex];
+                    if (channel.ZeroLineColor != Color.Transparent && channel.ZeroLineWidth > 0)
                     {
-                        for (int channelIndex = 0; channelIndex < _channels.Count; ++channelIndex)
+                        using (var pen = new Pen(channel.ZeroLineColor, channel.ZeroLineWidth))
                         {
                             // Compute the initial x, y to render the line from.
                             var yBase = renderingBounds.Top + channelIndex / Columns * viewHeight + viewHeight / 2;
-                            var xBase = renderingBounds.Left +
-                                        (channelIndex % Columns) * renderingBounds.Width / Columns;
+                            var xBase = renderingBounds.Left + (channelIndex % Columns) * renderingBounds.Width / Columns;
 
                             // Draw the zero line
                             g.DrawLine(pen, xBase, yBase, xBase + viewWidth, yBase);
@@ -243,8 +242,7 @@ namespace LibSidWiz
                         for (int channelIndex = 0; channelIndex < _channels.Count; ++channelIndex)
                         {
                             var y = renderingBounds.Top + channelIndex / Columns * viewHeight;
-                            var x = renderingBounds.Left +
-                                    (channelIndex % Columns) * renderingBounds.Width / Columns;
+                            var x = renderingBounds.Left + (channelIndex % Columns) * renderingBounds.Width / Columns;
                             g.DrawString(_channels[channelIndex].Name, font, brush, x, y);
                         }
                     }
@@ -290,12 +288,6 @@ namespace LibSidWiz
             var bitmap = new Bitmap(Width, Height);
             Render(bitmap, () => { }, 0, 1);
             return bitmap;
-        }
-
-        public class ZeroLineConfig
-        {
-            public Color Color { get; set; }
-            public float Width { get; set; }
         }
     }
 }

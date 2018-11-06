@@ -34,6 +34,8 @@ namespace LibSidWiz
         private int _sampleRate;
         private int _viewWidthInSamples = 1500;
         private Color _fillColor = Color.Transparent;
+        private float _zeroLineWidth;
+        private Color _zeroLineColor = Color.Transparent;
 
         public event Action<Channel, bool> Changed;
 
@@ -184,6 +186,30 @@ namespace LibSidWiz
             set
             {
                 _fillColor = value;
+                Changed?.Invoke(this, false);
+            }
+        }
+
+        [Category("Display")]
+        [Description("The width of the zero line")]
+        public float ZeroLineWidth
+        {
+            get => _zeroLineWidth;
+            set
+            {
+                _zeroLineWidth = value;
+                Changed?.Invoke(this, false);
+            }
+        }
+
+        [Category("Display")]
+        [Description("The color of the zero line")]
+        public Color ZeroLineColor
+        {
+            get => _zeroLineColor;
+            set
+            {
+                _zeroLineColor = value;
                 Changed?.Invoke(this, false);
             }
         }
