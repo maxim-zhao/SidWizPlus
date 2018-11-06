@@ -156,8 +156,8 @@
             // splitContainer1.Panel1
             // 
             this.splitContainer1.Panel1.AutoScroll = true;
-            this.splitContainer1.Panel1.Controls.Add(this.PreviewTrackbar);
             this.splitContainer1.Panel1.Controls.Add(this.Preview);
+            this.splitContainer1.Panel1.Controls.Add(this.PreviewTrackbar);
             // 
             // splitContainer1.Panel2
             // 
@@ -174,7 +174,7 @@
             this.Preview.Location = new System.Drawing.Point(0, 0);
             this.Preview.Margin = new System.Windows.Forms.Padding(2);
             this.Preview.Name = "Preview";
-            this.Preview.Size = new System.Drawing.Size(626, 433);
+            this.Preview.Size = new System.Drawing.Size(626, 407);
             this.Preview.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
             this.Preview.TabIndex = 0;
             this.Preview.TabStop = false;
