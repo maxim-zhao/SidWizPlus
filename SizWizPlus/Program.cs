@@ -195,8 +195,23 @@ namespace SidWizPlus
                 };
                 help.AddPreOptionsLine("Licensed under MIT License");
                 help.AddOptions(this);
+
+                if (LastParserState?.Errors.Any() == true)
+                {
+                    var errors = help.RenderParsingErrorsText(this, 2); // indent with two spaces
+
+                    if (!string.IsNullOrEmpty(errors))
+                    {
+                        help.AddPostOptionsLine("ERROR(S):");
+                        help.AddPostOptionsLine(errors);
+                    }
+                }
+
                 return help;
             }
+
+            [ParserState]
+            public IParserState LastParserState { get; set; }
         }
 
         static void Main(string[] args)
