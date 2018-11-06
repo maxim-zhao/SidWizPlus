@@ -35,7 +35,7 @@ namespace LibSidWiz
         private int _viewWidthInSamples = 1500;
         private Color _fillColor = Color.Transparent;
 
-        public event Action Changed;
+        public event Action<Channel, bool> Changed;
 
         public Task<bool> LoadDataAsync(CancellationToken token = new CancellationToken())
         {
@@ -94,7 +94,7 @@ namespace LibSidWiz
                     Console.WriteLine($"- Peak sample amplitude for {Filename} is {Max}");
 
                     _samples = buffer;
-                    Changed?.Invoke();
+                    Changed?.Invoke(this, false);
                     return true;
                 }
                 catch (TaskCanceledException)
@@ -119,7 +119,7 @@ namespace LibSidWiz
             set
             {
                 _filename = value;
-                Changed?.Invoke();
+                Changed?.Invoke(this, true);
                 if (_filename != "" && string.IsNullOrEmpty(_name))
                 {
                     Name = GuessNameFromMultidumperFilename(_filename);
@@ -136,7 +136,7 @@ namespace LibSidWiz
             set
             {
                 _algorithm = value;
-                Changed?.Invoke();
+                Changed?.Invoke(this, false);
             }
         }
 
@@ -148,7 +148,7 @@ namespace LibSidWiz
             set
             {
                 _triggerLookaheadFrames = value;
-                Changed?.Invoke();
+                Changed?.Invoke(this, false);
             }
         }
 
@@ -160,7 +160,7 @@ namespace LibSidWiz
             set
             {
                 _lineColor = value;
-                Changed?.Invoke();
+                Changed?.Invoke(this, false);
             }
         }
 
@@ -172,7 +172,7 @@ namespace LibSidWiz
             set
             {
                 _lineWidth = value;
-                Changed?.Invoke();
+                Changed?.Invoke(this, false);
             }
         }
 
@@ -184,7 +184,7 @@ namespace LibSidWiz
             set
             {
                 _fillColor = value;
-                Changed?.Invoke();
+                Changed?.Invoke(this, false);
             }
         }
 
@@ -196,7 +196,7 @@ namespace LibSidWiz
             set
             {
                 _name = value;
-                Changed?.Invoke();
+                Changed?.Invoke(this, false);
             }
         }
 
@@ -208,7 +208,7 @@ namespace LibSidWiz
             set
             {
                 _highPassFilterFrequency = value;
-                Changed?.Invoke();
+                Changed?.Invoke(this, false);
             }
         }
 
@@ -220,7 +220,7 @@ namespace LibSidWiz
             set
             {
                 _scale = value;
-                Changed?.Invoke();
+                Changed?.Invoke(this, false);
             }
         }
 
@@ -232,7 +232,7 @@ namespace LibSidWiz
             set
             {
                 _viewWidthInSamples = (int) (value / 1000 * _sampleRate);
-                Changed?.Invoke();
+                Changed?.Invoke(this, false);
             }
         }
 
@@ -244,7 +244,7 @@ namespace LibSidWiz
             set
             {
                 _viewWidthInSamples = value;
-                Changed?.Invoke();
+                Changed?.Invoke(this, false);
             }
         }
 
@@ -268,7 +268,7 @@ namespace LibSidWiz
             private set
             {
                 _length = value;
-                Changed?.Invoke();
+                Changed?.Invoke(this, false);
             }
         }
 
@@ -280,7 +280,7 @@ namespace LibSidWiz
             private set
             {
                 _sampleRate = value;
-                Changed?.Invoke();
+                Changed?.Invoke(this, false);
             }
         }
 

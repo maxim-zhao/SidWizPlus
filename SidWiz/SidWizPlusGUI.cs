@@ -84,8 +84,13 @@ namespace SidWiz
             _channels.Add(channel);
         }
 
-        private void ChannelOnChanged()
+        private void ChannelOnChanged(Channel channel, bool filenameChanged)
         {
+            // If the filename changed then we do a load
+            if (filenameChanged)
+            {
+                channel.LoadDataAsync();
+            }
             Render();
         }
 
