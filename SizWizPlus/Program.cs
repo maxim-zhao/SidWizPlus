@@ -187,7 +187,7 @@ namespace SidWizPlus
             public string GetUsage()
             {
                 var help = new HelpText {
-                    Heading = new HeadingInfo("SidWizPlus", "0.5"),
+                    Heading = new HeadingInfo("SidWizPlus", "0.6"),
                     Copyright = new CopyrightInfo("Maxim", 2018),
                     AdditionalNewLineAfterOption = false,
                     AddDashesToOption = true,
