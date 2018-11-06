@@ -37,7 +37,7 @@ namespace LibSidWiz
         private float _zeroLineWidth;
         private Color _zeroLineColor = Color.Transparent;
         private Font _labelFont;
-        private Color _labelColor;
+        private Color _labelColor = Color.Transparent;
 
         public event Action<Channel, bool> Changed;
 
