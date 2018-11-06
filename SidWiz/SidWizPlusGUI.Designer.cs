@@ -165,7 +165,7 @@
             this.splitContainer1.Size = new System.Drawing.Size(901, 433);
             this.splitContainer1.SplitterDistance = 626;
             this.splitContainer1.SplitterWidth = 2;
-            this.splitContainer1.TabIndex = 13;
+            this.splitContainer1.TabIndex = 0;
             // 
             // Preview
             // 
@@ -250,7 +250,7 @@
             this.tabControl1.SelectedIndex = 0;
             this.tabControl1.Size = new System.Drawing.Size(273, 433);
             this.tabControl1.SizeMode = System.Windows.Forms.TabSizeMode.FillToRight;
-            this.tabControl1.TabIndex = 18;
+            this.tabControl1.TabIndex = 0;
             // 
             // tabPage5
             // 
@@ -280,7 +280,7 @@
             this.toolStrip1.Name = "toolStrip1";
             this.toolStrip1.Padding = new System.Windows.Forms.Padding(0);
             this.toolStrip1.Size = new System.Drawing.Size(259, 25);
-            this.toolStrip1.TabIndex = 13;
+            this.toolStrip1.TabIndex = 0;
             this.toolStrip1.Text = "toolStrip1";
             // 
             // AddFileButton
@@ -351,7 +351,7 @@
             this.PropertyGrid.Margin = new System.Windows.Forms.Padding(2);
             this.PropertyGrid.Name = "PropertyGrid";
             this.PropertyGrid.Size = new System.Drawing.Size(259, 381);
-            this.PropertyGrid.TabIndex = 12;
+            this.PropertyGrid.TabIndex = 1;
             // 
             // tabPage1
             // 
@@ -393,7 +393,7 @@
             this.groupBox2.Name = "groupBox2";
             this.groupBox2.Padding = new System.Windows.Forms.Padding(2);
             this.groupBox2.Size = new System.Drawing.Size(155, 119);
-            this.groupBox2.TabIndex = 19;
+            this.groupBox2.TabIndex = 8;
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "Margins";
             // 
@@ -408,7 +408,7 @@
             0});
             this.MarginBottomControl.Name = "MarginBottomControl";
             this.MarginBottomControl.Size = new System.Drawing.Size(52, 20);
-            this.MarginBottomControl.TabIndex = 12;
+            this.MarginBottomControl.TabIndex = 7;
             this.MarginBottomControl.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
             this.MarginBottomControl.ValueChanged += new System.EventHandler(this.UpdatePreview);
             // 
@@ -423,7 +423,7 @@
             0});
             this.MarginRightControl.Name = "MarginRightControl";
             this.MarginRightControl.Size = new System.Drawing.Size(52, 20);
-            this.MarginRightControl.TabIndex = 11;
+            this.MarginRightControl.TabIndex = 5;
             this.MarginRightControl.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
             this.MarginRightControl.ValueChanged += new System.EventHandler(this.UpdatePreview);
             // 
@@ -438,7 +438,7 @@
             0});
             this.MarginLeftControl.Name = "MarginLeftControl";
             this.MarginLeftControl.Size = new System.Drawing.Size(52, 20);
-            this.MarginLeftControl.TabIndex = 10;
+            this.MarginLeftControl.TabIndex = 3;
             this.MarginLeftControl.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
             this.MarginLeftControl.ValueChanged += new System.EventHandler(this.UpdatePreview);
             // 
@@ -453,7 +453,7 @@
             0});
             this.MarginTopControl.Name = "MarginTopControl";
             this.MarginTopControl.Size = new System.Drawing.Size(52, 20);
-            this.MarginTopControl.TabIndex = 9;
+            this.MarginTopControl.TabIndex = 1;
             this.MarginTopControl.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
             this.MarginTopControl.ValueChanged += new System.EventHandler(this.UpdatePreview);
             // 
@@ -464,7 +464,7 @@
             this.label9.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.label9.Name = "label9";
             this.label9.Size = new System.Drawing.Size(40, 13);
-            this.label9.TabIndex = 8;
+            this.label9.TabIndex = 6;
             this.label9.Text = "Bottom";
             // 
             // label8
@@ -474,7 +474,7 @@
             this.label8.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.label8.Name = "label8";
             this.label8.Size = new System.Drawing.Size(32, 13);
-            this.label8.TabIndex = 6;
+            this.label8.TabIndex = 4;
             this.label8.Text = "Right";
             // 
             // label7
@@ -484,7 +484,7 @@
             this.label7.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.label7.Name = "label7";
             this.label7.Size = new System.Drawing.Size(25, 13);
-            this.label7.TabIndex = 4;
+            this.label7.TabIndex = 2;
             this.label7.Text = "Left";
             // 
             // label6
@@ -494,7 +494,7 @@
             this.label6.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.label6.Name = "label6";
             this.label6.Size = new System.Drawing.Size(26, 13);
-            this.label6.TabIndex = 2;
+            this.label6.TabIndex = 0;
             this.label6.Text = "Top";
             // 
             // AutoScaleButton
@@ -503,7 +503,7 @@
             this.AutoScaleButton.Margin = new System.Windows.Forms.Padding(2);
             this.AutoScaleButton.Name = "AutoScaleButton";
             this.AutoScaleButton.Size = new System.Drawing.Size(52, 25);
-            this.AutoScaleButton.TabIndex = 18;
+            this.AutoScaleButton.TabIndex = 12;
             this.AutoScaleButton.Text = "Apply";
             this.AutoScaleButton.UseVisualStyleBackColor = true;
             this.AutoScaleButton.Click += new System.EventHandler(this.AutoScale_Click);
@@ -515,7 +515,7 @@
             this.label1.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(47, 13);
-            this.label1.TabIndex = 0;
+            this.label1.TabIndex = 6;
             this.label1.Text = "&Columns";
             // 
             // Columns
@@ -529,7 +529,7 @@
             0});
             this.Columns.Name = "Columns";
             this.Columns.Size = new System.Drawing.Size(52, 20);
-            this.Columns.TabIndex = 1;
+            this.Columns.TabIndex = 7;
             this.Columns.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
             this.Columns.Value = new decimal(new int[] {
             1,
@@ -545,7 +545,7 @@
             this.label16.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.label16.Name = "label16";
             this.label16.Size = new System.Drawing.Size(54, 13);
-            this.label16.TabIndex = 16;
+            this.label16.TabIndex = 11;
             this.label16.Text = "% of peak";
             // 
             // label4
@@ -576,7 +576,7 @@
             this.label17.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.label17.Name = "label17";
             this.label17.Size = new System.Drawing.Size(78, 13);
-            this.label17.TabIndex = 14;
+            this.label17.TabIndex = 9;
             this.label17.Text = "Vertical scaling";
             // 
             // label5
@@ -586,7 +586,7 @@
             this.label5.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.label5.Name = "label5";
             this.label5.Size = new System.Drawing.Size(38, 13);
-            this.label5.TabIndex = 2;
+            this.label5.TabIndex = 3;
             this.label5.Text = "Height";
             // 
             // VerticalScaling
@@ -595,7 +595,7 @@
             this.VerticalScaling.Margin = new System.Windows.Forms.Padding(2);
             this.VerticalScaling.Name = "VerticalScaling";
             this.VerticalScaling.Size = new System.Drawing.Size(52, 20);
-            this.VerticalScaling.TabIndex = 15;
+            this.VerticalScaling.TabIndex = 10;
             this.VerticalScaling.Text = "80";
             this.VerticalScaling.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
             // 
@@ -605,7 +605,7 @@
             this.HeightControl.Margin = new System.Windows.Forms.Padding(2);
             this.HeightControl.Name = "HeightControl";
             this.HeightControl.Size = new System.Drawing.Size(52, 20);
-            this.HeightControl.TabIndex = 3;
+            this.HeightControl.TabIndex = 4;
             this.HeightControl.Text = "720";
             this.HeightControl.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
             this.HeightControl.TextChanged += new System.EventHandler(this.UpdatePreview);
@@ -617,7 +617,7 @@
             this.label11.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.label11.Name = "label11";
             this.label11.Size = new System.Drawing.Size(18, 13);
-            this.label11.TabIndex = 8;
+            this.label11.TabIndex = 2;
             this.label11.Text = "px";
             // 
             // label12
@@ -627,7 +627,7 @@
             this.label12.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.label12.Name = "label12";
             this.label12.Size = new System.Drawing.Size(18, 13);
-            this.label12.TabIndex = 9;
+            this.label12.TabIndex = 5;
             this.label12.Text = "px";
             // 
             // tabPage4
@@ -660,7 +660,7 @@
             this.groupBox1.Name = "groupBox1";
             this.groupBox1.Padding = new System.Windows.Forms.Padding(2);
             this.groupBox1.Size = new System.Drawing.Size(201, 105);
-            this.groupBox1.TabIndex = 19;
+            this.groupBox1.TabIndex = 3;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Grid";
             // 
@@ -671,7 +671,7 @@
             this.GridEnabled.Margin = new System.Windows.Forms.Padding(2);
             this.GridEnabled.Name = "GridEnabled";
             this.GridEnabled.Size = new System.Drawing.Size(65, 17);
-            this.GridEnabled.TabIndex = 2;
+            this.GridEnabled.TabIndex = 0;
             this.GridEnabled.Text = "Enabled";
             this.GridEnabled.UseVisualStyleBackColor = true;
             this.GridEnabled.CheckedChanged += new System.EventHandler(this.UpdatePreview);
@@ -683,7 +683,7 @@
             this.GridBorders.Margin = new System.Windows.Forms.Padding(2);
             this.GridBorders.Name = "GridBorders";
             this.GridBorders.Size = new System.Drawing.Size(99, 17);
-            this.GridBorders.TabIndex = 7;
+            this.GridBorders.TabIndex = 5;
             this.GridBorders.Text = "Include borders";
             this.GridBorders.UseVisualStyleBackColor = true;
             this.GridBorders.CheckedChanged += new System.EventHandler(this.UpdatePreview);
@@ -695,7 +695,7 @@
             this.label2.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(31, 13);
-            this.label2.TabIndex = 4;
+            this.label2.TabIndex = 1;
             this.label2.Text = "Color";
             // 
             // label3
@@ -705,7 +705,7 @@
             this.label3.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(35, 13);
-            this.label3.TabIndex = 5;
+            this.label3.TabIndex = 3;
             this.label3.Text = "Width";
             // 
             // GridWidth
@@ -720,7 +720,7 @@
             65536});
             this.GridWidth.Name = "GridWidth";
             this.GridWidth.Size = new System.Drawing.Size(112, 20);
-            this.GridWidth.TabIndex = 6;
+            this.GridWidth.TabIndex = 4;
             this.GridWidth.Value = new decimal(new int[] {
             1,
             0,
@@ -735,7 +735,7 @@
             this.label20.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.label20.Name = "label20";
             this.label20.Size = new System.Drawing.Size(31, 13);
-            this.label20.TabIndex = 13;
+            this.label20.TabIndex = 0;
             this.label20.Text = "Color";
             // 
             // BackgroundImageControl
@@ -758,7 +758,7 @@
             this.label21.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.label21.Name = "label21";
             this.label21.Size = new System.Drawing.Size(36, 13);
-            this.label21.TabIndex = 15;
+            this.label21.TabIndex = 2;
             this.label21.Text = "Image";
             // 
             // tabPage3
@@ -844,7 +844,7 @@
             this.groupBox3.Location = new System.Drawing.Point(7, 56);
             this.groupBox3.Name = "groupBox3";
             this.groupBox3.Size = new System.Drawing.Size(250, 100);
-            this.groupBox3.TabIndex = 24;
+            this.groupBox3.TabIndex = 7;
             this.groupBox3.TabStop = false;
             this.groupBox3.Text = "FFMPEG";
             // 
@@ -855,7 +855,7 @@
             this.FfmpegParameters.Location = new System.Drawing.Point(83, 68);
             this.FfmpegParameters.Name = "FfmpegParameters";
             this.FfmpegParameters.Size = new System.Drawing.Size(161, 20);
-            this.FfmpegParameters.TabIndex = 9;
+            this.FfmpegParameters.TabIndex = 4;
             // 
             // label18
             // 
@@ -863,7 +863,7 @@
             this.label18.Location = new System.Drawing.Point(6, 71);
             this.label18.Name = "label18";
             this.label18.Size = new System.Drawing.Size(60, 13);
-            this.label18.TabIndex = 8;
+            this.label18.TabIndex = 3;
             this.label18.Text = "Parameters";
             // 
             // EncodeCheckBox
@@ -872,7 +872,7 @@
             this.EncodeCheckBox.Location = new System.Drawing.Point(6, 19);
             this.EncodeCheckBox.Name = "EncodeCheckBox";
             this.EncodeCheckBox.Size = new System.Drawing.Size(91, 17);
-            this.EncodeCheckBox.TabIndex = 7;
+            this.EncodeCheckBox.TabIndex = 0;
             this.EncodeCheckBox.Text = "Encode to file";
             this.EncodeCheckBox.UseVisualStyleBackColor = true;
             // 
@@ -882,7 +882,7 @@
             this.label22.Location = new System.Drawing.Point(6, 45);
             this.label22.Name = "label22";
             this.label22.Size = new System.Drawing.Size(48, 13);
-            this.label22.TabIndex = 5;
+            this.label22.TabIndex = 1;
             this.label22.Text = "Location";
             // 
             // FfmpegLocation
@@ -892,7 +892,7 @@
             this.FfmpegLocation.Name = "FfmpegLocation";
             this.FfmpegLocation.ReadOnly = true;
             this.FfmpegLocation.Size = new System.Drawing.Size(163, 20);
-            this.FfmpegLocation.TabIndex = 6;
+            this.FfmpegLocation.TabIndex = 2;
             this.FfmpegLocation.Click += new System.EventHandler(this.FfmpegLocation_Click);
             // 
             // FrameRateControl
@@ -911,7 +911,7 @@
             0});
             this.FrameRateControl.Name = "FrameRateControl";
             this.FrameRateControl.Size = new System.Drawing.Size(52, 20);
-            this.FrameRateControl.TabIndex = 23;
+            this.FrameRateControl.TabIndex = 1;
             this.FrameRateControl.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
             this.FrameRateControl.Value = new decimal(new int[] {
             60,
@@ -926,7 +926,7 @@
             this.label14.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.label14.Name = "label14";
             this.label14.Size = new System.Drawing.Size(21, 13);
-            this.label14.TabIndex = 22;
+            this.label14.TabIndex = 2;
             this.label14.Text = "fps";
             // 
             // label15
@@ -936,7 +936,7 @@
             this.label15.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.label15.Name = "label15";
             this.label15.Size = new System.Drawing.Size(57, 13);
-            this.label15.TabIndex = 21;
+            this.label15.TabIndex = 0;
             this.label15.Text = "Frame rate";
             // 
             // RenderButton
@@ -946,7 +946,7 @@
             this.RenderButton.Location = new System.Drawing.Point(7, 191);
             this.RenderButton.Name = "RenderButton";
             this.RenderButton.Size = new System.Drawing.Size(250, 47);
-            this.RenderButton.TabIndex = 7;
+            this.RenderButton.TabIndex = 8;
             this.RenderButton.Text = "Render";
             this.RenderButton.UseVisualStyleBackColor = true;
             this.RenderButton.Click += new System.EventHandler(this.RenderButton_Click);
@@ -957,7 +957,7 @@
             this.label13.Location = new System.Drawing.Point(202, 32);
             this.label13.Name = "label13";
             this.label13.Size = new System.Drawing.Size(38, 13);
-            this.label13.TabIndex = 3;
+            this.label13.TabIndex = 6;
             this.label13.Text = "frames";
             // 
             // PreviewFrameskip
@@ -965,7 +965,7 @@
             this.PreviewFrameskip.Location = new System.Drawing.Point(144, 30);
             this.PreviewFrameskip.Name = "PreviewFrameskip";
             this.PreviewFrameskip.Size = new System.Drawing.Size(52, 20);
-            this.PreviewFrameskip.TabIndex = 2;
+            this.PreviewFrameskip.TabIndex = 5;
             this.PreviewFrameskip.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
             this.PreviewFrameskip.Value = new decimal(new int[] {
             60,
@@ -979,7 +979,7 @@
             this.label10.Location = new System.Drawing.Point(105, 32);
             this.label10.Name = "label10";
             this.label10.Size = new System.Drawing.Size(33, 13);
-            this.label10.TabIndex = 1;
+            this.label10.TabIndex = 4;
             this.label10.Text = "every";
             // 
             // PreviewCheckBox
@@ -988,7 +988,7 @@
             this.PreviewCheckBox.Location = new System.Drawing.Point(6, 31);
             this.PreviewCheckBox.Name = "PreviewCheckBox";
             this.PreviewCheckBox.Size = new System.Drawing.Size(93, 17);
-            this.PreviewCheckBox.TabIndex = 0;
+            this.PreviewCheckBox.TabIndex = 3;
             this.PreviewCheckBox.Text = "Show preview";
             this.PreviewCheckBox.UseVisualStyleBackColor = true;
             // 
@@ -1011,7 +1011,7 @@
             this.GridColor.Margin = new System.Windows.Forms.Padding(2);
             this.GridColor.Name = "GridColor";
             this.GridColor.Size = new System.Drawing.Size(112, 24);
-            this.GridColor.TabIndex = 8;
+            this.GridColor.TabIndex = 2;
             this.GridColor.Text = "White";
             this.GridColor.UseVisualStyleBackColor = false;
             this.GridColor.BackColorChanged += new System.EventHandler(this.UpdatePreview);
@@ -1025,7 +1025,7 @@
             this.BackgroundColorButton.Margin = new System.Windows.Forms.Padding(2);
             this.BackgroundColorButton.Name = "BackgroundColorButton";
             this.BackgroundColorButton.Size = new System.Drawing.Size(112, 24);
-            this.BackgroundColorButton.TabIndex = 14;
+            this.BackgroundColorButton.TabIndex = 1;
             this.BackgroundColorButton.Text = "Black";
             this.BackgroundColorButton.UseVisualStyleBackColor = false;
             this.BackgroundColorButton.BackColorChanged += new System.EventHandler(this.UpdatePreview);
@@ -1039,8 +1039,7 @@
             this.PreviewTrackbar.Maximum = 1000;
             this.PreviewTrackbar.Name = "PreviewTrackbar";
             this.PreviewTrackbar.Size = new System.Drawing.Size(626, 26);
-            this.PreviewTrackbar.SmallChange = 10;
-            this.PreviewTrackbar.TabIndex = 1;
+            this.PreviewTrackbar.TabIndex = 0;
             this.PreviewTrackbar.TickFrequency = 100;
             this.PreviewTrackbar.TickStyle = System.Windows.Forms.TickStyle.None;
             this.PreviewTrackbar.ValueChanged += new System.EventHandler(this.UpdatePreview);
