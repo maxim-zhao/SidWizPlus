@@ -392,6 +392,23 @@ namespace LibSidWiz
                     }
                 }
 
+                index = namePart.IndexOf(" - SN76489 #", StringComparison.Ordinal);
+                if (index > -1)
+                {
+                    if (int.TryParse(namePart.Substring(index + 12), out index))
+                    {
+                        switch (index)
+                        {
+                            case 0:
+                            case 1:
+                            case 2:
+                                return $"SN76489 Square {index + 1}";
+                            case 3:
+                                return "SN76489 Noise";
+                        }
+                    }
+                }
+
                 // Guess it's the bit after the last " - "
                 index = namePart.LastIndexOf(" - ", StringComparison.Ordinal);
                 if (index > -1)
