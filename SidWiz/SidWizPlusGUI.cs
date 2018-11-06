@@ -250,10 +250,6 @@ namespace SidWiz
 
         private void Preview_MouseClick(object sender, MouseEventArgs e)
         {
-            if (e.Button != MouseButtons.Left)
-            {
-                return;
-            }
             // Determine which channel was clicked
             var column = e.X * _columns / Preview.Width;
             var row = e.Y * _channels.Count / (Preview.Height * _columns);

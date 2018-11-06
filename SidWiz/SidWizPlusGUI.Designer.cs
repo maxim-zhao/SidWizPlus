@@ -33,6 +33,11 @@
             this.panel2 = new System.Windows.Forms.Panel();
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
             this.Preview = new System.Windows.Forms.PictureBox();
+            this.contextMenuStrip1 = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.moveLeftupToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.moveRightdownToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripMenuItem1 = new System.Windows.Forms.ToolStripSeparator();
+            this.removeChannelToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.tabControl1 = new System.Windows.Forms.TabControl();
             this.tabPage5 = new System.Windows.Forms.TabPage();
             this.toolStrip1 = new System.Windows.Forms.ToolStrip();
@@ -93,12 +98,16 @@
             this.numericUpDown1 = new System.Windows.Forms.NumericUpDown();
             this.label10 = new System.Windows.Forms.Label();
             this.checkBox1 = new System.Windows.Forms.CheckBox();
+            this.toolStripSeparator3 = new System.Windows.Forms.ToolStripSeparator();
+            this.applySettingsToOtherChannelsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.imageList1 = new System.Windows.Forms.ImageList(this.components);
             this.panel2.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
             this.splitContainer1.Panel2.SuspendLayout();
             this.splitContainer1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.Preview)).BeginInit();
+            this.contextMenuStrip1.SuspendLayout();
             this.tabControl1.SuspendLayout();
             this.tabPage5.SuspendLayout();
             this.toolStrip1.SuspendLayout();
@@ -146,21 +155,63 @@
             // 
             this.splitContainer1.Panel2.Controls.Add(this.tabControl1);
             this.splitContainer1.Size = new System.Drawing.Size(901, 433);
-            this.splitContainer1.SplitterDistance = 622;
+            this.splitContainer1.SplitterDistance = 624;
             this.splitContainer1.SplitterWidth = 2;
             this.splitContainer1.TabIndex = 13;
             // 
             // Preview
             // 
+            this.Preview.ContextMenuStrip = this.contextMenuStrip1;
             this.Preview.Dock = System.Windows.Forms.DockStyle.Fill;
             this.Preview.Location = new System.Drawing.Point(0, 0);
             this.Preview.Margin = new System.Windows.Forms.Padding(2);
             this.Preview.Name = "Preview";
-            this.Preview.Size = new System.Drawing.Size(622, 433);
+            this.Preview.Size = new System.Drawing.Size(624, 433);
             this.Preview.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
             this.Preview.TabIndex = 0;
             this.Preview.TabStop = false;
-            this.Preview.MouseClick += new System.Windows.Forms.MouseEventHandler(this.Preview_MouseClick);
+            this.Preview.MouseDown += new System.Windows.Forms.MouseEventHandler(this.Preview_MouseClick);
+            // 
+            // contextMenuStrip1
+            // 
+            this.contextMenuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.moveLeftupToolStripMenuItem,
+            this.moveRightdownToolStripMenuItem,
+            this.toolStripMenuItem1,
+            this.removeChannelToolStripMenuItem,
+            this.toolStripSeparator3,
+            this.applySettingsToOtherChannelsToolStripMenuItem});
+            this.contextMenuStrip1.Name = "contextMenuStrip1";
+            this.contextMenuStrip1.Size = new System.Drawing.Size(245, 104);
+            // 
+            // moveLeftupToolStripMenuItem
+            // 
+            this.moveLeftupToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("moveLeftupToolStripMenuItem.Image")));
+            this.moveLeftupToolStripMenuItem.Name = "moveLeftupToolStripMenuItem";
+            this.moveLeftupToolStripMenuItem.Size = new System.Drawing.Size(244, 22);
+            this.moveLeftupToolStripMenuItem.Text = "Move left/up";
+            this.moveLeftupToolStripMenuItem.Click += new System.EventHandler(this.LeftButton_Click);
+            // 
+            // moveRightdownToolStripMenuItem
+            // 
+            this.moveRightdownToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("moveRightdownToolStripMenuItem.Image")));
+            this.moveRightdownToolStripMenuItem.Name = "moveRightdownToolStripMenuItem";
+            this.moveRightdownToolStripMenuItem.Size = new System.Drawing.Size(244, 22);
+            this.moveRightdownToolStripMenuItem.Text = "Move right/down";
+            this.moveRightdownToolStripMenuItem.Click += new System.EventHandler(this.RightButton_Click);
+            // 
+            // toolStripMenuItem1
+            // 
+            this.toolStripMenuItem1.Name = "toolStripMenuItem1";
+            this.toolStripMenuItem1.Size = new System.Drawing.Size(241, 6);
+            // 
+            // removeChannelToolStripMenuItem
+            // 
+            this.removeChannelToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("removeChannelToolStripMenuItem.Image")));
+            this.removeChannelToolStripMenuItem.Name = "removeChannelToolStripMenuItem";
+            this.removeChannelToolStripMenuItem.Size = new System.Drawing.Size(244, 22);
+            this.removeChannelToolStripMenuItem.Text = "Remove channel";
+            this.removeChannelToolStripMenuItem.Click += new System.EventHandler(this.RemoveButton_Click);
             // 
             // tabControl1
             // 
@@ -170,21 +221,25 @@
             this.tabControl1.Controls.Add(this.tabPage3);
             this.tabControl1.Controls.Add(this.tabPage2);
             this.tabControl1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.tabControl1.ImageList = this.imageList1;
             this.tabControl1.Location = new System.Drawing.Point(0, 0);
             this.tabControl1.Margin = new System.Windows.Forms.Padding(2);
+            this.tabControl1.Multiline = true;
             this.tabControl1.Name = "tabControl1";
             this.tabControl1.SelectedIndex = 0;
-            this.tabControl1.Size = new System.Drawing.Size(277, 433);
+            this.tabControl1.Size = new System.Drawing.Size(275, 433);
+            this.tabControl1.SizeMode = System.Windows.Forms.TabSizeMode.FillToRight;
             this.tabControl1.TabIndex = 18;
             // 
             // tabPage5
             // 
             this.tabPage5.Controls.Add(this.toolStrip1);
             this.tabPage5.Controls.Add(this.PropertyGrid);
-            this.tabPage5.Location = new System.Drawing.Point(4, 22);
+            this.tabPage5.ImageKey = "music.png";
+            this.tabPage5.Location = new System.Drawing.Point(4, 42);
             this.tabPage5.Name = "tabPage5";
             this.tabPage5.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage5.Size = new System.Drawing.Size(269, 407);
+            this.tabPage5.Size = new System.Drawing.Size(267, 387);
             this.tabPage5.TabIndex = 4;
             this.tabPage5.Text = "Channels";
             this.tabPage5.UseVisualStyleBackColor = true;
@@ -203,7 +258,7 @@
             this.toolStrip1.Location = new System.Drawing.Point(3, 3);
             this.toolStrip1.Name = "toolStrip1";
             this.toolStrip1.Padding = new System.Windows.Forms.Padding(0);
-            this.toolStrip1.Size = new System.Drawing.Size(263, 25);
+            this.toolStrip1.Size = new System.Drawing.Size(261, 25);
             this.toolStrip1.TabIndex = 13;
             this.toolStrip1.Text = "toolStrip1";
             // 
@@ -274,7 +329,7 @@
             this.PropertyGrid.Location = new System.Drawing.Point(3, 3);
             this.PropertyGrid.Margin = new System.Windows.Forms.Padding(2);
             this.PropertyGrid.Name = "PropertyGrid";
-            this.PropertyGrid.Size = new System.Drawing.Size(263, 401);
+            this.PropertyGrid.Size = new System.Drawing.Size(261, 381);
             this.PropertyGrid.TabIndex = 12;
             // 
             // tabPage1
@@ -295,11 +350,12 @@
             this.tabPage1.Controls.Add(this.label15);
             this.tabPage1.Controls.Add(this.label11);
             this.tabPage1.Controls.Add(this.label12);
-            this.tabPage1.Location = new System.Drawing.Point(4, 22);
+            this.tabPage1.ImageKey = "layout.png";
+            this.tabPage1.Location = new System.Drawing.Point(4, 23);
             this.tabPage1.Margin = new System.Windows.Forms.Padding(2);
             this.tabPage1.Name = "tabPage1";
             this.tabPage1.Padding = new System.Windows.Forms.Padding(2);
-            this.tabPage1.Size = new System.Drawing.Size(271, 407);
+            this.tabPage1.Size = new System.Drawing.Size(267, 406);
             this.tabPage1.TabIndex = 0;
             this.tabPage1.Text = "Layout";
             this.tabPage1.UseVisualStyleBackColor = true;
@@ -606,11 +662,12 @@
             this.tabPage4.Controls.Add(this.BackgroundImageControl);
             this.tabPage4.Controls.Add(this.BackgroundColorButton);
             this.tabPage4.Controls.Add(this.label21);
-            this.tabPage4.Location = new System.Drawing.Point(4, 22);
+            this.tabPage4.ImageKey = "picture.png";
+            this.tabPage4.Location = new System.Drawing.Point(4, 23);
             this.tabPage4.Margin = new System.Windows.Forms.Padding(2);
             this.tabPage4.Name = "tabPage4";
             this.tabPage4.Padding = new System.Windows.Forms.Padding(2);
-            this.tabPage4.Size = new System.Drawing.Size(269, 407);
+            this.tabPage4.Size = new System.Drawing.Size(267, 406);
             this.tabPage4.TabIndex = 3;
             this.tabPage4.Text = "Background";
             this.tabPage4.UseVisualStyleBackColor = true;
@@ -762,11 +819,12 @@
             this.tabPage3.Controls.Add(this.button2);
             this.tabPage3.Controls.Add(this.checkBox4);
             this.tabPage3.Controls.Add(this.checkBox3);
-            this.tabPage3.Location = new System.Drawing.Point(4, 22);
+            this.tabPage3.ImageKey = "sound.png";
+            this.tabPage3.Location = new System.Drawing.Point(4, 42);
             this.tabPage3.Margin = new System.Windows.Forms.Padding(2);
             this.tabPage3.Name = "tabPage3";
             this.tabPage3.Padding = new System.Windows.Forms.Padding(2);
-            this.tabPage3.Size = new System.Drawing.Size(271, 407);
+            this.tabPage3.Size = new System.Drawing.Size(267, 387);
             this.tabPage3.TabIndex = 2;
             this.tabPage3.Text = "Audio";
             this.tabPage3.UseVisualStyleBackColor = true;
@@ -816,10 +874,11 @@
             this.tabPage2.Controls.Add(this.numericUpDown1);
             this.tabPage2.Controls.Add(this.label10);
             this.tabPage2.Controls.Add(this.checkBox1);
-            this.tabPage2.Location = new System.Drawing.Point(4, 22);
+            this.tabPage2.ImageKey = "film.png";
+            this.tabPage2.Location = new System.Drawing.Point(4, 42);
             this.tabPage2.Name = "tabPage2";
             this.tabPage2.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage2.Size = new System.Drawing.Size(271, 407);
+            this.tabPage2.Size = new System.Drawing.Size(267, 387);
             this.tabPage2.TabIndex = 5;
             this.tabPage2.Text = "Video";
             this.tabPage2.UseVisualStyleBackColor = true;
@@ -890,6 +949,29 @@
             this.checkBox1.Text = "Show preview";
             this.checkBox1.UseVisualStyleBackColor = true;
             // 
+            // toolStripSeparator3
+            // 
+            this.toolStripSeparator3.Name = "toolStripSeparator3";
+            this.toolStripSeparator3.Size = new System.Drawing.Size(241, 6);
+            // 
+            // applySettingsToOtherChannelsToolStripMenuItem
+            // 
+            this.applySettingsToOtherChannelsToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("applySettingsToOtherChannelsToolStripMenuItem.Image")));
+            this.applySettingsToOtherChannelsToolStripMenuItem.Name = "applySettingsToOtherChannelsToolStripMenuItem";
+            this.applySettingsToOtherChannelsToolStripMenuItem.Size = new System.Drawing.Size(244, 22);
+            this.applySettingsToOtherChannelsToolStripMenuItem.Text = "Apply settings to other channels";
+            this.applySettingsToOtherChannelsToolStripMenuItem.Click += new System.EventHandler(this.CopySettingsButton_Click);
+            // 
+            // imageList1
+            // 
+            this.imageList1.ImageStream = ((System.Windows.Forms.ImageListStreamer)(resources.GetObject("imageList1.ImageStream")));
+            this.imageList1.TransparentColor = System.Drawing.Color.Transparent;
+            this.imageList1.Images.SetKeyName(0, "music.png");
+            this.imageList1.Images.SetKeyName(1, "layout.png");
+            this.imageList1.Images.SetKeyName(2, "picture.png");
+            this.imageList1.Images.SetKeyName(3, "sound.png");
+            this.imageList1.Images.SetKeyName(4, "film.png");
+            // 
             // SidWizPlusGui
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -905,6 +987,7 @@
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).EndInit();
             this.splitContainer1.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.Preview)).EndInit();
+            this.contextMenuStrip1.ResumeLayout(false);
             this.tabControl1.ResumeLayout(false);
             this.tabPage5.ResumeLayout(false);
             this.tabPage5.PerformLayout();
@@ -999,5 +1082,13 @@
         private System.Windows.Forms.NumericUpDown numericUpDown1;
         private System.Windows.Forms.Label label10;
         private System.Windows.Forms.CheckBox checkBox1;
+        private System.Windows.Forms.ContextMenuStrip contextMenuStrip1;
+        private System.Windows.Forms.ToolStripMenuItem moveLeftupToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem moveRightdownToolStripMenuItem;
+        private System.Windows.Forms.ToolStripSeparator toolStripMenuItem1;
+        private System.Windows.Forms.ToolStripMenuItem removeChannelToolStripMenuItem;
+        private System.Windows.Forms.ToolStripSeparator toolStripSeparator3;
+        private System.Windows.Forms.ToolStripMenuItem applySettingsToOtherChannelsToolStripMenuItem;
+        private System.Windows.Forms.ImageList imageList1;
     }
 }
