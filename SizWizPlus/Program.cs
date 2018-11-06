@@ -256,6 +256,10 @@ namespace SidWizPlus
                             TriggerLookaheadFrames = settings.TriggerLookahead,
                             ZeroLineWidth = settings.ZeroLineWidth,
                             ZeroLineColor = ParseColor(settings.ZeroLineColor),
+                            LabelFont = settings.ChannelLabelsFont == null
+                                ? null
+                                : new Font(settings.ChannelLabelsFont, settings.ChannelLabelsSize),
+                            LabelColor = ParseColor(settings.ChannelLabelsColor)
                         };
                         channel.LoadDataAsync().Wait();
                         channel.ViewWidthInMilliseconds = settings.ViewWidthMs;
@@ -436,16 +440,6 @@ namespace SidWizPlus
             foreach (var channel in channels)
             {
                 renderer.AddChannel(channel);
-            }
-
-            if (settings.ChannelLabelsFont != null)
-            {
-                renderer.ChannelLabels = new WaveformRenderer.LabelConfig
-                {
-                    Color = ParseColor(settings.ChannelLabelsColor),
-                    FontName = settings.ChannelLabelsFont,
-                    Size = settings.ChannelLabelsSize
-                };
             }
 
             var outputs = new List<IGraphicsOutput>();

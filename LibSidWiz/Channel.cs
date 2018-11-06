@@ -36,6 +36,8 @@ namespace LibSidWiz
         private Color _fillColor = Color.Transparent;
         private float _zeroLineWidth;
         private Color _zeroLineColor = Color.Transparent;
+        private Font _labelFont;
+        private Color _labelColor;
 
         public event Action<Channel, bool> Changed;
 
@@ -222,6 +224,30 @@ namespace LibSidWiz
             set
             {
                 _name = value;
+                Changed?.Invoke(this, false);
+            }
+        }
+
+        [Category("Display")]
+        [Description("The font for the channel label")]
+        public Font LabelFont
+        {
+            get => _labelFont;
+            set
+            {
+                _labelFont = value;
+                Changed?.Invoke(this, false);
+            }
+        }
+
+        [Category("Display")]
+        [Description("The color for the channel label")]
+        public Color LabelColor
+        {
+            get => _labelColor;
+            set
+            {
+                _labelColor = value;
                 Changed?.Invoke(this, false);
             }
         }

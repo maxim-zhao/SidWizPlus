@@ -25,14 +25,6 @@ namespace LibSidWiz
         public Image BackgroundImage { get; set; }
         public Rectangle RenderingBounds { get; set; }
         public GridConfig Grid { get; set; }
-        public LabelConfig ChannelLabels { get; set; }
-
-        public class LabelConfig
-        {
-            public Color Color { get; set; }
-            public string FontName { get; set; }
-            public float Size { get; set; }
-        }
 
         public class GridConfig
         {
@@ -226,24 +218,21 @@ namespace LibSidWiz
                         {
                             // Compute the initial x, y to render the line from.
                             var yBase = renderingBounds.Top + channelIndex / Columns * viewHeight + viewHeight / 2;
-                            var xBase = renderingBounds.Left + (channelIndex % Columns) * renderingBounds.Width / Columns;
+                            var xBase = renderingBounds.Left +
+                                        (channelIndex % Columns) * renderingBounds.Width / Columns;
 
                             // Draw the zero line
                             g.DrawLine(pen, xBase, yBase, xBase + viewWidth, yBase);
                         }
                     }
-                }
 
-                if (ChannelLabels != null)
-                {
-                    using (var font = new Font(ChannelLabels.FontName, ChannelLabels.Size))
-                    using (var brush = new SolidBrush(ChannelLabels.Color))
+                    if (channel.LabelFont != null && channel.LabelColor != Color.Transparent)
                     {
-                        for (int channelIndex = 0; channelIndex < _channels.Count; ++channelIndex)
+                        using (var brush = new SolidBrush(channel.LabelColor))
                         {
                             var y = renderingBounds.Top + channelIndex / Columns * viewHeight;
                             var x = renderingBounds.Left + (channelIndex % Columns) * renderingBounds.Width / Columns;
-                            g.DrawString(_channels[channelIndex].Name, font, brush, x, y);
+                            g.DrawString(_channels[channelIndex].Name, channel.LabelFont, brush, x, y);
                         }
                     }
                 }
