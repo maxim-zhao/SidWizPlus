@@ -108,7 +108,7 @@ namespace SidWiz
 
         private void LoadVgm(string filename)
         {
-            LocateProgram("multidumper.exe", p => _settings.MultiDumperPath = p);
+            LocateProgram("multidumper.exe", _settings.MultiDumperPath, p => _settings.MultiDumperPath = p);
             try
             {
                 // Normalize path
@@ -147,16 +147,16 @@ namespace SidWiz
             }
         }
 
-        private void LocateProgram(string filename, Action<string> saveToSettings)
+        private void LocateProgram(string filename, string currentValue, Action<string> saveToSettings)
         {
             // Get path if we don't already have it
-            if (!File.Exists(_settings.MultiDumperPath))
+            if (!File.Exists(currentValue))
             {
                 // Check if it's in the program directory
                 var directory = Path.GetDirectoryName(Assembly.GetCallingAssembly().Location);
                 if (directory != null)
                 {
-                    var path = Path.Combine(directory, "multidumper.exe");
+                    var path = Path.Combine(directory, filename);
                     if (File.Exists(path))
                     {
                         saveToSettings(path);
@@ -175,12 +175,9 @@ namespace SidWiz
                     {
                         saveToSettings(ofd.FileName);
                         SaveSettings();
-                        return;
                     }
                 }
             }
-
-            throw new Exception($"Failed to locate {filename}");
         }
 
         private void AutoScale_Click(object sender, EventArgs e)
@@ -363,7 +360,7 @@ namespace SidWiz
 
         private void FfmpegLocation_Click(object sender, EventArgs e)
         {
-            LocateProgram("ffmpeg.exe", p => _settings.FFMPEGPath = p);
+            LocateProgram("ffmpeg.exe", _settings.FFMPEGPath, p => _settings.FFMPEGPath = p);
             FfmpegLocation.Text = _settings.FFMPEGPath;
         }
 
