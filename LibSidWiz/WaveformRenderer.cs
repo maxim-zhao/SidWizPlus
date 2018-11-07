@@ -274,7 +274,9 @@ namespace LibSidWiz
         /// </summary>
         public Bitmap RenderFrame(float position = 0)
         {
-            var frameIndex = (int)(position * _channels.Max(c => c.SampleCount) * FramesPerSecond / SamplingRate);
+            var frameIndex = _channels.Count > 0
+                ? (int) (position * _channels.Max(c => c.SampleCount) * FramesPerSecond / SamplingRate)
+                : 0;
             var bitmap = new Bitmap(Width, Height);
             Render(bitmap, () => { }, frameIndex, frameIndex + 1);
             return bitmap;
