@@ -40,6 +40,7 @@
             this.removeChannelToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator3 = new System.Windows.Forms.ToolStripSeparator();
             this.applySettingsToOtherChannelsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.PreviewTrackbar = new System.Windows.Forms.TrackBar();
             this.tabControl1 = new System.Windows.Forms.TabControl();
             this.tabPage5 = new System.Windows.Forms.TabPage();
             this.toolStrip1 = new System.Windows.Forms.ToolStrip();
@@ -75,6 +76,7 @@
             this.label12 = new System.Windows.Forms.Label();
             this.tabPage4 = new System.Windows.Forms.TabPage();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.GridColor = new SidWiz.ColorButton(this.components);
             this.GridEnabled = new System.Windows.Forms.CheckBox();
             this.GridBorders = new System.Windows.Forms.CheckBox();
             this.label2 = new System.Windows.Forms.Label();
@@ -83,10 +85,12 @@
             this.label20 = new System.Windows.Forms.Label();
             this.BackgroundImageControl = new System.Windows.Forms.PictureBox();
             this.label21 = new System.Windows.Forms.Label();
+            this.BackgroundColorButton = new SidWiz.ColorButton(this.components);
             this.tabPage3 = new System.Windows.Forms.TabPage();
-            this.button2 = new System.Windows.Forms.Button();
-            this.checkBox4 = new System.Windows.Forms.CheckBox();
-            this.checkBox3 = new System.Windows.Forms.CheckBox();
+            this.label19 = new System.Windows.Forms.Label();
+            this.MasterAudioPath = new System.Windows.Forms.TextBox();
+            this.MasterMixReplayGain = new System.Windows.Forms.CheckBox();
+            this.AutogenerateMasterMix = new System.Windows.Forms.CheckBox();
             this.tabPage2 = new System.Windows.Forms.TabPage();
             this.groupBox3 = new System.Windows.Forms.GroupBox();
             this.FfmpegParameters = new System.Windows.Forms.TextBox();
@@ -103,9 +107,6 @@
             this.label10 = new System.Windows.Forms.Label();
             this.PreviewCheckBox = new System.Windows.Forms.CheckBox();
             this.imageList1 = new System.Windows.Forms.ImageList(this.components);
-            this.GridColor = new SidWiz.ColorButton(this.components);
-            this.BackgroundColorButton = new SidWiz.ColorButton(this.components);
-            this.PreviewTrackbar = new System.Windows.Forms.TrackBar();
             this.panel2.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
@@ -113,6 +114,7 @@
             this.splitContainer1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.Preview)).BeginInit();
             this.contextMenuStrip1.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.PreviewTrackbar)).BeginInit();
             this.tabControl1.SuspendLayout();
             this.tabPage5.SuspendLayout();
             this.toolStrip1.SuspendLayout();
@@ -132,7 +134,6 @@
             this.groupBox3.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.FrameRateControl)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.PreviewFrameskip)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.PreviewTrackbar)).BeginInit();
             this.SuspendLayout();
             // 
             // panel2
@@ -163,7 +164,7 @@
             // 
             this.splitContainer1.Panel2.Controls.Add(this.tabControl1);
             this.splitContainer1.Size = new System.Drawing.Size(901, 433);
-            this.splitContainer1.SplitterDistance = 626;
+            this.splitContainer1.SplitterDistance = 628;
             this.splitContainer1.SplitterWidth = 2;
             this.splitContainer1.TabIndex = 0;
             // 
@@ -174,7 +175,7 @@
             this.Preview.Location = new System.Drawing.Point(0, 0);
             this.Preview.Margin = new System.Windows.Forms.Padding(2);
             this.Preview.Name = "Preview";
-            this.Preview.Size = new System.Drawing.Size(626, 407);
+            this.Preview.Size = new System.Drawing.Size(628, 407);
             this.Preview.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
             this.Preview.TabIndex = 0;
             this.Preview.TabStop = false;
@@ -234,6 +235,20 @@
             this.applySettingsToOtherChannelsToolStripMenuItem.Text = "Apply settings to other channels";
             this.applySettingsToOtherChannelsToolStripMenuItem.Click += new System.EventHandler(this.CopySettingsButton_Click);
             // 
+            // PreviewTrackbar
+            // 
+            this.PreviewTrackbar.AutoSize = false;
+            this.PreviewTrackbar.Dock = System.Windows.Forms.DockStyle.Bottom;
+            this.PreviewTrackbar.LargeChange = 100;
+            this.PreviewTrackbar.Location = new System.Drawing.Point(0, 407);
+            this.PreviewTrackbar.Maximum = 1000;
+            this.PreviewTrackbar.Name = "PreviewTrackbar";
+            this.PreviewTrackbar.Size = new System.Drawing.Size(628, 26);
+            this.PreviewTrackbar.TabIndex = 0;
+            this.PreviewTrackbar.TickFrequency = 100;
+            this.PreviewTrackbar.TickStyle = System.Windows.Forms.TickStyle.None;
+            this.PreviewTrackbar.ValueChanged += new System.EventHandler(this.UpdatePreview);
+            // 
             // tabControl1
             // 
             this.tabControl1.Controls.Add(this.tabPage5);
@@ -248,7 +263,7 @@
             this.tabControl1.Multiline = true;
             this.tabControl1.Name = "tabControl1";
             this.tabControl1.SelectedIndex = 0;
-            this.tabControl1.Size = new System.Drawing.Size(273, 433);
+            this.tabControl1.Size = new System.Drawing.Size(271, 433);
             this.tabControl1.SizeMode = System.Windows.Forms.TabSizeMode.FillToRight;
             this.tabControl1.TabIndex = 0;
             // 
@@ -260,7 +275,7 @@
             this.tabPage5.Location = new System.Drawing.Point(4, 42);
             this.tabPage5.Name = "tabPage5";
             this.tabPage5.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage5.Size = new System.Drawing.Size(265, 387);
+            this.tabPage5.Size = new System.Drawing.Size(263, 387);
             this.tabPage5.TabIndex = 4;
             this.tabPage5.Text = "Channels";
             this.tabPage5.UseVisualStyleBackColor = true;
@@ -279,7 +294,7 @@
             this.toolStrip1.Location = new System.Drawing.Point(3, 3);
             this.toolStrip1.Name = "toolStrip1";
             this.toolStrip1.Padding = new System.Windows.Forms.Padding(0);
-            this.toolStrip1.Size = new System.Drawing.Size(259, 25);
+            this.toolStrip1.Size = new System.Drawing.Size(257, 25);
             this.toolStrip1.TabIndex = 0;
             this.toolStrip1.Text = "toolStrip1";
             // 
@@ -350,7 +365,7 @@
             this.PropertyGrid.Location = new System.Drawing.Point(3, 3);
             this.PropertyGrid.Margin = new System.Windows.Forms.Padding(2);
             this.PropertyGrid.Name = "PropertyGrid";
-            this.PropertyGrid.Size = new System.Drawing.Size(259, 381);
+            this.PropertyGrid.Size = new System.Drawing.Size(257, 381);
             this.PropertyGrid.TabIndex = 1;
             // 
             // tabPage1
@@ -664,6 +679,20 @@
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Grid";
             // 
+            // GridColor
+            // 
+            this.GridColor.BackColor = System.Drawing.Color.White;
+            this.GridColor.Color = System.Drawing.Color.White;
+            this.GridColor.ForeColor = System.Drawing.Color.Black;
+            this.GridColor.Location = new System.Drawing.Point(81, 34);
+            this.GridColor.Margin = new System.Windows.Forms.Padding(2);
+            this.GridColor.Name = "GridColor";
+            this.GridColor.Size = new System.Drawing.Size(112, 24);
+            this.GridColor.TabIndex = 2;
+            this.GridColor.Text = "White";
+            this.GridColor.UseVisualStyleBackColor = false;
+            this.GridColor.BackColorChanged += new System.EventHandler(this.UpdatePreview);
+            // 
             // GridEnabled
             // 
             this.GridEnabled.AutoSize = true;
@@ -742,7 +771,7 @@
             // 
             this.BackgroundImageControl.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.BackgroundImageControl.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.BackgroundImageControl.Location = new System.Drawing.Point(96, 32);
+            this.BackgroundImageControl.Location = new System.Drawing.Point(85, 32);
             this.BackgroundImageControl.Margin = new System.Windows.Forms.Padding(2);
             this.BackgroundImageControl.Name = "BackgroundImageControl";
             this.BackgroundImageControl.Size = new System.Drawing.Size(112, 75);
@@ -761,11 +790,26 @@
             this.label21.TabIndex = 2;
             this.label21.Text = "Image";
             // 
+            // BackgroundColorButton
+            // 
+            this.BackgroundColorButton.BackColor = System.Drawing.Color.Black;
+            this.BackgroundColorButton.Color = System.Drawing.Color.Black;
+            this.BackgroundColorButton.ForeColor = System.Drawing.Color.White;
+            this.BackgroundColorButton.Location = new System.Drawing.Point(85, 4);
+            this.BackgroundColorButton.Margin = new System.Windows.Forms.Padding(2);
+            this.BackgroundColorButton.Name = "BackgroundColorButton";
+            this.BackgroundColorButton.Size = new System.Drawing.Size(112, 24);
+            this.BackgroundColorButton.TabIndex = 1;
+            this.BackgroundColorButton.Text = "Black";
+            this.BackgroundColorButton.UseVisualStyleBackColor = false;
+            this.BackgroundColorButton.BackColorChanged += new System.EventHandler(this.UpdatePreview);
+            // 
             // tabPage3
             // 
-            this.tabPage3.Controls.Add(this.button2);
-            this.tabPage3.Controls.Add(this.checkBox4);
-            this.tabPage3.Controls.Add(this.checkBox3);
+            this.tabPage3.Controls.Add(this.label19);
+            this.tabPage3.Controls.Add(this.MasterAudioPath);
+            this.tabPage3.Controls.Add(this.MasterMixReplayGain);
+            this.tabPage3.Controls.Add(this.AutogenerateMasterMix);
             this.tabPage3.ImageKey = "sound.png";
             this.tabPage3.Location = new System.Drawing.Point(4, 42);
             this.tabPage3.Margin = new System.Windows.Forms.Padding(2);
@@ -776,41 +820,53 @@
             this.tabPage3.Text = "Audio";
             this.tabPage3.UseVisualStyleBackColor = true;
             // 
-            // button2
+            // label19
             // 
-            this.button2.Location = new System.Drawing.Point(8, 48);
-            this.button2.Margin = new System.Windows.Forms.Padding(2);
-            this.button2.Name = "button2";
-            this.button2.Size = new System.Drawing.Size(99, 23);
-            this.button2.TabIndex = 2;
-            this.button2.Text = "Load...";
-            this.button2.UseVisualStyleBackColor = true;
+            this.label19.AutoSize = true;
+            this.label19.Location = new System.Drawing.Point(4, 52);
+            this.label19.Name = "label19";
+            this.label19.Size = new System.Drawing.Size(48, 13);
+            this.label19.TabIndex = 3;
+            this.label19.Text = "Location";
             // 
-            // checkBox4
+            // MasterAudioPath
             // 
-            this.checkBox4.AutoSize = true;
-            this.checkBox4.Checked = true;
-            this.checkBox4.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.checkBox4.Location = new System.Drawing.Point(8, 27);
-            this.checkBox4.Margin = new System.Windows.Forms.Padding(2);
-            this.checkBox4.Name = "checkBox4";
-            this.checkBox4.Size = new System.Drawing.Size(110, 17);
-            this.checkBox4.TabIndex = 1;
-            this.checkBox4.Text = "Apply ReplayGain";
-            this.checkBox4.UseVisualStyleBackColor = true;
+            this.MasterAudioPath.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.MasterAudioPath.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.MasterAudioPath.Location = new System.Drawing.Point(81, 49);
+            this.MasterAudioPath.Name = "MasterAudioPath";
+            this.MasterAudioPath.ReadOnly = true;
+            this.MasterAudioPath.Size = new System.Drawing.Size(176, 20);
+            this.MasterAudioPath.TabIndex = 4;
+            this.MasterAudioPath.Click += new System.EventHandler(this.MasterAudioPath_Click);
             // 
-            // checkBox3
+            // MasterMixReplayGain
             // 
-            this.checkBox3.AutoSize = true;
-            this.checkBox3.Checked = true;
-            this.checkBox3.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.checkBox3.Location = new System.Drawing.Point(8, 9);
-            this.checkBox3.Margin = new System.Windows.Forms.Padding(2);
-            this.checkBox3.Name = "checkBox3";
-            this.checkBox3.Size = new System.Drawing.Size(169, 17);
-            this.checkBox3.TabIndex = 0;
-            this.checkBox3.Text = "Autogenerate master audio file";
-            this.checkBox3.UseVisualStyleBackColor = true;
+            this.MasterMixReplayGain.AutoSize = true;
+            this.MasterMixReplayGain.Checked = true;
+            this.MasterMixReplayGain.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.MasterMixReplayGain.Location = new System.Drawing.Point(8, 27);
+            this.MasterMixReplayGain.Margin = new System.Windows.Forms.Padding(2);
+            this.MasterMixReplayGain.Name = "MasterMixReplayGain";
+            this.MasterMixReplayGain.Size = new System.Drawing.Size(110, 17);
+            this.MasterMixReplayGain.TabIndex = 1;
+            this.MasterMixReplayGain.Text = "Apply ReplayGain";
+            this.MasterMixReplayGain.UseVisualStyleBackColor = true;
+            // 
+            // AutogenerateMasterMix
+            // 
+            this.AutogenerateMasterMix.AutoSize = true;
+            this.AutogenerateMasterMix.Checked = true;
+            this.AutogenerateMasterMix.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.AutogenerateMasterMix.Location = new System.Drawing.Point(8, 9);
+            this.AutogenerateMasterMix.Margin = new System.Windows.Forms.Padding(2);
+            this.AutogenerateMasterMix.Name = "AutogenerateMasterMix";
+            this.AutogenerateMasterMix.Size = new System.Drawing.Size(169, 17);
+            this.AutogenerateMasterMix.TabIndex = 0;
+            this.AutogenerateMasterMix.Text = "Autogenerate master audio file";
+            this.AutogenerateMasterMix.UseVisualStyleBackColor = true;
+            this.AutogenerateMasterMix.CheckedChanged += new System.EventHandler(this.AutogenerateMasterMix_CheckedChanged);
             // 
             // tabPage2
             // 
@@ -827,7 +883,7 @@
             this.tabPage2.Location = new System.Drawing.Point(4, 42);
             this.tabPage2.Name = "tabPage2";
             this.tabPage2.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage2.Size = new System.Drawing.Size(265, 387);
+            this.tabPage2.Size = new System.Drawing.Size(263, 387);
             this.tabPage2.TabIndex = 5;
             this.tabPage2.Text = "Video";
             this.tabPage2.UseVisualStyleBackColor = true;
@@ -843,7 +899,7 @@
             this.groupBox3.Controls.Add(this.FfmpegLocation);
             this.groupBox3.Location = new System.Drawing.Point(7, 56);
             this.groupBox3.Name = "groupBox3";
-            this.groupBox3.Size = new System.Drawing.Size(250, 100);
+            this.groupBox3.Size = new System.Drawing.Size(248, 100);
             this.groupBox3.TabIndex = 7;
             this.groupBox3.TabStop = false;
             this.groupBox3.Text = "FFMPEG";
@@ -854,7 +910,7 @@
             | System.Windows.Forms.AnchorStyles.Right)));
             this.FfmpegParameters.Location = new System.Drawing.Point(83, 68);
             this.FfmpegParameters.Name = "FfmpegParameters";
-            this.FfmpegParameters.Size = new System.Drawing.Size(161, 20);
+            this.FfmpegParameters.Size = new System.Drawing.Size(159, 20);
             this.FfmpegParameters.TabIndex = 4;
             // 
             // label18
@@ -945,7 +1001,7 @@
             | System.Windows.Forms.AnchorStyles.Right)));
             this.RenderButton.Location = new System.Drawing.Point(7, 191);
             this.RenderButton.Name = "RenderButton";
-            this.RenderButton.Size = new System.Drawing.Size(250, 47);
+            this.RenderButton.Size = new System.Drawing.Size(248, 47);
             this.RenderButton.TabIndex = 8;
             this.RenderButton.Text = "Render";
             this.RenderButton.UseVisualStyleBackColor = true;
@@ -1002,48 +1058,6 @@
             this.imageList1.Images.SetKeyName(3, "sound.png");
             this.imageList1.Images.SetKeyName(4, "film.png");
             // 
-            // GridColor
-            // 
-            this.GridColor.BackColor = System.Drawing.Color.White;
-            this.GridColor.Color = System.Drawing.Color.White;
-            this.GridColor.ForeColor = System.Drawing.Color.Black;
-            this.GridColor.Location = new System.Drawing.Point(81, 34);
-            this.GridColor.Margin = new System.Windows.Forms.Padding(2);
-            this.GridColor.Name = "GridColor";
-            this.GridColor.Size = new System.Drawing.Size(112, 24);
-            this.GridColor.TabIndex = 2;
-            this.GridColor.Text = "White";
-            this.GridColor.UseVisualStyleBackColor = false;
-            this.GridColor.BackColorChanged += new System.EventHandler(this.UpdatePreview);
-            // 
-            // BackgroundColorButton
-            // 
-            this.BackgroundColorButton.BackColor = System.Drawing.Color.Black;
-            this.BackgroundColorButton.Color = System.Drawing.Color.Black;
-            this.BackgroundColorButton.ForeColor = System.Drawing.Color.White;
-            this.BackgroundColorButton.Location = new System.Drawing.Point(96, 4);
-            this.BackgroundColorButton.Margin = new System.Windows.Forms.Padding(2);
-            this.BackgroundColorButton.Name = "BackgroundColorButton";
-            this.BackgroundColorButton.Size = new System.Drawing.Size(112, 24);
-            this.BackgroundColorButton.TabIndex = 1;
-            this.BackgroundColorButton.Text = "Black";
-            this.BackgroundColorButton.UseVisualStyleBackColor = false;
-            this.BackgroundColorButton.BackColorChanged += new System.EventHandler(this.UpdatePreview);
-            // 
-            // PreviewTrackbar
-            // 
-            this.PreviewTrackbar.AutoSize = false;
-            this.PreviewTrackbar.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.PreviewTrackbar.LargeChange = 100;
-            this.PreviewTrackbar.Location = new System.Drawing.Point(0, 407);
-            this.PreviewTrackbar.Maximum = 1000;
-            this.PreviewTrackbar.Name = "PreviewTrackbar";
-            this.PreviewTrackbar.Size = new System.Drawing.Size(626, 26);
-            this.PreviewTrackbar.TabIndex = 0;
-            this.PreviewTrackbar.TickFrequency = 100;
-            this.PreviewTrackbar.TickStyle = System.Windows.Forms.TickStyle.None;
-            this.PreviewTrackbar.ValueChanged += new System.EventHandler(this.UpdatePreview);
-            // 
             // SidWizPlusGui
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -1053,6 +1067,7 @@
             this.Margin = new System.Windows.Forms.Padding(2);
             this.Name = "SidWizPlusGui";
             this.Text = "SidWizPlusGUI";
+            this.Load += new System.EventHandler(this.SidWizPlusGui_Load);
             this.panel2.ResumeLayout(false);
             this.splitContainer1.Panel1.ResumeLayout(false);
             this.splitContainer1.Panel2.ResumeLayout(false);
@@ -1060,6 +1075,7 @@
             this.splitContainer1.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.Preview)).EndInit();
             this.contextMenuStrip1.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.PreviewTrackbar)).EndInit();
             this.tabControl1.ResumeLayout(false);
             this.tabPage5.ResumeLayout(false);
             this.tabPage5.PerformLayout();
@@ -1088,7 +1104,6 @@
             this.groupBox3.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.FrameRateControl)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.PreviewFrameskip)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.PreviewTrackbar)).EndInit();
             this.ResumeLayout(false);
 
         }
@@ -1100,9 +1115,8 @@
         private System.Windows.Forms.Label label5;
         private System.Windows.Forms.TextBox WidthControl;
         private System.Windows.Forms.Label label4;
-        private System.Windows.Forms.Button button2;
-        private System.Windows.Forms.CheckBox checkBox4;
-        private System.Windows.Forms.CheckBox checkBox3;
+        private System.Windows.Forms.CheckBox MasterMixReplayGain;
+        private System.Windows.Forms.CheckBox AutogenerateMasterMix;
         private System.Windows.Forms.Label label12;
         private System.Windows.Forms.Label label11;
         private System.Windows.Forms.Label label16;
@@ -1170,5 +1184,7 @@
         private System.Windows.Forms.TextBox FfmpegParameters;
         private System.Windows.Forms.Label label18;
         private System.Windows.Forms.TrackBar PreviewTrackbar;
+        private System.Windows.Forms.Label label19;
+        private System.Windows.Forms.TextBox MasterAudioPath;
     }
 }

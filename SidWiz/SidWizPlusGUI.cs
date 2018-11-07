@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
 using System.IO;
 using System.Linq;
@@ -9,6 +10,7 @@ using System.Windows.Forms;
 using LibSidWiz;
 using LibSidWiz.Outputs;
 using LibSidWiz.Triggers;
+using Newtonsoft.Json;
 
 namespace SidWiz
 {
@@ -16,7 +18,15 @@ namespace SidWiz
     {
         private int _columns = 1;
         private readonly List<Channel> _channels = new List<Channel>();
-        private string _multiDumperPath;
+
+        [SuppressMessage("ReSharper", "InconsistentNaming")]
+        private class Settings
+        {
+            public string FFMPEGPath { get; set; }
+            public string MultiDumperPath { get; set; }
+        }
+
+        private Settings _settings = new Settings();
 
         public SidWizPlusGui()
         {
@@ -92,29 +102,13 @@ namespace SidWiz
             {
                 channel.LoadDataAsync();
             }
-            Render();
+
+            BeginInvoke(new Action(Render));
         }
 
         private void LoadVgm(string filename)
         {
-            // Get path if we don't already have it
-            // TODO Save on shutdown
-            // TODO make it editable?
-            if (!File.Exists(_multiDumperPath))
-            {
-                using (var ofd = new OpenFileDialog
-                {
-                    Title = "Please locate MultiDumper",
-                    Filter = "Multidumper (multidumper.exe)|multidumper.exe|All files (*.*)|*.*"
-                })
-                {
-                    if (ofd.ShowDialog(this) == DialogResult.OK)
-                    {
-                        _multiDumperPath = ofd.FileName;
-                    }
-                }
-            }
-
+            LocateProgram("multidumper.exe", p => _settings.MultiDumperPath = p);
             try
             {
                 // Normalize path
@@ -122,7 +116,7 @@ namespace SidWiz
                 // Let's run it
                 using (var p = Process.Start(new ProcessStartInfo
                 {
-                    FileName = _multiDumperPath,
+                    FileName = _settings.MultiDumperPath,
                     Arguments = $"\"{filename}\" 0",
                     RedirectStandardOutput = true,
                     UseShellExecute = false
@@ -151,6 +145,42 @@ namespace SidWiz
             {
                 MessageBox.Show($"Error running MultiDumper: {ex}");
             }
+        }
+
+        private void LocateProgram(string filename, Action<string> saveToSettings)
+        {
+            // Get path if we don't already have it
+            if (!File.Exists(_settings.MultiDumperPath))
+            {
+                // Check if it's in the program directory
+                var directory = Path.GetDirectoryName(Assembly.GetCallingAssembly().Location);
+                if (directory != null)
+                {
+                    var path = Path.Combine(directory, "multidumper.exe");
+                    if (File.Exists(path))
+                    {
+                        saveToSettings(path);
+                        SaveSettings();
+                        return;
+                    }
+                }
+                // Else browse for it
+                using (var ofd = new OpenFileDialog
+                {
+                    Title = $"Please locate {filename}",
+                    Filter = $"{filename}|{filename}|All files (*.*)|*.*"
+                })
+                {
+                    if (ofd.ShowDialog(this) == DialogResult.OK)
+                    {
+                        saveToSettings(ofd.FileName);
+                        SaveSettings();
+                        return;
+                    }
+                }
+            }
+
+            throw new Exception($"Failed to locate {filename}");
         }
 
         private void AutoScale_Click(object sender, EventArgs e)
@@ -293,6 +323,7 @@ namespace SidWiz
             foreach (var propertyInfo in typeof(Channel)
                 .GetProperties(BindingFlags.Instance | BindingFlags.Public)
                 .Where(p => p.CanWrite && 
+                    p.GetSetMethod() != null &&
                     p.Name != nameof(Channel.Filename) && 
                     p.Name != nameof(Channel.Name)))
             {
@@ -332,19 +363,8 @@ namespace SidWiz
 
         private void FfmpegLocation_Click(object sender, EventArgs e)
         {
-            using (var ofd = new OpenFileDialog
-            {
-                Title = "Locate FFMPEG",
-                Filter = "FFMPEG executable (ffmpeg.exe)|ffmpeg.exe|All files (*.*)|*.*"
-            })
-            {
-                if (ofd.ShowDialog(this) != DialogResult.OK)
-                {
-                    return;
-                }
-
-                FfmpegLocation.Text = ofd.FileName;
-            }
+            LocateProgram("ffmpeg.exe", p => _settings.FFMPEGPath = p);
+            FfmpegLocation.Text = _settings.FFMPEGPath;
         }
 
         private void RenderButton_Click(object sender, EventArgs e)
@@ -364,17 +384,29 @@ namespace SidWiz
                     Filter = "Video files (*.mp4;*.mkv;*.avi;*.qt)|*.mp4;*.mkv;*.avi;*.qt|All files (*.*)|*.*"
                 })
                 {
-                    if (sfd.ShowDialog(this) == DialogResult.OK)
+                    if (sfd.ShowDialog(this) != DialogResult.OK)
                     {
-                        outputs.Add(new FfmpegOutput(
-                            FfmpegLocation.Text, 
-                            sfd.FileName, 
-                            int.Parse(WidthControl.Text), 
-                            int.Parse(HeightControl.Text),
-                            (int) FrameRateControl.Value,
-                            FfmpegParameters.Text,
-                            ""));
+                        // Cancel the whole operation
+                        return;
                     }
+
+                    var outputFilename = sfd.FileName;
+
+                    if (AutogenerateMasterMix.Checked && !string.IsNullOrEmpty(outputFilename))
+                    {
+                        var filename = outputFilename + ".wav";
+                        Mixer.MixToFile(_channels, filename, MasterMixReplayGain.Checked);
+                        MasterAudioPath.Text = filename;
+                    }
+                    
+                    outputs.Add(new FfmpegOutput(
+                        FfmpegLocation.Text,
+                        outputFilename,
+                        int.Parse(WidthControl.Text),
+                        int.Parse(HeightControl.Text),
+                        (int) FrameRateControl.Value,
+                        FfmpegParameters.Text,
+                        MasterAudioPath.Text));
                 }
             }
 
@@ -386,6 +418,8 @@ namespace SidWiz
 
             try
             {
+                // TODO: show some progress if no preview?
+                // TODO: need to make GUI updates thread safe then o this on a background thread
                 var renderer = CreateWaveformRenderer();
                 renderer.Render(outputs);
             }
@@ -399,6 +433,65 @@ namespace SidWiz
                 {
                     graphicsOutput.Dispose();
                 }
+            }
+        }
+
+        private void AutogenerateMasterMix_CheckedChanged(object sender, EventArgs e)
+        {
+            MasterMixReplayGain.Enabled = AutogenerateMasterMix.Checked;
+        }
+
+        private void MasterAudioPath_Click(object sender, EventArgs e)
+        {
+            using (var ofd = new OpenFileDialog
+            {
+                Title = "Select master audio file",
+                Filter = "Wave audio files (*.wav)|*.wav|All files (*.*)|*.*"
+            })
+            {
+                if (ofd.ShowDialog(this) != DialogResult.OK)
+                {
+                    return;
+                }
+
+                MasterAudioPath.Text = ofd.FileName;
+            }
+        }
+
+        private void SaveSettings()
+        {
+            var path = GetSettingsPath();
+            var directory = Path.GetDirectoryName(path);
+            if (directory == null)
+            {
+                return;
+            }
+            Directory.CreateDirectory(directory);
+            using (var file = File.CreateText(path))
+            {
+                var serializer = new JsonSerializer();
+                serializer.Serialize(file, _settings);
+            }
+        }
+
+        private static string GetSettingsPath()
+        {
+            return Path.Combine(
+                Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
+                "SidWizPlus",
+                "settings.json");
+        }
+
+        private void SidWizPlusGui_Load(object sender, EventArgs e)
+        {
+            try
+            {
+                _settings = JsonConvert.DeserializeObject<Settings>(File.ReadAllText(GetSettingsPath()));
+                FfmpegLocation.Text = _settings.FFMPEGPath;
+            }
+            catch (Exception)
+            {
+                // Swallow it
             }
         }
     }

@@ -36,7 +36,8 @@ namespace LibSidWiz.Outputs
                 FileName = pathToExe, 
                 Arguments = arguments, 
                 UseShellExecute = false, 
-                RedirectStandardInput = true
+                RedirectStandardInput = true,
+                RedirectStandardError = true
             });
             if (_process == null)
             {
@@ -47,7 +48,14 @@ namespace LibSidWiz.Outputs
 
         public void Write(byte[] data, Image image, double fractionComplete)
         {
-            _writer.Write(data);
+            try
+            {
+                _writer.Write(data);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(_process.StandardError.ReadToEnd(), ex);
+            }
         }
 
         public void Dispose()
