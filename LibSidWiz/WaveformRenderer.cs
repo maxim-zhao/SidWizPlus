@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
+using System.Drawing.Text;
 using System.Linq;
 using System.Runtime.InteropServices;
 using LibSidWiz.Outputs;
@@ -228,6 +229,7 @@ namespace LibSidWiz
 
                     if (channel.LabelFont != null && channel.LabelColor != Color.Transparent)
                     {
+                        g.TextRenderingHint = TextRenderingHint.AntiAlias;
                         using (var brush = new SolidBrush(channel.LabelColor))
                         {
                             var y = renderingBounds.Top + channelIndex / Columns * viewHeight;
