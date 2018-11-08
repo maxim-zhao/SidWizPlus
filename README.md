@@ -20,4 +20,4 @@ Fork of a version of SidWiz with modifications for my own purposes.
   * Including generation of titles and descriptions from tags in VGM files
 * New GUI using the same renderer to give previews as you change settings
 
-![Preview](https://i.imgur.com/EWO0Eq8.png)
+![Preview](https://i.imgur.com/ 8qk17Md.png)
