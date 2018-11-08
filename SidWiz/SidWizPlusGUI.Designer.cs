@@ -164,7 +164,7 @@
             // 
             this.splitContainer1.Panel2.Controls.Add(this.tabControl1);
             this.splitContainer1.Size = new System.Drawing.Size(901, 433);
-            this.splitContainer1.SplitterDistance = 628;
+            this.splitContainer1.SplitterDistance = 630;
             this.splitContainer1.SplitterWidth = 2;
             this.splitContainer1.TabIndex = 0;
             // 
@@ -175,7 +175,7 @@
             this.Preview.Location = new System.Drawing.Point(0, 0);
             this.Preview.Margin = new System.Windows.Forms.Padding(2);
             this.Preview.Name = "Preview";
-            this.Preview.Size = new System.Drawing.Size(628, 407);
+            this.Preview.Size = new System.Drawing.Size(630, 407);
             this.Preview.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
             this.Preview.TabIndex = 0;
             this.Preview.TabStop = false;
@@ -243,7 +243,7 @@
             this.PreviewTrackbar.Location = new System.Drawing.Point(0, 407);
             this.PreviewTrackbar.Maximum = 1000;
             this.PreviewTrackbar.Name = "PreviewTrackbar";
-            this.PreviewTrackbar.Size = new System.Drawing.Size(628, 26);
+            this.PreviewTrackbar.Size = new System.Drawing.Size(630, 26);
             this.PreviewTrackbar.TabIndex = 0;
             this.PreviewTrackbar.TickFrequency = 100;
             this.PreviewTrackbar.TickStyle = System.Windows.Forms.TickStyle.None;
@@ -263,7 +263,7 @@
             this.tabControl1.Multiline = true;
             this.tabControl1.Name = "tabControl1";
             this.tabControl1.SelectedIndex = 0;
-            this.tabControl1.Size = new System.Drawing.Size(271, 433);
+            this.tabControl1.Size = new System.Drawing.Size(269, 433);
             this.tabControl1.SizeMode = System.Windows.Forms.TabSizeMode.FillToRight;
             this.tabControl1.TabIndex = 0;
             // 
@@ -275,7 +275,7 @@
             this.tabPage5.Location = new System.Drawing.Point(4, 42);
             this.tabPage5.Name = "tabPage5";
             this.tabPage5.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage5.Size = new System.Drawing.Size(263, 387);
+            this.tabPage5.Size = new System.Drawing.Size(261, 387);
             this.tabPage5.TabIndex = 4;
             this.tabPage5.Text = "Channels";
             this.tabPage5.UseVisualStyleBackColor = true;
@@ -294,7 +294,7 @@
             this.toolStrip1.Location = new System.Drawing.Point(3, 3);
             this.toolStrip1.Name = "toolStrip1";
             this.toolStrip1.Padding = new System.Windows.Forms.Padding(0);
-            this.toolStrip1.Size = new System.Drawing.Size(257, 25);
+            this.toolStrip1.Size = new System.Drawing.Size(255, 25);
             this.toolStrip1.TabIndex = 0;
             this.toolStrip1.Text = "toolStrip1";
             // 
@@ -365,7 +365,7 @@
             this.PropertyGrid.Location = new System.Drawing.Point(3, 3);
             this.PropertyGrid.Margin = new System.Windows.Forms.Padding(2);
             this.PropertyGrid.Name = "PropertyGrid";
-            this.PropertyGrid.Size = new System.Drawing.Size(257, 381);
+            this.PropertyGrid.Size = new System.Drawing.Size(255, 381);
             this.PropertyGrid.TabIndex = 1;
             // 
             // tabPage1
@@ -388,7 +388,7 @@
             this.tabPage1.Margin = new System.Windows.Forms.Padding(2);
             this.tabPage1.Name = "tabPage1";
             this.tabPage1.Padding = new System.Windows.Forms.Padding(2);
-            this.tabPage1.Size = new System.Drawing.Size(265, 387);
+            this.tabPage1.Size = new System.Drawing.Size(261, 387);
             this.tabPage1.TabIndex = 0;
             this.tabPage1.Text = "Layout";
             this.tabPage1.UseVisualStyleBackColor = true;
@@ -403,7 +403,7 @@
             this.groupBox2.Controls.Add(this.label8);
             this.groupBox2.Controls.Add(this.label7);
             this.groupBox2.Controls.Add(this.label6);
-            this.groupBox2.Location = new System.Drawing.Point(4, 76);
+            this.groupBox2.Location = new System.Drawing.Point(8, 76);
             this.groupBox2.Margin = new System.Windows.Forms.Padding(2);
             this.groupBox2.Name = "groupBox2";
             this.groupBox2.Padding = new System.Windows.Forms.Padding(2);
@@ -526,7 +526,7 @@
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(8, 54);
+            this.label1.Location = new System.Drawing.Point(12, 54);
             this.label1.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(47, 13);
@@ -535,7 +535,7 @@
             // 
             // Columns
             // 
-            this.Columns.Location = new System.Drawing.Point(96, 52);
+            this.Columns.Location = new System.Drawing.Point(100, 52);
             this.Columns.Margin = new System.Windows.Forms.Padding(2);
             this.Columns.Minimum = new decimal(new int[] {
             1,
@@ -566,7 +566,7 @@
             // label4
             // 
             this.label4.AutoSize = true;
-            this.label4.Location = new System.Drawing.Point(8, 7);
+            this.label4.Location = new System.Drawing.Point(12, 7);
             this.label4.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.label4.Name = "label4";
             this.label4.Size = new System.Drawing.Size(35, 13);
@@ -575,7 +575,7 @@
             // 
             // WidthControl
             // 
-            this.WidthControl.Location = new System.Drawing.Point(96, 4);
+            this.WidthControl.Location = new System.Drawing.Point(100, 4);
             this.WidthControl.Margin = new System.Windows.Forms.Padding(2);
             this.WidthControl.Name = "WidthControl";
             this.WidthControl.Size = new System.Drawing.Size(52, 20);
@@ -597,7 +597,7 @@
             // label5
             // 
             this.label5.AutoSize = true;
-            this.label5.Location = new System.Drawing.Point(8, 31);
+            this.label5.Location = new System.Drawing.Point(12, 31);
             this.label5.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.label5.Name = "label5";
             this.label5.Size = new System.Drawing.Size(38, 13);
@@ -616,7 +616,7 @@
             // 
             // HeightControl
             // 
-            this.HeightControl.Location = new System.Drawing.Point(96, 28);
+            this.HeightControl.Location = new System.Drawing.Point(100, 28);
             this.HeightControl.Margin = new System.Windows.Forms.Padding(2);
             this.HeightControl.Name = "HeightControl";
             this.HeightControl.Size = new System.Drawing.Size(52, 20);
@@ -628,7 +628,7 @@
             // label11
             // 
             this.label11.AutoSize = true;
-            this.label11.Location = new System.Drawing.Point(152, 7);
+            this.label11.Location = new System.Drawing.Point(156, 7);
             this.label11.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.label11.Name = "label11";
             this.label11.Size = new System.Drawing.Size(18, 13);
@@ -638,7 +638,7 @@
             // label12
             // 
             this.label12.AutoSize = true;
-            this.label12.Location = new System.Drawing.Point(152, 31);
+            this.label12.Location = new System.Drawing.Point(156, 31);
             this.label12.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.label12.Name = "label12";
             this.label12.Size = new System.Drawing.Size(18, 13);
@@ -657,7 +657,7 @@
             this.tabPage4.Margin = new System.Windows.Forms.Padding(2);
             this.tabPage4.Name = "tabPage4";
             this.tabPage4.Padding = new System.Windows.Forms.Padding(2);
-            this.tabPage4.Size = new System.Drawing.Size(265, 387);
+            this.tabPage4.Size = new System.Drawing.Size(261, 387);
             this.tabPage4.TabIndex = 3;
             this.tabPage4.Text = "Background";
             this.tabPage4.UseVisualStyleBackColor = true;
@@ -670,7 +670,7 @@
             this.groupBox1.Controls.Add(this.label2);
             this.groupBox1.Controls.Add(this.label3);
             this.groupBox1.Controls.Add(this.GridWidth);
-            this.groupBox1.Location = new System.Drawing.Point(4, 111);
+            this.groupBox1.Location = new System.Drawing.Point(8, 111);
             this.groupBox1.Margin = new System.Windows.Forms.Padding(2);
             this.groupBox1.Name = "groupBox1";
             this.groupBox1.Padding = new System.Windows.Forms.Padding(2);
@@ -760,7 +760,7 @@
             // label20
             // 
             this.label20.AutoSize = true;
-            this.label20.Location = new System.Drawing.Point(9, 10);
+            this.label20.Location = new System.Drawing.Point(12, 10);
             this.label20.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.label20.Name = "label20";
             this.label20.Size = new System.Drawing.Size(31, 13);
@@ -771,7 +771,7 @@
             // 
             this.BackgroundImageControl.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.BackgroundImageControl.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.BackgroundImageControl.Location = new System.Drawing.Point(85, 32);
+            this.BackgroundImageControl.Location = new System.Drawing.Point(89, 32);
             this.BackgroundImageControl.Margin = new System.Windows.Forms.Padding(2);
             this.BackgroundImageControl.Name = "BackgroundImageControl";
             this.BackgroundImageControl.Size = new System.Drawing.Size(112, 75);
@@ -783,7 +783,7 @@
             // label21
             // 
             this.label21.AutoSize = true;
-            this.label21.Location = new System.Drawing.Point(4, 36);
+            this.label21.Location = new System.Drawing.Point(12, 36);
             this.label21.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.label21.Name = "label21";
             this.label21.Size = new System.Drawing.Size(36, 13);
@@ -795,7 +795,7 @@
             this.BackgroundColorButton.BackColor = System.Drawing.Color.Black;
             this.BackgroundColorButton.Color = System.Drawing.Color.Black;
             this.BackgroundColorButton.ForeColor = System.Drawing.Color.White;
-            this.BackgroundColorButton.Location = new System.Drawing.Point(85, 4);
+            this.BackgroundColorButton.Location = new System.Drawing.Point(89, 4);
             this.BackgroundColorButton.Margin = new System.Windows.Forms.Padding(2);
             this.BackgroundColorButton.Name = "BackgroundColorButton";
             this.BackgroundColorButton.Size = new System.Drawing.Size(112, 24);
@@ -815,7 +815,7 @@
             this.tabPage3.Margin = new System.Windows.Forms.Padding(2);
             this.tabPage3.Name = "tabPage3";
             this.tabPage3.Padding = new System.Windows.Forms.Padding(2);
-            this.tabPage3.Size = new System.Drawing.Size(265, 387);
+            this.tabPage3.Size = new System.Drawing.Size(261, 387);
             this.tabPage3.TabIndex = 2;
             this.tabPage3.Text = "Audio";
             this.tabPage3.UseVisualStyleBackColor = true;
@@ -837,7 +837,7 @@
             this.MasterAudioPath.Location = new System.Drawing.Point(81, 49);
             this.MasterAudioPath.Name = "MasterAudioPath";
             this.MasterAudioPath.ReadOnly = true;
-            this.MasterAudioPath.Size = new System.Drawing.Size(176, 20);
+            this.MasterAudioPath.Size = new System.Drawing.Size(174, 20);
             this.MasterAudioPath.TabIndex = 4;
             this.MasterAudioPath.Click += new System.EventHandler(this.MasterAudioPath_Click);
             // 
@@ -883,7 +883,7 @@
             this.tabPage2.Location = new System.Drawing.Point(4, 42);
             this.tabPage2.Name = "tabPage2";
             this.tabPage2.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage2.Size = new System.Drawing.Size(263, 387);
+            this.tabPage2.Size = new System.Drawing.Size(261, 387);
             this.tabPage2.TabIndex = 5;
             this.tabPage2.Text = "Video";
             this.tabPage2.UseVisualStyleBackColor = true;
@@ -899,7 +899,7 @@
             this.groupBox3.Controls.Add(this.FfmpegLocation);
             this.groupBox3.Location = new System.Drawing.Point(7, 56);
             this.groupBox3.Name = "groupBox3";
-            this.groupBox3.Size = new System.Drawing.Size(248, 100);
+            this.groupBox3.Size = new System.Drawing.Size(246, 100);
             this.groupBox3.TabIndex = 7;
             this.groupBox3.TabStop = false;
             this.groupBox3.Text = "FFMPEG";
@@ -910,7 +910,7 @@
             | System.Windows.Forms.AnchorStyles.Right)));
             this.FfmpegParameters.Location = new System.Drawing.Point(83, 68);
             this.FfmpegParameters.Name = "FfmpegParameters";
-            this.FfmpegParameters.Size = new System.Drawing.Size(159, 20);
+            this.FfmpegParameters.Size = new System.Drawing.Size(157, 20);
             this.FfmpegParameters.TabIndex = 4;
             // 
             // label18
@@ -947,7 +947,7 @@
             this.FfmpegLocation.Location = new System.Drawing.Point(83, 42);
             this.FfmpegLocation.Name = "FfmpegLocation";
             this.FfmpegLocation.ReadOnly = true;
-            this.FfmpegLocation.Size = new System.Drawing.Size(163, 20);
+            this.FfmpegLocation.Size = new System.Drawing.Size(157, 20);
             this.FfmpegLocation.TabIndex = 2;
             this.FfmpegLocation.Click += new System.EventHandler(this.FfmpegLocation_Click);
             // 
@@ -988,7 +988,7 @@
             // label15
             // 
             this.label15.AutoSize = true;
-            this.label15.Location = new System.Drawing.Point(4, 7);
+            this.label15.Location = new System.Drawing.Point(8, 7);
             this.label15.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.label15.Name = "label15";
             this.label15.Size = new System.Drawing.Size(57, 13);
@@ -1001,7 +1001,7 @@
             | System.Windows.Forms.AnchorStyles.Right)));
             this.RenderButton.Location = new System.Drawing.Point(7, 191);
             this.RenderButton.Name = "RenderButton";
-            this.RenderButton.Size = new System.Drawing.Size(248, 47);
+            this.RenderButton.Size = new System.Drawing.Size(246, 47);
             this.RenderButton.TabIndex = 8;
             this.RenderButton.Text = "Render";
             this.RenderButton.UseVisualStyleBackColor = true;
@@ -1041,7 +1041,7 @@
             // PreviewCheckBox
             // 
             this.PreviewCheckBox.AutoSize = true;
-            this.PreviewCheckBox.Location = new System.Drawing.Point(6, 31);
+            this.PreviewCheckBox.Location = new System.Drawing.Point(10, 31);
             this.PreviewCheckBox.Name = "PreviewCheckBox";
             this.PreviewCheckBox.Size = new System.Drawing.Size(93, 17);
             this.PreviewCheckBox.TabIndex = 3;
