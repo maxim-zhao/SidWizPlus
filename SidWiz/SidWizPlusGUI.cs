@@ -41,13 +41,19 @@ namespace SidWiz
 
         private void AddAFileClick(object sender, EventArgs e)
         {
+            var multiDumperExtensions = new[]
+            {
+                "ay", "gbs", "gym", "hes", "kss", "nsf", "nsfe", "sap", "sfm", "sgc", "spc", "vgm", "spu"
+            };
+            var multiDumperMask = "*." + string.Join("; *.", multiDumperExtensions);
+
             using (var ofd = new OpenFileDialog()
             {
                 CheckFileExists = true,
                 Filter =
-                    "All supported files (*.wav;*.vgm)|*.wav;*.vgm|" +
-                    "Wave audio files (*.wav)|*.wav|" +
-                    "VGM music files (*.vgm)|*.vgm|" +
+                    $"All supported files (*.wav;{multiDumperMask})|*.wav;{multiDumperMask}|" +
+                    "Wave audio files (*.wav)|*.wav|" + 
+                    $"MultiDumper compatible files ({multiDumperMask})|{multiDumperMask}|" +
                     "All files (*.*)|*.*",
                 Multiselect = true
             })
@@ -61,16 +67,21 @@ namespace SidWiz
                 foreach (var filename in ofd.FileNames.OrderByAlphaNumeric(x => x))
                 {
                     var path = Path.GetFullPath(filename);
-                    switch (Path.GetExtension(filename).ToLowerInvariant())
+                    var extension = Path.GetExtension(filename).ToLowerInvariant();
+                    switch (extension)
                     {
-                        case ".vgm":
-                            LoadVgm(path);
-                            break;
                         case ".wav":
                             LoadWav(path);
                             break;
                         default:
-                            errors.Add($"Could not load \"{filename}\" - unknown extension");
+                            if (multiDumperExtensions.Contains(extension))
+                            {
+                                LoadMultiDumper(path);
+                            }
+                            else
+                            {
+                                errors.Add($"Could not load \"{filename}\" - unknown extension");
+                            }
                             break;
                     }
                 }
@@ -106,7 +117,7 @@ namespace SidWiz
             BeginInvoke(new Action(Render));
         }
 
-        private void LoadVgm(string filename)
+        private void LoadMultiDumper(string filename)
         {
             LocateProgram("multidumper.exe", _settings.MultiDumperPath, p => _settings.MultiDumperPath = p);
             try
