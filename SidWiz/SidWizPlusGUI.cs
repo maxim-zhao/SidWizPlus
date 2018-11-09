@@ -41,11 +41,9 @@ namespace SidWiz
 
         private void AddAFileClick(object sender, EventArgs e)
         {
-            var multiDumperExtensions = new[]
-            {
-                "ay", "gbs", "gym", "hes", "kss", "nsf", "nsfe", "sap", "sfm", "sgc", "spc", "vgm", "spu"
-            };
-            var multiDumperMask = "*." + string.Join("; *.", multiDumperExtensions);
+            var multiDumperMask = "*." + string.Join(
+                "; *.", 
+                "ay", "gbs", "gym", "hes", "kss", "nsf", "nsfe", "sap", "sfm", "sgc", "spc", "vgm", "spu");
 
             using (var ofd = new OpenFileDialog()
             {
@@ -74,7 +72,7 @@ namespace SidWiz
                             LoadWav(path);
                             break;
                         default:
-                            if (multiDumperExtensions.Contains(extension))
+                            if (multiDumperMask.Contains("*" + extension))
                             {
                                 LoadMultiDumper(path);
                             }
