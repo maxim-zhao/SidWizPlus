@@ -156,7 +156,7 @@ namespace SidWizPlus
             public string ChannelLabelsColor { get; set; }
 
             // ReSharper disable once StringLiteralTypo
-            [Option("youtubesecret", HelpText = "YouTube client secret JSON file")]
+            [Option("youtubesecret", HelpText = "YouTube client secret JSON file. Use this to specify a custom OAth key if the embedded one doesn't work.")]
             public string YouTubeUploadClientSecret { get; set; }
             // ReSharper disable once StringLiteralTypo
             [Option("youtubetitle", HelpText = "YouTube video title. If a VGM is specified then you can reference GD3 tags like [title], [system], [game], [composer]")]
@@ -302,10 +302,9 @@ namespace SidWizPlus
                     Render(settings, channels);
                 }
 
-                if (settings.YouTubeUploadClientSecret != null)
+                if (settings.YouTubeTitle != null)
                 {
-                    var task = UploadToYouTube(settings);
-                    task.Wait();
+                    UploadToYouTube(settings).Wait();
                 }
             }
             catch (Exception e)
@@ -510,18 +509,31 @@ namespace SidWizPlus
 
         private static async Task<string> UploadToYouTube(Settings settings)
         {
-            UserCredential credential;
-            using (var stream = new FileStream(settings.YouTubeUploadClientSecret, FileMode.Open, FileAccess.Read))
+            ClientSecrets secrets;
+            if (settings.YouTubeUploadClientSecret != null)
             {
-                credential = await GoogleWebAuthorizationBroker.AuthorizeAsync(
-                    GoogleClientSecrets.Load(stream).Secrets,
-                    // This OAuth 2.0 access scope allows an application to upload files to the
-                    // authenticated user's YouTube channel, but doesn't allow other types of access.
-                    new[] { YouTubeService.Scope.YoutubeUpload, YouTubeService.Scope.YoutubeForceSsl },
-                    "SidWizPlus",
-                    CancellationToken.None
-                );
+                using (var stream = new FileStream(settings.YouTubeUploadClientSecret, FileMode.Open, FileAccess.Read))
+                {
+                    secrets = GoogleClientSecrets.Load(stream).Secrets;
+                }
             }
+            else
+            {
+                // We use our embedded client secret
+                using (var stream = Properties.Resources.ResourceManager.GetStream(nameof(Properties.Resources.ClientSecret)))
+                {
+                    secrets = GoogleClientSecrets.Load(stream).Secrets;
+                }
+            }
+
+            var credential = await GoogleWebAuthorizationBroker.AuthorizeAsync(
+                secrets,
+                // This OAuth 2.0 access scope allows an application to upload files to the
+                // authenticated user's YouTube channel, but doesn't allow other types of access.
+                new[] { YouTubeService.Scope.YoutubeUpload, YouTubeService.Scope.YoutubeForceSsl },
+                "SidWizPlus",
+                CancellationToken.None
+            );
 
             var youtubeService = new YouTubeService(new BaseClientService.Initializer
             {
