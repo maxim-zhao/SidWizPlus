@@ -58,6 +58,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Triggers\BiggestPositiveWaveAreaTrigger.cs" />
     <Compile Include="Triggers\BiggestWaveAreaTrigger.cs" />
+    <Compile Include="Triggers\MiddleWidest.cs" />
     <Compile Include="Triggers\ITriggerAlgorithm.cs" />
     <Compile Include="Triggers\NullTrigger.cs" />
     <Compile Include="Triggers\PeakSpeedTrigger.cs" />
