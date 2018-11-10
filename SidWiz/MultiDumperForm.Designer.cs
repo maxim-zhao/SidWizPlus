@@ -40,6 +40,8 @@
             | System.Windows.Forms.AnchorStyles.Right)));
             this.Subsongs.FormattingEnabled = true;
             this.Subsongs.IntegralHeight = false;
+            this.Subsongs.Items.AddRange(new object[] {
+            " "});
             this.Subsongs.Location = new System.Drawing.Point(12, 12);
             this.Subsongs.Name = "Subsongs";
             this.Subsongs.Size = new System.Drawing.Size(287, 174);

@@ -76,6 +76,8 @@ namespace SidWiz
 
         private void SubsongSelectionForm_Load(object sender, EventArgs e)
         {
+            Subsongs.Items.Clear();
+            Subsongs.Items.Add($"Checking {_filename}...");
             // Start a task to load the metadata
             Task.Factory.StartNew(() =>
             {
@@ -84,6 +86,7 @@ namespace SidWiz
 
                 Subsongs.BeginInvoke(new Action(() =>
                 {
+                    Subsongs.Items.Clear();
                     if (metadata.subsongCount < 1)
                     {
                         return;
