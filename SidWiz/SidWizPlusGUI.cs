@@ -96,7 +96,9 @@ namespace SidWiz
             var channel = new Channel
             {
                 Filename = filename,
-                Algorithm = new PeakSpeedTrigger()
+                Algorithm = new PeakSpeedTrigger(),
+                LabelColor = Color.White,
+                LabelFont = SystemFonts.DefaultFont
             };
             channel.Changed += ChannelOnChanged;
             channel.LoadDataAsync(); // in a worker thread
