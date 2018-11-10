@@ -127,14 +127,13 @@ namespace LibSidWiz
                             var yBase = renderingBounds.Top + channelIndex / Columns * viewHeight + viewHeight / 2;
                             var xBase = renderingBounds.Left + (channelIndex % Columns) * renderingBounds.Width / Columns;
 
-                            if (channel.IsSilent)
+                            if (channel.Loading)
+                            {
+                                g.DrawString("Loading data...", SystemFonts.DefaultFont, Brushes.Red, xBase, yBase);
+                            }
+                            else if (channel.IsSilent)
                             {
                                 g.DrawString("This channel is silent", SystemFonts.DefaultFont, Brushes.Yellow, xBase, yBase);
-                            }
-                            else if (!channel.HasData)
-                            {
-                                // No data
-                                g.DrawString("No data for this channel", SystemFonts.DefaultFont, Brushes.Red, xBase, yBase);
                             }
                             else
                             {

@@ -70,6 +70,7 @@ namespace LibSidWiz
                         _samples = null;
                         SampleCount = 0;
                         Max = 0;
+                        Loading = false;
                         return false;
                     }
 
@@ -102,7 +103,7 @@ namespace LibSidWiz
                     Console.WriteLine($"- Peak sample amplitude for {Filename} is {Max}");
 
                     _samples = buffer;
-                    HasData = true;
+                    Loading = false;
                     Changed?.Invoke(this, false);
                     return true;
                 }
@@ -114,6 +115,7 @@ namespace LibSidWiz
                     SampleRate = 0;
                     Length = TimeSpan.Zero;
                     _samples = null;
+                    Loading = false;
                     return false;
                 }
             }, token);
@@ -344,7 +346,7 @@ namespace LibSidWiz
         // ReSharper disable once CompareOfFloatsByEqualityOperator
         public bool IsSilent => Max == 0.0;
 
-        public bool HasData { get; private set; } = false;
+        public bool Loading { get; private set; } = true;
 
         public float GetSample(int sampleIndex)
         {
