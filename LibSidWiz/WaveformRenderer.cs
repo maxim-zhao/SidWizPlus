@@ -127,7 +127,11 @@ namespace LibSidWiz
                             var yBase = renderingBounds.Top + channelIndex / Columns * viewHeight + viewHeight / 2;
                             var xBase = renderingBounds.Left + (channelIndex % Columns) * renderingBounds.Width / Columns;
 
-                            if (channel.SampleCount == 0)
+                            if (channel.IsSilent)
+                            {
+                                g.DrawString("This channel is silent", SystemFonts.DefaultFont, Brushes.Yellow, xBase, yBase);
+                            }
+                            else if (!channel.HasData)
                             {
                                 // No data
                                 g.DrawString("No data for this channel", SystemFonts.DefaultFont, Brushes.Red, xBase, yBase);
@@ -219,8 +223,7 @@ namespace LibSidWiz
                         {
                             // Compute the initial x, y to render the line from.
                             var yBase = renderingBounds.Top + channelIndex / Columns * viewHeight + viewHeight / 2;
-                            var xBase = renderingBounds.Left +
-                                        (channelIndex % Columns) * renderingBounds.Width / Columns;
+                            var xBase = renderingBounds.Left + (channelIndex % Columns) * renderingBounds.Width / Columns;
 
                             // Draw the zero line
                             g.DrawLine(pen, xBase, yBase, xBase + viewWidth, yBase);

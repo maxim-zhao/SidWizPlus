@@ -68,8 +68,12 @@ namespace LibSidWiz
                         Console.WriteLine($"- {Filename} is silent");
                         // So we skip steps here
                         _samples = null;
+                        SampleCount = 0;
+                        Max = 0;
                         return false;
                     }
+
+                    SampleCount = buffer.Length;
 
                     if (HighPassFilterFrequency > 0)
                     {
@@ -98,6 +102,7 @@ namespace LibSidWiz
                     Console.WriteLine($"- Peak sample amplitude for {Filename} is {Max}");
 
                     _samples = buffer;
+                    HasData = true;
                     Changed?.Invoke(this, false);
                     return true;
                 }
@@ -310,7 +315,7 @@ namespace LibSidWiz
 
         [Category("Data information")]
         [Description("Number of samples in the channel")]
-        public int SampleCount => _samples?.Count ?? 0;
+        public int SampleCount { get; private set; }
 
         [Category("Data information")]
         [Description("Duration of the channel")]
@@ -335,6 +340,11 @@ namespace LibSidWiz
                 Changed?.Invoke(this, false);
             }
         }
+
+        // ReSharper disable once CompareOfFloatsByEqualityOperator
+        public bool IsSilent => Max == 0.0;
+
+        public bool HasData { get; private set; } = false;
 
         public float GetSample(int sampleIndex)
         {
