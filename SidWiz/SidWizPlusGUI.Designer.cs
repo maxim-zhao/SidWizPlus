@@ -48,7 +48,6 @@
             this.toolStripSeparator2 = new System.Windows.Forms.ToolStripSeparator();
             this.LeftButton = new System.Windows.Forms.ToolStripButton();
             this.RightButton = new System.Windows.Forms.ToolStripButton();
-            this.RemoveButton = new System.Windows.Forms.ToolStripButton();
             this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
             this.CopySettingsButton = new System.Windows.Forms.ToolStripButton();
             this.PropertyGrid = new System.Windows.Forms.PropertyGrid();
@@ -107,6 +106,11 @@
             this.label10 = new System.Windows.Forms.Label();
             this.PreviewCheckBox = new System.Windows.Forms.CheckBox();
             this.imageList1 = new System.Windows.Forms.ImageList(this.components);
+            this.RemoveButton = new System.Windows.Forms.ToolStripDropDownButton();
+            this.removeselectedToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.removeemptyToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripMenuItem2 = new System.Windows.Forms.ToolStripSeparator();
+            this.removeallToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.panel2.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
@@ -164,7 +168,7 @@
             // 
             this.splitContainer1.Panel2.Controls.Add(this.tabControl1);
             this.splitContainer1.Size = new System.Drawing.Size(901, 433);
-            this.splitContainer1.SplitterDistance = 630;
+            this.splitContainer1.SplitterDistance = 632;
             this.splitContainer1.SplitterWidth = 2;
             this.splitContainer1.TabIndex = 0;
             // 
@@ -175,7 +179,7 @@
             this.Preview.Location = new System.Drawing.Point(0, 0);
             this.Preview.Margin = new System.Windows.Forms.Padding(2);
             this.Preview.Name = "Preview";
-            this.Preview.Size = new System.Drawing.Size(630, 407);
+            this.Preview.Size = new System.Drawing.Size(632, 407);
             this.Preview.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
             this.Preview.TabIndex = 0;
             this.Preview.TabStop = false;
@@ -198,7 +202,7 @@
             this.moveLeftupToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("moveLeftupToolStripMenuItem.Image")));
             this.moveLeftupToolStripMenuItem.Name = "moveLeftupToolStripMenuItem";
             this.moveLeftupToolStripMenuItem.Size = new System.Drawing.Size(244, 22);
-            this.moveLeftupToolStripMenuItem.Text = "Move left/up";
+            this.moveLeftupToolStripMenuItem.Text = "Move &left/up";
             this.moveLeftupToolStripMenuItem.Click += new System.EventHandler(this.LeftButton_Click);
             // 
             // moveRightdownToolStripMenuItem
@@ -206,7 +210,7 @@
             this.moveRightdownToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("moveRightdownToolStripMenuItem.Image")));
             this.moveRightdownToolStripMenuItem.Name = "moveRightdownToolStripMenuItem";
             this.moveRightdownToolStripMenuItem.Size = new System.Drawing.Size(244, 22);
-            this.moveRightdownToolStripMenuItem.Text = "Move right/down";
+            this.moveRightdownToolStripMenuItem.Text = "Move &right/down";
             this.moveRightdownToolStripMenuItem.Click += new System.EventHandler(this.RightButton_Click);
             // 
             // toolStripMenuItem1
@@ -219,7 +223,7 @@
             this.removeChannelToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("removeChannelToolStripMenuItem.Image")));
             this.removeChannelToolStripMenuItem.Name = "removeChannelToolStripMenuItem";
             this.removeChannelToolStripMenuItem.Size = new System.Drawing.Size(244, 22);
-            this.removeChannelToolStripMenuItem.Text = "Remove channel";
+            this.removeChannelToolStripMenuItem.Text = "Re&move channel";
             this.removeChannelToolStripMenuItem.Click += new System.EventHandler(this.RemoveButton_Click);
             // 
             // toolStripSeparator3
@@ -232,7 +236,7 @@
             this.applySettingsToOtherChannelsToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("applySettingsToOtherChannelsToolStripMenuItem.Image")));
             this.applySettingsToOtherChannelsToolStripMenuItem.Name = "applySettingsToOtherChannelsToolStripMenuItem";
             this.applySettingsToOtherChannelsToolStripMenuItem.Size = new System.Drawing.Size(244, 22);
-            this.applySettingsToOtherChannelsToolStripMenuItem.Text = "Apply settings to other channels";
+            this.applySettingsToOtherChannelsToolStripMenuItem.Text = "&Apply settings to other channels";
             this.applySettingsToOtherChannelsToolStripMenuItem.Click += new System.EventHandler(this.CopySettingsButton_Click);
             // 
             // PreviewTrackbar
@@ -243,7 +247,7 @@
             this.PreviewTrackbar.Location = new System.Drawing.Point(0, 407);
             this.PreviewTrackbar.Maximum = 1000;
             this.PreviewTrackbar.Name = "PreviewTrackbar";
-            this.PreviewTrackbar.Size = new System.Drawing.Size(630, 26);
+            this.PreviewTrackbar.Size = new System.Drawing.Size(632, 26);
             this.PreviewTrackbar.TabIndex = 0;
             this.PreviewTrackbar.TickFrequency = 100;
             this.PreviewTrackbar.TickStyle = System.Windows.Forms.TickStyle.None;
@@ -263,7 +267,7 @@
             this.tabControl1.Multiline = true;
             this.tabControl1.Name = "tabControl1";
             this.tabControl1.SelectedIndex = 0;
-            this.tabControl1.Size = new System.Drawing.Size(269, 433);
+            this.tabControl1.Size = new System.Drawing.Size(267, 433);
             this.tabControl1.SizeMode = System.Windows.Forms.TabSizeMode.FillToRight;
             this.tabControl1.TabIndex = 0;
             // 
@@ -275,7 +279,7 @@
             this.tabPage5.Location = new System.Drawing.Point(4, 42);
             this.tabPage5.Name = "tabPage5";
             this.tabPage5.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage5.Size = new System.Drawing.Size(261, 387);
+            this.tabPage5.Size = new System.Drawing.Size(259, 387);
             this.tabPage5.TabIndex = 4;
             this.tabPage5.Text = "Channels";
             this.tabPage5.UseVisualStyleBackColor = true;
@@ -294,7 +298,7 @@
             this.toolStrip1.Location = new System.Drawing.Point(3, 3);
             this.toolStrip1.Name = "toolStrip1";
             this.toolStrip1.Padding = new System.Windows.Forms.Padding(0);
-            this.toolStrip1.Size = new System.Drawing.Size(255, 25);
+            this.toolStrip1.Size = new System.Drawing.Size(253, 25);
             this.toolStrip1.TabIndex = 0;
             this.toolStrip1.Text = "toolStrip1";
             // 
@@ -333,17 +337,6 @@
             this.RightButton.Text = "Move right";
             this.RightButton.Click += new System.EventHandler(this.RightButton_Click);
             // 
-            // RemoveButton
-            // 
-            this.RemoveButton.Alignment = System.Windows.Forms.ToolStripItemAlignment.Right;
-            this.RemoveButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.RemoveButton.Image = ((System.Drawing.Image)(resources.GetObject("RemoveButton.Image")));
-            this.RemoveButton.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.RemoveButton.Name = "RemoveButton";
-            this.RemoveButton.Size = new System.Drawing.Size(23, 22);
-            this.RemoveButton.Text = "Remove channel";
-            this.RemoveButton.Click += new System.EventHandler(this.RemoveButton_Click);
-            // 
             // toolStripSeparator1
             // 
             this.toolStripSeparator1.Name = "toolStripSeparator1";
@@ -365,7 +358,7 @@
             this.PropertyGrid.Location = new System.Drawing.Point(3, 3);
             this.PropertyGrid.Margin = new System.Windows.Forms.Padding(2);
             this.PropertyGrid.Name = "PropertyGrid";
-            this.PropertyGrid.Size = new System.Drawing.Size(255, 381);
+            this.PropertyGrid.Size = new System.Drawing.Size(253, 381);
             this.PropertyGrid.TabIndex = 1;
             // 
             // tabPage1
@@ -1058,6 +1051,47 @@
             this.imageList1.Images.SetKeyName(3, "sound.png");
             this.imageList1.Images.SetKeyName(4, "film.png");
             // 
+            // RemoveButton
+            // 
+            this.RemoveButton.Alignment = System.Windows.Forms.ToolStripItemAlignment.Right;
+            this.RemoveButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.RemoveButton.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.removeselectedToolStripMenuItem,
+            this.removeemptyToolStripMenuItem,
+            this.toolStripMenuItem2,
+            this.removeallToolStripMenuItem});
+            this.RemoveButton.Image = ((System.Drawing.Image)(resources.GetObject("RemoveButton.Image")));
+            this.RemoveButton.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.RemoveButton.Name = "RemoveButton";
+            this.RemoveButton.Size = new System.Drawing.Size(29, 22);
+            this.RemoveButton.Text = "Remove channel";
+            // 
+            // removeselectedToolStripMenuItem
+            // 
+            this.removeselectedToolStripMenuItem.Name = "removeselectedToolStripMenuItem";
+            this.removeselectedToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.removeselectedToolStripMenuItem.Text = "Remove &selected";
+            this.removeselectedToolStripMenuItem.Click += new System.EventHandler(this.RemoveButton_Click);
+            // 
+            // removeemptyToolStripMenuItem
+            // 
+            this.removeemptyToolStripMenuItem.Name = "removeemptyToolStripMenuItem";
+            this.removeemptyToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.removeemptyToolStripMenuItem.Text = "Remove &empty";
+            this.removeemptyToolStripMenuItem.Click += new System.EventHandler(this.removeemptyToolStripMenuItem_Click);
+            // 
+            // toolStripMenuItem2
+            // 
+            this.toolStripMenuItem2.Name = "toolStripMenuItem2";
+            this.toolStripMenuItem2.Size = new System.Drawing.Size(177, 6);
+            // 
+            // removeallToolStripMenuItem
+            // 
+            this.removeallToolStripMenuItem.Name = "removeallToolStripMenuItem";
+            this.removeallToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.removeallToolStripMenuItem.Text = "Remove &all";
+            this.removeallToolStripMenuItem.Click += new System.EventHandler(this.removeallToolStripMenuItem_Click);
+            // 
             // SidWizPlusGui
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -1137,7 +1171,6 @@
         private System.Windows.Forms.ToolStrip toolStrip1;
         private System.Windows.Forms.ToolStripButton LeftButton;
         private System.Windows.Forms.ToolStripButton RightButton;
-        private System.Windows.Forms.ToolStripButton RemoveButton;
         private System.Windows.Forms.PictureBox Preview;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator1;
         private System.Windows.Forms.ToolStripButton CopySettingsButton;
@@ -1186,5 +1219,10 @@
         private System.Windows.Forms.TrackBar PreviewTrackbar;
         private System.Windows.Forms.Label label19;
         private System.Windows.Forms.TextBox MasterAudioPath;
+        private System.Windows.Forms.ToolStripDropDownButton RemoveButton;
+        private System.Windows.Forms.ToolStripMenuItem removeselectedToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem removeemptyToolStripMenuItem;
+        private System.Windows.Forms.ToolStripSeparator toolStripMenuItem2;
+        private System.Windows.Forms.ToolStripMenuItem removeallToolStripMenuItem;
     }
 }

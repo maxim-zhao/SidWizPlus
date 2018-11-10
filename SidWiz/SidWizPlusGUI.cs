@@ -278,13 +278,9 @@ namespace SidWiz
                 return;
             }
             channel.Changed -= ChannelOnChanged;
-            var index = _channels.IndexOf(channel);
-            if (index > -1)
-            {
-                _channels.RemoveAt(index);
-                PropertyGrid.SelectedObject = null;
-                Render();
-            }
+            _channels.Remove(channel);
+            PropertyGrid.SelectedObject = null;
+            Render();
         }
 
         private void Preview_MouseClick(object sender, MouseEventArgs e)
@@ -410,7 +406,7 @@ namespace SidWiz
             try
             {
                 // TODO: show some progress if no preview?
-                // TODO: need to make GUI updates thread safe then o this on a background thread
+                // TODO: need to make GUI updates thread safe then do this on a background thread
                 var renderer = CreateWaveformRenderer();
                 renderer.Render(outputs);
             }
@@ -484,6 +480,26 @@ namespace SidWiz
             {
                 // Swallow it
             }
+        }
+
+        private void removeemptyToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            foreach (var channel in _channels.Where(c => c.SampleCount == 0).ToList())
+            {
+                _channels.Remove(channel);
+                if (PropertyGrid.SelectedObject == channel)
+                {
+                    PropertyGrid.SelectedObject = null;
+                }
+            }
+            Render();
+        }
+
+        private void removeallToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            _channels.Clear();
+            PropertyGrid.SelectedObject = null;
+            Render();
         }
     }
 }
