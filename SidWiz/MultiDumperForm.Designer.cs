@@ -44,6 +44,7 @@
             this.Subsongs.Name = "Subsongs";
             this.Subsongs.Size = new System.Drawing.Size(287, 174);
             this.Subsongs.TabIndex = 0;
+            this.Subsongs.DoubleClick += new System.EventHandler(this.OKButtonClick);
             // 
             // OKButton
             // 
