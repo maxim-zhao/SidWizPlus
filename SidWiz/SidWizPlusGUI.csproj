@@ -63,6 +63,7 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Microsoft.CSharp" />
     <Reference Include="Newtonsoft.Json, Version=10.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\packages\Newtonsoft.Json.10.0.2\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
@@ -87,6 +88,12 @@
     <Compile Include="SidWizPlusGUI.Designer.cs">
       <DependentUpon>SidWizPlusGUI.cs</DependentUpon>
     </Compile>
+    <Compile Include="MultiDumperForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="MultiDumperForm.Designer.cs">
+      <DependentUpon>MultiDumperForm.cs</DependentUpon>
+    </Compile>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
@@ -99,6 +106,9 @@
     </Compile>
     <EmbeddedResource Include="SidWizPlusGUI.resx">
       <DependentUpon>SidWizPlusGUI.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="MultiDumperForm.resx">
+      <DependentUpon>MultiDumperForm.cs</DependentUpon>
     </EmbeddedResource>
     <None Include="App.config" />
     <None Include="packages.config" />

@@ -11,6 +11,7 @@ using LibSidWiz;
 using LibSidWiz.Outputs;
 using LibSidWiz.Triggers;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace SidWiz
 {
@@ -122,31 +123,17 @@ namespace SidWiz
             {
                 // Normalize path
                 filename = Path.GetFullPath(filename);
-                // Let's run it
-                using (var p = Process.Start(new ProcessStartInfo
-                {
-                    FileName = _settings.MultiDumperPath,
-                    Arguments = $"\"{filename}\" 0",
-                    RedirectStandardOutput = true,
-                    UseShellExecute = false
-                }))
-                {
-                    // We don't actually consume its stdout, we just want to have it not shown as it makes it much slower...
-                    if (p != null)
-                    {
-                        p.BeginOutputReadLine();
-                        p.WaitForExit();
-                    }
-                }
 
-                // Then check for generated files
-                var directory = Path.GetDirectoryName(filename);
-                if (directory != null)
+                using (var form = new MultiDumperForm(filename, _settings.MultiDumperPath))
                 {
-                    foreach (var file in Directory.EnumerateFiles(directory,
-                        Path.GetFileNameWithoutExtension(filename) + " - *.wav"))
+                    if (form.ShowDialog(this) != DialogResult.OK || form.Filenames == null)
                     {
-                        LoadWav(file);
+                        return;
+                    }
+
+                    foreach (var wavFile in form.Filenames)
+                    {
+                        LoadWav(wavFile);
                     }
                 }
             }
