@@ -347,6 +347,7 @@ namespace SidWiz
                 {
                     BackgroundImageControl.ImageLocation = ofd.FileName;
                 }
+                Render();
             }
         }
 
