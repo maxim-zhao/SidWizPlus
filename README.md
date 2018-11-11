@@ -1,9 +1,9 @@
 # SidWizPlus
 Fork of a version of SidWiz with modifications for my own purposes.
 
-Get the latest release here: https://github.com/maxim-zhao/SidWizPlus/releases/latest
+Get the latest release here: https://github.com/maxim-zhao/SidWizPlus/releases/latest and the latest build here: https://ci.appveyor.com/project/maxim-zhao/sidwizplus/build/artifacts
 
-[![Build status](https://ci.appveyor.com/api/projects/status/vpa5eav7sm1n7ik6?svg=true)](https://ci.appveyor.com/project/maxim-zhao/sidwizplus)
+[![Build status](https://ci.appveyor.com/api/projects/status/vpa5eav7sm1n7ik6?svg=true)](https://ci.appveyor.com/project/maxim-zhao/sidwizplus) 
 
 ## Features added
 
