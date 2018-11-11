@@ -7,7 +7,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SidWizPlusGUI", "SidWiz\Sid
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LibSidWiz", "LibSidWiz\LibSidWiz.csproj", "{75DD5F75-A354-4348-8A2F-7EE0F6AD6D18}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SidWizPlus", "SizWizPlus\SidWizPlus.csproj", "{6E0D8279-E2FA-4FF5-921F-A408915A93A0}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SidWizPlus", "SidWizPlus\SidWizPlus.csproj", "{6E0D8279-E2FA-4FF5-921F-A408915A93A0}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
