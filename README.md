@@ -1,6 +1,10 @@
 # SidWizPlus
 Fork of a version of SidWiz with modifications for my own purposes.
 
+Get the latest release here: https://github.com/maxim-zhao/SidWizPlus/releases/latest
+
+[![Build status](https://ci.appveyor.com/api/projects/status/vpa5eav7sm1n7ik6?svg=true)](https://ci.appveyor.com/project/maxim-zhao/sidwizplus)
+
 ## Features added
 
 * Commandline mode
