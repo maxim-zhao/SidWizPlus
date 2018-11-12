@@ -5,11 +5,14 @@ using System.Windows.Forms;
 
 namespace SidWiz
 {
+    /// <inheritdoc />
     /// <summary>
-    /// Button that lets you pick a colour
+    /// Button that lets you pick a color
     /// </summary>
     public partial class ColorButton : Button
     {
+        public event EventHandler ColorChanged;
+
         private Color _color;
 
         public Color Color
@@ -21,6 +24,7 @@ namespace SidWiz
                 BackColor = value;
                 ForeColor = _color.GetBrightness() < 0.5 ? Color.White : Color.Black;
                 Text = _color.Name;
+                ColorChanged?.Invoke(this, new EventArgs());
             }
         }
 

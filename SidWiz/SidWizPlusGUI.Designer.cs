@@ -168,7 +168,7 @@
             // 
             this.splitContainer1.Panel2.Controls.Add(this.tabControl1);
             this.splitContainer1.Size = new System.Drawing.Size(901, 433);
-            this.splitContainer1.SplitterDistance = 634;
+            this.splitContainer1.SplitterDistance = 636;
             this.splitContainer1.SplitterWidth = 2;
             this.splitContainer1.TabIndex = 0;
             // 
@@ -179,7 +179,7 @@
             this.Preview.Location = new System.Drawing.Point(0, 0);
             this.Preview.Margin = new System.Windows.Forms.Padding(2);
             this.Preview.Name = "Preview";
-            this.Preview.Size = new System.Drawing.Size(634, 407);
+            this.Preview.Size = new System.Drawing.Size(636, 407);
             this.Preview.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
             this.Preview.TabIndex = 0;
             this.Preview.TabStop = false;
@@ -247,7 +247,7 @@
             this.PreviewTrackbar.Location = new System.Drawing.Point(0, 407);
             this.PreviewTrackbar.Maximum = 1000;
             this.PreviewTrackbar.Name = "PreviewTrackbar";
-            this.PreviewTrackbar.Size = new System.Drawing.Size(634, 26);
+            this.PreviewTrackbar.Size = new System.Drawing.Size(636, 26);
             this.PreviewTrackbar.TabIndex = 0;
             this.PreviewTrackbar.TickFrequency = 100;
             this.PreviewTrackbar.TickStyle = System.Windows.Forms.TickStyle.None;
@@ -267,7 +267,7 @@
             this.tabControl1.Multiline = true;
             this.tabControl1.Name = "tabControl1";
             this.tabControl1.SelectedIndex = 0;
-            this.tabControl1.Size = new System.Drawing.Size(265, 433);
+            this.tabControl1.Size = new System.Drawing.Size(263, 433);
             this.tabControl1.SizeMode = System.Windows.Forms.TabSizeMode.FillToRight;
             this.tabControl1.TabIndex = 0;
             // 
@@ -279,7 +279,7 @@
             this.tabPage5.Location = new System.Drawing.Point(4, 42);
             this.tabPage5.Name = "tabPage5";
             this.tabPage5.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage5.Size = new System.Drawing.Size(257, 387);
+            this.tabPage5.Size = new System.Drawing.Size(255, 387);
             this.tabPage5.TabIndex = 4;
             this.tabPage5.Text = "Channels";
             this.tabPage5.UseVisualStyleBackColor = true;
@@ -298,7 +298,7 @@
             this.toolStrip1.Location = new System.Drawing.Point(3, 3);
             this.toolStrip1.Name = "toolStrip1";
             this.toolStrip1.Padding = new System.Windows.Forms.Padding(0);
-            this.toolStrip1.Size = new System.Drawing.Size(251, 25);
+            this.toolStrip1.Size = new System.Drawing.Size(249, 25);
             this.toolStrip1.TabIndex = 0;
             this.toolStrip1.Text = "toolStrip1";
             // 
@@ -355,26 +355,26 @@
             // removeselectedToolStripMenuItem
             // 
             this.removeselectedToolStripMenuItem.Name = "removeselectedToolStripMenuItem";
-            this.removeselectedToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.removeselectedToolStripMenuItem.Size = new System.Drawing.Size(163, 22);
             this.removeselectedToolStripMenuItem.Text = "Remove &selected";
             this.removeselectedToolStripMenuItem.Click += new System.EventHandler(this.RemoveButton_Click);
             // 
             // removeemptyToolStripMenuItem
             // 
             this.removeemptyToolStripMenuItem.Name = "removeemptyToolStripMenuItem";
-            this.removeemptyToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.removeemptyToolStripMenuItem.Size = new System.Drawing.Size(163, 22);
             this.removeemptyToolStripMenuItem.Text = "Remove s&ilent";
             this.removeemptyToolStripMenuItem.Click += new System.EventHandler(this.removeemptyToolStripMenuItem_Click);
             // 
             // toolStripMenuItem2
             // 
             this.toolStripMenuItem2.Name = "toolStripMenuItem2";
-            this.toolStripMenuItem2.Size = new System.Drawing.Size(177, 6);
+            this.toolStripMenuItem2.Size = new System.Drawing.Size(160, 6);
             // 
             // removeallToolStripMenuItem
             // 
             this.removeallToolStripMenuItem.Name = "removeallToolStripMenuItem";
-            this.removeallToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.removeallToolStripMenuItem.Size = new System.Drawing.Size(163, 22);
             this.removeallToolStripMenuItem.Text = "Remove &all";
             this.removeallToolStripMenuItem.Click += new System.EventHandler(this.removeallToolStripMenuItem_Click);
             // 
@@ -399,7 +399,7 @@
             this.PropertyGrid.Location = new System.Drawing.Point(3, 3);
             this.PropertyGrid.Margin = new System.Windows.Forms.Padding(2);
             this.PropertyGrid.Name = "PropertyGrid";
-            this.PropertyGrid.Size = new System.Drawing.Size(251, 381);
+            this.PropertyGrid.Size = new System.Drawing.Size(249, 381);
             this.PropertyGrid.TabIndex = 1;
             // 
             // tabPage1
@@ -422,7 +422,7 @@
             this.tabPage1.Margin = new System.Windows.Forms.Padding(2);
             this.tabPage1.Name = "tabPage1";
             this.tabPage1.Padding = new System.Windows.Forms.Padding(2);
-            this.tabPage1.Size = new System.Drawing.Size(259, 387);
+            this.tabPage1.Size = new System.Drawing.Size(255, 387);
             this.tabPage1.TabIndex = 0;
             this.tabPage1.Text = "Layout";
             this.tabPage1.UseVisualStyleBackColor = true;
@@ -691,7 +691,7 @@
             this.tabPage4.Margin = new System.Windows.Forms.Padding(2);
             this.tabPage4.Name = "tabPage4";
             this.tabPage4.Padding = new System.Windows.Forms.Padding(2);
-            this.tabPage4.Size = new System.Drawing.Size(257, 387);
+            this.tabPage4.Size = new System.Drawing.Size(255, 387);
             this.tabPage4.TabIndex = 3;
             this.tabPage4.Text = "Background";
             this.tabPage4.UseVisualStyleBackColor = true;
@@ -725,7 +725,7 @@
             this.GridColor.TabIndex = 2;
             this.GridColor.Text = "White";
             this.GridColor.UseVisualStyleBackColor = false;
-            this.GridColor.BackColorChanged += new System.EventHandler(this.UpdatePreview);
+            this.GridColor.ColorChanged += new System.EventHandler(this.UpdatePreview);
             // 
             // GridEnabled
             // 
@@ -773,14 +773,13 @@
             // 
             // GridWidth
             // 
-            this.GridWidth.DecimalPlaces = 1;
             this.GridWidth.Location = new System.Drawing.Point(81, 62);
             this.GridWidth.Margin = new System.Windows.Forms.Padding(2);
             this.GridWidth.Minimum = new decimal(new int[] {
             1,
             0,
             0,
-            65536});
+            0});
             this.GridWidth.Name = "GridWidth";
             this.GridWidth.Size = new System.Drawing.Size(112, 20);
             this.GridWidth.TabIndex = 4;
@@ -836,7 +835,7 @@
             this.BackgroundColorButton.TabIndex = 1;
             this.BackgroundColorButton.Text = "Black";
             this.BackgroundColorButton.UseVisualStyleBackColor = false;
-            this.BackgroundColorButton.BackColorChanged += new System.EventHandler(this.UpdatePreview);
+            this.BackgroundColorButton.ColorChanged += new System.EventHandler(this.UpdatePreview);
             // 
             // tabPage3
             // 
@@ -849,7 +848,7 @@
             this.tabPage3.Margin = new System.Windows.Forms.Padding(2);
             this.tabPage3.Name = "tabPage3";
             this.tabPage3.Padding = new System.Windows.Forms.Padding(2);
-            this.tabPage3.Size = new System.Drawing.Size(259, 387);
+            this.tabPage3.Size = new System.Drawing.Size(257, 387);
             this.tabPage3.TabIndex = 2;
             this.tabPage3.Text = "Audio";
             this.tabPage3.UseVisualStyleBackColor = true;
@@ -917,7 +916,7 @@
             this.tabPage2.Location = new System.Drawing.Point(4, 42);
             this.tabPage2.Name = "tabPage2";
             this.tabPage2.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage2.Size = new System.Drawing.Size(259, 387);
+            this.tabPage2.Size = new System.Drawing.Size(257, 387);
             this.tabPage2.TabIndex = 5;
             this.tabPage2.Text = "Video";
             this.tabPage2.UseVisualStyleBackColor = true;
