@@ -42,7 +42,7 @@ namespace SidWiz
         {
             var multiDumperMask = "*." + string.Join(
                 "; *.", 
-                "ay", "gbs", "gym", "hes", "kss", "nsf", "nsfe", "sap", "sfm", "sgc", "spc", "vgm", "spu");
+                "ay", "gbs", "gym", "hes", "kss", "nsf", "nsfe", "sap", "sfm", "sgc", "spc", "vgm", "vgz", "spu");
 
             using (var ofd = new OpenFileDialog()
             {
