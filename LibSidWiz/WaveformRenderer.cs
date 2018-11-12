@@ -208,7 +208,8 @@ namespace LibSidWiz
 
                         if (Grid.DrawBorder)
                         {
-                            g.DrawRectangle(pen, renderingBounds);
+                            // We deflate the rect a tiny bit so a 1px line appears just inside the bounds
+                            g.DrawRectangle(pen, renderingBounds.Left, renderingBounds.Top, renderingBounds.Width - 1, renderingBounds.Height - 1);
                         }
                     }
                 }
