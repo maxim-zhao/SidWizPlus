@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -15,14 +16,118 @@ namespace SidWiz
 {
     public partial class SidWizPlusGui : Form
     {
-        private int _columns = 1;
-        private readonly List<Channel> _channels = new List<Channel>();
-
         [SuppressMessage("ReSharper", "InconsistentNaming")]
-        private class Settings
+        private class ProgramLocationSettings
         {
             public string FFMPEGPath { get; set; }
             public string MultiDumperPath { get; set; }
+        }
+
+        private ProgramLocationSettings _programLocationSettings = new ProgramLocationSettings();
+
+        private class Settings
+        {
+            public int Columns { get; set; } = 1;
+            public List<Channel> Channels { get; } = new List<Channel>();
+            public float AutoScaleHeight { get; set; } = 100;
+            public int Width { get; set; } = 1280;
+            public int Height { get; set; } = 720;
+            public int MarginTop { get; set; }
+            public int MarginLeft { get; set; }
+            public int MarginRight { get; set; }
+            public int MarginBottom { get; set; }
+            public int FrameRate { get; set; } = 60;
+            public Color BackgroundColor { get; set; } = Color.Black;
+            public string BackgroundImageFilename { get; set; }
+            public WaveformRenderer.GridConfig Grid { get; set; }
+            public PreviewSettings Preview { get; set; } = new PreviewSettings {Enabled = true, Frameskip = 1};
+            public EncodeSettings EncodeVideo { get; set; } = new EncodeSettings {Enabled = false};
+            public MasterAudioSettings MasterAudio { get; set; } = new MasterAudioSettings {IsAutomatic = true, ApplyReplayGain = true};
+
+            public class MasterAudioSettings
+            {
+                public bool IsAutomatic { get; set; }
+                public bool ApplyReplayGain { get; set; }
+                public string Path { get; set; }
+            }
+
+            public class EncodeSettings
+            {
+                public bool Enabled { get; set; }
+                public string FfmpegParameters { get; set; }
+            }
+
+            public class PreviewSettings
+            {
+                public bool Enabled { get; set; }
+                public int Frameskip { get; set; }
+            }
+
+            public void FromControls(SidWizPlusGui form)
+            {
+                AutoScaleHeight = float.Parse(form.VerticalScaling.Text);
+                Width = int.Parse(form.WidthControl.Text);
+                Height = int.Parse(form.HeightControl.Text);
+                Columns = (int) form.Columns.Value;
+                MarginTop = (int) form.MarginTopControl.Value;
+                MarginLeft = (int) form.MarginLeftControl.Value;
+                MarginRight = (int) form.MarginRightControl.Value;
+                MarginBottom = (int) form.MarginBottomControl.Value;
+                FrameRate = (int) form.FrameRateControl.Value;
+                BackgroundColor = form.BackgroundColorButton.Color;
+                Grid = form.GridEnabled.Checked
+                    ? new WaveformRenderer.GridConfig()
+                    {
+                        Color = form.GridColor.Color,
+                        DrawBorder = form.GridBorders.Checked,
+                        Width = (float) form.GridWidth.Value
+                    }
+                    : null;
+                Preview.Enabled = form.PreviewCheckBox.Checked;
+                Preview.Frameskip = (int) form.PreviewFrameskip.Value;
+                EncodeVideo.Enabled = form.EncodeCheckBox.Checked;
+                EncodeVideo.FfmpegParameters = form.FfmpegParameters.Text;
+                MasterAudio.IsAutomatic = form.AutogenerateMasterMix.Checked;
+                MasterAudio.ApplyReplayGain = form.MasterMixReplayGain.Checked;
+                MasterAudio.Path = form.MasterAudioPath.Text;
+            }
+
+            public void ToControls(SidWizPlusGui form)
+            {
+                form.VerticalScaling.Text = AutoScaleHeight.ToString(CultureInfo.CurrentCulture);
+                form.WidthControl.Text = Width.ToString();
+                form.HeightControl.Text = Height.ToString();
+                form.Columns.Value = Columns;
+                form.MarginTopControl.Value = MarginTop;
+                form.MarginLeftControl.Value = MarginLeft;
+                form.MarginRightControl.Value = MarginRight;
+                form.MarginBottomControl.Value = MarginBottom;
+                form.FrameRateControl.Value = FrameRate;
+                form.BackgroundColorButton.Color = BackgroundColor;
+                form.GridEnabled.Checked = Grid != null;
+                if (Grid != null)
+                {
+                    form.GridColor.Color = Grid.Color;
+                    form.GridBorders.Checked = Grid.DrawBorder;
+                    form.GridWidth.Value = (decimal) Grid.Width;
+                }
+                form.PreviewCheckBox.Checked = Preview.Enabled;
+                form.PreviewFrameskip.Value = Preview.Frameskip;
+                form.EncodeCheckBox.Checked = EncodeVideo.Enabled;
+                form.FfmpegParameters.Text = EncodeVideo.FfmpegParameters;
+                form.AutogenerateMasterMix.Checked = MasterAudio.IsAutomatic;
+                form.MasterMixReplayGain.Checked = MasterAudio.ApplyReplayGain;
+                form.MasterAudioPath.Text = MasterAudio.Path;
+            }
+
+            public Rectangle GetBounds()
+            {
+                return new Rectangle(
+                    MarginLeft,
+                    MarginTop,
+                    Width - MarginLeft - MarginRight,
+                    Height - MarginTop - MarginBottom);
+            }
         }
 
         private Settings _settings = new Settings();
@@ -30,12 +135,6 @@ namespace SidWiz
         public SidWizPlusGui()
         {
             InitializeComponent();
-        }
-
-        private void ColumnsControl_ValueChanged(object sender, EventArgs e)
-        {
-            _columns = (int) Columns.Value;
-            Render();
         }
 
         private void AddAFileClick(object sender, EventArgs e)
@@ -102,7 +201,7 @@ namespace SidWiz
             };
             channel.Changed += ChannelOnChanged;
             channel.LoadDataAsync(); // in a worker thread
-            _channels.Add(channel);
+            _settings.Channels.Add(channel);
         }
 
         private void ChannelOnChanged(Channel channel, bool filenameChanged)
@@ -118,13 +217,13 @@ namespace SidWiz
 
         private void LoadMultiDumper(string filename)
         {
-            LocateProgram("multidumper.exe", _settings.MultiDumperPath, p => _settings.MultiDumperPath = p);
+            LocateProgram("multidumper.exe", _programLocationSettings.MultiDumperPath, p => _programLocationSettings.MultiDumperPath = p);
             try
             {
                 // Normalize path
                 filename = Path.GetFullPath(filename);
 
-                using (var form = new MultiDumperForm(filename, _settings.MultiDumperPath))
+                using (var form = new MultiDumperForm(filename, _programLocationSettings.MultiDumperPath))
                 {
                     if (form.ShowDialog(this) != DialogResult.OK || form.Filenames == null)
                     {
@@ -178,14 +277,15 @@ namespace SidWiz
 
         private void AutoScale_Click(object sender, EventArgs e)
         {
-            // Apply to all channels which have loaded
-            if (float.TryParse(VerticalScaling.Text, out var percentage) && _channels.Count > 0)
+            if (_settings.Channels.Count <= 0)
             {
-                var scale = percentage / 100 / _channels.Max(channel => channel.Max);
-                foreach (var channel in _channels)
-                {
-                    channel.Scale = scale;
-                }
+                return;
+            }
+            // Compute the scale for the channel with the highest value
+            var scale = _settings.AutoScaleHeight / 100 / _settings.Channels.Max(channel => channel.Max);
+            foreach (var channel in _settings.Channels)
+            {
+                channel.Scale = scale;
             }
         }
 
@@ -205,41 +305,23 @@ namespace SidWiz
 
         private WaveformRenderer CreateWaveformRenderer()
         {
-            var width = int.Parse(WidthControl.Text);
-            var height = int.Parse(HeightControl.Text);
-            var marginTop = (int) MarginTopControl.Value;
-            var marginLeft = (int) MarginLeftControl.Value;
-            var marginRight = (int) MarginRightControl.Value;
-            var marginBottom = (int) MarginBottomControl.Value;
-            var bounds = new Rectangle(
-                marginLeft,
-                marginTop,
-                width - marginLeft - marginRight,
-                height - marginTop - marginBottom);
             var renderer = new WaveformRenderer
             {
-                BackgroundColor = BackgroundColorButton.Color,
-                BackgroundImage = BackgroundImageControl.Image,
-                Width = width,
-                Height = height,
-                Columns = _columns,
-                FramesPerSecond = (int) FrameRateControl.Value,
-                RenderingBounds = bounds,
-                Grid = GridEnabled.Checked
-                    ? new WaveformRenderer.GridConfig
-                    {
-                        Color = GridColor.Color,
-                        DrawBorder = GridBorders.Checked,
-                        Width = (float) GridWidth.Value
-                    }
-                    : null,
+                BackgroundColor = _settings.BackgroundColor,
+                BackgroundImage = File.Exists(_settings.BackgroundImageFilename) ? Image.FromFile(_settings.BackgroundImageFilename) : null,
+                Width = _settings.Width,
+                Height = _settings.Height,
+                Columns = _settings.Columns,
+                FramesPerSecond = _settings.FrameRate,
+                RenderingBounds = _settings.GetBounds(),
+                Grid = _settings.Grid
             };
-            if (_channels.Count > 0)
+            if (_settings.Channels.Count > 0)
             {
                 // We don't support multiple sampling rates, but this lets us ignore "empty" tracks.
-                renderer.SamplingRate = _channels.Max(c => c.SampleRate);
+                renderer.SamplingRate = _settings.Channels.Max(c => c.SampleRate);
             }
-            foreach (var channel in _channels)
+            foreach (var channel in _settings.Channels)
             {
                 renderer.AddChannel(channel);
             }
@@ -251,6 +333,7 @@ namespace SidWiz
         {
             MoveChannel(PropertyGrid.SelectedObject as Channel, -1);
         }
+
         private void RightButton_Click(object sender, EventArgs e)
         {
             MoveChannel(PropertyGrid.SelectedObject as Channel, +1);
@@ -258,18 +341,18 @@ namespace SidWiz
 
         private void MoveChannel(Channel channel, int delta)
         {
-            var index = _channels.IndexOf(channel);
+            var index = _settings.Channels.IndexOf(channel);
             if (index == -1)
             {
                 return;
             }
             var newIndex = index + delta;
-            if (newIndex < 0 || newIndex >= _channels.Count)
+            if (newIndex < 0 || newIndex >= _settings.Channels.Count)
             {
                 return;
             }
-            _channels.RemoveAt(index);
-            _channels.Insert(newIndex, channel);
+            _settings.Channels.RemoveAt(index);
+            _settings.Channels.Insert(newIndex, channel);
             Render();
         }
 
@@ -280,7 +363,7 @@ namespace SidWiz
                 return;
             }
             channel.Changed -= ChannelOnChanged;
-            _channels.Remove(channel);
+            _settings.Channels.Remove(channel);
             PropertyGrid.SelectedObject = null;
             Render();
         }
@@ -288,16 +371,16 @@ namespace SidWiz
         private void Preview_MouseClick(object sender, MouseEventArgs e)
         {
             // Determine which channel was clicked
-            var column = e.X * _columns / Preview.Width;
-            var row = e.Y * _channels.Count / (Preview.Height * _columns);
-            var index = row * _columns + column;
-            if (index >= _channels.Count)
+            var column = e.X * _settings.Columns / Preview.Width;
+            var row = e.Y * _settings.Channels.Count / (Preview.Height * _settings.Columns);
+            var index = row * _settings.Columns + column;
+            if (index >= _settings.Channels.Count)
             {
                 PropertyGrid.SelectedObject = null;
             }
             else
             {
-                PropertyGrid.SelectedObject = _channels[index];
+                PropertyGrid.SelectedObject = _settings.Channels[index];
             }
         }
 
@@ -318,15 +401,24 @@ namespace SidWiz
             {
                 var sourceValue = propertyInfo.GetValue(source);
 
-                foreach (var channel in _channels.Where(channel => channel != source))
+                foreach (var channel in _settings.Channels.Where(channel => channel != source))
                 {
                     propertyInfo.SetValue(channel, sourceValue);
                 }
             }
         }
 
-        private void UpdatePreview(object sender, EventArgs e)
+        private void ControlValueChanged(object sender, EventArgs e)
         {
+            try
+            {
+                _settings.FromControls(this);
+            }
+            catch (Exception exception)
+            {
+                MessageBox.Show(exception.Message);
+            }
+
             Render();
         }
 
@@ -335,17 +427,18 @@ namespace SidWiz
             using (var ofd = new OpenFileDialog()
             {
                 Title = "Select an image",
-                Filter =
-                    "Image files (*.png;*.gif;*.jpg;*.jpeg;*.bmp;*.wmf)|*.png;*.gif;*.jpg;*.jpeg;*.bmp;*.wmf|All files (*.*)|*.*"
+                Filter = "Image files (*.png;*.gif;*.jpg;*.jpeg;*.bmp;*.wmf)|*.png;*.gif;*.jpg;*.jpeg;*.bmp;*.wmf|All files (*.*)|*.*"
             })
             {
                 if (ofd.ShowDialog(this) != DialogResult.OK)
                 {
                     BackgroundImageControl.Image = null;
+                    _settings.BackgroundImageFilename = null;
                 }
                 else
                 {
                     BackgroundImageControl.ImageLocation = ofd.FileName;
+                    _settings.BackgroundImageFilename = ofd.FileName;
                 }
                 Render();
             }
@@ -353,20 +446,20 @@ namespace SidWiz
 
         private void FfmpegLocation_Click(object sender, EventArgs e)
         {
-            LocateProgram("ffmpeg.exe", _settings.FFMPEGPath, p => _settings.FFMPEGPath = p);
-            FfmpegLocation.Text = _settings.FFMPEGPath;
+            LocateProgram("ffmpeg.exe", _programLocationSettings.FFMPEGPath, p => _programLocationSettings.FFMPEGPath = p);
+            FfmpegLocation.Text = _programLocationSettings.FFMPEGPath;
         }
 
         private void RenderButton_Click(object sender, EventArgs e)
         {
             var outputs = new List<IGraphicsOutput>();
 
-            if (PreviewCheckBox.Checked)
+            if (_settings.Preview.Enabled)
             {
-                outputs.Add(new PreviewOutput((int) PreviewFrameskip.Value));
+                outputs.Add(new PreviewOutput(_settings.Preview.Frameskip));
             }
 
-            if (EncodeCheckBox.Checked)
+            if (_settings.EncodeVideo.Enabled)
             {
                 using (var sfd = new SaveFileDialog
                 {
@@ -382,21 +475,22 @@ namespace SidWiz
 
                     var outputFilename = sfd.FileName;
 
-                    if (AutogenerateMasterMix.Checked && !string.IsNullOrEmpty(outputFilename))
+                    if (_settings.MasterAudio.IsAutomatic && !string.IsNullOrEmpty(outputFilename))
                     {
                         var filename = outputFilename + ".wav";
-                        Mixer.MixToFile(_channels, filename, MasterMixReplayGain.Checked);
+                        Mixer.MixToFile(_settings.Channels, filename, MasterMixReplayGain.Checked);
                         MasterAudioPath.Text = filename;
+                        _settings.MasterAudio.Path = filename;
                     }
                     
                     outputs.Add(new FfmpegOutput(
-                        FfmpegLocation.Text,
+                        _programLocationSettings.FFMPEGPath,
                         outputFilename,
-                        int.Parse(WidthControl.Text),
-                        int.Parse(HeightControl.Text),
-                        (int) FrameRateControl.Value,
-                        FfmpegParameters.Text,
-                        MasterAudioPath.Text));
+                        _settings.Width,
+                        _settings.Height,
+                        _settings.FrameRate,
+                        _settings.EncodeVideo.FfmpegParameters,
+                        _settings.MasterAudio.Path));
                 }
             }
 
@@ -457,11 +551,7 @@ namespace SidWiz
                 return;
             }
             Directory.CreateDirectory(directory);
-            using (var file = File.CreateText(path))
-            {
-                var serializer = new JsonSerializer();
-                serializer.Serialize(file, _settings);
-            }
+            File.WriteAllText(path, JsonConvert.SerializeObject(_programLocationSettings));
         }
 
         private static string GetSettingsPath()
@@ -476,8 +566,8 @@ namespace SidWiz
         {
             try
             {
-                _settings = JsonConvert.DeserializeObject<Settings>(File.ReadAllText(GetSettingsPath()));
-                FfmpegLocation.Text = _settings.FFMPEGPath;
+                _programLocationSettings = JsonConvert.DeserializeObject<ProgramLocationSettings>(File.ReadAllText(GetSettingsPath()));
+                FfmpegLocation.Text = _programLocationSettings.FFMPEGPath;
             }
             catch (Exception)
             {
@@ -487,9 +577,9 @@ namespace SidWiz
 
         private void removeemptyToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            foreach (var channel in _channels.Where(c => c.SampleCount == 0).ToList())
+            foreach (var channel in _settings.Channels.Where(c => c.SampleCount == 0).ToList())
             {
-                _channels.Remove(channel);
+                _settings.Channels.Remove(channel);
                 if (PropertyGrid.SelectedObject == channel)
                 {
                     PropertyGrid.SelectedObject = null;
@@ -500,9 +590,50 @@ namespace SidWiz
 
         private void removeallToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            _channels.Clear();
+            _settings.Channels.Clear();
             PropertyGrid.SelectedObject = null;
             Render();
+        }
+
+        private void SaveButton_Click(object sender, EventArgs e)
+        {
+            using (var sfd = new SaveFileDialog
+            {
+                Filter = "SidWizPlus settings (*.sidwizplus.json)|*.sidwizplus.json|All files (*.*)|*.*"
+            })
+            {
+                if (sfd.ShowDialog(this) != DialogResult.OK)
+                {
+                    return;
+                }
+
+                File.WriteAllText(sfd.FileName, JsonConvert.SerializeObject(_settings, new JsonSerializerSettings
+                {
+                    Formatting = Formatting.Indented,
+                }));
+            }
+        }
+
+        private void LoadButton_Click(object sender, EventArgs e)
+        {
+            using (var ofd = new OpenFileDialog
+            {
+                Filter = "SidWizPlus settings (*.sidwizplus.json)|*.sidwizplus.json|All files (*.*)|*.*"
+            })
+            {
+                if (ofd.ShowDialog(this) != DialogResult.OK)
+                {
+                    return;
+                }
+
+                JsonConvert.PopulateObject(File.ReadAllText(ofd.FileName), _settings);
+
+                foreach (var channel in _settings.Channels)
+                {
+                    channel.Changed += ChannelOnChanged;
+                    channel.LoadDataAsync();
+                }
+            }
         }
     }
 }

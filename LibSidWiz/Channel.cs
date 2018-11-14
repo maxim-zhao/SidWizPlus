@@ -13,6 +13,7 @@ using System.Windows.Forms.Design;
 using LibSidWiz.Triggers;
 using NAudio.Dsp;
 using NAudio.Wave;
+using Newtonsoft.Json;
 
 namespace LibSidWiz
 {
@@ -141,6 +142,7 @@ namespace LibSidWiz
         [Category("Triggering")]
         [Description("The algorithm to use for rendering")]
         [TypeConverter(typeof(TriggerAlgorithmTypeConverter))]
+        [JsonConverter(typeof(TriggerAlgorithmJsonConverter))]
         public ITriggerAlgorithm Algorithm
         {
             get => _algorithm;
@@ -285,6 +287,7 @@ namespace LibSidWiz
 
         [Category("Adjustment")]
         [Description("View width, in ms")]
+        [JsonIgnore]
         public float ViewWidthInMilliseconds
         {
             get => _sampleRate == 0 ? 0 : (float)_viewWidthInSamples * 1000 / _sampleRate;
@@ -309,43 +312,50 @@ namespace LibSidWiz
 
         [Category("Data information")]
         [Description("Peak amplitude for the channel")]
+        [JsonIgnore]
         public float Max { get; private set; }
 
-        [Category("Data information")]
-        [Description("Offset of peak amplitude for the channel")]
+        [Browsable(false)]
+        [JsonIgnore]
         public int MaxOffset { get; private set; }
 
-        [Category("Data information")]
-        [Description("Number of samples in the channel")]
+        [Browsable(false)]
+        [JsonIgnore]
         public int SampleCount { get; private set; }
 
         [Category("Data information")]
         [Description("Duration of the channel")]
+        [JsonIgnore]
         public TimeSpan Length
         {
             get => _length;
             private set
             {
                 _length = value;
-                Changed?.Invoke(this, false);
+                // Changed?.Invoke(this, false);
             }
         }
 
         [Category("Data information")]
         [Description("Sampling rate of the channel")]
+        [JsonIgnore]
         public int SampleRate
         {
             get => _sampleRate;
             private set
             {
                 _sampleRate = value;
-                Changed?.Invoke(this, false);
+                // Changed?.Invoke(this, false);
             }
         }
 
         // ReSharper disable once CompareOfFloatsByEqualityOperator
+        [Browsable(false)]
+        [JsonIgnore]
         public bool IsSilent => Max == 0.0;
 
+        [Browsable(false)]
+        [JsonIgnore]
         public bool Loading { get; private set; } = true;
 
         public float GetSample(int sampleIndex)
@@ -483,5 +493,29 @@ namespace LibSidWiz
                 return base.ConvertFrom(context, culture, value);
             }
         }
+
+        public class TriggerAlgorithmJsonConverter: JsonConverter<ITriggerAlgorithm>
+        {
+            public override void WriteJson(JsonWriter writer, ITriggerAlgorithm value, JsonSerializer serializer)
+            {
+                writer.WriteValue(value.GetType().Name);
+            }
+
+            public override ITriggerAlgorithm ReadJson(JsonReader reader, Type objectType, ITriggerAlgorithm existingValue, bool hasExistingValue, JsonSerializer serializer)
+            {
+                var type = Assembly.GetExecutingAssembly()
+                    .GetTypes()
+                    .FirstOrDefault(t => 
+                        typeof(ITriggerAlgorithm).IsAssignableFrom(t) && 
+                        t.Name.ToLowerInvariant().Equals(reader.Value.ToString().ToLowerInvariant()));
+                if (type != null)
+                {
+                    return Activator.CreateInstance(type) as ITriggerAlgorithm;
+                }
+
+                return existingValue;
+            }
+        }
+
     }
 }

@@ -111,6 +111,9 @@
             this.label10 = new System.Windows.Forms.Label();
             this.PreviewCheckBox = new System.Windows.Forms.CheckBox();
             this.imageList1 = new System.Windows.Forms.ImageList(this.components);
+            this.tabPage6 = new System.Windows.Forms.TabPage();
+            this.SaveButton = new System.Windows.Forms.Button();
+            this.LoadButton = new System.Windows.Forms.Button();
             this.panel2.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
@@ -138,6 +141,7 @@
             this.groupBox3.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.FrameRateControl)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.PreviewFrameskip)).BeginInit();
+            this.tabPage6.SuspendLayout();
             this.SuspendLayout();
             // 
             // panel2
@@ -168,7 +172,7 @@
             // 
             this.splitContainer1.Panel2.Controls.Add(this.tabControl1);
             this.splitContainer1.Size = new System.Drawing.Size(901, 433);
-            this.splitContainer1.SplitterDistance = 636;
+            this.splitContainer1.SplitterDistance = 640;
             this.splitContainer1.SplitterWidth = 2;
             this.splitContainer1.TabIndex = 0;
             // 
@@ -179,7 +183,7 @@
             this.Preview.Location = new System.Drawing.Point(0, 0);
             this.Preview.Margin = new System.Windows.Forms.Padding(2);
             this.Preview.Name = "Preview";
-            this.Preview.Size = new System.Drawing.Size(636, 407);
+            this.Preview.Size = new System.Drawing.Size(640, 407);
             this.Preview.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
             this.Preview.TabIndex = 0;
             this.Preview.TabStop = false;
@@ -247,11 +251,11 @@
             this.PreviewTrackbar.Location = new System.Drawing.Point(0, 407);
             this.PreviewTrackbar.Maximum = 1000;
             this.PreviewTrackbar.Name = "PreviewTrackbar";
-            this.PreviewTrackbar.Size = new System.Drawing.Size(636, 26);
+            this.PreviewTrackbar.Size = new System.Drawing.Size(640, 26);
             this.PreviewTrackbar.TabIndex = 0;
             this.PreviewTrackbar.TickFrequency = 100;
             this.PreviewTrackbar.TickStyle = System.Windows.Forms.TickStyle.None;
-            this.PreviewTrackbar.ValueChanged += new System.EventHandler(this.UpdatePreview);
+            this.PreviewTrackbar.ValueChanged += new System.EventHandler(this.ControlValueChanged);
             // 
             // tabControl1
             // 
@@ -260,6 +264,7 @@
             this.tabControl1.Controls.Add(this.tabPage4);
             this.tabControl1.Controls.Add(this.tabPage3);
             this.tabControl1.Controls.Add(this.tabPage2);
+            this.tabControl1.Controls.Add(this.tabPage6);
             this.tabControl1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tabControl1.ImageList = this.imageList1;
             this.tabControl1.Location = new System.Drawing.Point(0, 0);
@@ -267,7 +272,7 @@
             this.tabControl1.Multiline = true;
             this.tabControl1.Name = "tabControl1";
             this.tabControl1.SelectedIndex = 0;
-            this.tabControl1.Size = new System.Drawing.Size(263, 433);
+            this.tabControl1.Size = new System.Drawing.Size(259, 433);
             this.tabControl1.SizeMode = System.Windows.Forms.TabSizeMode.FillToRight;
             this.tabControl1.TabIndex = 0;
             // 
@@ -279,7 +284,7 @@
             this.tabPage5.Location = new System.Drawing.Point(4, 42);
             this.tabPage5.Name = "tabPage5";
             this.tabPage5.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage5.Size = new System.Drawing.Size(255, 387);
+            this.tabPage5.Size = new System.Drawing.Size(251, 387);
             this.tabPage5.TabIndex = 4;
             this.tabPage5.Text = "Channels";
             this.tabPage5.UseVisualStyleBackColor = true;
@@ -298,7 +303,7 @@
             this.toolStrip1.Location = new System.Drawing.Point(3, 3);
             this.toolStrip1.Name = "toolStrip1";
             this.toolStrip1.Padding = new System.Windows.Forms.Padding(0);
-            this.toolStrip1.Size = new System.Drawing.Size(249, 25);
+            this.toolStrip1.Size = new System.Drawing.Size(245, 25);
             this.toolStrip1.TabIndex = 0;
             this.toolStrip1.Text = "toolStrip1";
             // 
@@ -399,7 +404,7 @@
             this.PropertyGrid.Location = new System.Drawing.Point(3, 3);
             this.PropertyGrid.Margin = new System.Windows.Forms.Padding(2);
             this.PropertyGrid.Name = "PropertyGrid";
-            this.PropertyGrid.Size = new System.Drawing.Size(249, 381);
+            this.PropertyGrid.Size = new System.Drawing.Size(245, 381);
             this.PropertyGrid.TabIndex = 1;
             // 
             // tabPage1
@@ -422,7 +427,7 @@
             this.tabPage1.Margin = new System.Windows.Forms.Padding(2);
             this.tabPage1.Name = "tabPage1";
             this.tabPage1.Padding = new System.Windows.Forms.Padding(2);
-            this.tabPage1.Size = new System.Drawing.Size(255, 387);
+            this.tabPage1.Size = new System.Drawing.Size(253, 387);
             this.tabPage1.TabIndex = 0;
             this.tabPage1.Text = "Layout";
             this.tabPage1.UseVisualStyleBackColor = true;
@@ -459,7 +464,7 @@
             this.MarginBottomControl.Size = new System.Drawing.Size(52, 20);
             this.MarginBottomControl.TabIndex = 7;
             this.MarginBottomControl.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
-            this.MarginBottomControl.ValueChanged += new System.EventHandler(this.UpdatePreview);
+            this.MarginBottomControl.ValueChanged += new System.EventHandler(this.ControlValueChanged);
             // 
             // MarginRightControl
             // 
@@ -474,7 +479,7 @@
             this.MarginRightControl.Size = new System.Drawing.Size(52, 20);
             this.MarginRightControl.TabIndex = 5;
             this.MarginRightControl.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
-            this.MarginRightControl.ValueChanged += new System.EventHandler(this.UpdatePreview);
+            this.MarginRightControl.ValueChanged += new System.EventHandler(this.ControlValueChanged);
             // 
             // MarginLeftControl
             // 
@@ -489,7 +494,7 @@
             this.MarginLeftControl.Size = new System.Drawing.Size(52, 20);
             this.MarginLeftControl.TabIndex = 3;
             this.MarginLeftControl.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
-            this.MarginLeftControl.ValueChanged += new System.EventHandler(this.UpdatePreview);
+            this.MarginLeftControl.ValueChanged += new System.EventHandler(this.ControlValueChanged);
             // 
             // MarginTopControl
             // 
@@ -504,7 +509,7 @@
             this.MarginTopControl.Size = new System.Drawing.Size(52, 20);
             this.MarginTopControl.TabIndex = 1;
             this.MarginTopControl.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
-            this.MarginTopControl.ValueChanged += new System.EventHandler(this.UpdatePreview);
+            this.MarginTopControl.ValueChanged += new System.EventHandler(this.ControlValueChanged);
             // 
             // label9
             // 
@@ -585,7 +590,7 @@
             0,
             0,
             0});
-            this.Columns.ValueChanged += new System.EventHandler(this.ColumnsControl_ValueChanged);
+            this.Columns.ValueChanged += new System.EventHandler(this.ControlValueChanged);
             // 
             // label16
             // 
@@ -616,7 +621,7 @@
             this.WidthControl.TabIndex = 1;
             this.WidthControl.Text = "1280";
             this.WidthControl.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
-            this.WidthControl.TextChanged += new System.EventHandler(this.UpdatePreview);
+            this.WidthControl.TextChanged += new System.EventHandler(this.ControlValueChanged);
             // 
             // label17
             // 
@@ -647,6 +652,7 @@
             this.VerticalScaling.TabIndex = 10;
             this.VerticalScaling.Text = "80";
             this.VerticalScaling.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
+            this.VerticalScaling.TextChanged += new System.EventHandler(this.ControlValueChanged);
             // 
             // HeightControl
             // 
@@ -657,7 +663,7 @@
             this.HeightControl.TabIndex = 4;
             this.HeightControl.Text = "720";
             this.HeightControl.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
-            this.HeightControl.TextChanged += new System.EventHandler(this.UpdatePreview);
+            this.HeightControl.TextChanged += new System.EventHandler(this.ControlValueChanged);
             // 
             // label11
             // 
@@ -691,7 +697,7 @@
             this.tabPage4.Margin = new System.Windows.Forms.Padding(2);
             this.tabPage4.Name = "tabPage4";
             this.tabPage4.Padding = new System.Windows.Forms.Padding(2);
-            this.tabPage4.Size = new System.Drawing.Size(255, 387);
+            this.tabPage4.Size = new System.Drawing.Size(253, 387);
             this.tabPage4.TabIndex = 3;
             this.tabPage4.Text = "Background";
             this.tabPage4.UseVisualStyleBackColor = true;
@@ -725,7 +731,7 @@
             this.GridColor.TabIndex = 2;
             this.GridColor.Text = "White";
             this.GridColor.UseVisualStyleBackColor = false;
-            this.GridColor.ColorChanged += new System.EventHandler(this.UpdatePreview);
+            this.GridColor.ColorChanged += new System.EventHandler(this.ControlValueChanged);
             // 
             // GridEnabled
             // 
@@ -737,7 +743,7 @@
             this.GridEnabled.TabIndex = 0;
             this.GridEnabled.Text = "Enabled";
             this.GridEnabled.UseVisualStyleBackColor = true;
-            this.GridEnabled.CheckedChanged += new System.EventHandler(this.UpdatePreview);
+            this.GridEnabled.CheckedChanged += new System.EventHandler(this.ControlValueChanged);
             // 
             // GridBorders
             // 
@@ -749,7 +755,7 @@
             this.GridBorders.TabIndex = 5;
             this.GridBorders.Text = "Include borders";
             this.GridBorders.UseVisualStyleBackColor = true;
-            this.GridBorders.CheckedChanged += new System.EventHandler(this.UpdatePreview);
+            this.GridBorders.CheckedChanged += new System.EventHandler(this.ControlValueChanged);
             // 
             // label2
             // 
@@ -788,7 +794,7 @@
             0,
             0,
             0});
-            this.GridWidth.ValueChanged += new System.EventHandler(this.UpdatePreview);
+            this.GridWidth.ValueChanged += new System.EventHandler(this.ControlValueChanged);
             // 
             // label20
             // 
@@ -835,7 +841,7 @@
             this.BackgroundColorButton.TabIndex = 1;
             this.BackgroundColorButton.Text = "Black";
             this.BackgroundColorButton.UseVisualStyleBackColor = false;
-            this.BackgroundColorButton.ColorChanged += new System.EventHandler(this.UpdatePreview);
+            this.BackgroundColorButton.ColorChanged += new System.EventHandler(this.ControlValueChanged);
             // 
             // tabPage3
             // 
@@ -848,7 +854,7 @@
             this.tabPage3.Margin = new System.Windows.Forms.Padding(2);
             this.tabPage3.Name = "tabPage3";
             this.tabPage3.Padding = new System.Windows.Forms.Padding(2);
-            this.tabPage3.Size = new System.Drawing.Size(257, 387);
+            this.tabPage3.Size = new System.Drawing.Size(253, 387);
             this.tabPage3.TabIndex = 2;
             this.tabPage3.Text = "Audio";
             this.tabPage3.UseVisualStyleBackColor = true;
@@ -916,7 +922,7 @@
             this.tabPage2.Location = new System.Drawing.Point(4, 42);
             this.tabPage2.Name = "tabPage2";
             this.tabPage2.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage2.Size = new System.Drawing.Size(257, 387);
+            this.tabPage2.Size = new System.Drawing.Size(251, 387);
             this.tabPage2.TabIndex = 5;
             this.tabPage2.Text = "Video";
             this.tabPage2.UseVisualStyleBackColor = true;
@@ -932,7 +938,7 @@
             this.groupBox3.Controls.Add(this.FfmpegLocation);
             this.groupBox3.Location = new System.Drawing.Point(7, 56);
             this.groupBox3.Name = "groupBox3";
-            this.groupBox3.Size = new System.Drawing.Size(246, 100);
+            this.groupBox3.Size = new System.Drawing.Size(242, 100);
             this.groupBox3.TabIndex = 7;
             this.groupBox3.TabStop = false;
             this.groupBox3.Text = "FFMPEG";
@@ -943,8 +949,9 @@
             | System.Windows.Forms.AnchorStyles.Right)));
             this.FfmpegParameters.Location = new System.Drawing.Point(83, 68);
             this.FfmpegParameters.Name = "FfmpegParameters";
-            this.FfmpegParameters.Size = new System.Drawing.Size(157, 20);
+            this.FfmpegParameters.Size = new System.Drawing.Size(153, 20);
             this.FfmpegParameters.TabIndex = 4;
+            this.FfmpegParameters.TextChanged += new System.EventHandler(this.ControlValueChanged);
             // 
             // label18
             // 
@@ -1034,7 +1041,7 @@
             | System.Windows.Forms.AnchorStyles.Right)));
             this.RenderButton.Location = new System.Drawing.Point(7, 191);
             this.RenderButton.Name = "RenderButton";
-            this.RenderButton.Size = new System.Drawing.Size(246, 47);
+            this.RenderButton.Size = new System.Drawing.Size(242, 47);
             this.RenderButton.TabIndex = 8;
             this.RenderButton.Text = "Render";
             this.RenderButton.UseVisualStyleBackColor = true;
@@ -1090,6 +1097,44 @@
             this.imageList1.Images.SetKeyName(2, "picture.png");
             this.imageList1.Images.SetKeyName(3, "sound.png");
             this.imageList1.Images.SetKeyName(4, "film.png");
+            this.imageList1.Images.SetKeyName(5, "script.png");
+            // 
+            // tabPage6
+            // 
+            this.tabPage6.Controls.Add(this.LoadButton);
+            this.tabPage6.Controls.Add(this.SaveButton);
+            this.tabPage6.ImageKey = "script.png";
+            this.tabPage6.Location = new System.Drawing.Point(4, 42);
+            this.tabPage6.Name = "tabPage6";
+            this.tabPage6.Padding = new System.Windows.Forms.Padding(3);
+            this.tabPage6.Size = new System.Drawing.Size(251, 387);
+            this.tabPage6.TabIndex = 6;
+            this.tabPage6.Text = "Settings";
+            this.tabPage6.UseVisualStyleBackColor = true;
+            // 
+            // SaveButton
+            // 
+            this.SaveButton.Image = ((System.Drawing.Image)(resources.GetObject("SaveButton.Image")));
+            this.SaveButton.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            this.SaveButton.Location = new System.Drawing.Point(6, 6);
+            this.SaveButton.Name = "SaveButton";
+            this.SaveButton.Size = new System.Drawing.Size(82, 30);
+            this.SaveButton.TabIndex = 0;
+            this.SaveButton.Text = "Save";
+            this.SaveButton.UseVisualStyleBackColor = true;
+            this.SaveButton.Click += new System.EventHandler(this.SaveButton_Click);
+            // 
+            // LoadButton
+            // 
+            this.LoadButton.Image = ((System.Drawing.Image)(resources.GetObject("LoadButton.Image")));
+            this.LoadButton.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            this.LoadButton.Location = new System.Drawing.Point(94, 6);
+            this.LoadButton.Name = "LoadButton";
+            this.LoadButton.Size = new System.Drawing.Size(82, 30);
+            this.LoadButton.TabIndex = 1;
+            this.LoadButton.Text = "Load";
+            this.LoadButton.UseVisualStyleBackColor = true;
+            this.LoadButton.Click += new System.EventHandler(this.LoadButton_Click);
             // 
             // SidWizPlusGui
             // 
@@ -1137,6 +1182,7 @@
             this.groupBox3.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.FrameRateControl)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.PreviewFrameskip)).EndInit();
+            this.tabPage6.ResumeLayout(false);
             this.ResumeLayout(false);
 
         }
@@ -1223,5 +1269,8 @@
         private System.Windows.Forms.ToolStripMenuItem removeemptyToolStripMenuItem;
         private System.Windows.Forms.ToolStripSeparator toolStripMenuItem2;
         private System.Windows.Forms.ToolStripMenuItem removeallToolStripMenuItem;
+        private System.Windows.Forms.TabPage tabPage6;
+        private System.Windows.Forms.Button SaveButton;
+        private System.Windows.Forms.Button LoadButton;
     }
 }
