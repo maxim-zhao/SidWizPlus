@@ -197,7 +197,7 @@ namespace SidWiz
                 Filename = filename,
                 Algorithm = new PeakSpeedTrigger(),
                 LabelColor = Color.White,
-                LabelFont = SystemFonts.DefaultFont
+                LabelFont = DefaultFont
             };
             channel.Changed += ChannelOnChanged;
             channel.LoadDataAsync(); // in a worker thread
@@ -566,8 +566,10 @@ namespace SidWiz
         {
             try
             {
+                HighDpiHelper.AdjustControlImagesDpiScale(this);
                 _programLocationSettings = JsonConvert.DeserializeObject<ProgramLocationSettings>(File.ReadAllText(GetSettingsPath()));
                 FfmpegLocation.Text = _programLocationSettings.FFMPEGPath;
+                _settings.ToControls(this);
             }
             catch (Exception)
             {
