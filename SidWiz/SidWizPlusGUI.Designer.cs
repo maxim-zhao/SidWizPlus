@@ -162,7 +162,7 @@
             // splitContainer1.Panel2
             // 
             this.splitContainer1.Panel2.Controls.Add(this.tabControl1);
-            this.splitContainer1.Size = new System.Drawing.Size(914, 503);
+            this.splitContainer1.Size = new System.Drawing.Size(914, 408);
             this.splitContainer1.SplitterDistance = 620;
             this.splitContainer1.TabIndex = 0;
             // 
@@ -173,7 +173,7 @@
             this.Preview.Location = new System.Drawing.Point(0, 0);
             this.Preview.Margin = new System.Windows.Forms.Padding(2, 3, 2, 3);
             this.Preview.Name = "Preview";
-            this.Preview.Size = new System.Drawing.Size(620, 476);
+            this.Preview.Size = new System.Drawing.Size(620, 381);
             this.Preview.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
             this.Preview.TabIndex = 0;
             this.Preview.TabStop = false;
@@ -238,7 +238,7 @@
             this.PreviewTrackbar.AutoSize = false;
             this.PreviewTrackbar.Dock = System.Windows.Forms.DockStyle.Bottom;
             this.PreviewTrackbar.LargeChange = 100;
-            this.PreviewTrackbar.Location = new System.Drawing.Point(0, 476);
+            this.PreviewTrackbar.Location = new System.Drawing.Point(0, 381);
             this.PreviewTrackbar.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.PreviewTrackbar.Maximum = 1000;
             this.PreviewTrackbar.Name = "PreviewTrackbar";
@@ -263,7 +263,7 @@
             this.tabControl1.Multiline = true;
             this.tabControl1.Name = "tabControl1";
             this.tabControl1.SelectedIndex = 0;
-            this.tabControl1.Size = new System.Drawing.Size(290, 503);
+            this.tabControl1.Size = new System.Drawing.Size(290, 408);
             this.tabControl1.SizeMode = System.Windows.Forms.TabSizeMode.FillToRight;
             this.tabControl1.TabIndex = 0;
             // 
@@ -930,7 +930,7 @@
             this.tabPage2.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.tabPage2.Name = "tabPage2";
             this.tabPage2.Padding = new System.Windows.Forms.Padding(3, 4, 3, 4);
-            this.tabPage2.Size = new System.Drawing.Size(282, 455);
+            this.tabPage2.Size = new System.Drawing.Size(282, 360);
             this.tabPage2.TabIndex = 5;
             this.tabPage2.Text = "Video";
             this.tabPage2.UseVisualStyleBackColor = true;
@@ -1134,7 +1134,7 @@
             this.tabPage6.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.tabPage6.Name = "tabPage6";
             this.tabPage6.Padding = new System.Windows.Forms.Padding(3, 4, 3, 4);
-            this.tabPage6.Size = new System.Drawing.Size(282, 455);
+            this.tabPage6.Size = new System.Drawing.Size(282, 360);
             this.tabPage6.TabIndex = 6;
             this.tabPage6.Text = "Settings";
             this.tabPage6.UseVisualStyleBackColor = true;
@@ -1143,10 +1143,10 @@
             // 
             this.LoadButton.Image = ((System.Drawing.Image)(resources.GetObject("LoadButton.Image")));
             this.LoadButton.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            this.LoadButton.Location = new System.Drawing.Point(26, 68);
+            this.LoadButton.Location = new System.Drawing.Point(128, 8);
             this.LoadButton.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.LoadButton.Name = "LoadButton";
-            this.LoadButton.Size = new System.Drawing.Size(96, 39);
+            this.LoadButton.Size = new System.Drawing.Size(115, 39);
             this.LoadButton.TabIndex = 1;
             this.LoadButton.Text = "Load";
             this.LoadButton.UseVisualStyleBackColor = true;
@@ -1180,7 +1180,7 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
-            this.ClientSize = new System.Drawing.Size(914, 503);
+            this.ClientSize = new System.Drawing.Size(914, 408);
             this.Controls.Add(this.splitContainer1);
             this.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.Margin = new System.Windows.Forms.Padding(2, 3, 2, 3);

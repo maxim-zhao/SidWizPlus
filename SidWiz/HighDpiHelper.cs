@@ -51,17 +51,28 @@ namespace SidWiz
                 }
                 else if (control is ToolStrip toolStrip)
                 {
-                    toolStrip.ImageScalingSize = ScaleSize(toolStrip.ImageScalingSize, dpiScale);
-                    foreach (var item in toolStrip.Items.Cast<ToolStripItem>().Where(i => i.Image != null))
-                    {
-                        item.Image = ScaleImage(item.Image, dpiScale);
-                    }
+                    ScaleToolStrip(dpiScale, toolStrip);
 
                     toolStrip.AutoSize = true;
                 }
 
+                if (control.ContextMenuStrip != null)
+                {
+                    ScaleToolStrip(dpiScale, control.ContextMenuStrip);
+                }
+
+
                 // Then recurse
                 AdjustControlImagesDpiScale(control.Controls, dpiScale);
+            }
+        }
+
+        private static void ScaleToolStrip(float dpiScale, ToolStrip toolStrip)
+        {
+            toolStrip.ImageScalingSize = ScaleSize(toolStrip.ImageScalingSize, dpiScale);
+            foreach (var item in toolStrip.Items.Cast<ToolStripItem>().Where(i => i.Image != null))
+            {
+                item.Image = ScaleImage(item.Image, dpiScale);
             }
         }
 
