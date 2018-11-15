@@ -31,7 +31,7 @@ namespace SidWizPlus
         [SuppressMessage("ReSharper", "UnusedAutoPropertyAccessor.Local")]
         private class Settings
         {
-            [OptionList('f', "files", Separator = ',', HelpText = "Input WAV files, comma-separated")] 
+            [OptionList('f', "files", Separator = ',', HelpText = "Input WAV files, comma-separated. Wildcards are accepted.")] 
             public List<string> InputFiles { get; set; }
 
             [Option('v', "vgm", Required = false, HelpText = "VGM file, if specified GD3 text is drawn")]
@@ -242,11 +242,33 @@ namespace SidWizPlus
                     else
                     {
                         // We want to expand any wildcards in the input file list (and also fully qualify them)
-                        settings.InputFiles = settings.InputFiles
-                            .SelectMany(s => Directory
-                                .EnumerateFiles(Directory.GetCurrentDirectory(), s)
-                                .OrderByAlphaNumeric(x => x))
-                            .ToList();
+                        var inputs = new List<string>();
+                        foreach (var inputFile in settings.InputFiles)
+                        {
+                            if (File.Exists(inputFile))
+                            {
+                                inputs.Add(Path.GetFullPath(inputFile));
+                                continue;
+                            }
+
+                            var pattern = Path.GetFileName(inputFile);
+                            if (pattern == null)
+                            {
+                                throw new Exception($"Failed to match {inputFile}");
+                            }
+                            var pathPart = inputFile.Substring(0, inputFile.Length - pattern.Length);
+                            var directory = pathPart.Length > 0
+                                ? Path.GetFullPath(pathPart)
+                                : Directory.GetCurrentDirectory();
+                            var files = Directory.EnumerateFiles(directory, pattern).ToList();
+                            if (files.Count == 0)
+                            {
+                                throw new Exception($"Failed to match {inputFile}");
+                            }
+                            inputs.AddRange(files.OrderByAlphaNumeric(x => x));
+                        }
+
+                        settings.InputFiles = inputs;
                     }
 
                     if (settings.InputFiles == null || !settings.InputFiles.Any())
