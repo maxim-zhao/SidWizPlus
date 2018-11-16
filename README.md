@@ -1,9 +1,12 @@
 # SidWizPlus
-Fork of a version of SidWiz with modifications for my own purposes.
+This is a prgram which generates "oscilloscope view" videos from multi-track audio files. It is often used for VGM/chiptune rendering for use on video sharing sites, but can also be used for other multitrack audio files.
 
-Get the latest release here: https://github.com/maxim-zhao/SidWizPlus/releases/latest and the latest build here: https://ci.appveyor.com/project/maxim-zhao/sidwizplus/build/artifacts
+The primary goals of this projext are:
 
-[![Build status](https://ci.appveyor.com/api/projects/status/vpa5eav7sm1n7ik6?svg=true)](https://ci.appveyor.com/project/maxim-zhao/sidwizplus) 
+1. Generating videos from VGM packs from (http://www.smspower.org/Music)[SMS Power!]
+2. Producing a base for others to work on the features they want
+
+Get builds from here: https://ci.appveyor.com/project/maxim-zhao/sidwizplus/build/artifacts [![Build status](https://ci.appveyor.com/api/projects/status/vpa5eav7sm1n7ik6?svg=true)](https://ci.appveyor.com/project/maxim-zhao/sidwizplus) 
 
 ## Features added
 
