@@ -10,7 +10,7 @@ namespace LibSidWiz.Triggers
     // ReSharper disable once UnusedMember.Global
     class MiddleWidest: ITriggerAlgorithm
     {
-        public int GetTriggerPoint(Channel channel, int startIndex, int endIndex)
+        public int GetTriggerPoint(Channel channel, int startIndex, int endIndex, int previousIndex)
         {
             var candidates = new List<int>();
             int lastCrossingPoint = endIndex;

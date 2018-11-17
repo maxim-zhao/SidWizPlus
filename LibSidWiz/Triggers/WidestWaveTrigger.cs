@@ -7,7 +7,7 @@
     // ReSharper disable once UnusedMember.Global
     internal class WidestWaveTrigger : ITriggerAlgorithm
     {
-        public int GetTriggerPoint(Channel channel, int startIndex, int endIndex)
+        public int GetTriggerPoint(Channel channel, int startIndex, int endIndex, int previousIndex)
         {
             int bestOffset = (startIndex + endIndex) / 2; // Default to centre if no waves found
             int lastCrossingPoint = endIndex;

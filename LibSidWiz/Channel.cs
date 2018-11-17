@@ -363,9 +363,9 @@ namespace LibSidWiz
             return sampleIndex < 0 || sampleIndex >= _samples.Count ? 0 : _samples[sampleIndex] * Scale;
         }
 
-        public int GetTriggerPoint(int frameIndexSamples, int frameSamples)
+        public int GetTriggerPoint(int frameIndexSamples, int frameSamples, int previousTriggerPoint)
         {
-            return Algorithm.GetTriggerPoint(this, frameIndexSamples, frameIndexSamples + frameSamples * (TriggerLookaheadFrames + 1));
+            return Algorithm.GetTriggerPoint(this, frameIndexSamples, frameIndexSamples + frameSamples * (TriggerLookaheadFrames + 1), previousTriggerPoint);
         }
 
         public static string GuessNameFromMultidumperFilename(string filename)

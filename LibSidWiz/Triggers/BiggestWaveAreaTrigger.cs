@@ -8,7 +8,7 @@ namespace LibSidWiz.Triggers
     // ReSharper disable once UnusedMember.Global
     internal class BiggestWaveAreaTrigger : ITriggerAlgorithm
     {
-        public int GetTriggerPoint(Channel channel, int startIndex, int endIndex)
+        public int GetTriggerPoint(Channel channel, int startIndex, int endIndex, int previousIndex)
         {
             int bestOffset = (startIndex + endIndex) / 2; // Default to centre if no positive waves found
             int lastCrossingPoint = endIndex;

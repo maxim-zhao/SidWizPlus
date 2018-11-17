@@ -12,7 +12,7 @@
     /// </summary>
     public class PeakSpeedTrigger : ITriggerAlgorithm
     {
-        public int GetTriggerPoint(Channel channel, int startIndex, int endIndex)
+        public int GetTriggerPoint(Channel channel, int startIndex, int endIndex, int previousIndex)
         {
             float peakValue = float.MinValue;
             int shortestDistance = int.MaxValue;

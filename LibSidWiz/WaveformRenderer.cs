@@ -108,6 +108,15 @@ namespace LibSidWiz
                     var points = new PointF[maxViewWidthInSamples];
                     var path = new GraphicsPath();
 
+                    var frameSamples = SamplingRate / FramesPerSecond;
+
+                    // Initialise the "previous trigger points"
+                    var triggerPoints = new int[_channels.Count];
+                    for (int channelIndex = 0; channelIndex < _channels.Count; ++channelIndex)
+                    {
+                        triggerPoints[channelIndex] = (int)((long)startFrame * SamplingRate / FramesPerSecond) - frameSamples / 2;
+                    }
+
                     for (int frameIndex = startFrame; frameIndex < endFrame; ++frameIndex)
                     {
                         // Compute the start of the sample window
@@ -115,8 +124,6 @@ namespace LibSidWiz
 
                         // Copy from the template
                         g.DrawImageUnscaled(template, 0, 0);
-
-                        var frameSamples = SamplingRate / FramesPerSecond;
 
                         // For each channel...
                         for (int channelIndex = 0; channelIndex < _channels.Count; ++channelIndex)
@@ -138,7 +145,8 @@ namespace LibSidWiz
                             else
                             {
                                 // Compute the "trigger point". This will be the centre of our rendering.
-                                var triggerPoint = channel.GetTriggerPoint(frameIndexSamples, frameSamples);
+                                var triggerPoint = channel.GetTriggerPoint(frameIndexSamples, frameSamples, triggerPoints[channelIndex]);
+                                triggerPoints[channelIndex] = triggerPoint;
 
                                 RenderWave(g, channel, triggerPoint, xBase, yBase, viewWidth, viewHeight, pens[channelIndex], brushes[channelIndex], points, path);
                             }
