@@ -27,6 +27,7 @@ namespace SidWiz
 
         private class Settings
         {
+            private bool _ignoreFromControls;
             public int Columns { get; set; } = 1;
             public List<Channel> Channels { get; } = new List<Channel>();
             public float AutoScaleHeight { get; set; } = 100;
@@ -65,6 +66,10 @@ namespace SidWiz
 
             public void FromControls(SidWizPlusGui form)
             {
+                if (_ignoreFromControls)
+                {
+                    return;
+                }
                 AutoScaleHeight = float.Parse(form.VerticalScaling.Text);
                 Width = int.Parse(form.WidthControl.Text);
                 Height = int.Parse(form.HeightControl.Text);
@@ -94,6 +99,8 @@ namespace SidWiz
 
             public void ToControls(SidWizPlusGui form)
             {
+                // Disable control notifications as we load values into them
+                _ignoreFromControls = true;
                 form.VerticalScaling.Text = AutoScaleHeight.ToString(CultureInfo.CurrentCulture);
                 form.WidthControl.Text = Width.ToString();
                 form.HeightControl.Text = Height.ToString();
@@ -118,6 +125,7 @@ namespace SidWiz
                 form.AutogenerateMasterMix.Checked = MasterAudio.IsAutomatic;
                 form.MasterMixReplayGain.Checked = MasterAudio.ApplyReplayGain;
                 form.MasterAudioPath.Text = MasterAudio.Path;
+                _ignoreFromControls = false;
             }
 
             public Rectangle GetBounds()
@@ -635,6 +643,8 @@ namespace SidWiz
                     channel.Changed += ChannelOnChanged;
                     channel.LoadDataAsync();
                 }
+
+                _settings.ToControls(this);
             }
         }
     }
