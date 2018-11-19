@@ -114,7 +114,7 @@ namespace LibSidWiz
                     var triggerPoints = new int[_channels.Count];
                     for (int channelIndex = 0; channelIndex < _channels.Count; ++channelIndex)
                     {
-                        triggerPoints[channelIndex] = (int)((long)startFrame * SamplingRate / FramesPerSecond) - frameSamples / 2;
+                        triggerPoints[channelIndex] = (int)((long)startFrame * SamplingRate / FramesPerSecond) - frameSamples;
                     }
 
                     for (int frameIndex = startFrame; frameIndex < endFrame; ++frameIndex)

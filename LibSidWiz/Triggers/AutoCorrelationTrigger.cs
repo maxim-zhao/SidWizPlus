@@ -1,5 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
+using System.Text;
+using System.Windows.Forms;
 
 namespace LibSidWiz.Triggers
 {
@@ -44,10 +47,19 @@ namespace LibSidWiz.Triggers
             float sumSquaredYDiff = 0;
             for (int i = 0; i < width; ++i)
             {
-                var yDiff = channel.GetSample(previousStart + i) - meanY;
+                var y = channel.GetSample(previousStart + i);
+                var yDiff = y - meanY;
                 sumSquaredYDiff += yDiff * yDiff;
             }
 
+            // ReSharper disable once CompareOfFloatsByEqualityOperator
+            if (sumSquaredYDiff == 0.0f)
+            {
+                // No point continuing
+                return startIndex;
+            }
+
+            var correlations = new double[width];
             for (int trialOffset = 0; trialOffset < width; ++trialOffset)
             {
                 // We compute mean(x) as we go
@@ -59,10 +71,10 @@ namespace LibSidWiz.Triggers
                 // sum((x - mean(x)) * (y - mean(y)) / sqrt(sum(pow(x - mean(x), 2)) * sum(pow(y - mean(y), 2)))
                 float sumTop = 0;
                 float sumSquaredXDiff = 0;
-                for (int j = 0; j < width; ++j)
+                for (int i = 0; i < width; ++i)
                 {
-                    var x = channel.GetSample(startIndex + trialOffset + j);
-                    var y = channel.GetSample(previousStart + j);
+                    var x = channel.GetSample(startIndex + trialOffset + i);
+                    var y = channel.GetSample(previousStart + i);
                     sumTop += (x - meanX) * (y - meanY);
                     sumSquaredXDiff += (x - meanX) * (x - meanX);
                 }
@@ -72,14 +84,24 @@ namespace LibSidWiz.Triggers
                 // We then weight by our normal distribution so we will prefer points near the middle.
                 correlation *= _normalDistribution[trialOffset];
 
+                // debug
+                correlations[trialOffset] = correlation;
+
                 if (correlation > maxCorrelation)
                 {
                     maxCorrelation = correlation;
                     bestOffset = trialOffset;
                 }
             }
-
+            
 //            Debug.WriteLine($"Autocorrelation: between {startIndex} and {endIndex}, max = {maxCorrelation}, offset = {bestOffset} ({(float)(bestOffset - startIndex)/(endIndex - startIndex):P})");
+
+            var sb = new StringBuilder();
+            for (int i = 0; i < width; ++i)
+            {
+                sb.AppendLine($"{channel.GetSample(previousIndex + i)}\t{channel.GetSample(startIndex + i)}\t{correlations[i]}");
+            }
+           //Clipboard.SetText(sb.ToString());
 
             return startIndex + bestOffset;
         }
