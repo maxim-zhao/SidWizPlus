@@ -1,8 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Text;
-using System.Windows.Forms;
 
 namespace LibSidWiz.Triggers
 {
@@ -55,8 +53,8 @@ namespace LibSidWiz.Triggers
             // ReSharper disable once CompareOfFloatsByEqualityOperator
             if (sumSquaredYDiff == 0.0f)
             {
-                // No point continuing
-                return startIndex;
+                // No point continuing - we return the middle of the data
+                return startIndex + width / 2;
             }
 
             var correlations = new double[width];
@@ -93,15 +91,16 @@ namespace LibSidWiz.Triggers
                     bestOffset = trialOffset;
                 }
             }
-            
-//            Debug.WriteLine($"Autocorrelation: between {startIndex} and {endIndex}, max = {maxCorrelation}, offset = {bestOffset} ({(float)(bestOffset - startIndex)/(endIndex - startIndex):P})");
+
+#if DEBUG
+            Debug.WriteLine($"Autocorrelation: between {startIndex} and {endIndex}, max = {maxCorrelation}, offset = {bestOffset} ({(float)(bestOffset - startIndex)/(endIndex - startIndex):P})");
 
             var sb = new StringBuilder();
             for (int i = 0; i < width; ++i)
             {
-                sb.AppendLine($"{channel.GetSample(previousIndex + i)}\t{channel.GetSample(startIndex + i)}\t{correlations[i]}");
+                sb.AppendLine($"{channel.GetSample(previousStart + i)}\t{channel.GetSample(startIndex + i)}\t{correlations[i]}");
             }
-           //Clipboard.SetText(sb.ToString());
+#endif
 
             return startIndex + bestOffset;
         }
