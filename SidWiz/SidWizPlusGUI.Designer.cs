@@ -189,7 +189,7 @@
             this.toolStripSeparator3,
             this.applySettingsToOtherChannelsToolStripMenuItem});
             this.contextMenuStrip1.Name = "contextMenuStrip1";
-            this.contextMenuStrip1.Size = new System.Drawing.Size(245, 104);
+            this.contextMenuStrip1.Size = new System.Drawing.Size(245, 148);
             // 
             // moveLeftupToolStripMenuItem
             // 
@@ -276,7 +276,7 @@
             this.tabPage5.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.tabPage5.Name = "tabPage5";
             this.tabPage5.Padding = new System.Windows.Forms.Padding(3, 4, 3, 4);
-            this.tabPage5.Size = new System.Drawing.Size(282, 455);
+            this.tabPage5.Size = new System.Drawing.Size(282, 360);
             this.tabPage5.TabIndex = 4;
             this.tabPage5.Text = "Channels";
             this.tabPage5.UseVisualStyleBackColor = true;
@@ -287,7 +287,7 @@
             this.PropertyGrid.Location = new System.Drawing.Point(3, 29);
             this.PropertyGrid.Margin = new System.Windows.Forms.Padding(2, 3, 2, 3);
             this.PropertyGrid.Name = "PropertyGrid";
-            this.PropertyGrid.Size = new System.Drawing.Size(276, 422);
+            this.PropertyGrid.Size = new System.Drawing.Size(276, 327);
             this.PropertyGrid.TabIndex = 1;
             this.PropertyGrid.ToolbarVisible = false;
             // 
@@ -371,7 +371,7 @@
             this.removeemptyToolStripMenuItem.Name = "removeemptyToolStripMenuItem";
             this.removeemptyToolStripMenuItem.Size = new System.Drawing.Size(163, 22);
             this.removeemptyToolStripMenuItem.Text = "Remove s&ilent";
-            this.removeemptyToolStripMenuItem.Click += new System.EventHandler(this.removeemptyToolStripMenuItem_Click);
+            this.removeemptyToolStripMenuItem.Click += new System.EventHandler(this.RemoveEmptyToolStripMenuItem_Click);
             // 
             // toolStripMenuItem2
             // 
@@ -383,7 +383,7 @@
             this.removeallToolStripMenuItem.Name = "removeallToolStripMenuItem";
             this.removeallToolStripMenuItem.Size = new System.Drawing.Size(163, 22);
             this.removeallToolStripMenuItem.Text = "Remove &all";
-            this.removeallToolStripMenuItem.Click += new System.EventHandler(this.removeallToolStripMenuItem_Click);
+            this.removeallToolStripMenuItem.Click += new System.EventHandler(this.RemoveAllToolStripMenuItem_Click);
             // 
             // toolStripSeparator1
             // 
@@ -420,7 +420,7 @@
             this.tabPage1.Margin = new System.Windows.Forms.Padding(2, 3, 2, 3);
             this.tabPage1.Name = "tabPage1";
             this.tabPage1.Padding = new System.Windows.Forms.Padding(2, 3, 2, 3);
-            this.tabPage1.Size = new System.Drawing.Size(282, 455);
+            this.tabPage1.Size = new System.Drawing.Size(282, 360);
             this.tabPage1.TabIndex = 0;
             this.tabPage1.Text = "Layout";
             this.tabPage1.UseVisualStyleBackColor = true;
@@ -692,7 +692,7 @@
             this.tabPage4.Margin = new System.Windows.Forms.Padding(2, 3, 2, 3);
             this.tabPage4.Name = "tabPage4";
             this.tabPage4.Padding = new System.Windows.Forms.Padding(2, 3, 2, 3);
-            this.tabPage4.Size = new System.Drawing.Size(282, 455);
+            this.tabPage4.Size = new System.Drawing.Size(282, 360);
             this.tabPage4.TabIndex = 3;
             this.tabPage4.Text = "Background";
             this.tabPage4.UseVisualStyleBackColor = true;
@@ -863,7 +863,7 @@
             this.tabPage3.Margin = new System.Windows.Forms.Padding(2, 3, 2, 3);
             this.tabPage3.Name = "tabPage3";
             this.tabPage3.Padding = new System.Windows.Forms.Padding(2, 3, 2, 3);
-            this.tabPage3.Size = new System.Drawing.Size(282, 455);
+            this.tabPage3.Size = new System.Drawing.Size(282, 360);
             this.tabPage3.TabIndex = 2;
             this.tabPage3.Text = "Audio";
             this.tabPage3.UseVisualStyleBackColor = true;

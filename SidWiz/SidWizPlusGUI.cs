@@ -6,6 +6,7 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 using LibSidWiz;
 using LibSidWiz.Outputs;
@@ -25,6 +26,7 @@ namespace SidWiz
 
         private ProgramLocationSettings _programLocationSettings = new ProgramLocationSettings();
 
+        [SuppressMessage("ReSharper", "MemberCanBePrivate.Local")]
         private class Settings
         {
             private bool _ignoreFromControls;
@@ -41,9 +43,9 @@ namespace SidWiz
             public Color BackgroundColor { get; set; } = Color.Black;
             public string BackgroundImageFilename { get; set; }
             public WaveformRenderer.GridConfig Grid { get; set; }
-            public PreviewSettings Preview { get; set; } = new PreviewSettings {Enabled = true, Frameskip = 1};
-            public EncodeSettings EncodeVideo { get; set; } = new EncodeSettings {Enabled = false};
-            public MasterAudioSettings MasterAudio { get; set; } = new MasterAudioSettings {IsAutomatic = true, ApplyReplayGain = true};
+            public PreviewSettings Preview { get; } = new PreviewSettings {Enabled = true, Frameskip = 1};
+            public EncodeSettings EncodeVideo { get; } = new EncodeSettings {Enabled = false};
+            public MasterAudioSettings MasterAudio { get; } = new MasterAudioSettings {IsAutomatic = true, ApplyReplayGain = true};
 
             public class MasterAudioSettings
             {
@@ -138,7 +140,14 @@ namespace SidWiz
             }
         }
 
-        private Settings _settings = new Settings();
+        private readonly Settings _settings = new Settings();
+
+        // We do rendering on a worker thread, this means we have some complicated interactions
+        // to make sure it doesn't render more or less than needed. This lot deals with that.
+        private readonly object _renderLock = new object();
+        private bool _renderNeeded;
+        private bool _renderActive;
+        private float _renderPosition;
 
         public SidWizPlusGui()
         {
@@ -299,16 +308,70 @@ namespace SidWiz
 
         private void Render()
         {
-            // Create a renderer
-            var renderer = CreateWaveformRenderer();
+            // If this is called while a render is in process, then wait until that is done, and do one at the end.
+            lock (_renderLock)
+            {
+                // We update this here so the worker thread will get the latest value.
+                _renderPosition = (float) PreviewTrackbar.Value / PreviewTrackbar.Maximum;
 
-            // Render a bitmap
-            var bitmap = renderer.RenderFrame((float)PreviewTrackbar.Value / PreviewTrackbar.Maximum);
+                // We have two flags to signal the need to render.
+                // One indicates that we need to render; this can be set while rendering
+                // to cause it to render again when done.
+                if (_renderNeeded)
+                {
+                    return;
+                }
+                _renderNeeded = true;
 
-            // Swap it with whatever is in the preview control
-            var oldImage = Preview.Image;
-            Preview.Image = bitmap;
-            oldImage?.Dispose();
+                // The second flag indicates that we have started the task to render.
+                // This ensures we don't start two render tasks at the same time.
+                if (_renderActive)
+                {
+                    return;
+                }
+                _renderActive = true;
+            }
+
+            // And finally we start the task.
+            Task.Factory.StartNew(() =>
+            {
+                // We repeatedly render while the flag says we need to render.
+                for (;;)
+                {
+                    float renderPosition;
+                    lock (_renderLock)
+                    {
+                        _renderNeeded = false;
+                        renderPosition = _renderPosition;
+                    }
+
+                    // Create a renderer
+                    var renderer = CreateWaveformRenderer();
+
+                    // Render a bitmap
+                    var bitmap = renderer.RenderFrame(renderPosition);
+
+                    BeginInvoke(new Action(() =>
+                    {
+                        // Swap it with whatever is in the preview control
+                        var oldImage = Preview.Image;
+                        Preview.Image = bitmap;
+                        Preview.Refresh();
+                        oldImage?.Dispose();
+                    }));
+
+                    // If the flag got set while we were rendering, do it again
+                    lock (_renderLock)
+                    {
+                        if (_renderNeeded)
+                        {
+                            continue;
+                        }
+                        _renderActive = false;
+                        break;
+                    }
+                }
+            });
         }
 
         private WaveformRenderer CreateWaveformRenderer()
@@ -585,7 +648,7 @@ namespace SidWiz
             }
         }
 
-        private void removeemptyToolStripMenuItem_Click(object sender, EventArgs e)
+        private void RemoveEmptyToolStripMenuItem_Click(object sender, EventArgs e)
         {
             foreach (var channel in _settings.Channels.Where(c => c.SampleCount == 0).ToList())
             {
@@ -598,7 +661,7 @@ namespace SidWiz
             Render();
         }
 
-        private void removeallToolStripMenuItem_Click(object sender, EventArgs e)
+        private void RemoveAllToolStripMenuItem_Click(object sender, EventArgs e)
         {
             _settings.Channels.Clear();
             PropertyGrid.SelectedObject = null;
