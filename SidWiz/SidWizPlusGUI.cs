@@ -658,12 +658,17 @@ namespace SidWiz
                 {
                     PropertyGrid.SelectedObject = null;
                 }
+                channel.Dispose();
             }
             Render();
         }
 
         private void RemoveAllToolStripMenuItem_Click(object sender, EventArgs e)
         {
+            foreach (var channel in _settings.Channels)
+            {
+                channel.Dispose();
+            }
             _settings.Channels.Clear();
             PropertyGrid.SelectedObject = null;
             Render();
