@@ -322,6 +322,11 @@ namespace SidWizPlus
                     }
 
                     Render(settings, channels);
+
+                    foreach (var channel in channels)
+                    {
+                        channel.Dispose();
+                    }
                 }
 
                 if (settings.YouTubeTitle != null)
@@ -765,7 +770,7 @@ namespace SidWizPlus
                     }
 
                     playlist = youtubeService.Playlists.Insert(playlist, "snippet, status").Execute();
-                    Console.WriteLine($"Created playlist \"{settings.YouTubePlaylist} with ID {playlist.Id}\"");
+                    Console.WriteLine($"Created playlist \"{settings.YouTubePlaylist}\" with ID {playlist.Id}");
                 }
 
                 // Add to it

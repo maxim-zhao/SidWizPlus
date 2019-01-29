@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
 using System.Drawing.Design;
@@ -11,8 +10,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms.Design;
 using LibSidWiz.Triggers;
-using NAudio.Dsp;
-using NAudio.Wave;
 using Newtonsoft.Json;
 
 namespace LibSidWiz
@@ -20,9 +17,9 @@ namespace LibSidWiz
     /// <summary>
     /// Wraps a single "voice", and also deals with loading the data into memory
     /// </summary>
-    public class Channel
+    public class Channel: IDisposable
     {
-        private IList<float> _samples;
+        private SampleBuffer _samples;
         private string _filename;
         private ITriggerAlgorithm _algorithm;
         private int _triggerLookaheadFrames;
@@ -31,8 +28,6 @@ namespace LibSidWiz
         private float _lineWidth = 3;
         private float _highPassFilterFrequency = -1;
         private float _scale = 1.0f;
-        private TimeSpan _length;
-        private int _sampleRate;
         private int _viewWidthInSamples = 1500;
         private Color _fillColor = Color.Transparent;
         private float _zeroLineWidth;
@@ -49,25 +44,20 @@ namespace LibSidWiz
                 try
                 {
                     Console.WriteLine($"- Reading {Filename}");
-                    float[] buffer;
-                    using (var reader = new WaveFileReader(Filename))
-                    {
-                        // We read the file and convert to mono
-                        buffer = new float[reader.SampleCount];
-                        reader.ToSampleProvider().ToMono().Read(buffer, 0, (int) reader.SampleCount);
-
-                        SampleRate = reader.WaveFormat.SampleRate;
-                        Length = TimeSpan.FromSeconds((double) reader.SampleCount / reader.WaveFormat.SampleRate);
-                    }
+                    _samples = new SampleBuffer(Filename);
+                    SampleRate = _samples.SampleRate;
+                    Length = _samples.Length;
 
                     token.ThrowIfCancellationRequested();
 
+                    _samples.Analyze();
+
                     // We don't care about ones where the samples are all equal
-                    // ReSharper disable once CompareOfFloatsByEqualityOperator
-                    if (buffer.Length == 0 || buffer.All(s => s == buffer[0]))
+                    if (Math.Abs(_samples.Min - _samples.Max) < 0.0001)
                     {
                         Console.WriteLine($"- {Filename} is silent");
                         // So we skip steps here
+                        _samples.Dispose();
                         _samples = null;
                         SampleCount = 0;
                         Max = 0;
@@ -75,10 +65,13 @@ namespace LibSidWiz
                         return false;
                     }
 
-                    SampleCount = buffer.Length;
+                    SampleCount = _samples.Count;
 
+                    /*
                     if (HighPassFilterFrequency > 0)
                     {
+                        // TODO: this only happens on load...
+                        // TODO: this won't work with random access...
                         Console.WriteLine($"- High-pass filtering {Filename}");
                         // Apply the high pass filter
                         var filter = BiQuadFilter.HighPassFilter(SampleRate, HighPassFilterFrequency, 1);
@@ -87,23 +80,14 @@ namespace LibSidWiz
                             buffer[i] = filter.Transform(buffer[i]);
                         }
                     }
+                    */
 
                     token.ThrowIfCancellationRequested();
 
-                    Max = 0;
-                    MaxOffset = 0;
-                    for (int i = 0; i < buffer.Length; ++i)
-                    {
-                        if (Math.Abs(buffer[i]) > Max)
-                        {
-                            Max = Math.Abs(buffer[i]);
-                            MaxOffset = i;
-                        }
-                    }
+                    Max = Math.Max(Math.Abs(_samples.Max), Math.Abs(_samples.Min));
 
                     Console.WriteLine($"- Peak sample amplitude for {Filename} is {Max}");
 
-                    _samples = buffer;
                     Loading = false;
                     Changed?.Invoke(this, false);
                     return true;
@@ -112,9 +96,9 @@ namespace LibSidWiz
                 {
                     // Blank out if cancelled
                     Max = 0;
-                    MaxOffset = 0;
                     SampleRate = 0;
                     Length = TimeSpan.Zero;
+                    _samples?.Dispose();
                     _samples = null;
                     Loading = false;
                     return false;
@@ -290,10 +274,10 @@ namespace LibSidWiz
         [JsonIgnore]
         public float ViewWidthInMilliseconds
         {
-            get => _sampleRate == 0 ? 0 : (float)_viewWidthInSamples * 1000 / _sampleRate;
+            get => SampleRate == 0 ? 0 : (float)_viewWidthInSamples * 1000 / SampleRate;
             set
             {
-                _viewWidthInSamples = (int) (value / 1000 * _sampleRate);
+                _viewWidthInSamples = (int) (value / 1000 * SampleRate);
                 Changed?.Invoke(this, false);
             }
         }
@@ -317,37 +301,17 @@ namespace LibSidWiz
 
         [Browsable(false)]
         [JsonIgnore]
-        public int MaxOffset { get; private set; }
-
-        [Browsable(false)]
-        [JsonIgnore]
         public int SampleCount { get; private set; }
 
         [Category("Data information")]
         [Description("Duration of the channel")]
         [JsonIgnore]
-        public TimeSpan Length
-        {
-            get => _length;
-            private set
-            {
-                _length = value;
-                // Changed?.Invoke(this, false);
-            }
-        }
+        public TimeSpan Length { get; private set; }
 
         [Category("Data information")]
         [Description("Sampling rate of the channel")]
         [JsonIgnore]
-        public int SampleRate
-        {
-            get => _sampleRate;
-            private set
-            {
-                _sampleRate = value;
-                // Changed?.Invoke(this, false);
-            }
-        }
+        public int SampleRate { get; private set; }
 
         // ReSharper disable once CompareOfFloatsByEqualityOperator
         [Browsable(false)]
@@ -517,5 +481,10 @@ namespace LibSidWiz
             }
         }
 
+        public void Dispose()
+        {
+            _samples?.Dispose();
+            _labelFont?.Dispose();
+        }
     }
 }

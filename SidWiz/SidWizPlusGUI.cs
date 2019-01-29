@@ -435,6 +435,7 @@ namespace SidWiz
             }
             channel.Changed -= ChannelOnChanged;
             _settings.Channels.Remove(channel);
+            channel.Dispose();
             PropertyGrid.SelectedObject = null;
             Render();
         }
