@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using NAudio.Wave;
+using NAudio.Wave.Asio;
 using NAudio.Wave.SampleProviders;
 using NReplayGain;
 
@@ -30,12 +31,14 @@ namespace LibSidWiz
                     Console.WriteLine("Computing ReplayGain...");
                     // We read it in a second at a time, to calculate Replay Gains
                     var mixer = new MixingSampleProvider(readers.Select(x => x.ToSampleProvider().ToStereo()));
+                    const int sampleRate = 44100;
+                    var resampler = new WdlResamplingSampleProvider(mixer, sampleRate);
                     // We use a 1s buffer...
-                    var buffer = new float[mixer.WaveFormat.SampleRate * 2];
-                    var replayGain = new TrackGain(channels.First().SampleRate);
+                    var buffer = new float[sampleRate * 2]; // *2 for stereo
+                    var replayGain = new TrackGain(sampleRate);
                     for (;;)
                     {
-                        int numRead = mixer.Read(buffer, 0, buffer.Length);
+                        int numRead = resampler.Read(buffer, 0, buffer.Length);
                         if (numRead == 0)
                         {
                             break;
