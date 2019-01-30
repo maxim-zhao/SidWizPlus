@@ -219,6 +219,7 @@ namespace SidWiz
             channel.Changed += ChannelOnChanged;
             channel.LoadDataAsync(); // in a worker thread
             _settings.Channels.Add(channel);
+            Render();
         }
 
         private void ChannelOnChanged(Channel channel, bool filenameChanged)
