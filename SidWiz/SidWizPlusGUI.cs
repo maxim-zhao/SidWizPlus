@@ -214,7 +214,7 @@ namespace SidWiz
                 Filename = filename,
                 Algorithm = new PeakSpeedTrigger(),
                 LabelColor = Color.White,
-                LabelFont = DefaultFont
+                LabelFont = new Font(DefaultFont, FontStyle.Regular)
             };
             channel.Changed += ChannelOnChanged;
             channel.LoadDataAsync(); // in a worker thread

@@ -245,7 +245,7 @@ namespace LibSidWiz
                         {
                             var y = renderingBounds.Top + channelIndex / Columns * viewHeight;
                             var x = renderingBounds.Left + (channelIndex % Columns) * renderingBounds.Width / Columns;
-                            g.DrawString(_channels[channelIndex].Name, channel.LabelFont, brush, x, y);
+                            g.DrawString(channel.Name, channel.LabelFont, brush, x, y);
                         }
                     }
                 }
