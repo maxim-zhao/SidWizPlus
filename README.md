@@ -3,7 +3,7 @@ This is a prgram which generates "oscilloscope view" videos from multi-track aud
 
 The primary goals of this projext are:
 
-1. Generating videos from VGM packs from (http://www.smspower.org/Music)[SMS Power!]
+1. Generating videos from VGM packs from [SMS Power!](http://www.smspower.org/Music)
 2. Producing a base for others to work on the features they want
 
 Get builds from here: https://ci.appveyor.com/project/maxim-zhao/sidwizplus/build/artifacts [![Build status](https://ci.appveyor.com/api/projects/status/vpa5eav7sm1n7ik6?svg=true)](https://ci.appveyor.com/project/maxim-zhao/sidwizplus) 
