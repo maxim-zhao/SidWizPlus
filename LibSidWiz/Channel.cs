@@ -62,6 +62,7 @@ namespace LibSidWiz
                         SampleCount = 0;
                         Max = 0;
                         Loading = false;
+                        Changed?.Invoke(this, false);
                         return false;
                     }
 
