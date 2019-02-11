@@ -28,10 +28,27 @@ namespace SidWizPlus
 
         public static Gd3Tag LoadFromVgm(string filename)
         {
-            var tags = new List<string>();
             // Open the stream
             using (var f = new FileStream(filename, FileMode.Open))
-            using (var s = new GZipStream(f, CompressionMode.Decompress))
+            {
+                // Check if it's GZipped
+                bool needGzip = f.ReadByte() == 0x1f && f.ReadByte() == 0x8b;
+                f.Seek(0, SeekOrigin.Begin);
+                if (needGzip)
+                {
+                    using (var s = new GZipStream(f, CompressionMode.Decompress))
+                    {
+                        return LoadFromStream(s);
+                    }
+                }
+
+                return LoadFromStream(f);
+            }
+        }
+
+        public static Gd3Tag LoadFromStream(Stream s)
+        {
+            var tags = new List<string>();
             using (var r = new BinaryReader(s, Encoding.Unicode))
             {
                 // Skip to GD3 offset
