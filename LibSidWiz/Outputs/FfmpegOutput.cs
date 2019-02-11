@@ -25,7 +25,7 @@ namespace LibSidWiz.Outputs
             }
 
             // Video part
-            arguments += $" -f rawvideo -pixel_format bgr24 -video_size {width}x{height} -framerate {fps} -i pipe:";
+            arguments += $" -f rawvideo -pixel_format bgr24 -video_size {width}x{height} -framerate {fps} -i pipe: -movflags +faststart";
 
             // Extra args
             arguments += $" {extraArgs} \"{filename}\"";
