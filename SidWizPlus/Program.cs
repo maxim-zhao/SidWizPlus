@@ -312,7 +312,7 @@ namespace SidWizPlus
                         if (settings.AutoScaleIgnoreYM2413Percussion)
                         {
                             max = channels
-                                .Where(IsYm2413Percussion)
+                                .Where(channel => !IsYm2413Percussion(channel))
                                 .Max(ch => ch.Max);
                         }
                         else
