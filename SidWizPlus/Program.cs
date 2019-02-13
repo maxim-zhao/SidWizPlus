@@ -87,6 +87,9 @@ namespace SidWizPlus
             [Option('a', "autoscale", Required = false, HelpText = "Automatic scaling percentage. A value of 100 will make the peak amplitude just fit in the rendered area.")]
             public float AutoScalePercentage { get; set; }
 
+            [Option("autoscaleignorepercussion", Required = false, HelpText = "Makes autoscale ignore YM2413 percussion channels")]
+            public bool AutoScaleIgnoreYM2413Percussion { get; set; }
+
             // ReSharper disable once StringLiteralTypo
             [Option('t', "triggeralgorithm", Required = false, HelpText = "Trigger algorithm name", DefaultValue = nameof(PeakSpeedTrigger))]
             public string TriggerAlgorithm { get; set; }
@@ -304,7 +307,19 @@ namespace SidWizPlus
                     }).Where(ch => ch.SampleCount > 0).ToList();
                     if (settings.AutoScalePercentage > 0)
                     {
-                        var scale = settings.AutoScalePercentage / 100 / channels.Max(ch => ch.Max);
+                        float max;
+                        bool IsYm2413Percussion(Channel ch) => ch.Name.StartsWith("YM2413 ") && !ch.Name.StartsWith("YM2413 Tone");
+                        if (settings.AutoScaleIgnoreYM2413Percussion)
+                        {
+                            max = channels
+                                .Where(IsYm2413Percussion)
+                                .Max(ch => ch.Max);
+                        }
+                        else
+                        {
+                            max = channels.Max(ch => ch.Max);
+                        }
+                        var scale = settings.AutoScalePercentage / 100 / max;
                         foreach (var channel in channels)
                         {
                             channel.Scale = scale;
