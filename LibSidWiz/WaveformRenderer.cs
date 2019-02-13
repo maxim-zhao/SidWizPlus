@@ -103,9 +103,8 @@ namespace LibSidWiz
                         ? null 
                         : new SolidBrush(c.FillColor)).ToList();
 
-                    // Prepare a buffer to hold the line coordinates
-                    int maxViewWidthInSamples = _channels.Count == 0 ? 0 : _channels.Max(channel => channel.ViewWidthInSamples);
-                    var points = new PointF[maxViewWidthInSamples];
+                    // Prepare buffers to hold the line coordinates
+                    var buffers = _channels.Select(channel => new PointF[channel.ViewWidthInSamples]).ToList();
                     var path = new GraphicsPath();
 
                     var frameSamples = SamplingRate / FramesPerSecond;
@@ -148,7 +147,7 @@ namespace LibSidWiz
                                 var triggerPoint = channel.GetTriggerPoint(frameIndexSamples, frameSamples, triggerPoints[channelIndex]);
                                 triggerPoints[channelIndex] = triggerPoint;
 
-                                RenderWave(g, channel, triggerPoint, xBase, yBase, viewWidth, viewHeight, pens[channelIndex], brushes[channelIndex], points, path);
+                                RenderWave(g, channel, triggerPoint, xBase, yBase, viewWidth, viewHeight, pens[channelIndex], brushes[channelIndex], buffers[channelIndex], path);
                             }
                         }
 
