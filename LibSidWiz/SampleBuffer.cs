@@ -78,7 +78,7 @@ namespace LibSidWiz
                 var chunk = _chunk1.Offset < _chunk2.Offset ? _chunk1 : _chunk2;
                 // Pick the rounded offset
                 chunk.Offset = (index / ChunkSize) * ChunkSize;
-                _reader.Position = chunk.Offset * _reader.WaveFormat.BitsPerSample / 8;
+                _reader.Position = chunk.Offset * _reader.WaveFormat.BitsPerSample / 8 * _reader.WaveFormat.Channels;
                 _sampleProvider.Read(chunk.Buffer, 0, ChunkSize);
                 return chunk.Buffer[index - chunk.Offset];
             }
