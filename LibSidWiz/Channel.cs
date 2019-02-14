@@ -26,7 +26,7 @@ namespace LibSidWiz
         private Color _lineColor = Color.White;
         private string _name = "";
         private float _lineWidth = 3;
-        private float _highPassFilterFrequency = -1;
+        //private float _highPassFilterFrequency = -1;
         private float _scale = 1.0f;
         private int _viewWidthInSamples = 1500;
         private Color _fillColor = Color.Transparent;
@@ -43,6 +43,19 @@ namespace LibSidWiz
             {
                 try
                 {
+                    if (string.IsNullOrEmpty(Filename))
+                    {
+                        _samples = null;
+                        SampleCount = 0;
+                        Max = 0;
+                        Length = TimeSpan.Zero;
+                        Loading = false;
+                        IsEmpty = true;
+                        return false;
+                    }
+
+                    IsEmpty = false;
+
                     Console.WriteLine($"- Reading {Filename}");
                     _samples = new SampleBuffer(Filename);
                     SampleRate = _samples.SampleRate;
@@ -62,7 +75,6 @@ namespace LibSidWiz
                         SampleCount = 0;
                         Max = 0;
                         Loading = false;
-                        Changed?.Invoke(this, false);
                         return false;
                     }
 
@@ -90,7 +102,6 @@ namespace LibSidWiz
                     Console.WriteLine($"- Peak sample amplitude for {Filename} is {Max}");
 
                     Loading = false;
-                    Changed?.Invoke(this, false);
                     return true;
                 }
                 catch (TaskCanceledException)
@@ -104,8 +115,25 @@ namespace LibSidWiz
                     Loading = false;
                     return false;
                 }
+                catch (Exception ex)
+                {
+                    ErrorMessage = ex.ToString();
+                    Max = 0;
+                    SampleRate = 0;
+                    Length = TimeSpan.Zero;
+                    _samples?.Dispose();
+                    _samples = null;
+                    Loading = false;
+                    return false;
+                }
+                finally
+                {
+                    Changed?.Invoke(this, false);
+                }
             }, token);
         }
+
+        public string ErrorMessage { get; private set; }
 
         [Category("Source")]
         [Editor(typeof(FileNameEditor), typeof(UITypeEditor))]
@@ -246,6 +274,7 @@ namespace LibSidWiz
             }
         }
 
+        /*
         [Category("Adjustment")]
         [Description("High pass frequency adjustment. -1 means disabled. Use a value like 10 to remove DC offsets.")]
         public float HighPassFilterFrequency
@@ -257,6 +286,7 @@ namespace LibSidWiz
                 Changed?.Invoke(this, false);
             }
         }
+        */
 
         [Category("Adjustment")]
         [Description("Vertical scaling. This may be set by the auto-scaler.")]
@@ -322,6 +352,10 @@ namespace LibSidWiz
         [Browsable(false)]
         [JsonIgnore]
         public bool Loading { get; private set; } = true;
+
+        [Browsable(false)]
+        [JsonIgnore]
+        public bool IsEmpty { get; private set; }
 
         public float GetSample(int sampleIndex)
         {

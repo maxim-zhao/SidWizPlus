@@ -184,7 +184,7 @@ namespace SidWiz
                     switch (extension)
                     {
                         case ".wav":
-                            LoadWav(path);
+                            AddChannel(path);
                             break;
                         default:
                             if (multiDumperMask.Contains("*" + extension))
@@ -206,20 +206,20 @@ namespace SidWiz
             }
         }
 
-        private void LoadWav(string filename)
+        private void AddChannel(string filename)
         {
             // We create a new Channel
             var channel = new Channel
             {
-                Filename = filename,
                 Algorithm = new PeakSpeedTrigger(),
                 LabelColor = Color.White,
                 LabelFont = new Font(DefaultFont, FontStyle.Regular)
             };
             channel.Changed += ChannelOnChanged;
-            channel.LoadDataAsync(); // in a worker thread
             _settings.Channels.Add(channel);
-            Render();
+            // Setting the filename triggers a load
+            channel.Filename = filename;
+            // We trigger a render to show the "loading" state
         }
 
         private void ChannelOnChanged(Channel channel, bool filenameChanged)
@@ -250,7 +250,7 @@ namespace SidWiz
 
                     foreach (var wavFile in form.Filenames)
                     {
-                        LoadWav(wavFile);
+                        AddChannel(wavFile);
                     }
                 }
             }
@@ -716,6 +716,11 @@ namespace SidWiz
 
                 _settings.ToControls(this);
             }
+        }
+
+        private void addChannelButton_Click(object sender, EventArgs e)
+        {
+            AddChannel("");
         }
     }
 }

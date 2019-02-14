@@ -128,14 +128,26 @@ namespace LibSidWiz
                         for (int channelIndex = 0; channelIndex < _channels.Count; ++channelIndex)
                         {
                             var channel = _channels[channelIndex];
+                            if (channel.IsEmpty)
+                            {
+                                continue;
+                            }
 
                             // Compute the initial x, y to render the line from.
                             var yBase = renderingBounds.Top + channelIndex / Columns * viewHeight + viewHeight / 2;
                             var xBase = renderingBounds.Left + (channelIndex % Columns) * renderingBounds.Width / Columns;
 
-                            if (channel.Loading)
+                            if (!string.IsNullOrEmpty(channel.ErrorMessage))
                             {
-                                g.DrawString("Loading data...", SystemFonts.DefaultFont, Brushes.Red, xBase, yBase);
+                                g.DrawString(channel.ErrorMessage, SystemFonts.DefaultFont, Brushes.Red, new RectangleF(
+                                    xBase,
+                                    yBase - viewHeight / 2,
+                                    viewWidth,
+                                    viewHeight));
+                            }
+                            else if (channel.Loading)
+                            {
+                                g.DrawString("Loading data...", SystemFonts.DefaultFont, Brushes.Green, xBase, yBase);
                             }
                             else if (channel.IsSilent)
                             {

@@ -115,6 +115,7 @@
             this.LoadButton = new System.Windows.Forms.Button();
             this.SaveButton = new System.Windows.Forms.Button();
             this.imageList1 = new System.Windows.Forms.ImageList(this.components);
+            this.addChannelButton = new System.Windows.Forms.ToolStripButton();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
             this.splitContainer1.Panel2.SuspendLayout();
@@ -189,7 +190,7 @@
             this.toolStripSeparator3,
             this.applySettingsToOtherChannelsToolStripMenuItem});
             this.contextMenuStrip1.Name = "contextMenuStrip1";
-            this.contextMenuStrip1.Size = new System.Drawing.Size(245, 148);
+            this.contextMenuStrip1.Size = new System.Drawing.Size(245, 104);
             // 
             // moveLeftupToolStripMenuItem
             // 
@@ -296,6 +297,7 @@
             this.toolStrip1.GripStyle = System.Windows.Forms.ToolStripGripStyle.Hidden;
             this.toolStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.AddFileButton,
+            this.addChannelButton,
             this.toolStripSeparator2,
             this.LeftButton,
             this.RightButton,
@@ -1176,6 +1178,16 @@
             this.imageList1.Images.SetKeyName(4, "layout.png");
             this.imageList1.Images.SetKeyName(5, "picture.png");
             // 
+            // addChannelButton
+            // 
+            this.addChannelButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.addChannelButton.Image = ((System.Drawing.Image)(resources.GetObject("addChannelButton.Image")));
+            this.addChannelButton.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.addChannelButton.Name = "addChannelButton";
+            this.addChannelButton.Size = new System.Drawing.Size(23, 22);
+            this.addChannelButton.Text = "Add an empty channel";
+            this.addChannelButton.Click += new System.EventHandler(this.addChannelButton_Click);
+            // 
             // SidWizPlusGui
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
@@ -1315,5 +1327,6 @@
         private System.Windows.Forms.Button LoadButton;
         private System.Windows.Forms.Label label23;
         private System.Windows.Forms.GroupBox groupBox4;
+        private System.Windows.Forms.ToolStripButton addChannelButton;
     }
 }
