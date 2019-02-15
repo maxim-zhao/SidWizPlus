@@ -206,6 +206,11 @@ namespace SidWiz
             }
         }
 
+        private void AddChannelButton_Click(object sender, EventArgs e)
+        {
+            AddChannel("");
+        }
+
         private void AddChannel(string filename)
         {
             // We create a new Channel
@@ -216,7 +221,10 @@ namespace SidWiz
                 LabelFont = new Font(DefaultFont, FontStyle.Regular)
             };
             channel.Changed += ChannelOnChanged;
-            _settings.Channels.Add(channel);
+            lock (_settings)
+            {
+                _settings.Channels.Add(channel);
+            }
             // Setting the filename triggers a load
             channel.Filename = filename;
             // We trigger a render to show the "loading" state
@@ -296,15 +304,19 @@ namespace SidWiz
 
         private void AutoScale_Click(object sender, EventArgs e)
         {
-            if (_settings.Channels.Count <= 0)
+            lock (_settings)
             {
-                return;
-            }
-            // Compute the scale for the channel with the highest value
-            var scale = _settings.AutoScaleHeight / 100 / _settings.Channels.Max(channel => channel.Max);
-            foreach (var channel in _settings.Channels)
-            {
-                channel.Scale = scale;
+                if (_settings.Channels.Count <= 0)
+                {
+                    return;
+                }
+
+                // Compute the scale for the channel with the highest value
+                var scale = _settings.AutoScaleHeight / 100 / _settings.Channels.Max(channel => channel.Max);
+                foreach (var channel in _settings.Channels)
+                {
+                    channel.Scale = scale;
+                }
             }
         }
 
@@ -378,28 +390,36 @@ namespace SidWiz
 
         private WaveformRenderer CreateWaveformRenderer()
         {
-            var renderer = new WaveformRenderer
+            // This can be on a worker thread so we need to lock...
+            lock (_settings)
             {
-                BackgroundColor = _settings.BackgroundColor,
-                BackgroundImage = File.Exists(_settings.BackgroundImageFilename) ? Image.FromFile(_settings.BackgroundImageFilename) : null,
-                Width = _settings.Width,
-                Height = _settings.Height,
-                Columns = _settings.Columns,
-                FramesPerSecond = _settings.FrameRate,
-                RenderingBounds = _settings.GetBounds(),
-                Grid = _settings.Grid
-            };
-            if (_settings.Channels.Count > 0)
-            {
-                // We don't support multiple sampling rates, but this lets us ignore "empty" tracks.
-                renderer.SamplingRate = _settings.Channels.Max(c => c.SampleRate);
-            }
-            foreach (var channel in _settings.Channels)
-            {
-                renderer.AddChannel(channel);
-            }
+                var renderer = new WaveformRenderer
+                {
+                    BackgroundColor = _settings.BackgroundColor,
+                    BackgroundImage = File.Exists(_settings.BackgroundImageFilename)
+                        ? Image.FromFile(_settings.BackgroundImageFilename)
+                        : null,
+                    Width = _settings.Width,
+                    Height = _settings.Height,
+                    Columns = _settings.Columns,
+                    FramesPerSecond = _settings.FrameRate,
+                    RenderingBounds = _settings.GetBounds(),
+                    Grid = _settings.Grid
+                };
 
-            return renderer;
+                if (_settings.Channels.Count > 0)
+                {
+                    // We don't support multiple sampling rates, but this lets us ignore "empty" tracks.
+                    renderer.SamplingRate = _settings.Channels.Max(c => c.SampleRate);
+                }
+
+                foreach (var channel in _settings.Channels)
+                {
+                    renderer.AddChannel(channel);
+                }
+
+                return renderer;
+            }
         }
 
         private void LeftButton_Click(object sender, EventArgs e)
@@ -414,18 +434,24 @@ namespace SidWiz
 
         private void MoveChannel(Channel channel, int delta)
         {
-            var index = _settings.Channels.IndexOf(channel);
-            if (index == -1)
+            lock (_settings)
             {
-                return;
+                var index = _settings.Channels.IndexOf(channel);
+                if (index == -1)
+                {
+                    return;
+                }
+
+                var newIndex = index + delta;
+                if (newIndex < 0 || newIndex >= _settings.Channels.Count)
+                {
+                    return;
+                }
+
+                _settings.Channels.RemoveAt(index);
+                _settings.Channels.Insert(newIndex, channel);
             }
-            var newIndex = index + delta;
-            if (newIndex < 0 || newIndex >= _settings.Channels.Count)
-            {
-                return;
-            }
-            _settings.Channels.RemoveAt(index);
-            _settings.Channels.Insert(newIndex, channel);
+
             Render();
         }
 
@@ -436,7 +462,10 @@ namespace SidWiz
                 return;
             }
             channel.Changed -= ChannelOnChanged;
-            _settings.Channels.Remove(channel);
+            lock (_settings)
+            {
+                _settings.Channels.Remove(channel);
+            }
             channel.Dispose();
             PropertyGrid.SelectedObject = null;
             Render();
@@ -502,18 +531,21 @@ namespace SidWiz
                 return;
             }
 
-            foreach (var propertyInfo in typeof(Channel)
-                .GetProperties(BindingFlags.Instance | BindingFlags.Public)
-                .Where(p => p.CanWrite && 
-                    p.GetSetMethod() != null &&
-                    p.Name != nameof(Channel.Filename) && 
-                    p.Name != nameof(Channel.Name)))
+            lock (_settings)
             {
-                var sourceValue = propertyInfo.GetValue(source);
-
-                foreach (var channel in _settings.Channels.Where(channel => channel != source))
+                foreach (var propertyInfo in typeof(Channel)
+                    .GetProperties(BindingFlags.Instance | BindingFlags.Public)
+                    .Where(p => p.CanWrite &&
+                                p.GetSetMethod() != null &&
+                                p.Name != nameof(Channel.Filename) &&
+                                p.Name != nameof(Channel.Name)))
                 {
-                    propertyInfo.SetValue(channel, sourceValue);
+                    var sourceValue = propertyInfo.GetValue(source);
+
+                    foreach (var channel in _settings.Channels.Where(channel => channel != source))
+                    {
+                        propertyInfo.SetValue(channel, sourceValue);
+                    }
                 }
             }
         }
@@ -522,7 +554,10 @@ namespace SidWiz
         {
             try
             {
-                _settings.FromControls(this);
+                lock (_settings)
+                {
+                    _settings.FromControls(this);
+                }
             }
             catch (Exception exception)
             {
@@ -543,12 +578,18 @@ namespace SidWiz
                 if (ofd.ShowDialog(this) != DialogResult.OK)
                 {
                     BackgroundImageControl.Image = null;
-                    _settings.BackgroundImageFilename = null;
+                    lock (_settings)
+                    {
+                        _settings.BackgroundImageFilename = null;
+                    }
                 }
                 else
                 {
                     BackgroundImageControl.ImageLocation = ofd.FileName;
-                    _settings.BackgroundImageFilename = ofd.FileName;
+                    lock (_settings)
+                    {
+                        _settings.BackgroundImageFilename = ofd.FileName;
+                    }
                 }
                 Render();
             }
@@ -564,50 +605,53 @@ namespace SidWiz
         {
             var outputs = new List<IGraphicsOutput>();
 
-            if (_settings.Preview.Enabled)
+            lock (_settings)
             {
-                outputs.Add(new PreviewOutput(_settings.Preview.Frameskip));
-            }
-
-            if (_settings.EncodeVideo.Enabled)
-            {
-                using (var sfd = new SaveFileDialog
+                if (_settings.Preview.Enabled)
                 {
-                    Title = "Select destination",
-                    Filter = "Video files (*.mp4;*.mkv;*.avi;*.qt)|*.mp4;*.mkv;*.avi;*.qt|All files (*.*)|*.*"
-                })
-                {
-                    if (sfd.ShowDialog(this) != DialogResult.OK)
-                    {
-                        // Cancel the whole operation
-                        return;
-                    }
-
-                    var outputFilename = sfd.FileName;
-
-                    if (_settings.MasterAudio.IsAutomatic && !string.IsNullOrEmpty(outputFilename))
-                    {
-                        var filename = outputFilename + ".wav";
-                        Mixer.MixToFile(_settings.Channels, filename, MasterMixReplayGain.Checked);
-                        MasterAudioPath.Text = filename;
-                        _settings.MasterAudio.Path = filename;
-                    }
-                    
-                    outputs.Add(new FfmpegOutput(
-                        _programLocationSettings.FFMPEGPath,
-                        outputFilename,
-                        _settings.Width,
-                        _settings.Height,
-                        _settings.FrameRate,
-                        _settings.EncodeVideo.FfmpegParameters,
-                        _settings.MasterAudio.Path));
+                    outputs.Add(new PreviewOutput(_settings.Preview.Frameskip));
                 }
-            }
 
-            if (outputs.Count == 0)
-            {
-                // Nothing to do
-                return;
+                if (_settings.EncodeVideo.Enabled)
+                {
+                    using (var sfd = new SaveFileDialog
+                    {
+                        Title = "Select destination",
+                        Filter = "Video files (*.mp4;*.mkv;*.avi;*.qt)|*.mp4;*.mkv;*.avi;*.qt|All files (*.*)|*.*"
+                    })
+                    {
+                        if (sfd.ShowDialog(this) != DialogResult.OK)
+                        {
+                            // Cancel the whole operation
+                            return;
+                        }
+
+                        var outputFilename = sfd.FileName;
+
+                        if (_settings.MasterAudio.IsAutomatic && !string.IsNullOrEmpty(outputFilename))
+                        {
+                            var filename = outputFilename + ".wav";
+                            Mixer.MixToFile(_settings.Channels, filename, MasterMixReplayGain.Checked);
+                            MasterAudioPath.Text = filename;
+                            _settings.MasterAudio.Path = filename;
+                        }
+
+                        outputs.Add(new FfmpegOutput(
+                            _programLocationSettings.FFMPEGPath,
+                            outputFilename,
+                            _settings.Width,
+                            _settings.Height,
+                            _settings.FrameRate,
+                            _settings.EncodeVideo.FfmpegParameters,
+                            _settings.MasterAudio.Path));
+                    }
+                }
+
+                if (outputs.Count == 0)
+                {
+                    // Nothing to do
+                    return;
+                }
             }
 
             try
@@ -679,7 +723,10 @@ namespace SidWiz
                 HighDpiHelper.AdjustControlImagesDpiScale(this);
                 _programLocationSettings = JsonConvert.DeserializeObject<ProgramLocationSettings>(File.ReadAllText(GetSettingsPath()));
                 FfmpegLocation.Text = _programLocationSettings.FFMPEGPath;
-                _settings.ToControls(this);
+                lock (_settings)
+                {
+                    _settings.ToControls(this);
+                }
             }
             catch (Exception)
             {
@@ -689,25 +736,32 @@ namespace SidWiz
 
         private void RemoveEmptyToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            foreach (var channel in _settings.Channels.Where(c => c.SampleCount == 0).ToList())
+            lock (_settings)
             {
-                _settings.Channels.Remove(channel);
-                if (PropertyGrid.SelectedObject == channel)
+                foreach (var channel in _settings.Channels.Where(c => c.SampleCount == 0).ToList())
                 {
-                    PropertyGrid.SelectedObject = null;
+                    _settings.Channels.Remove(channel);
+                    if (PropertyGrid.SelectedObject == channel)
+                    {
+                        PropertyGrid.SelectedObject = null;
+                    }
+                    channel.Dispose();
                 }
-                channel.Dispose();
             }
+
             Render();
         }
 
         private void RemoveAllToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            foreach (var channel in _settings.Channels)
+            lock (_settings)
             {
-                channel.Dispose();
+                foreach (var channel in _settings.Channels)
+                {
+                    channel.Dispose();
+                }
+                _settings.Channels.Clear();
             }
-            _settings.Channels.Clear();
             PropertyGrid.SelectedObject = null;
             Render();
         }
@@ -724,10 +778,13 @@ namespace SidWiz
                     return;
                 }
 
-                File.WriteAllText(sfd.FileName, JsonConvert.SerializeObject(_settings, new JsonSerializerSettings
+                lock (_settings)
                 {
-                    Formatting = Formatting.Indented,
-                }));
+                    File.WriteAllText(sfd.FileName, JsonConvert.SerializeObject(_settings, new JsonSerializerSettings
+                    {
+                        Formatting = Formatting.Indented,
+                    }));
+                }
             }
         }
 
@@ -743,21 +800,19 @@ namespace SidWiz
                     return;
                 }
 
-                JsonConvert.PopulateObject(File.ReadAllText(ofd.FileName), _settings);
-
-                foreach (var channel in _settings.Channels)
+                lock (_settings)
                 {
-                    channel.Changed += ChannelOnChanged;
-                    channel.LoadDataAsync();
+                    JsonConvert.PopulateObject(File.ReadAllText(ofd.FileName), _settings);
+
+                    foreach (var channel in _settings.Channels)
+                    {
+                        channel.Changed += ChannelOnChanged;
+                        channel.LoadDataAsync();
+                    }
+
+                    _settings.ToControls(this);
                 }
-
-                _settings.ToControls(this);
             }
-        }
-
-        private void addChannelButton_Click(object sender, EventArgs e)
-        {
-            AddChannel("");
         }
     }
 }
