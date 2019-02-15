@@ -25,14 +25,6 @@ namespace LibSidWiz
         public Color BackgroundColor { get; set; } = Color.Black;
         public Image BackgroundImage { get; set; }
         public Rectangle RenderingBounds { get; set; }
-        public GridConfig Grid { get; set; }
-
-        public class GridConfig
-        {
-            public Color Color { get; set; }
-            public float Width { get; set; }
-            public bool DrawBorder { get; set; }
-        }
 
         public void AddChannel(Channel channel)
         {
@@ -203,36 +195,6 @@ namespace LibSidWiz
                     }
                 }
 
-                if (Grid != null)
-                {
-                    using (var pen = new Pen(Grid.Color, Grid.Width))
-                    {
-                        // Verticals
-                        for (int c = 1; c < Columns; ++c)
-                        {
-                            g.DrawLine(
-                                pen,
-                                renderingBounds.Left + viewWidth * c, renderingBounds.Top,
-                                renderingBounds.Left + viewWidth * c, renderingBounds.Bottom);
-                        }
-
-                        // Horizontals
-                        for (int r = 1; r < (float) _channels.Count / Columns; ++r)
-                        {
-                            g.DrawLine(
-                                pen,
-                                renderingBounds.Left, renderingBounds.Top + viewHeight * r,
-                                renderingBounds.Right, renderingBounds.Top + viewHeight * r);
-                        }
-
-                        if (Grid.DrawBorder)
-                        {
-                            // We deflate the rect a tiny bit so a 1px line appears just inside the bounds
-                            g.DrawRectangle(pen, renderingBounds.Left, renderingBounds.Top, renderingBounds.Width - 1, renderingBounds.Height - 1);
-                        }
-                    }
-                }
-
                 for (int channelIndex = 0; channelIndex < _channels.Count; ++channelIndex)
                 {
                     var channel = _channels[channelIndex];
@@ -257,6 +219,17 @@ namespace LibSidWiz
                             var y = renderingBounds.Top + channelIndex / Columns * viewHeight;
                             var x = renderingBounds.Left + (channelIndex % Columns) * renderingBounds.Width / Columns;
                             g.DrawString(channel.Name, channel.LabelFont, brush, x, y);
+                        }
+                    }
+
+                    if (channel.BorderWidth > 0 && channel.BorderColor != Color.Transparent)
+                    {
+                        using (var pen = new Pen(channel.BorderColor, channel.BorderWidth))
+                        {
+                            var yBase = renderingBounds.Top + channelIndex / Columns * viewHeight;
+                            var xBase = renderingBounds.Left +
+                                        (channelIndex % Columns) * renderingBounds.Width / Columns;
+                            g.DrawRectangle(pen, xBase, yBase, viewWidth, viewHeight);
                         }
                     }
                 }

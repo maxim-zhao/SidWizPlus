@@ -79,14 +79,17 @@ namespace SidWizPlus
             [Option("fillcolor", Required = false, HelpText = "Line color, can be hex or a .net color name", DefaultValue = "transparent")]
             public string FillColor { get; set; }
 
+            /*
             // ReSharper disable once StringLiteralTypo
             [Option("highpassfilter", Required = false, HelpText = "Enable high pass filtering with the given value as the cutoff frequency. A value of 10 works well to remove DC offsets.")]
             public float HighPassFilterFrequency { get; set; }
+            */
 
             // ReSharper disable once StringLiteralTypo
             [Option('a', "autoscale", Required = false, HelpText = "Automatic scaling percentage. A value of 100 will make the peak amplitude just fit in the rendered area.")]
             public float AutoScalePercentage { get; set; }
 
+            // ReSharper disable once StringLiteralTypo
             [Option("autoscaleignorepercussion", Required = false, HelpText = "Makes autoscale ignore YM2413 percussion channels")]
             public bool AutoScaleIgnoreYM2413Percussion { get; set; }
 
@@ -129,10 +132,11 @@ namespace SidWizPlus
             // ReSharper disable once StringLiteralTypo
             [Option("gridwidth", Required = false, HelpText = "Grid line width", DefaultValue = 0)]
             public float GridLineWidth { get; set; }
+            /*
             // ReSharper disable once StringLiteralTypo
             [Option("gridborder", HelpText = "Draw a border around the waves as well as between them")]
             public bool GridBorder { get; set; }
-
+            */
             // ReSharper disable once StringLiteralTypo
             [Option("zerolinecolor", HelpText = "Zero line color", DefaultValue = "white")]
             public string ZeroLineColor { get; set; }
@@ -287,7 +291,7 @@ namespace SidWizPlus
                         var channel = new Channel
                         {
                             Filename = filename,
-                            HighPassFilterFrequency = settings.HighPassFilterFrequency,
+                            //HighPassFilterFrequency = settings.HighPassFilterFrequency,
                             LineColor = ParseColor(settings.LineColor),
                             LineWidth = settings.LineWidth,
                             FillColor = ParseColor(settings.FillColor),
@@ -484,12 +488,11 @@ namespace SidWizPlus
 
             if (settings.GridLineWidth > 0)
             {
-                renderer.Grid = new WaveformRenderer.GridConfig
+                foreach (var channel in channels)
                 {
-                    Color = ParseColor(settings.GridColor),
-                    Width = settings.GridLineWidth,
-                    DrawBorder = settings.GridBorder
-                };
+                    channel.BorderColor = ParseColor(settings.GridColor);
+                    channel.BorderWidth = settings.GridLineWidth;
+                }
             }
 
             // Add the data to the renderer

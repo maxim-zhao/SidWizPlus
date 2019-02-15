@@ -42,7 +42,6 @@ namespace SidWiz
             public int FrameRate { get; set; } = 60;
             public Color BackgroundColor { get; set; } = Color.Black;
             public string BackgroundImageFilename { get; set; }
-            public WaveformRenderer.GridConfig Grid { get; set; }
             public PreviewSettings Preview { get; } = new PreviewSettings {Enabled = true, Frameskip = 1};
             public EncodeSettings EncodeVideo { get; } = new EncodeSettings {Enabled = false};
             public MasterAudioSettings MasterAudio { get; } = new MasterAudioSettings {IsAutomatic = true, ApplyReplayGain = true};
@@ -82,14 +81,6 @@ namespace SidWiz
                 MarginBottom = (int) form.MarginBottomControl.Value;
                 FrameRate = (int) form.FrameRateControl.Value;
                 BackgroundColor = form.BackgroundColorButton.Color;
-                Grid = form.GridEnabled.Checked
-                    ? new WaveformRenderer.GridConfig()
-                    {
-                        Color = form.GridColor.Color,
-                        DrawBorder = form.GridBorders.Checked,
-                        Width = (float) form.GridWidth.Value
-                    }
-                    : null;
                 Preview.Enabled = form.PreviewCheckBox.Checked;
                 Preview.Frameskip = (int) form.PreviewFrameskip.Value;
                 EncodeVideo.Enabled = form.EncodeCheckBox.Checked;
@@ -113,13 +104,6 @@ namespace SidWiz
                 form.MarginBottomControl.Value = MarginBottom;
                 form.FrameRateControl.Value = FrameRate;
                 form.BackgroundColorButton.Color = BackgroundColor;
-                form.GridEnabled.Checked = Grid != null;
-                if (Grid != null)
-                {
-                    form.GridColor.Color = Grid.Color;
-                    form.GridBorders.Checked = Grid.DrawBorder;
-                    form.GridWidth.Value = (decimal) Grid.Width;
-                }
                 form.PreviewCheckBox.Checked = Preview.Enabled;
                 form.PreviewFrameskip.Value = Preview.Frameskip;
                 form.EncodeCheckBox.Checked = EncodeVideo.Enabled;
@@ -404,7 +388,6 @@ namespace SidWiz
                     Columns = _settings.Columns,
                     FramesPerSecond = _settings.FrameRate,
                     RenderingBounds = _settings.GetBounds(),
-                    Grid = _settings.Grid
                 };
 
                 if (_settings.Channels.Count > 0)

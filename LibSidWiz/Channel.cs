@@ -34,6 +34,8 @@ namespace LibSidWiz
         private Color _zeroLineColor = Color.Transparent;
         private Font _labelFont;
         private Color _labelColor = Color.Transparent;
+        private Color _borderColor = Color.Transparent;
+        private float _borderWidth;
 
         public event Action<Channel, bool> Changed;
 
@@ -133,6 +135,8 @@ namespace LibSidWiz
             }, token);
         }
 
+        [Category("Data information")]
+        [Description("The full text of any error message when loading the file")]
         public string ErrorMessage { get; private set; }
 
         [Category("Source")]
@@ -234,6 +238,30 @@ namespace LibSidWiz
             set
             {
                 _zeroLineColor = value;
+                Changed?.Invoke(this, false);
+            }
+        }
+
+        [Category("Display")]
+        [Description("The color of the border")]
+        public Color BorderColor
+        {
+            get => _borderColor;
+            set
+            {
+                _borderColor = value;
+                Changed?.Invoke(this, false);
+            }
+        }
+
+        [Category("Display")]
+        [Description("The width of the border")]
+        public float BorderWidth
+        {
+            get => _borderWidth;
+            set
+            {
+                _borderWidth = value;
                 Changed?.Invoke(this, false);
             }
         }

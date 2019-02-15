@@ -45,6 +45,7 @@
             this.PropertyGrid = new System.Windows.Forms.PropertyGrid();
             this.toolStrip1 = new System.Windows.Forms.ToolStrip();
             this.AddFileButton = new System.Windows.Forms.ToolStripButton();
+            this.AddChannelButton = new System.Windows.Forms.ToolStripButton();
             this.toolStripSeparator2 = new System.Windows.Forms.ToolStripSeparator();
             this.LeftButton = new System.Windows.Forms.ToolStripButton();
             this.RightButton = new System.Windows.Forms.ToolStripButton();
@@ -78,14 +79,6 @@
             this.label11 = new System.Windows.Forms.Label();
             this.label12 = new System.Windows.Forms.Label();
             this.tabPage4 = new System.Windows.Forms.TabPage();
-            this.groupBox1 = new System.Windows.Forms.GroupBox();
-            this.label23 = new System.Windows.Forms.Label();
-            this.GridColor = new SidWiz.ColorButton(this.components);
-            this.GridEnabled = new System.Windows.Forms.CheckBox();
-            this.GridBorders = new System.Windows.Forms.CheckBox();
-            this.label2 = new System.Windows.Forms.Label();
-            this.label3 = new System.Windows.Forms.Label();
-            this.GridWidth = new System.Windows.Forms.NumericUpDown();
             this.label20 = new System.Windows.Forms.Label();
             this.BackgroundImageControl = new System.Windows.Forms.PictureBox();
             this.label21 = new System.Windows.Forms.Label();
@@ -115,7 +108,6 @@
             this.LoadButton = new System.Windows.Forms.Button();
             this.SaveButton = new System.Windows.Forms.Button();
             this.imageList1 = new System.Windows.Forms.ImageList(this.components);
-            this.AddChannelButton = new System.Windows.Forms.ToolStripButton();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
             this.splitContainer1.Panel2.SuspendLayout();
@@ -134,8 +126,6 @@
             ((System.ComponentModel.ISupportInitialize)(this.MarginTopControl)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.Columns)).BeginInit();
             this.tabPage4.SuspendLayout();
-            this.groupBox1.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.GridWidth)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.BackgroundImageControl)).BeginInit();
             this.tabPage3.SuspendLayout();
             this.tabPage2.SuspendLayout();
@@ -320,6 +310,16 @@
             this.AddFileButton.Size = new System.Drawing.Size(23, 22);
             this.AddFileButton.Text = "Add a file";
             this.AddFileButton.Click += new System.EventHandler(this.AddAFileClick);
+            // 
+            // AddChannelButton
+            // 
+            this.AddChannelButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.AddChannelButton.Image = ((System.Drawing.Image)(resources.GetObject("AddChannelButton.Image")));
+            this.AddChannelButton.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.AddChannelButton.Name = "AddChannelButton";
+            this.AddChannelButton.Size = new System.Drawing.Size(23, 22);
+            this.AddChannelButton.Text = "Add an empty channel";
+            this.AddChannelButton.Click += new System.EventHandler(this.AddChannelButton_Click);
             // 
             // toolStripSeparator2
             // 
@@ -684,7 +684,6 @@
             // 
             // tabPage4
             // 
-            this.tabPage4.Controls.Add(this.groupBox1);
             this.tabPage4.Controls.Add(this.label20);
             this.tabPage4.Controls.Add(this.BackgroundImageControl);
             this.tabPage4.Controls.Add(this.label21);
@@ -698,114 +697,6 @@
             this.tabPage4.TabIndex = 3;
             this.tabPage4.Text = "Background";
             this.tabPage4.UseVisualStyleBackColor = true;
-            // 
-            // groupBox1
-            // 
-            this.groupBox1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.groupBox1.Controls.Add(this.label23);
-            this.groupBox1.Controls.Add(this.GridColor);
-            this.groupBox1.Controls.Add(this.GridEnabled);
-            this.groupBox1.Controls.Add(this.GridBorders);
-            this.groupBox1.Controls.Add(this.label2);
-            this.groupBox1.Controls.Add(this.label3);
-            this.groupBox1.Controls.Add(this.GridWidth);
-            this.groupBox1.Location = new System.Drawing.Point(4, 145);
-            this.groupBox1.Margin = new System.Windows.Forms.Padding(2, 3, 2, 3);
-            this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Padding = new System.Windows.Forms.Padding(2, 3, 2, 3);
-            this.groupBox1.Size = new System.Drawing.Size(271, 137);
-            this.groupBox1.TabIndex = 3;
-            this.groupBox1.TabStop = false;
-            this.groupBox1.Text = "Grid";
-            // 
-            // label23
-            // 
-            this.label23.AutoSize = true;
-            this.label23.Location = new System.Drawing.Point(179, 82);
-            this.label23.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
-            this.label23.Name = "label23";
-            this.label23.Size = new System.Drawing.Size(19, 15);
-            this.label23.TabIndex = 6;
-            this.label23.Text = "px";
-            // 
-            // GridColor
-            // 
-            this.GridColor.BackColor = System.Drawing.Color.White;
-            this.GridColor.Color = System.Drawing.Color.White;
-            this.GridColor.ForeColor = System.Drawing.Color.Black;
-            this.GridColor.Location = new System.Drawing.Point(114, 41);
-            this.GridColor.Margin = new System.Windows.Forms.Padding(2, 3, 2, 3);
-            this.GridColor.Name = "GridColor";
-            this.GridColor.Size = new System.Drawing.Size(114, 33);
-            this.GridColor.TabIndex = 2;
-            this.GridColor.Text = "White";
-            this.GridColor.UseVisualStyleBackColor = false;
-            this.GridColor.ColorChanged += new System.EventHandler(this.ControlValueChanged);
-            // 
-            // GridEnabled
-            // 
-            this.GridEnabled.AutoSize = true;
-            this.GridEnabled.Location = new System.Drawing.Point(13, 22);
-            this.GridEnabled.Margin = new System.Windows.Forms.Padding(2, 3, 2, 3);
-            this.GridEnabled.Name = "GridEnabled";
-            this.GridEnabled.Size = new System.Drawing.Size(68, 19);
-            this.GridEnabled.TabIndex = 0;
-            this.GridEnabled.Text = "Enabled";
-            this.GridEnabled.UseVisualStyleBackColor = true;
-            this.GridEnabled.CheckedChanged += new System.EventHandler(this.ControlValueChanged);
-            // 
-            // GridBorders
-            // 
-            this.GridBorders.AutoSize = true;
-            this.GridBorders.Location = new System.Drawing.Point(13, 109);
-            this.GridBorders.Margin = new System.Windows.Forms.Padding(2, 3, 2, 3);
-            this.GridBorders.Name = "GridBorders";
-            this.GridBorders.Size = new System.Drawing.Size(108, 19);
-            this.GridBorders.TabIndex = 5;
-            this.GridBorders.Text = "Include borders";
-            this.GridBorders.UseVisualStyleBackColor = true;
-            this.GridBorders.CheckedChanged += new System.EventHandler(this.ControlValueChanged);
-            // 
-            // label2
-            // 
-            this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(10, 50);
-            this.label2.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
-            this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(36, 15);
-            this.label2.TabIndex = 1;
-            this.label2.Text = "Color";
-            // 
-            // label3
-            // 
-            this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(10, 82);
-            this.label3.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
-            this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(39, 15);
-            this.label3.TabIndex = 3;
-            this.label3.Text = "Width";
-            // 
-            // GridWidth
-            // 
-            this.GridWidth.Location = new System.Drawing.Point(114, 80);
-            this.GridWidth.Margin = new System.Windows.Forms.Padding(2, 3, 2, 3);
-            this.GridWidth.Minimum = new decimal(new int[] {
-            1,
-            0,
-            0,
-            0});
-            this.GridWidth.Name = "GridWidth";
-            this.GridWidth.Size = new System.Drawing.Size(61, 23);
-            this.GridWidth.TabIndex = 4;
-            this.GridWidth.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
-            this.GridWidth.Value = new decimal(new int[] {
-            1,
-            0,
-            0,
-            0});
-            this.GridWidth.ValueChanged += new System.EventHandler(this.ControlValueChanged);
             // 
             // label20
             // 
@@ -1178,16 +1069,6 @@
             this.imageList1.Images.SetKeyName(4, "layout.png");
             this.imageList1.Images.SetKeyName(5, "picture.png");
             // 
-            // addChannelButton
-            // 
-            this.AddChannelButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.AddChannelButton.Image = ((System.Drawing.Image)(resources.GetObject("addChannelButton.Image")));
-            this.AddChannelButton.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.AddChannelButton.Name = "AddChannelButton";
-            this.AddChannelButton.Size = new System.Drawing.Size(23, 22);
-            this.AddChannelButton.Text = "Add an empty channel";
-            this.AddChannelButton.Click += new System.EventHandler(this.AddChannelButton_Click);
-            // 
             // SidWizPlusGui
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
@@ -1222,9 +1103,6 @@
             ((System.ComponentModel.ISupportInitialize)(this.Columns)).EndInit();
             this.tabPage4.ResumeLayout(false);
             this.tabPage4.PerformLayout();
-            this.groupBox1.ResumeLayout(false);
-            this.groupBox1.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.GridWidth)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.BackgroundImageControl)).EndInit();
             this.tabPage3.ResumeLayout(false);
             this.tabPage3.PerformLayout();
@@ -1280,13 +1158,6 @@
         private System.Windows.Forms.Label label8;
         private System.Windows.Forms.Label label7;
         private System.Windows.Forms.Label label6;
-        private System.Windows.Forms.GroupBox groupBox1;
-        private ColorButton GridColor;
-        private System.Windows.Forms.CheckBox GridEnabled;
-        private System.Windows.Forms.CheckBox GridBorders;
-        private System.Windows.Forms.Label label2;
-        private System.Windows.Forms.Label label3;
-        private System.Windows.Forms.NumericUpDown GridWidth;
         private System.Windows.Forms.NumericUpDown MarginBottomControl;
         private System.Windows.Forms.NumericUpDown MarginRightControl;
         private System.Windows.Forms.NumericUpDown MarginLeftControl;
@@ -1325,7 +1196,6 @@
         private System.Windows.Forms.TabPage tabPage6;
         private System.Windows.Forms.Button SaveButton;
         private System.Windows.Forms.Button LoadButton;
-        private System.Windows.Forms.Label label23;
         private System.Windows.Forms.GroupBox groupBox4;
         private System.Windows.Forms.ToolStripButton AddChannelButton;
     }
