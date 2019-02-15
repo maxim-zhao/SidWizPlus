@@ -220,6 +220,7 @@ namespace SidWiz
             // Setting the filename triggers a load
             channel.Filename = filename;
             // We trigger a render to show the "loading" state
+            Render();
         }
 
         private void ChannelOnChanged(Channel channel, bool filenameChanged)
