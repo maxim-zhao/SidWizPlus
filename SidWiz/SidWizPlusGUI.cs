@@ -445,16 +445,52 @@ namespace SidWiz
         private void Preview_MouseClick(object sender, MouseEventArgs e)
         {
             // Determine which channel was clicked
-            var column = e.X * _settings.Columns / Preview.Width;
-            var row = e.Y * _settings.Channels.Count / (Preview.Height * _settings.Columns);
-            var index = row * _settings.Columns + column;
-            if (index >= _settings.Channels.Count)
+            // This is tricky because the preview is scaling the image to fit, but we don't know the details
+            // So we need to map the click into the image space
+            // First we map the click to the preview space 
+            var x = (double) e.X / Preview.Width;
+            var y = (double) e.Y / Preview.Height;
+            // Next we map that to image space
+            var imageAspectRatio = (double) Preview.Image.Width / Preview.Image.Height;
+            var previewAspectRatio = (double) Preview.Width / Preview.Height;
+            if (previewAspectRatio > imageAspectRatio)
             {
-                PropertyGrid.SelectedObject = null;
+                // Preview is wider, we have pillarboxing
+                // So the y one is correct, x needs to be modified:
+                // +--+-----+--+
+                // |  |     |  |
+                // +--+-----+--+
+                x = (x - 0.5) * previewAspectRatio / imageAspectRatio + 0.5;
+                if (x < 0 || x > 1)
+                {
+                    return;
+                }
             }
             else
             {
-                PropertyGrid.SelectedObject = _settings.Channels[index];
+                // Image is wider, we have letterboxing
+                y = (y - 0.5) * imageAspectRatio  / previewAspectRatio + 0.5;
+                if (y < 0 || y > 1)
+                {
+                    return;
+                }
+            }
+            // Then we map that to the row/column space
+            lock (_settings)
+            {
+                var column = (int) (_settings.Columns * x);
+                var numRows = _settings.Channels.Count / _settings.Columns +
+                              (_settings.Channels.Count % _settings.Columns == 0 ? 0 : 1);
+                var row = (int) (numRows * y);
+                var index = row * _settings.Columns + column;
+                if (index >= _settings.Channels.Count)
+                {
+                    PropertyGrid.SelectedObject = null;
+                }
+                else
+                {
+                    PropertyGrid.SelectedObject = _settings.Channels[index];
+                }
             }
         }
 
