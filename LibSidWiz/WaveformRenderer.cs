@@ -76,15 +76,19 @@ namespace LibSidWiz
             var numRows = _channels.Count / Columns + (_channels.Count % Columns == 0 ? 0 : 1);
             for (int i = 0; i < _channels.Count; ++i)
             {
+                int ChannelX(int column1) => column1 * renderingBounds.Width / Columns + renderingBounds.Left;
+                int ChannelY(int row1) => row1 * renderingBounds.Height / numRows + renderingBounds.Top;
+
                 var channel = _channels[i];
                 var column = i % Columns;
                 var row = i / Columns;
-                channel.X = column * renderingBounds.Width / Columns;
-                channel.Y = row * renderingBounds.Height / numRows;
+                channel.X = ChannelX(column);
+                channel.Y = ChannelY(row);
                 // Compute sizes as difference to next one to avoid off by 1 errors
-                channel.Width = (column + 1) * renderingBounds.Width / Columns - channel.X;
-                channel.Height = (row + 1) * renderingBounds.Height / numRows - channel.Y;
+                channel.Width = ChannelX(column + 1) - channel.X;
+                channel.Height = ChannelY(row + 1) - channel.Y;
             }
+
 
             // We generate our "base image"
             using (var template = GenerateTemplate())
