@@ -227,6 +227,11 @@ namespace LibSidWiz
                         using (var brush = new SolidBrush(channel.LabelColor))
                         {
                             var stringFormat = new StringFormat();
+                            var layoutRectangle = new RectangleF(
+                                channel.X + channel.LabelMargins.Left, 
+                                channel.Y + channel.LabelMargins.Top, 
+                                channel.Width - channel.LabelMargins.Left - channel.LabelMargins.Right, 
+                                channel.Height - channel.LabelMargins.Top - channel.LabelMargins.Bottom);
                             switch (channel.LabelAlignment)
                             {
                                 case ContentAlignment.TopLeft:
@@ -269,7 +274,7 @@ namespace LibSidWiz
                                     throw new ArgumentOutOfRangeException();
                             }
 
-                            g.DrawString(channel.Name, channel.LabelFont, brush, new RectangleF(channel.X, channel.Y, channel.Width, channel.Height), stringFormat);
+                            g.DrawString(channel.Label, channel.LabelFont, brush, layoutRectangle, stringFormat);
                         }
                     }
 

@@ -521,7 +521,7 @@ namespace SidWiz
                     .Where(p => p.CanWrite &&
                                 p.GetSetMethod() != null &&
                                 p.Name != nameof(Channel.Filename) &&
-                                p.Name != nameof(Channel.Name)))
+                                p.Name != nameof(Channel.Label)))
                 {
                     var sourceValue = propertyInfo.GetValue(source);
 

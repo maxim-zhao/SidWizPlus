@@ -1,5 +1,6 @@
 ﻿using System;
 using System.ComponentModel;
+using System.ComponentModel.Design;
 using System.Drawing;
 using System.Drawing.Design;
 using System.Globalization;
@@ -8,6 +9,7 @@ using System.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 using System.Windows.Forms.Design;
 using LibSidWiz.Triggers;
 using Newtonsoft.Json;
@@ -24,7 +26,7 @@ namespace LibSidWiz
         private ITriggerAlgorithm _algorithm;
         private int _triggerLookaheadFrames;
         private Color _lineColor = Color.White;
-        private string _name = "";
+        private string _label = "";
         private float _lineWidth = 3;
         //private float _highPassFilterFrequency = -1;
         private float _scale = 1.0f;
@@ -37,6 +39,7 @@ namespace LibSidWiz
         private Color _borderColor = Color.Transparent;
         private float _borderWidth;
         private ContentAlignment _labelAlignment = ContentAlignment.TopLeft;
+        private Padding _labelMargins = new Padding(0, 0, 0, 0);
 
         public event Action<Channel, bool> Changed;
 
@@ -150,9 +153,9 @@ namespace LibSidWiz
             {
                 _filename = value;
                 Changed?.Invoke(this, true);
-                if (_filename != "" && string.IsNullOrEmpty(_name))
+                if (_filename != "" && string.IsNullOrEmpty(_label))
                 {
-                    Name = GuessNameFromMultidumperFilename(_filename);
+                    Label = GuessNameFromMultidumperFilename(_filename);
                 }
             }
         }
@@ -269,12 +272,13 @@ namespace LibSidWiz
 
         [Category("Appearance")]
         [Description("The label for the channel")]
-        public string Name
+        [Editor(typeof(MultilineStringEditor), typeof(UITypeEditor))]
+        public string Label
         {
-            get => _name;
+            get => _label;
             set
             {
-                _name = value;
+                _label = value;
                 Changed?.Invoke(this, false);
             }
         }
@@ -304,13 +308,25 @@ namespace LibSidWiz
         }
 
         [Category("Appearance")]
-        [Description("The color for the channel label")]
+        [Description("The alignment for the channel label")]
         public ContentAlignment LabelAlignment
         {
             get => _labelAlignment;
             set
             {
                 _labelAlignment = value;
+                Changed?.Invoke(this, false);
+            }
+        }
+
+        [Category("Appearance")]
+        [Description("The margins for the chanel label")]
+        public Padding LabelMargins
+        {
+            get => _labelMargins;
+            set
+            {
+                _labelMargins = value;
                 Changed?.Invoke(this, false);
             }
         }

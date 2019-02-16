@@ -295,7 +295,7 @@ namespace SidWizPlus
                             LineColor = ParseColor(settings.LineColor),
                             LineWidth = settings.LineWidth,
                             FillColor = ParseColor(settings.FillColor),
-                            Name = Channel.GuessNameFromMultidumperFilename(filename),
+                            Label = Channel.GuessNameFromMultidumperFilename(filename),
                             Algorithm = CreateTriggerAlgorithm(settings.TriggerAlgorithm),
                             TriggerLookaheadFrames = settings.TriggerLookahead,
                             ZeroLineWidth = settings.ZeroLineWidth,
@@ -312,7 +312,7 @@ namespace SidWizPlus
                     if (settings.AutoScalePercentage > 0)
                     {
                         float max;
-                        bool IsYm2413Percussion(Channel ch) => ch.Name.StartsWith("YM2413 ") && !ch.Name.StartsWith("YM2413 Tone");
+                        bool IsYm2413Percussion(Channel ch) => ch.Label.StartsWith("YM2413 ") && !ch.Label.StartsWith("YM2413 Tone");
                         if (settings.AutoScaleIgnoreYM2413Percussion)
                         {
                             max = channels
