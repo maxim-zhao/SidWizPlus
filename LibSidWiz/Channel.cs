@@ -385,10 +385,18 @@ namespace LibSidWiz
         [JsonIgnore]
         public bool IsEmpty { get; private set; }
 
+        [Browsable(false)]
+        [JsonIgnore]
         internal int X { get; set; }
+        [Browsable(false)]
+        [JsonIgnore]
         internal int Y { get; set; }
 
+        [Browsable(false)]
+        [JsonIgnore]
         internal int Width { get; set; }
+        [Browsable(false)]
+        [JsonIgnore]
         internal int Height { get; set; }
 
         internal float GetSample(int sampleIndex)
