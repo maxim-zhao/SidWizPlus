@@ -72,11 +72,22 @@ namespace LibSidWiz
                 renderingBounds = new Rectangle(0, 0, Width, Height);
             }
 
-            int viewWidth = renderingBounds.Width / Columns;
-            int viewHeight = renderingBounds.Height / (int)Math.Ceiling((double)(Math.Max(_channels.Count,1)) / Columns);
+            // Compute channel bounds
+            var numRows = _channels.Count / Columns + (_channels.Count % Columns == 0 ? 0 : 1);
+            for (int i = 0; i < _channels.Count; ++i)
+            {
+                var channel = _channels[i];
+                var column = i % Columns;
+                var row = i / Columns;
+                channel.X = column * renderingBounds.Width / Columns;
+                channel.Y = row * renderingBounds.Height / numRows;
+                // Compute sizes as difference to next one to avoid off by 1 errors
+                channel.Width = (column + 1) * renderingBounds.Width / Columns - channel.X;
+                channel.Height = (row + 1) * renderingBounds.Height / numRows - channel.Y;
+            }
 
             // We generate our "base image"
-            using (var template = GenerateTemplate(renderingBounds, viewWidth, viewHeight))
+            using (var template = GenerateTemplate())
             {
                 using (var g = Graphics.FromImage(destination))
                 {
@@ -126,16 +137,16 @@ namespace LibSidWiz
                             }
 
                             // Compute the initial x, y to render the line from.
-                            var yBase = renderingBounds.Top + channelIndex / Columns * viewHeight + viewHeight / 2;
-                            var xBase = renderingBounds.Left + (channelIndex % Columns) * renderingBounds.Width / Columns;
+                            var yBase = channel.Y + channel.Height / 2;
+                            var xBase = channel.X;
 
                             if (!string.IsNullOrEmpty(channel.ErrorMessage))
                             {
                                 g.DrawString(channel.ErrorMessage, SystemFonts.DefaultFont, Brushes.Red, new RectangleF(
-                                    xBase,
-                                    yBase - viewHeight / 2,
-                                    viewWidth,
-                                    viewHeight));
+                                    channel.X,
+                                    channel.Y,
+                                    channel.Width,
+                                    channel.Height));
                             }
                             else if (channel.Loading)
                             {
@@ -151,7 +162,7 @@ namespace LibSidWiz
                                 var triggerPoint = channel.GetTriggerPoint(frameIndexSamples, frameSamples, triggerPoints[channelIndex]);
                                 triggerPoints[channelIndex] = triggerPoint;
 
-                                RenderWave(g, channel, triggerPoint, xBase, yBase, viewWidth, viewHeight, pens[channelIndex], brushes[channelIndex], buffers[channelIndex], path);
+                                RenderWave(g, channel, triggerPoint, pens[channelIndex], brushes[channelIndex], buffers[channelIndex], path);
                             }
                         }
 
@@ -171,7 +182,7 @@ namespace LibSidWiz
             }
         }
 
-        private Bitmap GenerateTemplate(Rectangle renderingBounds, int viewWidth, int viewHeight)
+        private Bitmap GenerateTemplate()
         {
             var template = new Bitmap(Width, Height, PixelFormat.Format24bppRgb);
             
@@ -195,19 +206,14 @@ namespace LibSidWiz
                     }
                 }
 
-                for (int channelIndex = 0; channelIndex < _channels.Count; ++channelIndex)
+                foreach (var channel in _channels)
                 {
-                    var channel = _channels[channelIndex];
                     if (channel.ZeroLineColor != Color.Transparent && channel.ZeroLineWidth > 0)
                     {
                         using (var pen = new Pen(channel.ZeroLineColor, channel.ZeroLineWidth))
                         {
-                            // Compute the initial x, y to render the line from.
-                            var yBase = renderingBounds.Top + channelIndex / Columns * viewHeight + viewHeight / 2;
-                            var xBase = renderingBounds.Left + (channelIndex % Columns) * renderingBounds.Width / Columns;
-
                             // Draw the zero line
-                            g.DrawLine(pen, xBase, yBase, xBase + viewWidth, yBase);
+                            g.DrawLine(pen, channel.X, channel.Y + channel.Height / 2, channel.X + channel.Width, channel.Y + channel.Height / 2);
                         }
                     }
 
@@ -216,9 +222,7 @@ namespace LibSidWiz
                         g.TextRenderingHint = TextRenderingHint.AntiAlias;
                         using (var brush = new SolidBrush(channel.LabelColor))
                         {
-                            var y = renderingBounds.Top + channelIndex / Columns * viewHeight;
-                            var x = renderingBounds.Left + (channelIndex % Columns) * renderingBounds.Width / Columns;
-                            g.DrawString(channel.Name, channel.LabelFont, brush, x, y);
+                            g.DrawString(channel.Name, channel.LabelFont, brush, channel.X, channel.Y);
                         }
                     }
 
@@ -226,10 +230,7 @@ namespace LibSidWiz
                     {
                         using (var pen = new Pen(channel.BorderColor, channel.BorderWidth))
                         {
-                            var yBase = renderingBounds.Top + channelIndex / Columns * viewHeight;
-                            var xBase = renderingBounds.Left +
-                                        (channelIndex % Columns) * renderingBounds.Width / Columns;
-                            g.DrawRectangle(pen, xBase, yBase, viewWidth, viewHeight);
+                            g.DrawRectangle(pen, channel.X, channel.Y, channel.Width, channel.Height);
                         }
                     }
                 }
@@ -238,7 +239,7 @@ namespace LibSidWiz
             return template;
         }
 
-        private void RenderWave(Graphics g, Channel channel, int triggerPoint, int xBase, int yBase, int viewWidth, int viewHeight, Pen pen, Brush brush, PointF[] points, GraphicsPath path)
+        private void RenderWave(Graphics g, Channel channel, int triggerPoint, Pen pen, Brush brush, PointF[] points, GraphicsPath path)
         {
             // And the initial sample index
             var leftmostSampleIndex = triggerPoint - channel.ViewWidthInSamples / 2;
@@ -246,8 +247,8 @@ namespace LibSidWiz
             for (int i = 0; i < channel.ViewWidthInSamples; ++i)
             {
                 var sampleValue = channel.GetSample(leftmostSampleIndex + i);
-                points[i].X = xBase + (float)viewWidth * i / channel.ViewWidthInSamples;
-                points[i].Y = yBase - sampleValue * viewHeight / 2;
+                points[i].X = channel.X + (float)channel.Width * i / channel.ViewWidthInSamples;
+                points[i].Y = channel.Y + (sampleValue + 1) * channel.Height * 0.5f;
             }
 
             // Then draw them all in one go...
@@ -259,9 +260,9 @@ namespace LibSidWiz
             if (brush != null)
             {
                 path.Reset();
-                path.AddLine(points[0].X, yBase, points[0].X, points[0].Y);
+                path.AddLine(points[0].X, channel.Y + channel.Height / 2, points[0].X, points[0].Y);
                 path.AddLines(points);
-                path.AddLine(points[points.Length - 1].X, points[points.Length - 1].Y, points[points.Length - 1].X, yBase);
+                path.AddLine(points[points.Length - 1].X, points[points.Length - 1].Y, points[points.Length - 1].X, channel.Y + channel.Height / 2);
                 g.FillPath(brush, path);
             }
         }

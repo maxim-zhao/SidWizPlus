@@ -385,17 +385,23 @@ namespace LibSidWiz
         [JsonIgnore]
         public bool IsEmpty { get; private set; }
 
-        public float GetSample(int sampleIndex)
+        internal int X { get; set; }
+        internal int Y { get; set; }
+
+        internal int Width { get; set; }
+        internal int Height { get; set; }
+
+        internal float GetSample(int sampleIndex)
         {
             return sampleIndex < 0 || sampleIndex >= _samples.Count ? 0 : _samples[sampleIndex] * Scale;
         }
 
-        public int GetTriggerPoint(int frameIndexSamples, int frameSamples, int previousTriggerPoint)
+        internal int GetTriggerPoint(int frameIndexSamples, int frameSamples, int previousTriggerPoint)
         {
             return Algorithm.GetTriggerPoint(this, frameIndexSamples, frameIndexSamples + frameSamples * (TriggerLookaheadFrames + 1), previousTriggerPoint);
         }
 
-        public static string GuessNameFromMultidumperFilename(string filename)
+        internal static string GuessNameFromMultidumperFilename(string filename)
         {
             var namePart = Path.GetFileNameWithoutExtension(filename);
             try
