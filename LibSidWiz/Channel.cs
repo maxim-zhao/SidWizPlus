@@ -422,7 +422,7 @@ namespace LibSidWiz
             return Algorithm.GetTriggerPoint(this, frameIndexSamples, frameIndexSamples + frameSamples * (TriggerLookaheadFrames + 1), previousTriggerPoint);
         }
 
-        internal static string GuessNameFromMultidumperFilename(string filename)
+        public static string GuessNameFromMultidumperFilename(string filename)
         {
             var namePart = Path.GetFileNameWithoutExtension(filename);
             try
