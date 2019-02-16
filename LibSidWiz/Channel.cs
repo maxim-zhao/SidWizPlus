@@ -36,6 +36,7 @@ namespace LibSidWiz
         private Color _labelColor = Color.Transparent;
         private Color _borderColor = Color.Transparent;
         private float _borderWidth;
+        private ContentAlignment _labelAlignment = ContentAlignment.TopLeft;
 
         public event Action<Channel, bool> Changed;
 
@@ -135,11 +136,11 @@ namespace LibSidWiz
             }, token);
         }
 
-        [Category("Data information")]
+        [Category("Data")]
         [Description("The full text of any error message when loading the file")]
         public string ErrorMessage { get; private set; }
 
-        [Category("Source")]
+        [Category("Data")]
         [Editor(typeof(FileNameEditor), typeof(UITypeEditor))]
         [Description("The filename to be rendered")]
         public string Filename
@@ -182,7 +183,7 @@ namespace LibSidWiz
             }
         }
 
-        [Category("Display")]
+        [Category("Appearance")]
         [Description("The line colour")]
         public Color LineColor
         {
@@ -194,7 +195,7 @@ namespace LibSidWiz
             }
         }
 
-        [Category("Display")]
+        [Category("Appearance")]
         [Description("The line width, in pixels. Fractional values are supported.")]
         public float LineWidth
         {
@@ -206,7 +207,7 @@ namespace LibSidWiz
             }
         }
 
-        [Category("Display")]
+        [Category("Appearance")]
         [Description("The fill colour. Set to transparent to have no fill.")]
         public Color FillColor
         {
@@ -218,7 +219,7 @@ namespace LibSidWiz
             }
         }
 
-        [Category("Display")]
+        [Category("Appearance")]
         [Description("The width of the zero line")]
         public float ZeroLineWidth
         {
@@ -230,7 +231,7 @@ namespace LibSidWiz
             }
         }
 
-        [Category("Display")]
+        [Category("Appearance")]
         [Description("The color of the zero line")]
         public Color ZeroLineColor
         {
@@ -242,7 +243,7 @@ namespace LibSidWiz
             }
         }
 
-        [Category("Display")]
+        [Category("Appearance")]
         [Description("The color of the border")]
         public Color BorderColor
         {
@@ -254,7 +255,7 @@ namespace LibSidWiz
             }
         }
 
-        [Category("Display")]
+        [Category("Appearance")]
         [Description("The width of the border")]
         public float BorderWidth
         {
@@ -266,7 +267,7 @@ namespace LibSidWiz
             }
         }
 
-        [Category("Display")]
+        [Category("Appearance")]
         [Description("The label for the channel")]
         public string Name
         {
@@ -278,7 +279,7 @@ namespace LibSidWiz
             }
         }
 
-        [Category("Display")]
+        [Category("Appearance")]
         [Description("The font for the channel label")]
         public Font LabelFont
         {
@@ -290,7 +291,7 @@ namespace LibSidWiz
             }
         }
 
-        [Category("Display")]
+        [Category("Appearance")]
         [Description("The color for the channel label")]
         public Color LabelColor
         {
@@ -298,6 +299,18 @@ namespace LibSidWiz
             set
             {
                 _labelColor = value;
+                Changed?.Invoke(this, false);
+            }
+        }
+
+        [Category("Appearance")]
+        [Description("The color for the channel label")]
+        public ContentAlignment LabelAlignment
+        {
+            get => _labelAlignment;
+            set
+            {
+                _labelAlignment = value;
                 Changed?.Invoke(this, false);
             }
         }
@@ -353,7 +366,7 @@ namespace LibSidWiz
             }
         }
 
-        [Category("Data information")]
+        [Category("Data")]
         [Description("Peak amplitude for the channel")]
         [JsonIgnore]
         public float Max { get; private set; }
@@ -362,12 +375,12 @@ namespace LibSidWiz
         [JsonIgnore]
         public int SampleCount { get; private set; }
 
-        [Category("Data information")]
+        [Category("Data")]
         [Description("Duration of the channel")]
         [JsonIgnore]
         public TimeSpan Length { get; private set; }
 
-        [Category("Data information")]
+        [Category("Data")]
         [Description("Sampling rate of the channel")]
         [JsonIgnore]
         public int SampleRate { get; private set; }

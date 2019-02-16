@@ -222,7 +222,50 @@ namespace LibSidWiz
                         g.TextRenderingHint = TextRenderingHint.AntiAlias;
                         using (var brush = new SolidBrush(channel.LabelColor))
                         {
-                            g.DrawString(channel.Name, channel.LabelFont, brush, channel.X, channel.Y);
+                            var stringFormat = new StringFormat();
+                            switch (channel.LabelAlignment)
+                            {
+                                case ContentAlignment.TopLeft:
+                                    stringFormat.Alignment = StringAlignment.Near;
+                                    stringFormat.LineAlignment = StringAlignment.Near;
+                                    break;
+                                case ContentAlignment.TopCenter:
+                                    stringFormat.Alignment = StringAlignment.Center;
+                                    stringFormat.LineAlignment = StringAlignment.Near;
+                                    break;
+                                case ContentAlignment.TopRight:
+                                    stringFormat.Alignment = StringAlignment.Far;
+                                    stringFormat.LineAlignment = StringAlignment.Near;
+                                    break;
+                                case ContentAlignment.MiddleLeft:
+                                    stringFormat.Alignment = StringAlignment.Near;
+                                    stringFormat.LineAlignment = StringAlignment.Center;
+                                    break;
+                                case ContentAlignment.MiddleCenter:
+                                    stringFormat.Alignment = StringAlignment.Center;
+                                    stringFormat.LineAlignment = StringAlignment.Center;
+                                    break;
+                                case ContentAlignment.MiddleRight:
+                                    stringFormat.Alignment = StringAlignment.Far;
+                                    stringFormat.LineAlignment = StringAlignment.Center;
+                                    break;
+                                case ContentAlignment.BottomLeft:
+                                    stringFormat.Alignment = StringAlignment.Near;
+                                    stringFormat.LineAlignment = StringAlignment.Far;
+                                    break;
+                                case ContentAlignment.BottomCenter:
+                                    stringFormat.Alignment = StringAlignment.Center;
+                                    stringFormat.LineAlignment = StringAlignment.Far;
+                                    break;
+                                case ContentAlignment.BottomRight:
+                                    stringFormat.Alignment = StringAlignment.Far;
+                                    stringFormat.LineAlignment = StringAlignment.Far;
+                                    break;
+                                default:
+                                    throw new ArgumentOutOfRangeException();
+                            }
+
+                            g.DrawString(channel.Name, channel.LabelFont, brush, new RectangleF(channel.X, channel.Y, channel.Width, channel.Height), stringFormat);
                         }
                     }
 
