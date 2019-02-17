@@ -300,7 +300,7 @@ namespace LibSidWiz
             {
                 var sampleValue = channel.GetSample(leftmostSampleIndex + i);
                 points[i].X = channel.X + (float)channel.Width * i / channel.ViewWidthInSamples;
-                points[i].Y = channel.Y + (sampleValue + 1) * channel.Height * 0.5f;
+                points[i].Y = channel.Y + (1 - sampleValue) * channel.Height * 0.5f;
             }
 
             // Then draw them all in one go...
