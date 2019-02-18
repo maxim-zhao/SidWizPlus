@@ -853,24 +853,16 @@ namespace SidWiz
             }
             try
             {
-                if (PastePreservesSourceCheck.Checked)
+                JsonConvert.PopulateObject(Clipboard.GetText(), channel, new JsonSerializerSettings
                 {
-                    JsonConvert.PopulateObject(Clipboard.GetText(), channel, new JsonSerializerSettings
-                    {
-                        ContractResolver = new PreservingContractResolver()
-                    });
-                }
-                else
-                {
-                    JsonConvert.PopulateObject(Clipboard.GetText(), channel);
-                }
+                    ContractResolver = new PreservingContractResolver()
+                });
             }
             catch (Exception exception)
             {
                 MessageBox.Show(this, $"Error while pasting: \n\n{exception}");
             }
         }
-
         private class PreservingContractResolver : DefaultContractResolver
         {
             protected override JsonProperty CreateProperty(MemberInfo member, MemberSerialization memberSerialization)

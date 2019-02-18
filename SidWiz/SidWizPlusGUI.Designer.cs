@@ -36,8 +36,11 @@
             this.moveLeftupToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.moveRightdownToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripMenuItem1 = new System.Windows.Forms.ToolStripSeparator();
+            this.cloneChannelToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.removeChannelToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator3 = new System.Windows.Forms.ToolStripSeparator();
+            this.copySettingsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.pasteSettingsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.applySettingsToOtherChannelsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.PreviewTrackbar = new System.Windows.Forms.TrackBar();
             this.tabControl = new System.Windows.Forms.TabControl();
@@ -46,6 +49,7 @@
             this.toolStrip1 = new System.Windows.Forms.ToolStrip();
             this.AddFileButton = new System.Windows.Forms.ToolStripButton();
             this.AddChannelButton = new System.Windows.Forms.ToolStripButton();
+            this.CloneChannelButton = new System.Windows.Forms.ToolStripButton();
             this.toolStripSeparator2 = new System.Windows.Forms.ToolStripSeparator();
             this.LeftButton = new System.Windows.Forms.ToolStripButton();
             this.RightButton = new System.Windows.Forms.ToolStripButton();
@@ -55,6 +59,7 @@
             this.toolStripMenuItem2 = new System.Windows.Forms.ToolStripSeparator();
             this.removeallToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
+            this.CopyChannelSettingsButton = new System.Windows.Forms.ToolStripButton();
             this.CopySettingsButton = new System.Windows.Forms.ToolStripButton();
             this.tabPage1 = new System.Windows.Forms.TabPage();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
@@ -108,10 +113,7 @@
             this.LoadButton = new System.Windows.Forms.Button();
             this.SaveButton = new System.Windows.Forms.Button();
             this.imageList1 = new System.Windows.Forms.ImageList(this.components);
-            this.CloneChannelButton = new System.Windows.Forms.ToolStripButton();
-            this.CopyChannelSettingsButton = new System.Windows.Forms.ToolStripButton();
-            this.PasteChannelSettingsButton = new System.Windows.Forms.ToolStripSplitButton();
-            this.PastePreservesSourceCheck = new System.Windows.Forms.ToolStripMenuItem();
+            this.PasteChannelSettingsButton = new System.Windows.Forms.ToolStripButton();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
             this.splitContainer1.Panel2.SuspendLayout();
@@ -180,11 +182,14 @@
             this.moveLeftupToolStripMenuItem,
             this.moveRightdownToolStripMenuItem,
             this.toolStripMenuItem1,
+            this.cloneChannelToolStripMenuItem,
             this.removeChannelToolStripMenuItem,
             this.toolStripSeparator3,
+            this.copySettingsToolStripMenuItem,
+            this.pasteSettingsToolStripMenuItem,
             this.applySettingsToOtherChannelsToolStripMenuItem});
             this.contextMenuStrip1.Name = "contextMenuStrip1";
-            this.contextMenuStrip1.Size = new System.Drawing.Size(245, 104);
+            this.contextMenuStrip1.Size = new System.Drawing.Size(245, 170);
             // 
             // moveLeftupToolStripMenuItem
             // 
@@ -207,6 +212,14 @@
             this.toolStripMenuItem1.Name = "toolStripMenuItem1";
             this.toolStripMenuItem1.Size = new System.Drawing.Size(241, 6);
             // 
+            // cloneChannelToolStripMenuItem
+            // 
+            this.cloneChannelToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("cloneChannelToolStripMenuItem.Image")));
+            this.cloneChannelToolStripMenuItem.Name = "cloneChannelToolStripMenuItem";
+            this.cloneChannelToolStripMenuItem.Size = new System.Drawing.Size(244, 22);
+            this.cloneChannelToolStripMenuItem.Text = "Cl&one channel";
+            this.cloneChannelToolStripMenuItem.Click += new System.EventHandler(this.CloneChannelButton_Click);
+            // 
             // removeChannelToolStripMenuItem
             // 
             this.removeChannelToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("removeChannelToolStripMenuItem.Image")));
@@ -219,6 +232,22 @@
             // 
             this.toolStripSeparator3.Name = "toolStripSeparator3";
             this.toolStripSeparator3.Size = new System.Drawing.Size(241, 6);
+            // 
+            // copySettingsToolStripMenuItem
+            // 
+            this.copySettingsToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("copySettingsToolStripMenuItem.Image")));
+            this.copySettingsToolStripMenuItem.Name = "copySettingsToolStripMenuItem";
+            this.copySettingsToolStripMenuItem.Size = new System.Drawing.Size(244, 22);
+            this.copySettingsToolStripMenuItem.Text = "&Copy settings";
+            this.copySettingsToolStripMenuItem.Click += new System.EventHandler(this.CopySettingsButton_Click);
+            // 
+            // pasteSettingsToolStripMenuItem
+            // 
+            this.pasteSettingsToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("pasteSettingsToolStripMenuItem.Image")));
+            this.pasteSettingsToolStripMenuItem.Name = "pasteSettingsToolStripMenuItem";
+            this.pasteSettingsToolStripMenuItem.Size = new System.Drawing.Size(244, 22);
+            this.pasteSettingsToolStripMenuItem.Text = "&Paste settings";
+            this.pasteSettingsToolStripMenuItem.Click += new System.EventHandler(this.PasteChannelSettingsButton_ButtonClick);
             // 
             // applySettingsToOtherChannelsToolStripMenuItem
             // 
@@ -298,9 +327,9 @@
             this.RightButton,
             this.RemoveButton,
             this.toolStripSeparator1,
+            this.CopySettingsButton,
             this.CopyChannelSettingsButton,
-            this.PasteChannelSettingsButton,
-            this.CopySettingsButton});
+            this.PasteChannelSettingsButton});
             this.toolStrip1.Location = new System.Drawing.Point(3, 4);
             this.toolStrip1.Name = "toolStrip1";
             this.toolStrip1.Padding = new System.Windows.Forms.Padding(0);
@@ -327,6 +356,16 @@
             this.AddChannelButton.Size = new System.Drawing.Size(23, 22);
             this.AddChannelButton.Text = "Add an empty channel";
             this.AddChannelButton.Click += new System.EventHandler(this.AddChannelButton_Click);
+            // 
+            // CloneChannelButton
+            // 
+            this.CloneChannelButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.CloneChannelButton.Image = ((System.Drawing.Image)(resources.GetObject("CloneChannelButton.Image")));
+            this.CloneChannelButton.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.CloneChannelButton.Name = "CloneChannelButton";
+            this.CloneChannelButton.Size = new System.Drawing.Size(23, 22);
+            this.CloneChannelButton.Text = "Clone channel";
+            this.CloneChannelButton.Click += new System.EventHandler(this.CloneChannelButton_Click);
             // 
             // toolStripSeparator2
             // 
@@ -398,6 +437,16 @@
             // 
             this.toolStripSeparator1.Name = "toolStripSeparator1";
             this.toolStripSeparator1.Size = new System.Drawing.Size(6, 25);
+            // 
+            // CopyChannelSettingsButton
+            // 
+            this.CopyChannelSettingsButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.CopyChannelSettingsButton.Image = ((System.Drawing.Image)(resources.GetObject("CopyChannelSettingsButton.Image")));
+            this.CopyChannelSettingsButton.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.CopyChannelSettingsButton.Name = "CopyChannelSettingsButton";
+            this.CopyChannelSettingsButton.Size = new System.Drawing.Size(23, 22);
+            this.CopyChannelSettingsButton.Text = "Copy channel settings";
+            this.CopyChannelSettingsButton.Click += new System.EventHandler(this.CopyChannelSettingsButton_Click);
             // 
             // CopySettingsButton
             // 
@@ -1076,46 +1125,15 @@
             this.imageList1.Images.SetKeyName(4, "layout.png");
             this.imageList1.Images.SetKeyName(5, "picture.png");
             // 
-            // CloneChannelButton
-            // 
-            this.CloneChannelButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.CloneChannelButton.Image = ((System.Drawing.Image)(resources.GetObject("CloneChannelButton.Image")));
-            this.CloneChannelButton.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.CloneChannelButton.Name = "CloneChannelButton";
-            this.CloneChannelButton.Size = new System.Drawing.Size(23, 22);
-            this.CloneChannelButton.Text = "Clone channel";
-            this.CloneChannelButton.Click += new System.EventHandler(this.CloneChannelButton_Click);
-            // 
-            // CopyChannelSettingsButton
-            // 
-            this.CopyChannelSettingsButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.CopyChannelSettingsButton.Image = ((System.Drawing.Image)(resources.GetObject("CopyChannelSettingsButton.Image")));
-            this.CopyChannelSettingsButton.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.CopyChannelSettingsButton.Name = "CopyChannelSettingsButton";
-            this.CopyChannelSettingsButton.Size = new System.Drawing.Size(23, 22);
-            this.CopyChannelSettingsButton.Text = "Copy channel settings";
-            this.CopyChannelSettingsButton.Click += new System.EventHandler(this.CopyChannelSettingsButton_Click);
-            // 
             // PasteChannelSettingsButton
             // 
             this.PasteChannelSettingsButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.PasteChannelSettingsButton.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.PastePreservesSourceCheck});
             this.PasteChannelSettingsButton.Image = ((System.Drawing.Image)(resources.GetObject("PasteChannelSettingsButton.Image")));
             this.PasteChannelSettingsButton.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.PasteChannelSettingsButton.Name = "PasteChannelSettingsButton";
-            this.PasteChannelSettingsButton.Size = new System.Drawing.Size(32, 22);
+            this.PasteChannelSettingsButton.Size = new System.Drawing.Size(23, 22);
             this.PasteChannelSettingsButton.Text = "Paste channel settings";
-            this.PasteChannelSettingsButton.ButtonClick += new System.EventHandler(this.PasteChannelSettingsButton_ButtonClick);
-            // 
-            // PastePreservesSourceCheck
-            // 
-            this.PastePreservesSourceCheck.Checked = true;
-            this.PastePreservesSourceCheck.CheckOnClick = true;
-            this.PastePreservesSourceCheck.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.PastePreservesSourceCheck.Name = "PastePreservesSourceCheck";
-            this.PastePreservesSourceCheck.Size = new System.Drawing.Size(207, 22);
-            this.PastePreservesSourceCheck.Text = "Preserve source and label";
+            this.PasteChannelSettingsButton.Click += new System.EventHandler(this.PasteChannelSettingsButton_ButtonClick);
             // 
             // SidWizPlusGui
             // 
@@ -1248,7 +1266,9 @@
         private System.Windows.Forms.ToolStripButton AddChannelButton;
         private System.Windows.Forms.ToolStripButton CloneChannelButton;
         private System.Windows.Forms.ToolStripButton CopyChannelSettingsButton;
-        private System.Windows.Forms.ToolStripSplitButton PasteChannelSettingsButton;
-        private System.Windows.Forms.ToolStripMenuItem PastePreservesSourceCheck;
+        private System.Windows.Forms.ToolStripMenuItem cloneChannelToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem copySettingsToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem pasteSettingsToolStripMenuItem;
+        private System.Windows.Forms.ToolStripButton PasteChannelSettingsButton;
     }
 }
