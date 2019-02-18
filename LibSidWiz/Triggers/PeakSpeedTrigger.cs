@@ -16,7 +16,7 @@
         {
             float peakValue = float.MinValue;
             int shortestDistance = int.MaxValue;
-            int triggerIndex = (startIndex + endIndex) / 2; // Default to centre if no peaks found
+            int triggerIndex = startIndex; // Default to left if no peaks found
             int i = startIndex;
             while (i < endIndex)
             {

@@ -44,13 +44,11 @@ namespace LibSidWiz.Triggers
 
             if (candidates.Count == 0)
             {
-                return (startIndex + endIndex) / 2; // Default to centre if no waves found
+                return startIndex; // Default to left if no waves found
             }
-            else
-            {
-                // We select the "middle" one, preferring the one on the right if even
-                return candidates[candidates.Count / 2];
-            }
+
+            // We select the "middle" one, preferring the one on the right if even
+            return candidates[candidates.Count / 2];
         }
     }
 }

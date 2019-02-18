@@ -10,7 +10,7 @@ namespace LibSidWiz.Triggers
     {
         public int GetTriggerPoint(Channel channel, int startIndex, int endIndex, int previousIndex)
         {
-            int bestOffset = (startIndex + endIndex) / 2; // Default to centre if no positive waves found
+            int bestOffset = startIndex; // Default to left if no positive waves found
             int lastCrossingPoint = endIndex;
             float previousSample = channel.GetSample(startIndex);
             float bestArea = 0;

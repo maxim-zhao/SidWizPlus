@@ -9,7 +9,7 @@
     {
         public int GetTriggerPoint(Channel channel, int startIndex, int endIndex, int previousIndex)
         {
-            int bestOffset = (startIndex + endIndex) / 2; // Default to centre if no waves found
+            int bestOffset = startIndex; // Default to left if no waves found
             int lastCrossingPoint = endIndex;
             float previousSample = channel.GetSample(startIndex);
             int bestLength = 0;

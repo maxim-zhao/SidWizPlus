@@ -17,8 +17,8 @@
             while (channel.GetSample(i) <= 0 && i < endIndex) ++i;
             if (i == endIndex)
             {
-                // Failed to find anything, just stick to the middle
-                i = (startIndex + endIndex) / 2;
+                // Failed to find anything, just stick to the left
+                i = startIndex;
             }
 
             return i;
