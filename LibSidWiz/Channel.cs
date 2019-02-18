@@ -41,6 +41,7 @@ namespace LibSidWiz
         private ContentAlignment _labelAlignment = ContentAlignment.TopLeft;
         private Padding _labelMargins = new Padding(0, 0, 0, 0);
         private bool _invertedTrigger = false;
+        private bool _borderEdges = true;
 
         public event Action<Channel, bool> Changed;
 
@@ -272,6 +273,18 @@ namespace LibSidWiz
         }
 
         [Category("Appearance")]
+        [Description("Whether to draw the outer edges of any border boxes")]
+        public bool BorderEdges
+        {
+            get => _borderEdges;
+            set
+            {
+                _borderEdges = value;
+                Changed?.Invoke(this, false);
+            }
+        }
+
+        [Category("Appearance")]
         [Description("The label for the channel")]
         [Editor(typeof(MultilineStringEditor), typeof(UITypeEditor))]
         public string Label
@@ -429,17 +442,7 @@ namespace LibSidWiz
 
         [Browsable(false)]
         [JsonIgnore]
-        internal int X { get; set; }
-        [Browsable(false)]
-        [JsonIgnore]
-        internal int Y { get; set; }
-
-        [Browsable(false)]
-        [JsonIgnore]
-        internal int Width { get; set; }
-        [Browsable(false)]
-        [JsonIgnore]
-        internal int Height { get; set; }
+        internal Rectangle Bounds { get; set; }
 
         internal float GetSample(int sampleIndex, bool forTrigger = true)
         {

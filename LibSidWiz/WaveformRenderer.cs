@@ -82,13 +82,11 @@ namespace LibSidWiz
                 var channel = _channels[i];
                 var column = i % Columns;
                 var row = i / Columns;
-                channel.X = ChannelX(column);
-                channel.Y = ChannelY(row);
                 // Compute sizes as difference to next one to avoid off by 1 errors
-                channel.Width = ChannelX(column + 1) - channel.X;
-                channel.Height = ChannelY(row + 1) - channel.Y;
+                var x = ChannelX(column);
+                var y = ChannelY(row);
+                channel.Bounds = new Rectangle(x, y, ChannelX(column + 1) - x, ChannelY(row + 1) - y);
             }
-
 
             // We generate our "base image"
             using (var template = GenerateTemplate())
@@ -141,16 +139,12 @@ namespace LibSidWiz
                             }
 
                             // Compute the initial x, y to render the line from.
-                            var yBase = channel.Y + channel.Height / 2;
-                            var xBase = channel.X;
+                            var yBase = channel.Bounds.Top + channel.Bounds.Height / 2;
+                            var xBase = channel.Bounds.Left;
 
                             if (!string.IsNullOrEmpty(channel.ErrorMessage))
                             {
-                                g.DrawString(channel.ErrorMessage, SystemFonts.DefaultFont, Brushes.Red, new RectangleF(
-                                    channel.X,
-                                    channel.Y,
-                                    channel.Width,
-                                    channel.Height));
+                                g.DrawString(channel.ErrorMessage, SystemFonts.DefaultFont, Brushes.Red, channel.Bounds);
                             }
                             else if (channel.Loading)
                             {
@@ -217,7 +211,12 @@ namespace LibSidWiz
                         using (var pen = new Pen(channel.ZeroLineColor, channel.ZeroLineWidth))
                         {
                             // Draw the zero line
-                            g.DrawLine(pen, channel.X, channel.Y + channel.Height / 2, channel.X + channel.Width, channel.Y + channel.Height / 2);
+                            g.DrawLine(
+                                pen, 
+                                channel.Bounds.Left, 
+                                channel.Bounds.Top + channel.Bounds.Height / 2, 
+                                channel.Bounds.Right, 
+                                channel.Bounds.Top + channel.Bounds.Height / 2);
                         }
                     }
 
@@ -228,10 +227,10 @@ namespace LibSidWiz
                         {
                             var stringFormat = new StringFormat();
                             var layoutRectangle = new RectangleF(
-                                channel.X + channel.LabelMargins.Left, 
-                                channel.Y + channel.LabelMargins.Top, 
-                                channel.Width - channel.LabelMargins.Left - channel.LabelMargins.Right, 
-                                channel.Height - channel.LabelMargins.Top - channel.LabelMargins.Bottom);
+                                channel.Bounds.Left + channel.LabelMargins.Left, 
+                                channel.Bounds.Top + channel.LabelMargins.Top, 
+                                channel.Bounds.Width - channel.LabelMargins.Left - channel.LabelMargins.Right, 
+                                channel.Bounds.Height - channel.LabelMargins.Top - channel.LabelMargins.Bottom);
                             switch (channel.LabelAlignment)
                             {
                                 case ContentAlignment.TopLeft:
@@ -282,7 +281,37 @@ namespace LibSidWiz
                     {
                         using (var pen = new Pen(channel.BorderColor, channel.BorderWidth))
                         {
-                            g.DrawRectangle(pen, channel.X, channel.Y, channel.Width, channel.Height);
+                            if (channel.BorderEdges)
+                            {
+                                // We want all edges to show equally.
+                                // To achieve this, we need to artificially pull the edges in 1px on the right and bottom.
+                                g.DrawRectangle(
+                                    pen, 
+                                    channel.Bounds.Left, 
+                                    channel.Bounds.Top, 
+                                    channel.Bounds.Width - (channel.Bounds.Right == RenderingBounds.Right ? 1 : 0), 
+                                    channel.Bounds.Height - (channel.Bounds.Bottom == RenderingBounds.Bottom ? 1 : 0));
+                            }
+                            else
+                            {
+                                // We want to draw all lines which are not on the rendering bounds
+                                if (channel.Bounds.Left != RenderingBounds.Left)
+                                {
+                                    g.DrawLine(pen, channel.Bounds.Left, channel.Bounds.Top, channel.Bounds.Left, channel.Bounds.Bottom);
+                                }
+                                if (channel.Bounds.Top != RenderingBounds.Top)
+                                {
+                                    g.DrawLine(pen, channel.Bounds.Left, channel.Bounds.Top, channel.Bounds.Right, channel.Bounds.Top);
+                                }
+                                if (channel.Bounds.Right != RenderingBounds.Right)
+                                {
+                                    g.DrawLine(pen, channel.Bounds.Right, channel.Bounds.Top, channel.Bounds.Right, channel.Bounds.Bottom);
+                                }
+                                if (channel.Bounds.Bottom != RenderingBounds.Bottom)
+                                {
+                                    g.DrawLine(pen, channel.Bounds.Left, channel.Bounds.Bottom, channel.Bounds.Right, channel.Bounds.Bottom);
+                                }
+                            }
                         }
                     }
                 }
@@ -296,11 +325,15 @@ namespace LibSidWiz
             // And the initial sample index
             var leftmostSampleIndex = triggerPoint - channel.ViewWidthInSamples / 2;
 
+            float xOffset = channel.Bounds.Left;
+            float xScale = (float) channel.Bounds.Width / channel.ViewWidthInSamples;
+            float yOffset = channel.Bounds.Top + channel.Bounds.Height * 0.5f;
+            float yScale = -channel.Bounds.Height * 0.5f;
             for (int i = 0; i < channel.ViewWidthInSamples; ++i)
             {
                 var sampleValue = channel.GetSample(leftmostSampleIndex + i, false);
-                points[i].X = channel.X + (float)channel.Width * i / channel.ViewWidthInSamples;
-                points[i].Y = channel.Y + (1 - sampleValue) * channel.Height * 0.5f;
+                points[i].X = xOffset + i * xScale;
+                points[i].Y = yOffset + sampleValue * yScale;
             }
 
             // Then draw them all in one go...
@@ -311,10 +344,11 @@ namespace LibSidWiz
 
             if (brush != null)
             {
+                // We need to add points to complete the path
                 path.Reset();
-                path.AddLine(points[0].X, channel.Y + channel.Height / 2, points[0].X, points[0].Y);
+                path.AddLine(points[0].X, yOffset, points[0].X, points[0].Y);
                 path.AddLines(points);
-                path.AddLine(points[points.Length - 1].X, points[points.Length - 1].Y, points[points.Length - 1].X, channel.Y + channel.Height / 2);
+                path.AddLine(points[points.Length - 1].X, points[points.Length - 1].Y, points[points.Length - 1].X, yOffset);
                 g.FillPath(brush, path);
             }
         }
