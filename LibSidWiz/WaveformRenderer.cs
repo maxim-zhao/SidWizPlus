@@ -298,7 +298,7 @@ namespace LibSidWiz
 
             for (int i = 0; i < channel.ViewWidthInSamples; ++i)
             {
-                var sampleValue = channel.GetSample(leftmostSampleIndex + i);
+                var sampleValue = channel.GetSample(leftmostSampleIndex + i, false);
                 points[i].X = channel.X + (float)channel.Width * i / channel.ViewWidthInSamples;
                 points[i].Y = channel.Y + (1 - sampleValue) * channel.Height * 0.5f;
             }

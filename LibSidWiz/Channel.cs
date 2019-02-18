@@ -40,6 +40,7 @@ namespace LibSidWiz
         private float _borderWidth;
         private ContentAlignment _labelAlignment = ContentAlignment.TopLeft;
         private Padding _labelMargins = new Padding(0, 0, 0, 0);
+        private bool _invertedTrigger = false;
 
         public event Action<Channel, bool> Changed;
 
@@ -382,6 +383,18 @@ namespace LibSidWiz
             }
         }
 
+        [Category("Triggering")]
+        [Description("Set to true to trigger in the opposite direction")]
+        public bool InvertedTrigger
+        {
+            get => _invertedTrigger;
+            set
+            {
+                _invertedTrigger = value;
+                Changed?.Invoke(this, false);
+            }
+        }
+
         [Category("Data")]
         [Description("Peak amplitude for the channel")]
         [JsonIgnore]
@@ -428,9 +441,9 @@ namespace LibSidWiz
         [JsonIgnore]
         internal int Height { get; set; }
 
-        internal float GetSample(int sampleIndex)
+        internal float GetSample(int sampleIndex, bool forTrigger = true)
         {
-            return sampleIndex < 0 || sampleIndex >= _samples.Count ? 0 : _samples[sampleIndex] * Scale;
+            return sampleIndex < 0 || sampleIndex >= _samples.Count ? 0 : _samples[sampleIndex] * Scale * (forTrigger && InvertedTrigger ? -1 : 1);
         }
 
         internal int GetTriggerPoint(int frameIndexSamples, int frameSamples, int previousTriggerPoint)
