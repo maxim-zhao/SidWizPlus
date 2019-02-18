@@ -502,6 +502,7 @@ namespace SidWiz
                 else
                 {
                     PropertyGrid.SelectedObject = _settings.Channels[index];
+                    tabControl.SelectedTab = channelsTab;
                 }
             }
         }

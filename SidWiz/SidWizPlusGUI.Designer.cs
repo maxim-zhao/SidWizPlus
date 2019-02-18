@@ -40,8 +40,8 @@
             this.toolStripSeparator3 = new System.Windows.Forms.ToolStripSeparator();
             this.applySettingsToOtherChannelsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.PreviewTrackbar = new System.Windows.Forms.TrackBar();
-            this.tabControl1 = new System.Windows.Forms.TabControl();
-            this.tabPage5 = new System.Windows.Forms.TabPage();
+            this.tabControl = new System.Windows.Forms.TabControl();
+            this.channelsTab = new System.Windows.Forms.TabPage();
             this.PropertyGrid = new System.Windows.Forms.PropertyGrid();
             this.toolStrip1 = new System.Windows.Forms.ToolStrip();
             this.AddFileButton = new System.Windows.Forms.ToolStripButton();
@@ -82,7 +82,6 @@
             this.label20 = new System.Windows.Forms.Label();
             this.BackgroundImageControl = new System.Windows.Forms.PictureBox();
             this.label21 = new System.Windows.Forms.Label();
-            this.BackgroundColorButton = new SidWiz.ColorButton(this.components);
             this.tabPage3 = new System.Windows.Forms.TabPage();
             this.label19 = new System.Windows.Forms.Label();
             this.MasterAudioPath = new System.Windows.Forms.TextBox();
@@ -108,6 +107,7 @@
             this.LoadButton = new System.Windows.Forms.Button();
             this.SaveButton = new System.Windows.Forms.Button();
             this.imageList1 = new System.Windows.Forms.ImageList(this.components);
+            this.BackgroundColorButton = new SidWiz.ColorButton(this.components);
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
             this.splitContainer1.Panel2.SuspendLayout();
@@ -115,8 +115,8 @@
             ((System.ComponentModel.ISupportInitialize)(this.Preview)).BeginInit();
             this.contextMenuStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.PreviewTrackbar)).BeginInit();
-            this.tabControl1.SuspendLayout();
-            this.tabPage5.SuspendLayout();
+            this.tabControl.SuspendLayout();
+            this.channelsTab.SuspendLayout();
             this.toolStrip1.SuspendLayout();
             this.tabPage1.SuspendLayout();
             this.groupBox2.SuspendLayout();
@@ -152,7 +152,7 @@
             // 
             // splitContainer1.Panel2
             // 
-            this.splitContainer1.Panel2.Controls.Add(this.tabControl1);
+            this.splitContainer1.Panel2.Controls.Add(this.tabControl);
             this.splitContainer1.Size = new System.Drawing.Size(914, 408);
             this.splitContainer1.SplitterDistance = 620;
             this.splitContainer1.TabIndex = 0;
@@ -241,36 +241,36 @@
             // 
             // tabControl1
             // 
-            this.tabControl1.Controls.Add(this.tabPage5);
-            this.tabControl1.Controls.Add(this.tabPage1);
-            this.tabControl1.Controls.Add(this.tabPage4);
-            this.tabControl1.Controls.Add(this.tabPage3);
-            this.tabControl1.Controls.Add(this.tabPage2);
-            this.tabControl1.Controls.Add(this.tabPage6);
-            this.tabControl1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.tabControl1.ImageList = this.imageList1;
-            this.tabControl1.Location = new System.Drawing.Point(0, 0);
-            this.tabControl1.Margin = new System.Windows.Forms.Padding(2, 3, 2, 3);
-            this.tabControl1.Multiline = true;
-            this.tabControl1.Name = "tabControl1";
-            this.tabControl1.SelectedIndex = 0;
-            this.tabControl1.Size = new System.Drawing.Size(290, 408);
-            this.tabControl1.SizeMode = System.Windows.Forms.TabSizeMode.FillToRight;
-            this.tabControl1.TabIndex = 0;
+            this.tabControl.Controls.Add(this.channelsTab);
+            this.tabControl.Controls.Add(this.tabPage1);
+            this.tabControl.Controls.Add(this.tabPage4);
+            this.tabControl.Controls.Add(this.tabPage3);
+            this.tabControl.Controls.Add(this.tabPage2);
+            this.tabControl.Controls.Add(this.tabPage6);
+            this.tabControl.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.tabControl.ImageList = this.imageList1;
+            this.tabControl.Location = new System.Drawing.Point(0, 0);
+            this.tabControl.Margin = new System.Windows.Forms.Padding(2, 3, 2, 3);
+            this.tabControl.Multiline = true;
+            this.tabControl.Name = "tabControl";
+            this.tabControl.SelectedIndex = 0;
+            this.tabControl.Size = new System.Drawing.Size(290, 408);
+            this.tabControl.SizeMode = System.Windows.Forms.TabSizeMode.FillToRight;
+            this.tabControl.TabIndex = 0;
             // 
             // tabPage5
             // 
-            this.tabPage5.Controls.Add(this.PropertyGrid);
-            this.tabPage5.Controls.Add(this.toolStrip1);
-            this.tabPage5.ImageKey = "music.png";
-            this.tabPage5.Location = new System.Drawing.Point(4, 44);
-            this.tabPage5.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
-            this.tabPage5.Name = "tabPage5";
-            this.tabPage5.Padding = new System.Windows.Forms.Padding(3, 4, 3, 4);
-            this.tabPage5.Size = new System.Drawing.Size(282, 360);
-            this.tabPage5.TabIndex = 4;
-            this.tabPage5.Text = "Channels";
-            this.tabPage5.UseVisualStyleBackColor = true;
+            this.channelsTab.Controls.Add(this.PropertyGrid);
+            this.channelsTab.Controls.Add(this.toolStrip1);
+            this.channelsTab.ImageKey = "music.png";
+            this.channelsTab.Location = new System.Drawing.Point(4, 44);
+            this.channelsTab.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
+            this.channelsTab.Name = "channelsTab";
+            this.channelsTab.Padding = new System.Windows.Forms.Padding(3, 4, 3, 4);
+            this.channelsTab.Size = new System.Drawing.Size(282, 360);
+            this.channelsTab.TabIndex = 4;
+            this.channelsTab.Text = "Channels";
+            this.channelsTab.UseVisualStyleBackColor = true;
             // 
             // PropertyGrid
             // 
@@ -731,20 +731,6 @@
             this.label21.TabIndex = 2;
             this.label21.Text = "Image";
             // 
-            // BackgroundColorButton
-            // 
-            this.BackgroundColorButton.BackColor = System.Drawing.Color.Black;
-            this.BackgroundColorButton.Color = System.Drawing.Color.Black;
-            this.BackgroundColorButton.ForeColor = System.Drawing.Color.White;
-            this.BackgroundColorButton.Location = new System.Drawing.Point(118, 6);
-            this.BackgroundColorButton.Margin = new System.Windows.Forms.Padding(2, 3, 2, 3);
-            this.BackgroundColorButton.Name = "BackgroundColorButton";
-            this.BackgroundColorButton.Size = new System.Drawing.Size(114, 33);
-            this.BackgroundColorButton.TabIndex = 1;
-            this.BackgroundColorButton.Text = "Black";
-            this.BackgroundColorButton.UseVisualStyleBackColor = false;
-            this.BackgroundColorButton.ColorChanged += new System.EventHandler(this.ControlValueChanged);
-            // 
             // tabPage3
             // 
             this.tabPage3.Controls.Add(this.label19);
@@ -1069,6 +1055,20 @@
             this.imageList1.Images.SetKeyName(4, "layout.png");
             this.imageList1.Images.SetKeyName(5, "picture.png");
             // 
+            // BackgroundColorButton
+            // 
+            this.BackgroundColorButton.BackColor = System.Drawing.Color.Black;
+            this.BackgroundColorButton.Color = System.Drawing.Color.Black;
+            this.BackgroundColorButton.ForeColor = System.Drawing.Color.White;
+            this.BackgroundColorButton.Location = new System.Drawing.Point(118, 6);
+            this.BackgroundColorButton.Margin = new System.Windows.Forms.Padding(2, 3, 2, 3);
+            this.BackgroundColorButton.Name = "BackgroundColorButton";
+            this.BackgroundColorButton.Size = new System.Drawing.Size(114, 33);
+            this.BackgroundColorButton.TabIndex = 1;
+            this.BackgroundColorButton.Text = "Black";
+            this.BackgroundColorButton.UseVisualStyleBackColor = false;
+            this.BackgroundColorButton.ColorChanged += new System.EventHandler(this.ControlValueChanged);
+            // 
             // SidWizPlusGui
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
@@ -1087,9 +1087,9 @@
             ((System.ComponentModel.ISupportInitialize)(this.Preview)).EndInit();
             this.contextMenuStrip1.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.PreviewTrackbar)).EndInit();
-            this.tabControl1.ResumeLayout(false);
-            this.tabPage5.ResumeLayout(false);
-            this.tabPage5.PerformLayout();
+            this.tabControl.ResumeLayout(false);
+            this.channelsTab.ResumeLayout(false);
+            this.channelsTab.PerformLayout();
             this.toolStrip1.ResumeLayout(false);
             this.toolStrip1.PerformLayout();
             this.tabPage1.ResumeLayout(false);
@@ -1133,7 +1133,7 @@
         private System.Windows.Forms.Label label16;
         private System.Windows.Forms.Label label17;
         private System.Windows.Forms.TextBox VerticalScaling;
-        private System.Windows.Forms.TabControl tabControl1;
+        private System.Windows.Forms.TabControl tabControl;
         private System.Windows.Forms.TabPage tabPage1;
         private System.Windows.Forms.TabPage tabPage3;
         private System.Windows.Forms.TabPage tabPage4;
@@ -1150,7 +1150,7 @@
         private System.Windows.Forms.PictureBox Preview;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator1;
         private System.Windows.Forms.ToolStripButton CopySettingsButton;
-        private System.Windows.Forms.TabPage tabPage5;
+        private System.Windows.Forms.TabPage channelsTab;
         private System.Windows.Forms.ToolStripButton AddFileButton;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator2;
         private System.Windows.Forms.GroupBox groupBox2;
