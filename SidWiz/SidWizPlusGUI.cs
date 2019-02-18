@@ -12,6 +12,7 @@ using LibSidWiz;
 using LibSidWiz.Outputs;
 using LibSidWiz.Triggers;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
 
 namespace SidWiz
 {
@@ -826,6 +827,61 @@ namespace SidWiz
 
                     _settings.ToControls(this);
                 }
+            }
+        }
+
+        private void CopyChannelSettingsButton_Click(object sender, EventArgs e)
+        {
+            if (!(PropertyGrid.SelectedObject is Channel source))
+            {
+                return;
+            }
+
+            var json = JsonConvert.SerializeObject(source, new JsonSerializerSettings
+            {
+                Formatting = Formatting.Indented,
+            });
+
+            Clipboard.SetText(json);
+        }
+
+        private void PasteChannelSettingsButton_ButtonClick(object sender, EventArgs e)
+        {
+            if (!(PropertyGrid.SelectedObject is Channel channel))
+            {
+                return;
+            }
+            try
+            {
+                if (PastePreservesSourceCheck.Checked)
+                {
+                    JsonConvert.PopulateObject(Clipboard.GetText(), channel, new JsonSerializerSettings
+                    {
+                        ContractResolver = new PreservingContractResolver()
+                    });
+                }
+                else
+                {
+                    JsonConvert.PopulateObject(Clipboard.GetText(), channel);
+                }
+            }
+            catch (Exception exception)
+            {
+                MessageBox.Show(this, $"Error while pasting: \n\n{exception}");
+            }
+        }
+
+        private class PreservingContractResolver : DefaultContractResolver
+        {
+            protected override JsonProperty CreateProperty(MemberInfo member, MemberSerialization memberSerialization)
+            {
+                var property = base.CreateProperty(member, memberSerialization);
+                if (property.PropertyName == nameof(Channel.Filename) ||
+                    property.PropertyName == nameof(Channel.Label))
+                {
+                    property.Ignored = true;
+                }
+                return property;
             }
         }
     }

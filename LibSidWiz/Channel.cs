@@ -143,6 +143,7 @@ namespace LibSidWiz
 
         [Category("Data")]
         [Description("The full text of any error message when loading the file")]
+        [JsonIgnore]
         public string ErrorMessage { get; private set; }
 
         [Category("Data")]

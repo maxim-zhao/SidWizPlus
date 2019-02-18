@@ -109,6 +109,9 @@
             this.SaveButton = new System.Windows.Forms.Button();
             this.imageList1 = new System.Windows.Forms.ImageList(this.components);
             this.CloneChannelButton = new System.Windows.Forms.ToolStripButton();
+            this.CopyChannelSettingsButton = new System.Windows.Forms.ToolStripButton();
+            this.PasteChannelSettingsButton = new System.Windows.Forms.ToolStripSplitButton();
+            this.PastePreservesSourceCheck = new System.Windows.Forms.ToolStripMenuItem();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
             this.splitContainer1.Panel2.SuspendLayout();
@@ -295,6 +298,8 @@
             this.RightButton,
             this.RemoveButton,
             this.toolStripSeparator1,
+            this.CopyChannelSettingsButton,
+            this.PasteChannelSettingsButton,
             this.CopySettingsButton});
             this.toolStrip1.Location = new System.Drawing.Point(3, 4);
             this.toolStrip1.Name = "toolStrip1";
@@ -1081,6 +1086,37 @@
             this.CloneChannelButton.Text = "Clone channel";
             this.CloneChannelButton.Click += new System.EventHandler(this.CloneChannelButton_Click);
             // 
+            // CopyChannelSettingsButton
+            // 
+            this.CopyChannelSettingsButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.CopyChannelSettingsButton.Image = ((System.Drawing.Image)(resources.GetObject("CopyChannelSettingsButton.Image")));
+            this.CopyChannelSettingsButton.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.CopyChannelSettingsButton.Name = "CopyChannelSettingsButton";
+            this.CopyChannelSettingsButton.Size = new System.Drawing.Size(23, 22);
+            this.CopyChannelSettingsButton.Text = "Copy channel settings";
+            this.CopyChannelSettingsButton.Click += new System.EventHandler(this.CopyChannelSettingsButton_Click);
+            // 
+            // PasteChannelSettingsButton
+            // 
+            this.PasteChannelSettingsButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.PasteChannelSettingsButton.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.PastePreservesSourceCheck});
+            this.PasteChannelSettingsButton.Image = ((System.Drawing.Image)(resources.GetObject("PasteChannelSettingsButton.Image")));
+            this.PasteChannelSettingsButton.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.PasteChannelSettingsButton.Name = "PasteChannelSettingsButton";
+            this.PasteChannelSettingsButton.Size = new System.Drawing.Size(32, 22);
+            this.PasteChannelSettingsButton.Text = "Paste channel settings";
+            this.PasteChannelSettingsButton.ButtonClick += new System.EventHandler(this.PasteChannelSettingsButton_ButtonClick);
+            // 
+            // PastePreservesSourceCheck
+            // 
+            this.PastePreservesSourceCheck.Checked = true;
+            this.PastePreservesSourceCheck.CheckOnClick = true;
+            this.PastePreservesSourceCheck.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.PastePreservesSourceCheck.Name = "PastePreservesSourceCheck";
+            this.PastePreservesSourceCheck.Size = new System.Drawing.Size(207, 22);
+            this.PastePreservesSourceCheck.Text = "Preserve source and label";
+            // 
             // SidWizPlusGui
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
@@ -1211,5 +1247,8 @@
         private System.Windows.Forms.GroupBox groupBox4;
         private System.Windows.Forms.ToolStripButton AddChannelButton;
         private System.Windows.Forms.ToolStripButton CloneChannelButton;
+        private System.Windows.Forms.ToolStripButton CopyChannelSettingsButton;
+        private System.Windows.Forms.ToolStripSplitButton PasteChannelSettingsButton;
+        private System.Windows.Forms.ToolStripMenuItem PastePreservesSourceCheck;
     }
 }
