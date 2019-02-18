@@ -195,6 +195,37 @@ namespace SidWiz
             AddChannel("");
         }
 
+        private void CloneChannelButton_Click(object sender, EventArgs e)
+        {
+            lock (_settings)
+            {
+                var source = PropertyGrid.SelectedObject as Channel;
+                var index = _settings.Channels.IndexOf(source);
+                if (index == -1)
+                {
+                    return;
+                }
+
+                // Duplicate the channel
+                var channel = new Channel();
+                foreach (var propertyInfo in typeof(Channel)
+                    .GetProperties(BindingFlags.Instance | BindingFlags.Public)
+                    .Where(p => p.CanWrite && p.GetSetMethod() != null))
+                {
+                    var sourceValue = propertyInfo.GetValue(source);
+                    propertyInfo.SetValue(channel, sourceValue);
+                }
+                // Insert it after the selected one
+                _settings.Channels.Insert(index + 1, channel);
+                // We attach to the event last, so we must also trigger it to load the data.
+                channel.Changed += ChannelOnChanged;
+                channel.LoadDataAsync();
+            }
+
+            Render();
+        }
+
+
         private void AddChannel(string filename)
         {
             // We create a new Channel
@@ -509,8 +540,7 @@ namespace SidWiz
 
         private void CopySettingsButton_Click(object sender, EventArgs e)
         {
-            var source = PropertyGrid.SelectedObject as Channel;
-            if (source == null)
+            if (!(PropertyGrid.SelectedObject is Channel source))
             {
                 return;
             }
