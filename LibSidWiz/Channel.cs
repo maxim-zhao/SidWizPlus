@@ -40,8 +40,9 @@ namespace LibSidWiz
         private float _borderWidth;
         private ContentAlignment _labelAlignment = ContentAlignment.TopLeft;
         private Padding _labelMargins = new Padding(0, 0, 0, 0);
-        private bool _invertedTrigger = false;
+        private bool _invertedTrigger;
         private bool _borderEdges = true;
+        private Color _backgroundColor = Color.Transparent;
 
         public event Action<Channel, bool> Changed;
 
@@ -281,6 +282,18 @@ namespace LibSidWiz
             set
             {
                 _borderEdges = value;
+                Changed?.Invoke(this, false);
+            }
+        }
+
+        [Category("Appearance")]
+        [Description("A background colour for the channel. This is layered above any background image, and can be transparent.")]
+        public Color BackgroundColor
+        {
+            get => _backgroundColor;
+            set
+            {
+                _backgroundColor = value;
                 Changed?.Invoke(this, false);
             }
         }

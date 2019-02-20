@@ -206,6 +206,14 @@ namespace LibSidWiz
 
                 foreach (var channel in _channels)
                 {
+                    if (channel.BackgroundColor != Color.Transparent)
+                    {
+                        using (var b = new SolidBrush(channel.BackgroundColor))
+                        {
+                            g.FillRectangle(b, channel.Bounds);
+                        }
+                    }
+
                     if (channel.ZeroLineColor != Color.Transparent && channel.ZeroLineWidth > 0)
                     {
                         using (var pen = new Pen(channel.ZeroLineColor, channel.ZeroLineWidth))
@@ -217,6 +225,44 @@ namespace LibSidWiz
                                 channel.Bounds.Top + channel.Bounds.Height / 2, 
                                 channel.Bounds.Right, 
                                 channel.Bounds.Top + channel.Bounds.Height / 2);
+                        }
+                    }
+
+                    if (channel.BorderWidth > 0 && channel.BorderColor != Color.Transparent)
+                    {
+                        using (var pen = new Pen(channel.BorderColor, channel.BorderWidth))
+                        {
+                            if (channel.BorderEdges)
+                            {
+                                // We want all edges to show equally.
+                                // To achieve this, we need to artificially pull the edges in 1px on the right and bottom.
+                                g.DrawRectangle(
+                                    pen, 
+                                    channel.Bounds.Left, 
+                                    channel.Bounds.Top, 
+                                    channel.Bounds.Width - (channel.Bounds.Right == RenderingBounds.Right ? 1 : 0), 
+                                    channel.Bounds.Height - (channel.Bounds.Bottom == RenderingBounds.Bottom ? 1 : 0));
+                            }
+                            else
+                            {
+                                // We want to draw all lines which are not on the rendering bounds
+                                if (channel.Bounds.Left != RenderingBounds.Left)
+                                {
+                                    g.DrawLine(pen, channel.Bounds.Left, channel.Bounds.Top, channel.Bounds.Left, channel.Bounds.Bottom);
+                                }
+                                if (channel.Bounds.Top != RenderingBounds.Top)
+                                {
+                                    g.DrawLine(pen, channel.Bounds.Left, channel.Bounds.Top, channel.Bounds.Right, channel.Bounds.Top);
+                                }
+                                if (channel.Bounds.Right != RenderingBounds.Right)
+                                {
+                                    g.DrawLine(pen, channel.Bounds.Right, channel.Bounds.Top, channel.Bounds.Right, channel.Bounds.Bottom);
+                                }
+                                if (channel.Bounds.Bottom != RenderingBounds.Bottom)
+                                {
+                                    g.DrawLine(pen, channel.Bounds.Left, channel.Bounds.Bottom, channel.Bounds.Right, channel.Bounds.Bottom);
+                                }
+                            }
                         }
                     }
 
@@ -274,44 +320,6 @@ namespace LibSidWiz
                             }
 
                             g.DrawString(channel.Label, channel.LabelFont, brush, layoutRectangle, stringFormat);
-                        }
-                    }
-
-                    if (channel.BorderWidth > 0 && channel.BorderColor != Color.Transparent)
-                    {
-                        using (var pen = new Pen(channel.BorderColor, channel.BorderWidth))
-                        {
-                            if (channel.BorderEdges)
-                            {
-                                // We want all edges to show equally.
-                                // To achieve this, we need to artificially pull the edges in 1px on the right and bottom.
-                                g.DrawRectangle(
-                                    pen, 
-                                    channel.Bounds.Left, 
-                                    channel.Bounds.Top, 
-                                    channel.Bounds.Width - (channel.Bounds.Right == RenderingBounds.Right ? 1 : 0), 
-                                    channel.Bounds.Height - (channel.Bounds.Bottom == RenderingBounds.Bottom ? 1 : 0));
-                            }
-                            else
-                            {
-                                // We want to draw all lines which are not on the rendering bounds
-                                if (channel.Bounds.Left != RenderingBounds.Left)
-                                {
-                                    g.DrawLine(pen, channel.Bounds.Left, channel.Bounds.Top, channel.Bounds.Left, channel.Bounds.Bottom);
-                                }
-                                if (channel.Bounds.Top != RenderingBounds.Top)
-                                {
-                                    g.DrawLine(pen, channel.Bounds.Left, channel.Bounds.Top, channel.Bounds.Right, channel.Bounds.Top);
-                                }
-                                if (channel.Bounds.Right != RenderingBounds.Right)
-                                {
-                                    g.DrawLine(pen, channel.Bounds.Right, channel.Bounds.Top, channel.Bounds.Right, channel.Bounds.Bottom);
-                                }
-                                if (channel.Bounds.Bottom != RenderingBounds.Bottom)
-                                {
-                                    g.DrawLine(pen, channel.Bounds.Left, channel.Bounds.Bottom, channel.Bounds.Right, channel.Bounds.Bottom);
-                                }
-                            }
                         }
                     }
                 }
