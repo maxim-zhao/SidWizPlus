@@ -12,7 +12,6 @@ using LibSidWiz;
 using LibSidWiz.Outputs;
 using LibSidWiz.Triggers;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Serialization;
 
 namespace SidWiz
 {
@@ -202,20 +201,14 @@ namespace SidWiz
             {
                 var source = PropertyGrid.SelectedObject as Channel;
                 var index = _settings.Channels.IndexOf(source);
-                if (index == -1)
+                if (index == -1 || source == null)
                 {
                     return;
                 }
 
                 // Duplicate the channel
                 var channel = new Channel();
-                foreach (var propertyInfo in typeof(Channel)
-                    .GetProperties(BindingFlags.Instance | BindingFlags.Public)
-                    .Where(p => p.CanWrite && p.GetSetMethod() != null))
-                {
-                    var sourceValue = propertyInfo.GetValue(source);
-                    propertyInfo.SetValue(channel, sourceValue);
-                }
+                channel.FromJson(source.ToJson(), false);
                 // Insert it after the selected one
                 _settings.Channels.Insert(index + 1, channel);
                 // We attach to the event last, so we must also trigger it to load the data.
@@ -837,12 +830,7 @@ namespace SidWiz
                 return;
             }
 
-            var json = JsonConvert.SerializeObject(source, new JsonSerializerSettings
-            {
-                Formatting = Formatting.Indented,
-            });
-
-            Clipboard.SetText(json);
+            Clipboard.SetText(source.ToJson());
         }
 
         private void PasteChannelSettingsButton_ButtonClick(object sender, EventArgs e)
@@ -853,27 +841,11 @@ namespace SidWiz
             }
             try
             {
-                JsonConvert.PopulateObject(Clipboard.GetText(), channel, new JsonSerializerSettings
-                {
-                    ContractResolver = new PreservingContractResolver()
-                });
+                channel.FromJson(Clipboard.GetText(), true);
             }
             catch (Exception exception)
             {
                 MessageBox.Show(this, $"Error while pasting: \n\n{exception}");
-            }
-        }
-        private class PreservingContractResolver : DefaultContractResolver
-        {
-            protected override JsonProperty CreateProperty(MemberInfo member, MemberSerialization memberSerialization)
-            {
-                var property = base.CreateProperty(member, memberSerialization);
-                if (property.PropertyName == nameof(Channel.Filename) ||
-                    property.PropertyName == nameof(Channel.Label))
-                {
-                    property.Ignored = true;
-                }
-                return property;
             }
         }
     }

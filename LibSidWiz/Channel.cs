@@ -13,6 +13,7 @@ using System.Windows.Forms;
 using System.Windows.Forms.Design;
 using LibSidWiz.Triggers;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
 
 namespace LibSidWiz
 {
@@ -621,6 +622,43 @@ namespace LibSidWiz
         {
             _samples?.Dispose();
             _labelFont?.Dispose();
+        }
+
+        public string ToJson()
+        {
+            return JsonConvert.SerializeObject(this, new JsonSerializerSettings
+            {
+                Formatting = Formatting.Indented,
+            });
+        }
+
+        public void FromJson(string json, bool preserveSource)
+        {
+            if (preserveSource)
+            {
+                JsonConvert.PopulateObject(json, this, new JsonSerializerSettings
+                {
+                    ContractResolver = new PreservingContractResolver()
+                });
+            }
+            else
+            {
+                JsonConvert.PopulateObject(json, this);
+            }
+        }
+
+        private class PreservingContractResolver : DefaultContractResolver
+        {
+            protected override JsonProperty CreateProperty(MemberInfo member, MemberSerialization memberSerialization)
+            {
+                var property = base.CreateProperty(member, memberSerialization);
+                if (property.PropertyName == nameof(Filename) ||
+                    property.PropertyName == nameof(Label))
+                {
+                    property.Ignored = true;
+                }
+                return property;
+            }
         }
     }
 }
