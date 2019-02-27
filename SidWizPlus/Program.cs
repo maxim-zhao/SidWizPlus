@@ -291,7 +291,6 @@ namespace SidWizPlus
                         var channel = new Channel
                         {
                             Filename = filename,
-                            //HighPassFilterFrequency = settings.HighPassFilterFrequency,
                             LineColor = ParseColor(settings.LineColor),
                             LineWidth = settings.LineWidth,
                             FillColor = ParseColor(settings.FillColor),
@@ -315,9 +314,16 @@ namespace SidWizPlus
                         bool IsYm2413Percussion(Channel ch) => ch.Label.StartsWith("YM2413 ") && !ch.Label.StartsWith("YM2413 Tone");
                         if (settings.AutoScaleIgnoreYM2413Percussion)
                         {
-                            max = channels
-                                .Where(channel => !IsYm2413Percussion(channel))
-                                .Max(ch => ch.Max);
+                            var channelsToUse = channels.Where(channel => !IsYm2413Percussion(channel)).ToList();
+                            if (channelsToUse.Count == 0)
+                            {
+                                // Fall back on overall max if all channels are percussion
+                                max = channels.Max(ch => ch.Max);
+                            }
+                            else
+                            {
+                                max = channelsToUse.Max(ch => ch.Max);
+                            }
                         }
                         else
                         {

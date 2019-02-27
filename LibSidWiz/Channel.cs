@@ -485,7 +485,7 @@ namespace LibSidWiz
                     index = int.Parse(namePart.Substring(index + 11));
                     if (index < 9)
                     {
-                        return $"YM2413 tone {index + 1}";
+                        return $"YM2413 Tone {index + 1}";
                     }
 
                     switch (index)
