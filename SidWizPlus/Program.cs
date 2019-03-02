@@ -533,7 +533,7 @@ namespace SidWizPlus
                     var instruments = channelState.Instruments
                         .Where(x => x.Ticks > 0)
                         .Select(x => x.Name);
-                    channel.Label = string.Join("/\x200b", instruments);
+                    channel.Label += ": " + string.Join("/\x200b", instruments);
 
                     Console.WriteLine($"Channel {index} is {channel.Label}");
                 }
