@@ -248,7 +248,21 @@ namespace SidWiz
                 channel.LoadDataAsync();
             }
 
-            BeginInvoke(new Action(Render));
+            BeginInvoke(new Action(() =>
+            {
+                // We check if the trackbar range needs to be changed
+                lock (_settings)
+                {
+                    var frameRate = _settings.FrameRate;
+                    var maxLength = _settings.Channels.Max(ch => ch.Length);
+                    var frames = maxLength.TotalSeconds * frameRate;
+                    PreviewTrackbar.Maximum = (int) frames;
+                    PreviewTrackbar.LargeChange = frameRate;
+                    PreviewTrackbar.TickFrequency = frameRate;
+                }
+
+                Render();
+            }));
         }
 
         private void LoadMultiDumper(string filename)

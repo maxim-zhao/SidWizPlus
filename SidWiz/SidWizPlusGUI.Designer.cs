@@ -59,8 +59,9 @@
             this.toolStripMenuItem2 = new System.Windows.Forms.ToolStripSeparator();
             this.removeallToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
-            this.CopyChannelSettingsButton = new System.Windows.Forms.ToolStripButton();
             this.CopySettingsButton = new System.Windows.Forms.ToolStripButton();
+            this.CopyChannelSettingsButton = new System.Windows.Forms.ToolStripButton();
+            this.PasteChannelSettingsButton = new System.Windows.Forms.ToolStripButton();
             this.tabPage1 = new System.Windows.Forms.TabPage();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
             this.MarginBottomControl = new System.Windows.Forms.NumericUpDown();
@@ -113,7 +114,6 @@
             this.LoadButton = new System.Windows.Forms.Button();
             this.SaveButton = new System.Windows.Forms.Button();
             this.imageList1 = new System.Windows.Forms.ImageList(this.components);
-            this.PasteChannelSettingsButton = new System.Windows.Forms.ToolStripButton();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
             this.splitContainer1.Panel2.SuspendLayout();
@@ -170,7 +170,7 @@
             this.Preview.Location = new System.Drawing.Point(0, 0);
             this.Preview.Margin = new System.Windows.Forms.Padding(2, 3, 2, 3);
             this.Preview.Name = "Preview";
-            this.Preview.Size = new System.Drawing.Size(620, 381);
+            this.Preview.Size = new System.Drawing.Size(620, 363);
             this.Preview.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
             this.Preview.TabIndex = 0;
             this.Preview.TabStop = false;
@@ -259,17 +259,15 @@
             // 
             // PreviewTrackbar
             // 
-            this.PreviewTrackbar.AutoSize = false;
             this.PreviewTrackbar.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.PreviewTrackbar.LargeChange = 100;
-            this.PreviewTrackbar.Location = new System.Drawing.Point(0, 381);
+            this.PreviewTrackbar.LargeChange = 60;
+            this.PreviewTrackbar.Location = new System.Drawing.Point(0, 363);
             this.PreviewTrackbar.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.PreviewTrackbar.Maximum = 1000;
             this.PreviewTrackbar.Name = "PreviewTrackbar";
-            this.PreviewTrackbar.Size = new System.Drawing.Size(620, 27);
+            this.PreviewTrackbar.Size = new System.Drawing.Size(620, 45);
             this.PreviewTrackbar.TabIndex = 0;
-            this.PreviewTrackbar.TickFrequency = 100;
-            this.PreviewTrackbar.TickStyle = System.Windows.Forms.TickStyle.None;
+            this.PreviewTrackbar.TickFrequency = 60;
             this.PreviewTrackbar.ValueChanged += new System.EventHandler(this.ControlValueChanged);
             // 
             // tabControl
@@ -438,6 +436,16 @@
             this.toolStripSeparator1.Name = "toolStripSeparator1";
             this.toolStripSeparator1.Size = new System.Drawing.Size(6, 25);
             // 
+            // CopySettingsButton
+            // 
+            this.CopySettingsButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.CopySettingsButton.Image = ((System.Drawing.Image)(resources.GetObject("CopySettingsButton.Image")));
+            this.CopySettingsButton.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.CopySettingsButton.Name = "CopySettingsButton";
+            this.CopySettingsButton.Size = new System.Drawing.Size(23, 22);
+            this.CopySettingsButton.Text = "Copy settings to all channels";
+            this.CopySettingsButton.Click += new System.EventHandler(this.CopySettingsButton_Click);
+            // 
             // CopyChannelSettingsButton
             // 
             this.CopyChannelSettingsButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
@@ -448,15 +456,15 @@
             this.CopyChannelSettingsButton.Text = "Copy channel settings";
             this.CopyChannelSettingsButton.Click += new System.EventHandler(this.CopyChannelSettingsButton_Click);
             // 
-            // CopySettingsButton
+            // PasteChannelSettingsButton
             // 
-            this.CopySettingsButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.CopySettingsButton.Image = ((System.Drawing.Image)(resources.GetObject("CopySettingsButton.Image")));
-            this.CopySettingsButton.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.CopySettingsButton.Name = "CopySettingsButton";
-            this.CopySettingsButton.Size = new System.Drawing.Size(23, 22);
-            this.CopySettingsButton.Text = "Copy settings to all channels";
-            this.CopySettingsButton.Click += new System.EventHandler(this.CopySettingsButton_Click);
+            this.PasteChannelSettingsButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.PasteChannelSettingsButton.Image = ((System.Drawing.Image)(resources.GetObject("PasteChannelSettingsButton.Image")));
+            this.PasteChannelSettingsButton.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.PasteChannelSettingsButton.Name = "PasteChannelSettingsButton";
+            this.PasteChannelSettingsButton.Size = new System.Drawing.Size(23, 22);
+            this.PasteChannelSettingsButton.Text = "Paste channel settings";
+            this.PasteChannelSettingsButton.Click += new System.EventHandler(this.PasteChannelSettingsButton_ButtonClick);
             // 
             // tabPage1
             // 
@@ -1125,16 +1133,6 @@
             this.imageList1.Images.SetKeyName(4, "layout.png");
             this.imageList1.Images.SetKeyName(5, "picture.png");
             // 
-            // PasteChannelSettingsButton
-            // 
-            this.PasteChannelSettingsButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.PasteChannelSettingsButton.Image = ((System.Drawing.Image)(resources.GetObject("PasteChannelSettingsButton.Image")));
-            this.PasteChannelSettingsButton.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.PasteChannelSettingsButton.Name = "PasteChannelSettingsButton";
-            this.PasteChannelSettingsButton.Size = new System.Drawing.Size(23, 22);
-            this.PasteChannelSettingsButton.Text = "Paste channel settings";
-            this.PasteChannelSettingsButton.Click += new System.EventHandler(this.PasteChannelSettingsButton_ButtonClick);
-            // 
             // SidWizPlusGui
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
@@ -1147,6 +1145,7 @@
             this.Text = "SidWizPlusGUI";
             this.Load += new System.EventHandler(this.SidWizPlusGui_Load);
             this.splitContainer1.Panel1.ResumeLayout(false);
+            this.splitContainer1.Panel1.PerformLayout();
             this.splitContainer1.Panel2.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).EndInit();
             this.splitContainer1.ResumeLayout(false);
