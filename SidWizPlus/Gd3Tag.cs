@@ -46,7 +46,7 @@ namespace SidWizPlus
             }
         }
 
-        public static Gd3Tag LoadFromStream(Stream s)
+        private static Gd3Tag LoadFromStream(Stream s)
         {
             var tags = new List<string>();
             using (var r = new BinaryReader(s, Encoding.Unicode))

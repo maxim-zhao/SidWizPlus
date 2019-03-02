@@ -52,6 +52,7 @@
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
     <Compile Include="TextInfo.cs" />
+    <Compile Include="VGMFile.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

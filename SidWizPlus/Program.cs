@@ -93,6 +93,9 @@ namespace SidWizPlus
             [Option("autoscaleignorepercussion", Required = false, HelpText = "Makes autoscale ignore YM2413 percussion channels")]
             public bool AutoScaleIgnoreYM2413Percussion { get; set; }
 
+            [Option("labelsfromvgm", Required = false, HelpText = "Attempt to label channels based on their (filename")]
+            public bool ChannelLabelsFromVgm { get; set; }
+
             // ReSharper disable once StringLiteralTypo
             [Option('t', "triggeralgorithm", Required = false, HelpText = "Trigger algorithm name", DefaultValue = nameof(PeakSpeedTrigger))]
             public string TriggerAlgorithm { get; set; }
@@ -308,6 +311,7 @@ namespace SidWizPlus
                         channel.ViewWidthInMilliseconds = settings.ViewWidthMs;
                         return channel;
                     }).Where(ch => ch.SampleCount > 0).ToList();
+
                     if (settings.AutoScalePercentage > 0)
                     {
                         float max;
@@ -335,7 +339,12 @@ namespace SidWizPlus
                             channel.Scale = scale;
                         }
                     }
-                        
+
+                    if (settings.ChannelLabelsFromVgm && settings.VgmFile != null)
+                    {
+                        TryGuessLabelsFromVgm(channels, settings.VgmFile);
+                    }
+
                     if (settings.OutputFile != null)
                     {
                         // Emit normalized data to a WAV file for later mixing
@@ -362,6 +371,172 @@ namespace SidWizPlus
             catch (Exception e)
             {
                 Console.Error.WriteLine($"Fatal: {e}");
+            }
+        }
+
+        private class InstrumentState
+        {
+            public int Instrument { get; set; }
+            public int Ticks { get; set; }
+
+            private static readonly string[] Names = {
+                "Custom Instrument",
+                "Violin",
+                "Guitar",
+                "Piano",
+                "Flute",
+                "Clarinet",
+                "Oboe",
+                "Trumpet",
+                "Organ",
+                "Horn",
+                "Synthesizer",
+                "Harpsichord",
+                "Vibraphone",
+                "Synthesizer Bass",
+                "Acoustic Bass",
+                "Electric Guitar",
+            };
+
+            private bool _keyDown;
+
+            public string Name => Names[Instrument];
+
+            public override string ToString() => $"{Name} ({TimeSpan.FromSeconds((double)Ticks / 44100)})";
+
+            public void AddKeyDown()
+            {
+                _keyDown = true;
+            }
+
+            public void AddTime(int ticks)
+            {
+                if (_keyDown)
+                {
+                    Ticks += ticks;
+                }
+            }
+
+            public void AddKeyUp()
+            {
+                _keyDown = false;
+            }
+        }
+
+        private class ChannelState
+        {
+            private readonly List<InstrumentState> _instruments = new List<InstrumentState>();
+            private readonly Dictionary<int, InstrumentState> _instrumentsByChannel = new Dictionary<int, InstrumentState>();
+            private InstrumentState _currentInstrument;
+
+            public void SetInstrument(int instrument)
+            {
+                if (!_instrumentsByChannel.TryGetValue(instrument, out var state))
+                {
+                    state = new InstrumentState {Instrument = instrument};
+                    _instruments.Add(state);
+                    _instrumentsByChannel.Add(instrument, state);
+                }
+
+                _currentInstrument = state;
+            }
+
+            public void AddKeyDown()
+            {
+                _currentInstrument?.AddKeyDown();
+            }
+
+            public void AddTime(int ticks)
+            {
+                _currentInstrument?.AddTime(ticks);
+            }
+
+            public IEnumerable<InstrumentState> Instruments => _instruments;
+
+            public override string ToString() => string.Join(", ", Instruments.Where(x => x.Ticks > 0));
+
+            public void AddKeyUp()
+            {
+                _currentInstrument?.AddKeyUp();
+            }
+        }
+
+        private static void TryGuessLabelsFromVgm(List<Channel> channels, string vgmFile)
+        {
+            var file = new VgmFile(vgmFile);
+
+            var channelStates = new Dictionary<int, ChannelState>();
+
+            foreach (var command in file.Commands())
+            {
+                switch (command)
+                {
+                    case VgmFile.WaitCommand waitCommand:
+                        // Wait
+                        foreach (var channelState in channelStates.Values)
+                        {
+                            channelState.AddTime(waitCommand.Ticks);
+                        }
+                        break;
+                    case VgmFile.AddressDataCommand c:
+                    {
+                        if (c.Address >= 0x30 && c.Address <= 0x37)
+                        {
+                            // YM2413 instrument
+                            var channelIndex = c.Address & 0xf;
+                            var instrument = c.Data >> 4;
+
+                            if (!channelStates.TryGetValue(channelIndex, out var channelState))
+                            {
+                                channelState = new ChannelState();
+                                channelStates.Add(channelIndex, channelState);
+                            }
+
+                            channelState.SetInstrument(instrument);
+                        }
+                        else if (c.Address >= 0x20 && c.Address <= 0x27)
+                        {
+                            // YM2413 key down
+                            var channelIndex = c.Address & 0xf;
+                            if (channelStates.TryGetValue(channelIndex, out var channelState))
+                            {
+                                if ((c.Data & 0b00010000) != 0)
+                                {
+                                    channelState.AddKeyDown();
+                                }
+                                else
+                                {
+                                    channelState.AddKeyUp();
+                                }
+                            }
+                        }
+                        break;
+                    }
+                }
+            }
+
+            foreach (var kvp in channelStates.OrderBy(x => x.Key))
+            {
+                Console.WriteLine($"YM2413 channel {kvp.Key}: {kvp.Value}");
+            }
+
+            foreach (var channel in channels.Where(c => c.Label.StartsWith("YM2413 Tone ")))
+            {
+                var match = Regex.Match(channel.Label, "^YM2413 Tone (?<index>[0-9])$");
+                if (!match.Success)
+                {
+                    continue;
+                }
+                var index = Convert.ToInt32(match.Groups["index"].Value) - 1;
+                if (channelStates.TryGetValue(index, out var channelState))
+                {
+                    var instruments = channelState.Instruments
+                        .Where(x => x.Ticks > 0)
+                        .Select(x => x.Name);
+                    channel.Label = string.Join("/\x200b", instruments);
+
+                    Console.WriteLine($"Channel {index} is {channel.Label}");
+                }
             }
         }
 
@@ -820,7 +995,6 @@ namespace SidWizPlus
                 .Replace("[system]", gd3.System.English)
                 .Replace("[game]", gd3.Game.English)
                 .Replace("[composer]", gd3.Composer.English);
-
         }
     }
 }
