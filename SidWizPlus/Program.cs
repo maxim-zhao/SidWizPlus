@@ -398,28 +398,13 @@ namespace SidWizPlus
                 "Electric Guitar",
             };
 
-            private bool _keyDown;
-
             public string Name => Names[Instrument];
 
             public override string ToString() => $"{Name} ({TimeSpan.FromSeconds((double)Ticks / 44100)})";
 
-            public void AddKeyDown()
-            {
-                _keyDown = true;
-            }
-
             public void AddTime(int ticks)
             {
-                if (_keyDown)
-                {
-                    Ticks += ticks;
-                }
-            }
-
-            public void AddKeyUp()
-            {
-                _keyDown = false;
+                Ticks += ticks;
             }
         }
 
@@ -428,6 +413,7 @@ namespace SidWizPlus
             private readonly List<InstrumentState> _instruments = new List<InstrumentState>();
             private readonly Dictionary<int, InstrumentState> _instrumentsByChannel = new Dictionary<int, InstrumentState>();
             private InstrumentState _currentInstrument;
+            public bool KeyDown { private get; set; }
 
             public void SetInstrument(int instrument)
             {
@@ -441,24 +427,17 @@ namespace SidWizPlus
                 _currentInstrument = state;
             }
 
-            public void AddKeyDown()
-            {
-                _currentInstrument?.AddKeyDown();
-            }
-
             public void AddTime(int ticks)
             {
-                _currentInstrument?.AddTime(ticks);
+                if (KeyDown)
+                {
+                    _currentInstrument?.AddTime(ticks);
+                }
             }
 
             public IEnumerable<InstrumentState> Instruments => _instruments;
 
             public override string ToString() => string.Join(", ", Instruments.Where(x => x.Ticks > 0));
-
-            public void AddKeyUp()
-            {
-                _currentInstrument?.AddKeyUp();
-            }
         }
 
         private static void TryGuessLabelsFromVgm(List<Channel> channels, string vgmFile)
@@ -466,6 +445,16 @@ namespace SidWizPlus
             var file = new VgmFile(vgmFile);
 
             var channelStates = new Dictionary<int, ChannelState>();
+            ChannelState GetChannelState(int channelIndex)
+            {
+                if (!channelStates.TryGetValue(channelIndex, out var channelState))
+                {
+                    channelState = new ChannelState();
+                    channelStates.Add(channelIndex, channelState);
+                }
+
+                return channelState;
+            }
 
             foreach (var command in file.Commands())
             {
@@ -483,32 +472,13 @@ namespace SidWizPlus
                         if (c.Address >= 0x30 && c.Address <= 0x37)
                         {
                             // YM2413 instrument
-                            var channelIndex = c.Address & 0xf;
-                            var instrument = c.Data >> 4;
-
-                            if (!channelStates.TryGetValue(channelIndex, out var channelState))
-                            {
-                                channelState = new ChannelState();
-                                channelStates.Add(channelIndex, channelState);
-                            }
-
-                            channelState.SetInstrument(instrument);
+                            GetChannelState(c.Address & 0xf).SetInstrument(c.Data >> 4);
                         }
                         else if (c.Address >= 0x20 && c.Address <= 0x27)
                         {
                             // YM2413 key down
-                            var channelIndex = c.Address & 0xf;
-                            if (channelStates.TryGetValue(channelIndex, out var channelState))
-                            {
-                                if ((c.Data & 0b00010000) != 0)
-                                {
-                                    channelState.AddKeyDown();
-                                }
-                                else
-                                {
-                                    channelState.AddKeyUp();
-                                }
-                            }
+                            var channelState = GetChannelState(c.Address & 0xf);
+                            channelState.KeyDown = (c.Data & 0b00010000) != 0;
                         }
                         break;
                     }
