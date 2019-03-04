@@ -44,29 +44,29 @@
             " "});
             this.Subsongs.Location = new System.Drawing.Point(12, 12);
             this.Subsongs.Name = "Subsongs";
-            this.Subsongs.Size = new System.Drawing.Size(287, 174);
+            this.Subsongs.Size = new System.Drawing.Size(490, 180);
             this.Subsongs.TabIndex = 0;
-            this.Subsongs.DoubleClick += new System.EventHandler(this.OKButtonClick);
+            this.Subsongs.DoubleClick += new System.EventHandler(this.OkButtonClick);
             // 
             // OKButton
             // 
             this.OKButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.OKButton.Enabled = false;
-            this.OKButton.Location = new System.Drawing.Point(224, 192);
+            this.OKButton.Location = new System.Drawing.Point(427, 198);
             this.OKButton.Name = "OKButton";
             this.OKButton.Size = new System.Drawing.Size(75, 23);
             this.OKButton.TabIndex = 2;
             this.OKButton.Text = "OK";
             this.OKButton.UseVisualStyleBackColor = true;
-            this.OKButton.Click += new System.EventHandler(this.OKButtonClick);
+            this.OKButton.Click += new System.EventHandler(this.OkButtonClick);
             // 
             // ProgressBar
             // 
             this.ProgressBar.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.ProgressBar.Location = new System.Drawing.Point(12, 192);
+            this.ProgressBar.Location = new System.Drawing.Point(12, 198);
             this.ProgressBar.Name = "ProgressBar";
-            this.ProgressBar.Size = new System.Drawing.Size(206, 23);
+            this.ProgressBar.Size = new System.Drawing.Size(409, 23);
             this.ProgressBar.TabIndex = 3;
             // 
             // MultiDumperForm
@@ -74,7 +74,7 @@
             this.AcceptButton = this.OKButton;
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(311, 228);
+            this.ClientSize = new System.Drawing.Size(514, 234);
             this.Controls.Add(this.ProgressBar);
             this.Controls.Add(this.OKButton);
             this.Controls.Add(this.Subsongs);
