@@ -1,4 +1,6 @@
-﻿namespace SidWiz
+﻿using System.Windows.Forms;
+
+namespace SidWiz
 {
     partial class MultiDumperForm
     {
@@ -67,6 +69,7 @@
             this.ProgressBar.Location = new System.Drawing.Point(12, 198);
             this.ProgressBar.Name = "ProgressBar";
             this.ProgressBar.Size = new System.Drawing.Size(409, 23);
+            this.ProgressBar.Style = ProgressBarStyle.Continuous;
             this.ProgressBar.TabIndex = 3;
             // 
             // MultiDumperForm

@@ -563,29 +563,12 @@ namespace SidWizPlus
                 .ToList();
             if (!settings.InputFiles.Any())
             {
-                Console.Write("Running MultiDumper...");
+                Console.WriteLine("Running MultiDumper...");
                 // Let's run it
-                using (var p = Process.Start(new ProcessStartInfo
-                {
-                    FileName = settings.MultidumperPath,
-                    Arguments = $"\"{settings.VgmFile}\" 0",
-                    RedirectStandardOutput = true,
-                    UseShellExecute = false
-                }))
-                {
-                    // We don't actually consume its stdout, we just want to have it not shown as it makes it much slower...
-                    if (p != null)
-                    {
-                        p.BeginOutputReadLine();
-                        p.WaitForExit();
-                    }
-                }
-                // And try again
-                settings.InputFiles = Directory.EnumerateFiles(
-                        Path.GetDirectoryName(settings.VgmFile) ?? throw new Exception($"Can't get path from VGM \"{settings.VgmFile}\""),
-                        Path.GetFileNameWithoutExtension(settings.VgmFile) + " - *.wav")
-                    .OrderByAlphaNumeric(s => s)
-                    .ToList();
+                var wrapper = new MultiDumperWrapper(settings.MultidumperPath);
+                var song = wrapper.GetSongs(settings.VgmFile).First();
+                var filenames = wrapper.Dump(song, d => Console.Write($"\r{d:P0}"));
+                settings.InputFiles = filenames.OrderByAlphaNumeric(s => s).ToList();
                 Console.WriteLine($" done. {settings.InputFiles.Count} files found.");
             }
             else
