@@ -33,7 +33,7 @@ namespace LibSidWiz
 
             public override string ToString()
             {
-                return $"{Index}. {Game} - {Name} - {Author} ({Comment})";
+                return $"#{Index}: {Game} - {Name} - {Author} ({Comment})";
             }
         }
 
