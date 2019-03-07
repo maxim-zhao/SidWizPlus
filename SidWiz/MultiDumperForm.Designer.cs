@@ -1,4 +1,5 @@
-﻿using System.Windows.Forms;
+﻿using System.ComponentModel;
+using System.Windows.Forms;
 
 namespace SidWiz
 {
@@ -88,6 +89,7 @@ namespace SidWiz
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             this.Text = "Multidumper subsong selection";
             this.Load += new System.EventHandler(this.SubsongSelectionForm_Load);
+            this.Closing += new CancelEventHandler(this.SubsongSelectionForm_Closing);
             this.ResumeLayout(false);
 
         }

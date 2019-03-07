@@ -12,14 +12,14 @@ namespace SidWiz
         private readonly string _filename;
         private readonly MultiDumperWrapper _wrapper;
 
+        public IEnumerable<string> Filenames { get; set; }
+
         public MultiDumperForm(string filename, string multiDumperPath)
         {
             _filename = filename;
             _wrapper = new MultiDumperWrapper(multiDumperPath);
             InitializeComponent();
         }
-
-        public IEnumerable<string> Filenames { get; set; }
 
         private void OkButtonClick(object sender, EventArgs e)
         {
@@ -82,6 +82,11 @@ namespace SidWiz
                     }
                 }));
             });
+        }
+
+        private void SubsongSelectionForm_Closing(object sender, EventArgs e)
+        {
+            _wrapper.Dispose();
         }
     }
 }

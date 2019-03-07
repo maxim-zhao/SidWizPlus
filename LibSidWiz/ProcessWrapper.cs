@@ -2,6 +2,7 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Threading;
 
 namespace LibSidWiz
 {
@@ -29,48 +30,79 @@ namespace LibSidWiz
             }
             _process.OutputDataReceived += (sender, e) =>
             {
-                _lines.Add(e.Data);
+                if (!_cancellationTokenSource.IsCancellationRequested)
+                {
+                    try
+                    {
+                        _lines.TryAdd(e.Data, 0, _cancellationTokenSource.Token);
+                    }
+                    catch (OperationCanceledException)
+                    {
+                        // Discard it
+                    }
+                }
             };
             _process.Start();
             _process.BeginOutputReadLine();
+
+            _cancellationTokenSource = new CancellationTokenSource();
         }
 
         private readonly BlockingCollection<string> _lines = new BlockingCollection<string>(new ConcurrentQueue<string>());
+        private readonly CancellationTokenSource _cancellationTokenSource;
 
         /// <summary>
-        /// Should be called on a worker thread because it blocks...
+        /// Blocks while waiting for the next line...
         /// </summary>
-        /// <returns></returns>
         public IEnumerable<string> Lines()
         {
-            while (!_lines.IsCompleted)
+            while (!_cancellationTokenSource.IsCancellationRequested)
             {
-                // Blocking take
-                var line = _lines.Take();
-                if (line != null)
+                string line;
+                try
                 {
-                    yield return line;
+                    // Blocking take
+                    line = _lines.Take(_cancellationTokenSource.Token);
                 }
-                else
+                catch (OperationCanceledException)
                 {
                     yield break;
                 }
+
+                if (line == null)
+                {
+                    yield break;
+                }
+
+                yield return line;
             }
         }
 
         public void Dispose()
         {
+            _cancellationTokenSource.Cancel();
+            _lines.CompleteAdding();
             if (_process != null)
             {
+                // Try to kill the process if it is alive
                 if (!_process.HasExited)
                 {
-                    _process.Kill();
+                    try
+                    {
+                        _process.EnableRaisingEvents = false;
+                        _process.Kill();
+                    }
+                    catch (Exception)
+                    {
+                        // May throw if the process terminates first
+                    }
                 }
 
                 _process.Dispose();
             }
 
-            _lines?.Dispose();
+            _cancellationTokenSource.Dispose();
+            _lines.Dispose();
         }
     }
 }
