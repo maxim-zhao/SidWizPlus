@@ -79,12 +79,6 @@ namespace SidWizPlus
             [Option("fillcolor", Required = false, HelpText = "Line color, can be hex or a .net color name", DefaultValue = "transparent")]
             public string FillColor { get; set; }
 
-            /*
-            // ReSharper disable once StringLiteralTypo
-            [Option("highpassfilter", Required = false, HelpText = "Enable high pass filtering with the given value as the cutoff frequency. A value of 10 works well to remove DC offsets.")]
-            public float HighPassFilterFrequency { get; set; }
-            */
-
             // ReSharper disable once StringLiteralTypo
             [Option('a', "autoscale", Required = false, HelpText = "Automatic scaling percentage. A value of 100 will make the peak amplitude just fit in the rendered area.")]
             public float AutoScalePercentage { get; set; }

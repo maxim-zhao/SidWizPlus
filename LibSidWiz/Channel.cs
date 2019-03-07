@@ -29,7 +29,6 @@ namespace LibSidWiz
         private Color _lineColor = Color.White;
         private string _label = "";
         private float _lineWidth = 3;
-        //private float _highPassFilterFrequency = -1;
         private float _scale = 1.0f;
         private int _viewWidthInSamples = 1500;
         private Color _fillColor = Color.Transparent;
@@ -89,21 +88,6 @@ namespace LibSidWiz
                     }
 
                     SampleCount = _samples.Count;
-
-                    /*
-                    if (HighPassFilterFrequency > 0)
-                    {
-                        // TODO: this only happens on load...
-                        // TODO: this won't work with random access...
-                        Console.WriteLine($"- High-pass filtering {Filename}");
-                        // Apply the high pass filter
-                        var filter = BiQuadFilter.HighPassFilter(SampleRate, HighPassFilterFrequency, 1);
-                        for (int i = 0; i < buffer.Length; ++i)
-                        {
-                            buffer[i] = filter.Transform(buffer[i]);
-                        }
-                    }
-                    */
 
                     token.ThrowIfCancellationRequested();
 
@@ -359,20 +343,6 @@ namespace LibSidWiz
                 Changed?.Invoke(this, false);
             }
         }
-
-        /*
-        [Category("Adjustment")]
-        [Description("High pass frequency adjustment. -1 means disabled. Use a value like 10 to remove DC offsets.")]
-        public float HighPassFilterFrequency
-        {
-            get => _highPassFilterFrequency;
-            set
-            {
-                _highPassFilterFrequency = value;
-                Changed?.Invoke(this, false);
-            }
-        }
-        */
 
         [Category("Adjustment")]
         [Description("Vertical scaling. This may be set by the auto-scaler.")]
