@@ -1,10 +1,10 @@
 # SidWizPlus
-This is a prgram which generates "oscilloscope view" videos from multi-track audio files. It is often used for VGM/chiptune rendering for use on video sharing sites, but can also be used for other multitrack audio files.
+This is a program which generates "oscilloscope view" videos from multi-track audio files. It is often used for VGM/chiptune rendering for use on video sharing sites, but can also be used for other multitrack audio files.
 
 [![](http://img.youtube.com/vi/H-Ip9c0yjGk/0.jpg)](http://www.youtube.com/watch?v=H-Ip9c0yjGk "Sonic 3 - Ice Cap Zone - Brad Buxer")
 [![](http://img.youtube.com/vi/ITQFs6-1LSg/0.jpg)](http://www.youtube.com/watch?v=ITQFs6-1LSg "Bohemian Rhapsody - Queen")
 
-The primary goals of this projext are:
+The primary goals of this project are:
 
 1. Generating videos from VGM packs from [SMS Power!](http://www.smspower.org/Music) - [see them on YouTube](https://www.youtube.com/channel/UCCsvqzh7JjNNheYTplGvhCQ)
 2. Producing a base for others to work on the features they want
