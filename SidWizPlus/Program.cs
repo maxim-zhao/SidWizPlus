@@ -10,6 +10,7 @@ using System.Reflection;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Web;
 using System.Windows.Forms;
 using CommandLine;
 using CommandLine.Text;
@@ -806,6 +807,11 @@ namespace SidWizPlus
                 video.Snippet.Title = video.Snippet.Title.Substring(0, 97) + "...";
             }
 
+            // We now escape some strings as the API doesn't do it internally...
+            video.Snippet.Title = HttpUtility.HtmlEncode(video.Snippet.Title);
+            video.Snippet.Description = HttpUtility.HtmlEncode(video.Snippet.Description);
+            video.Snippet.Tags = video.Snippet.Tags.Select(HttpUtility.HtmlEncode).ToList();
+
             using (var fileStream = new FileStream(settings.OutputFile, FileMode.Open))
             {
                 var videosInsertRequest = youtubeService.Videos.Insert(video, "snippet,status", fileStream, "video/*");
@@ -881,7 +887,7 @@ namespace SidWizPlus
             {
                 if (gd3 != null)
                 {
-                    settings.YouTubePlaylist = FormatFromGd3(settings.YouTubePlaylist, gd3);
+                    settings.YouTubePlaylist = HttpUtility.HtmlEncode(FormatFromGd3(settings.YouTubePlaylist, gd3));
                 }
                 
                 // We need to decide if it's an existing playlist
@@ -907,7 +913,7 @@ namespace SidWizPlus
                     };
                     if (settings.YouTubePlaylistDescriptionFile != null)
                     {
-                        playlist.Snippet.Description = File.ReadAllText(settings.YouTubePlaylistDescriptionFile);
+                        playlist.Snippet.Description = HttpUtility.HtmlEncode(File.ReadAllText(settings.YouTubePlaylistDescriptionFile));
                     }
 
                     if (settings.YouTubeDescriptionsExtra != null)
