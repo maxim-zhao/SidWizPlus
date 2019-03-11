@@ -10,7 +10,6 @@ using System.Reflection;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Web;
 using System.Windows.Forms;
 using CommandLine;
 using CommandLine.Text;
@@ -60,6 +59,10 @@ namespace SidWizPlus
 
             [Option('c', "columns", Required = false, HelpText = "Number of columns to render", DefaultValue = 1)]
             public int Columns { get; set; }
+
+            // ReSharper disable once StringLiteralTypo
+            [Option("maxaspectratio", Required = false, HelpText = "Maximum aspect ratio, used to automatically determine the number of columns", DefaultValue = -1.0)]
+            public double MaximumAspectRatio { get; set; }
 
             // ReSharper disable once StringLiteralTypo
             [Option("viewms", Required = false, HelpText = "Rendered view width in ms", DefaultValue = 35)]
@@ -601,6 +604,24 @@ namespace SidWizPlus
                 {
                     backgroundImage.Add(new TextInfo(gd3Text, settings.Gd3Font, settings.Gd3FontSize, ContentAlignment.BottomLeft, FontStyle.Regular,
                         DockStyle.Bottom, ParseColor(settings.Gd3FontColor)));
+                }
+            }
+
+            if (settings.MaximumAspectRatio > 0.0)
+            {
+                Console.WriteLine($"Determining column count for maximum aspect ratio {settings.MaximumAspectRatio}:");
+                for (var columns = 1; columns < 100; ++columns)
+                {
+                    var width = backgroundImage.WaveArea.Width / columns;
+                    var rows = channels.Count / columns + (channels.Count % columns == 0 ? 0 : 1);
+                    var height = backgroundImage.WaveArea.Height / rows;
+                    var ratio = (double) width / height;
+                    Console.WriteLine($"- {columns} columns => {width} x {height} pixels => ratio {ratio}");
+                    if (ratio < settings.MaximumAspectRatio)
+                    {
+                        settings.Columns = columns;
+                        break;
+                    }
                 }
             }
 
