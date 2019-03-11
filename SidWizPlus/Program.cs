@@ -808,9 +808,9 @@ namespace SidWizPlus
             }
 
             // We now escape some strings as the API doesn't do it internally...
-            video.Snippet.Title = HttpUtility.HtmlEncode(video.Snippet.Title);
-            video.Snippet.Description = HttpUtility.HtmlEncode(video.Snippet.Description);
-            video.Snippet.Tags = video.Snippet.Tags.Select(HttpUtility.HtmlEncode).ToList();
+            video.Snippet.Title = RemoveAngledBrackets(video.Snippet.Title);
+            video.Snippet.Description = RemoveAngledBrackets(video.Snippet.Description);
+            video.Snippet.Tags = video.Snippet.Tags.Select(RemoveAngledBrackets).ToList();
 
             using (var fileStream = new FileStream(settings.OutputFile, FileMode.Open))
             {
@@ -887,7 +887,7 @@ namespace SidWizPlus
             {
                 if (gd3 != null)
                 {
-                    settings.YouTubePlaylist = HttpUtility.HtmlEncode(FormatFromGd3(settings.YouTubePlaylist, gd3));
+                    settings.YouTubePlaylist = RemoveAngledBrackets(FormatFromGd3(settings.YouTubePlaylist, gd3));
                 }
                 
                 // We need to decide if it's an existing playlist
@@ -913,7 +913,7 @@ namespace SidWizPlus
                     };
                     if (settings.YouTubePlaylistDescriptionFile != null)
                     {
-                        playlist.Snippet.Description = HttpUtility.HtmlEncode(File.ReadAllText(settings.YouTubePlaylistDescriptionFile));
+                        playlist.Snippet.Description = RemoveAngledBrackets(File.ReadAllText(settings.YouTubePlaylistDescriptionFile));
                     }
 
                     if (settings.YouTubeDescriptionsExtra != null)
@@ -939,6 +939,11 @@ namespace SidWizPlus
             }
 
             return video.Id;
+        }
+
+        private static string RemoveAngledBrackets(string s)
+        {
+            return s.Replace("<", "").Replace(">", "");
         }
 
         private static string FormatFromGd3(string pattern, Gd3Tag gd3)
