@@ -295,7 +295,7 @@ namespace SidWiz
         private void LocateProgram(string filename, string currentValue, Action<string> saveToSettings)
         {
             // Get path if we don't already have it
-            if (!File.Exists(currentValue))
+            if (string.IsNullOrEmpty(currentValue) || !File.Exists(currentValue))
             {
                 // Check if it's in the program directory
                 var directory = Path.GetDirectoryName(Assembly.GetCallingAssembly().Location);
@@ -619,7 +619,7 @@ namespace SidWiz
 
         private void FfmpegLocation_Click(object sender, EventArgs e)
         {
-            LocateProgram("ffmpeg.exe", _programLocationSettings.FFMPEGPath, p => _programLocationSettings.FFMPEGPath = p);
+            LocateProgram("ffmpeg.exe", null, p => _programLocationSettings.FFMPEGPath = p);
             FfmpegLocation.Text = _programLocationSettings.FFMPEGPath;
         }
 
