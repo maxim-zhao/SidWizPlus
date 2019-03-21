@@ -10,10 +10,10 @@ namespace LibSidWiz
 
         private class Chunk
         {
-            public int Offset;
+            public long Offset;
             public float[] Buffer;
 
-            public bool Contains(int index)
+            public bool Contains(long index)
             {
                 return index >= Offset && index < Offset + ChunkSize;
             }
@@ -61,7 +61,7 @@ namespace LibSidWiz
             _reader.Dispose();
         }
 
-        public float this[int index]
+        public float this[long index]
         {
             get
             {
