@@ -44,4 +44,6 @@ Get builds from here: https://ci.appveyor.com/project/maxim-zhao/sidwizplus/buil
   * Copy and paste channel settings
     * Also as JSON so you can save them as text
 
-![](https://i.imgur.com/8qk17Md.png "GUI")
+## Usage guide
+
+[Read the usage guide on the wiki](https://github.com/maxim-zhao/SidWizPlus/wiki)
