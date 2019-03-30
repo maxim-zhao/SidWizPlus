@@ -52,6 +52,8 @@ namespace LibSidWiz
             {
                 try
                 {
+                    ErrorMessage = "";
+
                     if (string.IsNullOrEmpty(Filename))
                     {
                         _samples = null;
