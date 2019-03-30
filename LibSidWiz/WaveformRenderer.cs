@@ -193,7 +193,19 @@ namespace LibSidWiz
                 if (BackgroundImage != null)
                 {
                     // Fill with the background image
-                    g.DrawImage(BackgroundImage, 0, 0, Width, Height);
+                    using (var attribute = new ImageAttributes())
+                    {
+                        attribute.SetWrapMode(WrapMode.TileFlipXY);
+                        g.DrawImage(
+                            BackgroundImage, 
+                            new Rectangle(0, 0, Width, Height), 
+                            0, 
+                            0, 
+                            BackgroundImage.Width, 
+                            BackgroundImage.Height, 
+                            GraphicsUnit.Pixel, 
+                            attribute);
+                    }
                 }
                 else
                 {
