@@ -40,7 +40,6 @@ namespace LibSidWiz.Outputs
             // This may help with the frame rate. It's never going to be that fast though...
 
             _form.pictureBox1.Image = image;
-            _form.pictureBox1.Refresh();
             var elapsedSeconds = _stopwatch.Elapsed.TotalSeconds;
             var fps = _frameIndex / elapsedSeconds;
             var eta = TimeSpan.FromSeconds(elapsedSeconds / fractionComplete - elapsedSeconds);
