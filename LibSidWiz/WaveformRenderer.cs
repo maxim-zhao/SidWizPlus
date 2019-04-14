@@ -35,12 +35,12 @@ namespace LibSidWiz
         {
             // This is the raw data buffer we use to store the generated image.
             // We need it in this form so we can pass it to FFMPEG.
-            var rawData = new byte[Width * Height * 3];
+            var rawData = new byte[Width * Height * 4];
             // We also need to "pin" it so the bitmap can be based on it.
             GCHandle pinnedArray = GCHandle.Alloc(rawData, GCHandleType.Pinned);
             try
             {
-                using (var bm = new Bitmap(Width, Height, Width * 3, PixelFormat.Format24bppRgb, pinnedArray.AddrOfPinnedObject()))
+                using (var bm = new Bitmap(Width, Height, Width * 4, PixelFormat.Format32bppPArgb, pinnedArray.AddrOfPinnedObject()))
                 {
                     int numFrames = (int)((long)_channels.Max(c => c.SampleCount) * FramesPerSecond / SamplingRate);
 
@@ -182,7 +182,8 @@ namespace LibSidWiz
 
         private Bitmap GenerateTemplate()
         {
-            var template = new Bitmap(Width, Height, PixelFormat.Format24bppRgb);
+            // Benchmarks suggest this is fastest regardless of the renderer pixel format
+            var template = new Bitmap(Width, Height, PixelFormat.Format32bppPArgb);
             
             // Draw it
             using (var g = Graphics.FromImage(template))
