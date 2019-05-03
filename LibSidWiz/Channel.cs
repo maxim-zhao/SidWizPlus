@@ -43,6 +43,7 @@ namespace LibSidWiz
         private bool _invertedTrigger;
         private bool _borderEdges = true;
         private Color _backgroundColor = Color.Transparent;
+        private bool _clip;
 
         public event Action<Channel, bool> Changed;
 
@@ -354,6 +355,18 @@ namespace LibSidWiz
             set
             {
                 _scale = value;
+                Changed?.Invoke(this, false);
+            }
+        }
+
+        [Category("Adjustment")]
+        [Description("Whether to constrain the waveform to its screen area when scaled past 100%")]
+        public bool Clip
+        {
+            get => _clip;
+            set
+            {
+                _clip = value;
                 Changed?.Invoke(this, false);
             }
         }

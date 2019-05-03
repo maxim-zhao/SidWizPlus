@@ -356,6 +356,13 @@ namespace LibSidWiz
                 points[i].X = xOffset + i * xScale;
                 points[i].Y = yOffset + sampleValue * yScale;
             }
+            if (channel.Clip)
+            {
+                for (int i = 0; i < channel.ViewWidthInSamples; ++i)
+                {
+                    points[i].Y = Math.Min(Math.Max(points[i].Y, channel.Bounds.Top), channel.Bounds.Bottom);
+                }
+            }
 
             // Then draw them all in one go...
             if (pen != null)
