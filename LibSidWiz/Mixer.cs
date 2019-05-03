@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using NAudio.Wave;
-using NAudio.Wave.Asio;
 using NAudio.Wave.SampleProviders;
 using NReplayGain;
 
@@ -18,13 +17,10 @@ namespace LibSidWiz
             Console.WriteLine("Mixing per-channel data...");
 
             // We make new readers...
-            IList<WaveFileReader> readers = new List<WaveFileReader>();
+            var readers = new List<WaveFileReader>();
             try
             {
-                foreach (var channel in channels)
-                {
-                    readers.Add(new WaveFileReader(channel.Filename));
-                }
+                readers.AddRange(channels.Select(c => new WaveFileReader(c.Filename)));
 
                 if (applyReplayGain)
                 {
