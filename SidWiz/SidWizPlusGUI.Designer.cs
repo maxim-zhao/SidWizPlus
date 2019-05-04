@@ -376,7 +376,7 @@
             this.SplitChannelButton.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.SplitChannelButton.Name = "SplitChannelButton";
             this.SplitChannelButton.Size = new System.Drawing.Size(23, 22);
-            this.SplitChannelButton.Text = "Split stereo track";
+            this.SplitChannelButton.Text = "Split stereo channel";
             this.SplitChannelButton.Click += new System.EventHandler(this.SplitChannelButton_Click);
             // 
             // toolStripSeparator2
