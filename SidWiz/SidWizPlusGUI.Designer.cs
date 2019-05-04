@@ -50,6 +50,7 @@
             this.AddFileButton = new System.Windows.Forms.ToolStripButton();
             this.AddChannelButton = new System.Windows.Forms.ToolStripButton();
             this.CloneChannelButton = new System.Windows.Forms.ToolStripButton();
+            this.SplitChannelButton = new System.Windows.Forms.ToolStripButton();
             this.toolStripSeparator2 = new System.Windows.Forms.ToolStripSeparator();
             this.LeftButton = new System.Windows.Forms.ToolStripButton();
             this.RightButton = new System.Windows.Forms.ToolStripButton();
@@ -114,6 +115,7 @@
             this.LoadButton = new System.Windows.Forms.Button();
             this.SaveButton = new System.Windows.Forms.Button();
             this.imageList1 = new System.Windows.Forms.ImageList(this.components);
+            this.splitChannelToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
             this.splitContainer1.Panel2.SuspendLayout();
@@ -184,12 +186,13 @@
             this.toolStripMenuItem1,
             this.cloneChannelToolStripMenuItem,
             this.removeChannelToolStripMenuItem,
+            this.splitChannelToolStripMenuItem,
             this.toolStripSeparator3,
             this.copySettingsToolStripMenuItem,
             this.pasteSettingsToolStripMenuItem,
             this.applySettingsToOtherChannelsToolStripMenuItem});
             this.contextMenuStrip1.Name = "contextMenuStrip1";
-            this.contextMenuStrip1.Size = new System.Drawing.Size(245, 170);
+            this.contextMenuStrip1.Size = new System.Drawing.Size(245, 192);
             // 
             // moveLeftupToolStripMenuItem
             // 
@@ -217,7 +220,7 @@
             this.cloneChannelToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("cloneChannelToolStripMenuItem.Image")));
             this.cloneChannelToolStripMenuItem.Name = "cloneChannelToolStripMenuItem";
             this.cloneChannelToolStripMenuItem.Size = new System.Drawing.Size(244, 22);
-            this.cloneChannelToolStripMenuItem.Text = "Cl&one channel";
+            this.cloneChannelToolStripMenuItem.Text = "Cl&one";
             this.cloneChannelToolStripMenuItem.Click += new System.EventHandler(this.CloneChannelButton_Click);
             // 
             // removeChannelToolStripMenuItem
@@ -225,7 +228,7 @@
             this.removeChannelToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("removeChannelToolStripMenuItem.Image")));
             this.removeChannelToolStripMenuItem.Name = "removeChannelToolStripMenuItem";
             this.removeChannelToolStripMenuItem.Size = new System.Drawing.Size(244, 22);
-            this.removeChannelToolStripMenuItem.Text = "Re&move channel";
+            this.removeChannelToolStripMenuItem.Text = "Re&move";
             this.removeChannelToolStripMenuItem.Click += new System.EventHandler(this.RemoveButton_Click);
             // 
             // toolStripSeparator3
@@ -320,6 +323,7 @@
             this.AddFileButton,
             this.AddChannelButton,
             this.CloneChannelButton,
+            this.SplitChannelButton,
             this.toolStripSeparator2,
             this.LeftButton,
             this.RightButton,
@@ -364,6 +368,16 @@
             this.CloneChannelButton.Size = new System.Drawing.Size(23, 22);
             this.CloneChannelButton.Text = "Clone channel";
             this.CloneChannelButton.Click += new System.EventHandler(this.CloneChannelButton_Click);
+            // 
+            // SplitChannelButton
+            // 
+            this.SplitChannelButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.SplitChannelButton.Image = ((System.Drawing.Image)(resources.GetObject("SplitChannelButton.Image")));
+            this.SplitChannelButton.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.SplitChannelButton.Name = "SplitChannelButton";
+            this.SplitChannelButton.Size = new System.Drawing.Size(23, 22);
+            this.SplitChannelButton.Text = "Split stereo track";
+            this.SplitChannelButton.Click += new System.EventHandler(this.SplitChannelButton_Click);
             // 
             // toolStripSeparator2
             // 
@@ -1133,6 +1147,14 @@
             this.imageList1.Images.SetKeyName(4, "layout.png");
             this.imageList1.Images.SetKeyName(5, "picture.png");
             // 
+            // splitChannelToolStripMenuItem
+            // 
+            this.splitChannelToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("splitChannelToolStripMenuItem.Image")));
+            this.splitChannelToolStripMenuItem.Name = "splitChannelToolStripMenuItem";
+            this.splitChannelToolStripMenuItem.Size = new System.Drawing.Size(244, 22);
+            this.splitChannelToolStripMenuItem.Text = "Split";
+            this.splitChannelToolStripMenuItem.Click += new System.EventHandler(this.SplitChannelButton_Click);
+            // 
             // SidWizPlusGui
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
@@ -1269,5 +1291,7 @@
         private System.Windows.Forms.ToolStripMenuItem copySettingsToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem pasteSettingsToolStripMenuItem;
         private System.Windows.Forms.ToolStripButton PasteChannelSettingsButton;
+        private System.Windows.Forms.ToolStripButton SplitChannelButton;
+        private System.Windows.Forms.ToolStripMenuItem splitChannelToolStripMenuItem;
     }
 }

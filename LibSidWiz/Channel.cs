@@ -12,6 +12,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Windows.Forms.Design;
 using LibSidWiz.Triggers;
+using NAudio.Wave;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 
@@ -44,6 +45,14 @@ namespace LibSidWiz
         private bool _borderEdges = true;
         private Color _backgroundColor = Color.Transparent;
         private bool _clip;
+        private Sides _side = Sides.Mix;
+
+        public enum Sides
+        {
+            Left,
+            Right,
+            Mix
+        }
 
         public event Action<Channel, bool> Changed;
 
@@ -69,7 +78,7 @@ namespace LibSidWiz
                     IsEmpty = false;
 
                     Console.WriteLine($"- Reading {Filename}");
-                    _samples = new SampleBuffer(Filename);
+                    _samples = new SampleBuffer(Filename, Side);
                     SampleRate = _samples.SampleRate;
                     Length = _samples.Length;
 
@@ -149,6 +158,18 @@ namespace LibSidWiz
                 {
                     Label = GuessNameFromMultidumperFilename(_filename);
                 }
+            }
+        }
+
+        [Category("Data")]
+        [Description("The channel to use from the file (if stereo)")]
+        public Sides Side
+        {
+            get => _side;
+            set
+            {
+                _side = value;
+                Changed?.Invoke(this, true);
             }
         }
 
@@ -644,6 +665,37 @@ namespace LibSidWiz
                 }
                 return property;
             }
+        }
+
+        public bool IsMono()
+        {
+            if (Side == Sides.Left || Side == Sides.Right)
+            {
+                return true;
+            }
+
+            using (var reader = new WaveFileReader(_filename))
+            {
+                var sp = reader.ToSampleProvider().ToStereo();
+                if (sp.WaveFormat.Channels == 1)
+                {
+                    return true;
+                }
+
+                int bufferSize = sp.WaveFormat.SampleRate * 10;
+                var buffer = new float[bufferSize];
+                sp.Read(buffer, 0, bufferSize);
+                for (int i = 0; i < bufferSize; i += 2)
+                {
+                    // ReSharper disable once CompareOfFloatsByEqualityOperator
+                    if (buffer[i] != buffer[i + 1])
+                    {
+                        return false;
+                    }
+                }
+            }
+
+            return true;
         }
     }
 }

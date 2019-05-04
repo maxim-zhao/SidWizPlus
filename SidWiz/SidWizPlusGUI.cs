@@ -862,5 +862,50 @@ namespace SidWiz
                 MessageBox.Show(this, $"Error while pasting: \n\n{exception}");
             }
         }
+
+        private void SplitChannelButton_Click(object sender, EventArgs e)
+        {
+            if (!(PropertyGrid.SelectedObject is Channel channel))
+            {
+                return;
+            }
+
+            if (channel.IsMono())
+            {
+                if (MessageBox.Show(
+                        this,
+                        "Data is not stereo, do you want to clone the channel instead?",
+                        "Split channel",
+                        MessageBoxButtons.YesNo,
+                        MessageBoxIcon.Question,
+                        MessageBoxDefaultButton.Button2) == DialogResult.Yes)
+                {
+                    CloneChannelButton_Click(sender, e);
+                }
+
+                return;
+            }
+
+            // We clone the channel for the right side
+            var right = new Channel();
+            var json = channel.ToJson();
+            right.FromJson(json, false);
+            right.Side = Channel.Sides.Right;
+            right.Changed += ChannelOnChanged;
+            right.LoadDataAsync();
+
+            // We switch the existing channel to the left side
+            channel.Side = Channel.Sides.Left;
+            channel.LoadDataAsync();
+
+            lock (_settings)
+            {
+                var index = _settings.Channels.IndexOf(channel);
+                _settings.Channels.Insert(index + 1, right);
+            }
+
+            // We trigger a render to show the "loading" state
+            Render();
+        }
     }
 }

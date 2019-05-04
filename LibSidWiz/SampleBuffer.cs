@@ -34,13 +34,24 @@ namespace LibSidWiz
 
         public float Min { get; private set; }
 
-        public SampleBuffer(string filename)
+        public SampleBuffer(string filename, Channel.Sides side)
         {
             _reader = new WaveFileReader(filename);
             Count = (int) _reader.SampleCount;
             SampleRate = _reader.WaveFormat.SampleRate;
             Length = TimeSpan.FromSeconds((double) Count / SampleRate);
-            _sampleProvider = _reader.ToSampleProvider().ToMono();
+            switch (side)
+            {
+                case Channel.Sides.Left:
+                    _sampleProvider = _reader.ToSampleProvider().ToMono(1.0f, 0.0f);
+                    break;
+                case Channel.Sides.Right:
+                    _sampleProvider = _reader.ToSampleProvider().ToMono(0.0f, 1.0f);
+                    break;
+                case Channel.Sides.Mix:
+                    _sampleProvider = _reader.ToSampleProvider().ToMono();
+                    break;
+            }
 
             _chunk1 = new Chunk
             {
