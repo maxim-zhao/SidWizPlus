@@ -192,7 +192,7 @@
             this.pasteSettingsToolStripMenuItem,
             this.applySettingsToOtherChannelsToolStripMenuItem});
             this.contextMenuStrip1.Name = "contextMenuStrip1";
-            this.contextMenuStrip1.Size = new System.Drawing.Size(245, 192);
+            this.contextMenuStrip1.Size = new System.Drawing.Size(245, 214);
             // 
             // moveLeftupToolStripMenuItem
             // 
@@ -1152,7 +1152,7 @@
             this.splitChannelToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("splitChannelToolStripMenuItem.Image")));
             this.splitChannelToolStripMenuItem.Name = "splitChannelToolStripMenuItem";
             this.splitChannelToolStripMenuItem.Size = new System.Drawing.Size(244, 22);
-            this.splitChannelToolStripMenuItem.Text = "Split";
+            this.splitChannelToolStripMenuItem.Text = "&Split";
             this.splitChannelToolStripMenuItem.Click += new System.EventHandler(this.SplitChannelButton_Click);
             // 
             // SidWizPlusGui
