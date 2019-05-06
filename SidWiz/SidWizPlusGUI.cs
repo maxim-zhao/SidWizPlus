@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
 using System.Globalization;
@@ -351,11 +352,14 @@ namespace SidWiz
                 // We update this here so the worker thread will get the latest value.
                 _renderPosition = (float) PreviewTrackbar.Value / PreviewTrackbar.Maximum;
 
+                Trace.WriteLine($"Want to render at {_renderPosition}");
+
                 // We have two flags to signal the need to render.
                 // One indicates that we need to render; this can be set while rendering
                 // to cause it to render again when done.
                 if (_renderNeeded)
                 {
+                    Trace.WriteLine($"Render is already queued, nothing to do");
                     return;
                 }
                 _renderNeeded = true;
@@ -364,10 +368,13 @@ namespace SidWiz
                 // This ensures we don't start two render tasks at the same time.
                 if (_renderActive)
                 {
+                    Trace.WriteLine($"Render is already active, not starting task");
                     return;
                 }
                 _renderActive = true;
             }
+
+            Trace.WriteLine($"Starting render task");
 
             // And finally we start the task.
             Task.Factory.StartNew(() =>
@@ -378,6 +385,7 @@ namespace SidWiz
                     float renderPosition;
                     lock (_renderLock)
                     {
+                        Trace.WriteLine($"Clearing render needed flag");
                         _renderNeeded = false;
                         renderPosition = _renderPosition;
                     }
@@ -402,8 +410,10 @@ namespace SidWiz
                     {
                         if (_renderNeeded)
                         {
+                            Trace.WriteLine($"Render needed flag was set, rendering again");
                             continue;
                         }
+                        Trace.WriteLine($"Render complete, ending task");
                         _renderActive = false;
                         break;
                     }
