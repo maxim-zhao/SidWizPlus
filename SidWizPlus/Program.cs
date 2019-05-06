@@ -133,11 +133,9 @@ namespace SidWizPlus
             // ReSharper disable once StringLiteralTypo
             [Option("gridwidth", Required = false, HelpText = "Grid line width", DefaultValue = 0)]
             public float GridLineWidth { get; set; }
-            /*
             // ReSharper disable once StringLiteralTypo
-            [Option("gridborder", HelpText = "Draw a border around the waves as well as between them")]
+            [Option("gridborder", HelpText = "Draw a border around the waves as well as between them", DefaultValue = true)]
             public bool GridBorder { get; set; }
-            */
             // ReSharper disable once StringLiteralTypo
             [Option("zerolinecolor", HelpText = "Zero line color", DefaultValue = "white")]
             public string ZeroLineColor { get; set; }
@@ -642,6 +640,7 @@ namespace SidWizPlus
                 {
                     channel.BorderColor = ParseColor(settings.GridColor);
                     channel.BorderWidth = settings.GridLineWidth;
+                    channel.BorderEdges = settings.GridBorder;
                 }
             }
 
