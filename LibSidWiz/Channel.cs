@@ -236,6 +236,8 @@ namespace LibSidWiz
             }
         }
 
+        [Category("Appearance")]
+        [Description("Whether to draw lines pixelated (false) or anti-aliased (true)")]
         public bool SmoothLines
         {
             get => _smoothLines;
