@@ -51,6 +51,7 @@ namespace LibSidWiz
                             foreach (var output in outputs)
                             {
                                 // ReSharper disable once AccessToDisposedClosure
+                                // bm is disposed after Render() returns, but it never invokes this 
                                 output.Write(rawData, bm, fractionComplete);
                             }
                         },
@@ -93,9 +94,6 @@ namespace LibSidWiz
             {
                 using (var g = Graphics.FromImage(destination))
                 {
-                    // Enable anti-aliased lines
-                    g.SmoothingMode = SmoothingMode.HighQuality;
-
                     // Prepare the pens and brushes we will use
                     var pens = _channels.Select(c => c.LineColor == Color.Transparent || c.LineWidth <= 0
                         ? null
@@ -121,12 +119,16 @@ namespace LibSidWiz
                         triggerPoints[channelIndex] = (int)((long)startFrame * SamplingRate / FramesPerSecond) - frameSamples;
                     }
 
+                    // Formatting for error/progress messages
+                    var stringFormat = new StringFormat {LineAlignment = StringAlignment.Center, Alignment = StringAlignment.Center};
+
                     for (int frameIndex = startFrame; frameIndex < endFrame; ++frameIndex)
                     {
                         // Compute the start of the sample window
                         int frameIndexSamples = (int)((long)frameIndex * SamplingRate / FramesPerSecond);
 
                         // Copy from the template
+                        // TODO this is a bit slow, we should do it using the raw memory instead?
                         g.DrawImageUnscaled(template, 0, 0);
 
                         // For each channel...
@@ -138,21 +140,17 @@ namespace LibSidWiz
                                 continue;
                             }
 
-                            // Compute the initial x, y to render the line from.
-                            var yBase = channel.Bounds.Top + channel.Bounds.Height / 2;
-                            var xBase = channel.Bounds.Left;
-
                             if (!string.IsNullOrEmpty(channel.ErrorMessage))
                             {
-                                g.DrawString(channel.ErrorMessage, SystemFonts.DefaultFont, Brushes.Red, channel.Bounds);
+                                g.DrawString(channel.ErrorMessage, SystemFonts.DefaultFont, Brushes.Red, channel.Bounds, stringFormat);
                             }
                             else if (channel.Loading)
                             {
-                                g.DrawString("Loading data...", SystemFonts.DefaultFont, Brushes.Green, xBase, yBase);
+                                g.DrawString("Loading data...", SystemFonts.DefaultFont, Brushes.Green, channel.Bounds, stringFormat);
                             }
                             else if (channel.IsSilent)
                             {
-                                g.DrawString("This channel is silent", SystemFonts.DefaultFont, Brushes.Yellow, xBase, yBase);
+                                g.DrawString("This channel is silent", SystemFonts.DefaultFont, Brushes.Yellow, channel.Bounds, stringFormat);
                             }
                             else
                             {
@@ -363,6 +361,17 @@ namespace LibSidWiz
                     points[i].Y = Math.Min(Math.Max(points[i].Y, channel.Bounds.Top), channel.Bounds.Bottom);
                 }
             }
+
+            if (channel.SmoothLines)
+            {
+                // Enable anti-aliased lines
+                g.SmoothingMode = SmoothingMode.HighQuality;
+            }
+            else
+            {
+                g.SmoothingMode = SmoothingMode.None;
+            }
+
 
             // Then draw them all in one go...
             if (pen != null)

@@ -46,6 +46,7 @@ namespace LibSidWiz
         private Color _backgroundColor = Color.Transparent;
         private bool _clip;
         private Sides _side = Sides.Mix;
+        private bool _smoothLines = true;
 
         public enum Sides
         {
@@ -231,6 +232,16 @@ namespace LibSidWiz
             set
             {
                 _fillColor = value;
+                Changed?.Invoke(this, false);
+            }
+        }
+
+        public bool SmoothLines
+        {
+            get => _smoothLines;
+            set
+            {
+                _smoothLines = value;
                 Changed?.Invoke(this, false);
             }
         }
