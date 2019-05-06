@@ -88,9 +88,10 @@ namespace SidWizPlus
             public float AutoScalePercentage { get; set; }
 
             // ReSharper disable once StringLiteralTypo
-            [Option("autoscaleignorepercussion", Required = false, HelpText = "Makes autoscale ignore YM2413 percussion channels")]
+            [Option("autoscaleignorepercussion", Required = false, HelpText = "Makes automatic scaling ignore YM2413 percussion channels")]
             public bool AutoScaleIgnoreYM2413Percussion { get; set; }
 
+            // ReSharper disable once StringLiteralTypo
             [Option("labelsfromvgm", Required = false, HelpText = "Attempt to label channels based on their (filename")]
             public bool ChannelLabelsFromVgm { get; set; }
 
@@ -193,8 +194,8 @@ namespace SidWizPlus
             public string GetUsage()
             {
                 var help = new HelpText {
-                    Heading = new HeadingInfo("SidWizPlus", "0.7"),
-                    Copyright = new CopyrightInfo("Maxim", 2018),
+                    Heading = new HeadingInfo("SidWizPlus", "0.9"),
+                    Copyright = new CopyrightInfo("Maxim", 2019),
                     AdditionalNewLineAfterOption = false,
                     AddDashesToOption = true,
                     MaximumDisplayWidth = Console.WindowWidth
@@ -216,6 +217,7 @@ namespace SidWizPlus
                 return help;
             }
 
+            // ReSharper disable once MemberCanBePrivate.Local
             [ParserState]
             public IParserState LastParserState { get; set; }
         }
@@ -372,8 +374,8 @@ namespace SidWizPlus
 
         private class InstrumentState
         {
-            public int Instrument { get; set; }
-            public int Ticks { get; set; }
+            public int Instrument { private get; set; }
+            public int Ticks { get; private set; }
 
             private static readonly string[] Names = {
                 "Custom Instrument",
