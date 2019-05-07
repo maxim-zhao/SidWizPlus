@@ -23,6 +23,7 @@ namespace SidWiz
         {
             public string FFMPEGPath { get; set; }
             public string MultiDumperPath { get; set; }
+            public string SidPlayPath { get; set; }
         }
 
         private ProgramLocationSettings _programLocationSettings = new ProgramLocationSettings();
@@ -139,20 +140,69 @@ namespace SidWiz
             InitializeComponent();
         }
 
+        private class FileTypeHandler
+        {
+            private readonly Action<string> _handler;
+            private readonly HashSet<string> _extensions;
+
+            public FileTypeHandler(string name, Action<string> handler, params string[] extensions)
+            {
+                Name = name;
+                _handler = handler;
+                _extensions = new HashSet<string>(extensions);
+                Filter = "*." + string.Join("; *.", extensions);
+            }
+
+            public string Name { get; }
+            public string Filter { get; }
+
+            public bool TryHandle(string filename)
+            {
+                var extension = Path.GetExtension(filename)?.ToLowerInvariant();
+                if (extension == null)
+                {
+                    return false;
+                }
+                if (extension.StartsWith("."))
+                {
+                    extension = extension.Substring(1);
+                }
+
+                if (_extensions.Contains(extension))
+                {
+                    _handler(filename);
+                    return true;
+                }
+                return false;
+            }
+        }
+
         private void AddAFileClick(object sender, EventArgs e)
         {
-            var multiDumperMask = "*." + string.Join(
-                "; *.", 
-                "ay", "gbs", "gym", "hes", "kss", "nsf", "nsfe", "sap", "sfm", "sgc", "spc", "vgm", "vgz", "spu");
+            var handlers = new[]
+            {
+                new FileTypeHandler("Multidumper compatible files", LoadMultiDumper, "ay", "gbs", "gym", "hes", "kss", "nsf", "nsfe", "sap", "sfm", "sgc", "spc", "vgm", "vgz", "spu"), 
+                new FileTypeHandler("Wave audio files", AddChannel, "wav"),
+                new FileTypeHandler("SID files", LoadSid, "sid")
+            };
 
-            using (var ofd = new OpenFileDialog()
+            var allFilesMask = string.Join("; ", handlers.Select(h => h.Filter));
+
+            var filter = string.Join("|",new[]
+                {
+                    $"All supported files ({allFilesMask})",
+                    allFilesMask
+                }
+                .Concat(handlers.SelectMany(h => new[] {$"{h.Name} ({h.Filter})", h.Filter}))
+                .Concat(new[]
+                {
+                    "All files", "*.*"
+                }));
+
+            using (var ofd = new OpenFileDialog
             {
                 CheckFileExists = true,
-                Filter =
-                    $"All supported files (*.wav;{multiDumperMask})|*.wav;{multiDumperMask}|" +
-                    "Wave audio files (*.wav)|*.wav|" + 
-                    $"MultiDumper compatible files ({multiDumperMask})|{multiDumperMask}|" +
-                    "All files (*.*)|*.*",
+                Filter = filter,
                 Multiselect = true
             })
             {
@@ -165,22 +215,9 @@ namespace SidWiz
                 foreach (var filename in ofd.FileNames.OrderByAlphaNumeric(x => x))
                 {
                     var path = Path.GetFullPath(filename);
-                    var extension = Path.GetExtension(filename).ToLowerInvariant();
-                    switch (extension)
+                    if (!handlers.Any(h => h.TryHandle(path)))
                     {
-                        case ".wav":
-                            AddChannel(path);
-                            break;
-                        default:
-                            if (multiDumperMask.Contains("*" + extension))
-                            {
-                                LoadMultiDumper(path);
-                            }
-                            else
-                            {
-                                errors.Add($"Could not load \"{filename}\" - unknown extension");
-                            }
-                            break;
+                        errors.Add($"Could not load \"{filename}\" - unknown extension");
                     }
                 }
 
@@ -293,6 +330,30 @@ namespace SidWiz
             }
         }
 
+        private void LoadSid(string filename)
+        {
+            LocateProgram("sidplayfp.exe", _programLocationSettings.SidPlayPath, p => _programLocationSettings.SidPlayPath = p);
+            try
+            {
+                using (var form = new SidPlayForm(filename, _programLocationSettings.SidPlayPath))
+                {
+                    if (form.ShowDialog(this) != DialogResult.OK || form.Filenames == null)
+                    {
+                        return;
+                    }
+
+                    foreach (var wavFile in form.Filenames)
+                    {
+                        AddChannel(wavFile);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error running SidPlay: {ex}");
+            }
+        }
+
         private void LocateProgram(string filename, string currentValue, Action<string> saveToSettings)
         {
             // Get path if we don't already have it
@@ -359,7 +420,7 @@ namespace SidWiz
                 // to cause it to render again when done.
                 if (_renderNeeded)
                 {
-                    Trace.WriteLine($"Render is already queued, nothing to do");
+                    Trace.WriteLine("Render is already queued, nothing to do");
                     return;
                 }
                 _renderNeeded = true;
@@ -368,13 +429,13 @@ namespace SidWiz
                 // This ensures we don't start two render tasks at the same time.
                 if (_renderActive)
                 {
-                    Trace.WriteLine($"Render is already active, not starting task");
+                    Trace.WriteLine("Render is already active, not starting task");
                     return;
                 }
                 _renderActive = true;
             }
 
-            Trace.WriteLine($"Starting render task");
+            Trace.WriteLine("Starting render task");
 
             // And finally we start the task.
             Task.Factory.StartNew(() =>
@@ -385,7 +446,7 @@ namespace SidWiz
                     float renderPosition;
                     lock (_renderLock)
                     {
-                        Trace.WriteLine($"Clearing render needed flag");
+                        Trace.WriteLine("Clearing render needed flag");
                         _renderNeeded = false;
                         renderPosition = _renderPosition;
                     }
@@ -410,10 +471,10 @@ namespace SidWiz
                     {
                         if (_renderNeeded)
                         {
-                            Trace.WriteLine($"Render needed flag was set, rendering again");
+                            Trace.WriteLine("Render needed flag was set, rendering again");
                             continue;
                         }
-                        Trace.WriteLine($"Render complete, ending task");
+                        Trace.WriteLine("Render complete, ending task");
                         _renderActive = false;
                         break;
                     }
@@ -436,7 +497,7 @@ namespace SidWiz
                     Height = _settings.Height,
                     Columns = _settings.Columns,
                     FramesPerSecond = _settings.FrameRate,
-                    RenderingBounds = _settings.GetBounds(),
+                    RenderingBounds = _settings.GetBounds()
                 };
 
                 if (_settings.Channels.Count > 0)
@@ -601,7 +662,7 @@ namespace SidWiz
 
         private void BackgroundImageControl_Click(object sender, EventArgs e)
         {
-            using (var ofd = new OpenFileDialog()
+            using (var ofd = new OpenFileDialog
             {
                 Title = "Select an image",
                 Filter = "Image files (*.png;*.gif;*.jpg;*.jpeg;*.bmp;*.wmf)|*.png;*.gif;*.jpg;*.jpeg;*.bmp;*.wmf|All files (*.*)|*.*"
@@ -814,7 +875,7 @@ namespace SidWiz
                 {
                     File.WriteAllText(sfd.FileName, JsonConvert.SerializeObject(_settings, new JsonSerializerSettings
                     {
-                        Formatting = Formatting.Indented,
+                        Formatting = Formatting.Indented
                     }));
                 }
             }

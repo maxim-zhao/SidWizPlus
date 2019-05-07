@@ -84,6 +84,12 @@
     <Compile Include="HighDpiHelper.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SidPlayForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="SidPlayForm.Designer.cs">
+      <DependentUpon>SidPlayForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="SidWizPlusGUI.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -106,6 +112,9 @@
       <DependentUpon>Resources.resx</DependentUpon>
       <DesignTime>True</DesignTime>
     </Compile>
+    <EmbeddedResource Include="SidPlayForm.resx">
+      <DependentUpon>SidPlayForm.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="SidWizPlusGUI.resx">
       <DependentUpon>SidWizPlusGUI.cs</DependentUpon>
     </EmbeddedResource>
