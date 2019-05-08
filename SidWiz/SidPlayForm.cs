@@ -113,10 +113,10 @@ namespace SidWiz
 
                 var filenames = new List<string>();
 
-                _processWrappers = Enumerable.Range(1, 3).Select(channel =>
+                _processWrappers = Enumerable.Range(1, 4).Select(channel =>
                 {
                     var muting = string.Join(" ",
-                        Enumerable.Range(1, 3).Where(n => n != channel).Select(n => $"-u{n}"));
+                        Enumerable.Range(1, 4).Where(n => n != channel).Select(n => $"-u{n}"));
                     var filename = $"{song.File.Filename} - Song {song.Index} - {song.File.Chip} #{channel}.wav";
                     filenames.Add(filename);
                     return new ProcessWrapper(
