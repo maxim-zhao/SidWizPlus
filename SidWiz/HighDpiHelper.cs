@@ -61,7 +61,6 @@ namespace SidWiz
                     ScaleToolStrip(dpiScale, control.ContextMenuStrip);
                 }
 
-
                 // Then recurse
                 AdjustControlImagesDpiScale(control.Controls, dpiScale);
             }
@@ -114,5 +113,4 @@ namespace SidWiz
             return new Size((int) (size.Width * scale), (int) (size.Height * scale));
         }
     }
-
 }

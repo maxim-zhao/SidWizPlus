@@ -1,17 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Net;
 using System.Text;
-using System.Text.RegularExpressions;
-using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using LibSidWiz;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 
 namespace SidWiz
 {
@@ -107,10 +101,8 @@ namespace SidWiz
                 return Enumerable.Range(1, file.SongCount).Select(index => new Song {File = file, Index = index});
             }
 
-            public IEnumerable<string> Dump(Song song, Action<string> onProgress)
+            public IEnumerable<string> Dump(Song song)
             {
-                var stopwatch = Stopwatch.StartNew();
-
                 var filenames = new List<string>();
 
                 _processWrappers = Enumerable.Range(1, 4).Select(channel =>
@@ -125,24 +117,13 @@ namespace SidWiz
                 }).ToList();
                     
                 // sidplayfp doesn't emit anything to stdout... so we just block until they all exit
-                foreach (var s in _processWrappers.SelectMany(w => w.Lines()))
-                {
-                    if (stopwatch.Elapsed.TotalMilliseconds > 100)
-                    {
-                        // Update the progress every 100ms
-                        onProgress?.Invoke(s);
-                        stopwatch.Restart();
-                    }
-                }
-
                 foreach (var wrapper in _processWrappers)
                 {
+                    wrapper.WaitForExit();
                     wrapper.Dispose();
                 }
 
                 _processWrappers.Clear();
-
-                onProgress?.Invoke("done");
 
                 return filenames;
             }
@@ -182,12 +163,7 @@ namespace SidWiz
                 {
                     try
                     {
-                        Filenames = _wrapper.Dump(song,
-                            progress =>
-                            {
-                                BeginInvoke(
-                                    new Action(() => Text = progress));
-                            }).ToList();
+                        Filenames = _wrapper.Dump(song).ToList();
 
                         BeginInvoke(new Action(() =>
                         {

@@ -9,9 +9,13 @@ namespace LibSidWiz
     public class ProcessWrapper: IDisposable
     {
         private readonly Process _process;
+        private readonly BlockingCollection<string> _lines = new BlockingCollection<string>(new ConcurrentQueue<string>());
+        private readonly CancellationTokenSource _cancellationTokenSource;
 
         public ProcessWrapper(string filename, string arguments)
         {
+            _cancellationTokenSource = new CancellationTokenSource();
+
             _process = new Process
             {
                 StartInfo = new ProcessStartInfo
@@ -44,12 +48,7 @@ namespace LibSidWiz
             };
             _process.Start();
             _process.BeginOutputReadLine();
-
-            _cancellationTokenSource = new CancellationTokenSource();
         }
-
-        private readonly BlockingCollection<string> _lines = new BlockingCollection<string>(new ConcurrentQueue<string>());
-        private readonly CancellationTokenSource _cancellationTokenSource;
 
         /// <summary>
         /// Blocks while waiting for the next line...
@@ -77,6 +76,8 @@ namespace LibSidWiz
                 yield return line;
             }
         }
+
+        public void WaitForExit() => _process.WaitForExit();
 
         public void Dispose()
         {
