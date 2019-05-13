@@ -820,6 +820,7 @@ namespace SidWiz
                 {
                     _settings.ToControls(this);
                 }
+                this.Icon = Icon.ExtractAssociatedIcon(Application.ExecutablePath);
             }
             catch (Exception)
             {
