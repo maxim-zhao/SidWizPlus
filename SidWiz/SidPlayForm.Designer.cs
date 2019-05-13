@@ -91,6 +91,7 @@ namespace SidWiz
             this.MinimizeBox = false;
             this.Name = "SidPlayForm";
             this.ShowIcon = false;
+            this.ShowInTaskbar = false;
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             this.Text = "SidPlay subsong selection";
             this.Closing += new System.ComponentModel.CancelEventHandler(this.SubsongSelectionForm_Closing);

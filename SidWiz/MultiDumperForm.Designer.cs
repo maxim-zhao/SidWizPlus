@@ -86,6 +86,7 @@ namespace SidWiz
             this.MinimizeBox = false;
             this.Name = "MultiDumperForm";
             this.ShowIcon = false;
+            this.ShowInTaskbar = false;
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             this.Text = "Multidumper subsong selection";
             this.Load += new System.EventHandler(this.SubsongSelectionForm_Load);
