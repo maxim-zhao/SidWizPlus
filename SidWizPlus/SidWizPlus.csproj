@@ -43,7 +43,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BackgroundRenderer.cs" />
-    <Compile Include="Gd3Tag.cs" />
     <Compile Include="ImageInfo.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -53,7 +52,6 @@
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
     <Compile Include="TextInfo.cs" />
-    <Compile Include="VGMFile.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
@@ -62,6 +60,10 @@
     <ProjectReference Include="..\LibSidWiz\LibSidWiz.csproj">
       <Project>{75DD5F75-A354-4348-8A2F-7EE0F6AD6D18}</Project>
       <Name>LibSidWiz</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\LibVgm\LibVgm.csproj">
+      <Project>{04D48368-33AC-4DF0-B165-C5D032771E66}</Project>
+      <Name>LibVgm</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

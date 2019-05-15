@@ -1,11 +1,10 @@
 using System.Collections.Generic;
 using System.IO;
-using System.IO.Compression;
 using System.Text;
 
-namespace SidWizPlus
+namespace LibVgm
 {
-    internal class Gd3Tag
+    public class Gd3Tag
     {
         public struct MultiLanguageTag
         {
@@ -29,32 +28,40 @@ namespace SidWizPlus
         public static Gd3Tag LoadFromVgm(string filename)
         {
             // Open the stream
-            using (var f = new FileStream(filename, FileMode.Open))
+            using (var s = new OptionalGzipStream(filename))
+            using (var r = new BinaryReader(s, Encoding.ASCII))
             {
-                // Check if it's GZipped
-                bool needGzip = f.ReadByte() == 0x1f && f.ReadByte() == 0x8b;
-                f.Seek(0, SeekOrigin.Begin);
-                if (needGzip)
+                r.ReadBytes(0x14);
+                var offset = r.ReadUInt32() + 0x14;
+                if (offset == 0)
                 {
-                    using (var s = new GZipStream(f, CompressionMode.Decompress))
-                    {
-                        return LoadFromStream(s);
-                    }
+                    // No tag
+                    return null;
                 }
 
-                return LoadFromStream(f);
+                if (offset > s.Length - 8 - 11*2)
+                {
+                    throw new InvalidDataException("Not enough room in file for GD3 offset");
+                }
+
+                var result = new Gd3Tag();
+                result.Parse(s, offset);
+                return result;
             }
         }
 
-        private static Gd3Tag LoadFromStream(Stream s)
+        public void Parse(Stream s, uint offset)
         {
             var tags = new List<string>();
             using (var r = new BinaryReader(s, Encoding.Unicode))
             {
-                // Skip to GD3 offset
-                r.ReadBytes(0x14);
-                var gd3Offset = r.ReadInt32();
-                r.ReadBytes(gd3Offset + 8);
+                s.Seek(offset, SeekOrigin.Begin);
+                if (r.ReadBytes(4) != Encoding.ASCII.GetBytes("GD3_"))
+                {
+                    throw new InvalidDataException("GD3 header not found");
+                }
+
+                // We read out 11 UCS-2 strings
                 var str = "";
                 for (int i = 0; i < 11; ++i)
                 {
@@ -73,16 +80,14 @@ namespace SidWizPlus
                 }
             }
 
-            return new Gd3Tag
-            {
-                Title = new MultiLanguageTag {English = tags[0], Japanese = tags[1]},
-                Game = new MultiLanguageTag {English = tags[2], Japanese = tags[3]},
-                System = new MultiLanguageTag {English = tags[4], Japanese = tags[5]},
-                Composer = new MultiLanguageTag {English = tags[6], Japanese = tags[7]},
-                Date = tags[8],
-                Ripper = tags[9],
-                Notes = tags[10]
-            };
+            // We then put them into our properties
+            Title = new MultiLanguageTag {English = tags[0], Japanese = tags[1]};
+            Game = new MultiLanguageTag {English = tags[2], Japanese = tags[3]};
+            System = new MultiLanguageTag {English = tags[4], Japanese = tags[5]};
+            Composer = new MultiLanguageTag {English = tags[6], Japanese = tags[7]};
+            Date = tags[8];
+            Ripper = tags[9];
+            Notes = tags[10];
         }
 
         public override string ToString()

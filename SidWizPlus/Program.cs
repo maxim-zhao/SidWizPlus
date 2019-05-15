@@ -22,6 +22,7 @@ using Google.Apis.YouTube.v3.Data;
 using LibSidWiz;
 using LibSidWiz.Outputs;
 using LibSidWiz.Triggers;
+using LibVgm;
 using Channel = LibSidWiz.Channel;
 
 namespace SidWizPlus
@@ -440,7 +441,8 @@ namespace SidWizPlus
 
         private static void TryGuessLabelsFromVgm(List<Channel> channels, string vgmFile)
         {
-            var file = new VgmFile(vgmFile);
+            var file = new VgmFile();
+            file.LoadFromFile(vgmFile);
 
             var channelStates = new Dictionary<int, ChannelState>();
             ChannelState GetChannelState(int channelIndex)

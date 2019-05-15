@@ -1,67 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.IO.Compression;
 using System.Text;
 
-namespace SidWizPlus
+namespace LibVgm
 {
-    /// <summary>
-    /// Stream class which transparetly supports GZipped or uncompressed files
-    /// </summary>
-    internal class OptionalGzipStream : Stream
+    public class VgmFile: IDisposable
     {
-        private readonly FileStream _fileStream;
-        private readonly GZipStream _gZipStream;
-        private readonly Stream _stream;
+        public VgmHeader Header { get; }
+        public Gd3Tag Gd3Tag { get; }
 
-        public OptionalGzipStream(string filename)
-        {
-            _fileStream = new FileStream(filename, FileMode.Open);
-            // Check if it's GZipped
-            bool needGzip = _fileStream.ReadByte() == 0x1f && _fileStream.ReadByte() == 0x8b;
-            _fileStream.Seek(0, SeekOrigin.Begin);
-            if (needGzip)
-            {
-                _gZipStream = new GZipStream(_fileStream, CompressionMode.Decompress);
-                _stream = _gZipStream;
-            }
-            else
-            {
-                _stream = _fileStream;
-            }
-        }
+        // It's painful to seek in GZipped streams, so we don't bother...
+        private readonly MemoryStream _stream;
 
-        public override void Flush() => _stream.Flush();
-        public override long Seek(long offset, SeekOrigin origin) => _stream.Seek(offset, origin);
-        public override void SetLength(long value) => _stream.SetLength(value);
-        public override int Read(byte[] buffer, int offset, int count) => _stream.Read(buffer, offset, count);
-        public override void Write(byte[] buffer, int offset, int count) => _stream.Write(buffer, offset, count);
-
-        public override bool CanRead => _stream.CanRead;
-        public override bool CanSeek => _stream.CanSeek;
-        public override bool CanWrite => _stream.CanWrite;
-        public override long Length => _stream.Length;
-        public override long Position
-        {
-            get => _stream.Position;
-            set => _stream.Position = value;
-        }
-
-        protected override void Dispose(bool disposing)
-        {
-            _gZipStream?.Dispose();
-            _fileStream?.Dispose();
-            base.Dispose(disposing);
-        }
-    }
-
-    internal class VgmFile: IDisposable
-    {
-        private Header _header;
-        private MemoryStream _stream;
-
-        public class Header
+        public class VgmHeader
         {
             public string Ident { get; set; }
             public uint EndOfFileOffset { get; set; }
@@ -129,7 +81,13 @@ namespace SidWizPlus
             public uint C352Clock { get; set; }
             public uint Ga20Clock { get; set; }
 
-            internal Header(Stream s)
+            internal VgmHeader()
+            {
+                Ident = "VGM_";
+                Version = 1.10m;
+            }
+
+            internal void Parse(Stream s)
             {
                 using (var r = new BinaryReader(s, Encoding.ASCII, true))
                 {
@@ -365,7 +323,7 @@ namespace SidWizPlus
 
         public class StopCommand : ICommand
         {
-            public override string ToString() => $"Stop";
+            public override string ToString() => "Stop";
         }
 
         public class DataBlock : ICommand
@@ -489,25 +447,38 @@ namespace SidWizPlus
             public ushort BlockId { get; set; }
         }
 
-
-
-        public VgmFile(string filename)
+        public VgmFile()
         {
-            // We copy into a memory stream to allow seeking
+            // Empty file
             _stream = new MemoryStream();
+            Header = new VgmHeader();
+            Gd3Tag = new Gd3Tag();
+        }
+
+        public void LoadFromFile(string filename)
+        {
+            // We copy all the data into a memory stream to allow seeking
             using (var s = new OptionalGzipStream(filename))
             {
                 s.CopyTo(_stream);
                 _stream.Seek(0, SeekOrigin.Begin);
             }
 
-            _header = new Header(_stream);
+            // We parse the header
+            Header.Parse(_stream);
+
+            // And the GD3 tag, if present
+            if (Header.Gd3Offset != 0)
+            {
+                Gd3Tag.Parse(_stream, Header.Gd3Offset + 0x14);
+            }
+
         }
 
         public IEnumerable<ICommand> Commands()
         {
             // Seek to the start
-            _stream.Seek(_header.DataOffset, SeekOrigin.Begin);
+            _stream.Seek(Header.DataOffset, SeekOrigin.Begin);
 
             using (var reader = new BinaryReader(_stream, Encoding.Default, true))
             {

@@ -18,10 +18,9 @@ namespace SidWiz
 {
     public partial class SidWizPlusGui : Form
     {
-        [SuppressMessage("ReSharper", "InconsistentNaming")]
         private class ProgramLocationSettings
         {
-            public string FFMPEGPath { get; set; }
+            public string FfmpegPath { get; set; }
             public string MultiDumperPath { get; set; }
             public string SidPlayPath { get; set; }
         }
@@ -690,8 +689,8 @@ namespace SidWiz
 
         private void FfmpegLocation_Click(object sender, EventArgs e)
         {
-            LocateProgram("ffmpeg.exe", null, p => _programLocationSettings.FFMPEGPath = p);
-            FfmpegLocation.Text = _programLocationSettings.FFMPEGPath;
+            LocateProgram("ffmpeg.exe", null, p => _programLocationSettings.FfmpegPath = p);
+            FfmpegLocation.Text = _programLocationSettings.FfmpegPath;
         }
 
         private void RenderButton_Click(object sender, EventArgs e)
@@ -730,7 +729,7 @@ namespace SidWiz
                         }
 
                         outputs.Add(new FfmpegOutput(
-                            _programLocationSettings.FFMPEGPath,
+                            _programLocationSettings.FfmpegPath,
                             outputFilename,
                             _settings.Width,
                             _settings.Height,
@@ -815,7 +814,7 @@ namespace SidWiz
             {
                 HighDpiHelper.AdjustControlImagesDpiScale(this);
                 _programLocationSettings = JsonConvert.DeserializeObject<ProgramLocationSettings>(File.ReadAllText(GetSettingsPath()));
-                FfmpegLocation.Text = _programLocationSettings.FFMPEGPath;
+                FfmpegLocation.Text = _programLocationSettings.FfmpegPath;
                 lock (_settings)
                 {
                     _settings.ToControls(this);
