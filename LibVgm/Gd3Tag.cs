@@ -1,5 +1,7 @@
+using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
 
 namespace LibVgm
@@ -16,6 +18,9 @@ namespace LibVgm
                 return English.Length > 0 ? Japanese.Length > 0 ? $"{English} ({Japanese})" : $"{English}" : "";
             }
         }
+
+        public string Ident { get; private set; }
+        public decimal Version { get; private set; }
         
         public MultiLanguageTag Title { get; set; }
         public MultiLanguageTag Game { get; set; }
@@ -53,12 +58,38 @@ namespace LibVgm
         public void Parse(Stream s, uint offset)
         {
             var tags = new List<string>();
-            using (var r = new BinaryReader(s, Encoding.Unicode))
+            using (var r = new BinaryReader(s, Encoding.Unicode, true))
             {
                 s.Seek(offset, SeekOrigin.Begin);
-                if (r.ReadBytes(4) != Encoding.ASCII.GetBytes("GD3_"))
+                Ident = Encoding.ASCII.GetString(r.ReadBytes(4));
+                if (Ident != "Gd3 ")
                 {
                     throw new InvalidDataException("GD3 header not found");
+                }
+
+                var version = r.ReadUInt32();
+                // BCD to integer
+                int scaled = 0;
+                int factor = 1;
+                for (int i = 0; i < 8; ++i)
+                {
+                    var digit = (int) version & 0xf;
+                    scaled += digit * factor;
+                    version >>= 4;
+                    factor *= 10;
+                }
+
+                Version = (decimal) scaled / 100;
+
+                if (Version >= 2.00m)
+                {
+                    throw new Exception($"GD3 version {Version} not supported");
+                }
+
+                var length = r.ReadUInt32();
+                if (s.Length - s.Position > length)
+                {
+                    throw new Exception("File not big enough for GD3 data");
                 }
 
                 // We read out 11 UCS-2 strings

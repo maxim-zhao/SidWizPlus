@@ -83,7 +83,7 @@ namespace LibVgm
 
             internal VgmHeader()
             {
-                Ident = "VGM_";
+                Ident = "Vgm ";
                 Version = 1.10m;
             }
 
@@ -470,7 +470,7 @@ namespace LibVgm
             // And the GD3 tag, if present
             if (Header.Gd3Offset != 0)
             {
-                Gd3Tag.Parse(_stream, Header.Gd3Offset + 0x14);
+                Gd3Tag.Parse(_stream, Header.Gd3Offset);
             }
 
         }
