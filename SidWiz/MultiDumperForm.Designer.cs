@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel;
 using System.Windows.Forms;
 
-namespace SidWiz
+namespace SidWizPlusGUI
 {
     partial class MultiDumperForm
     {

@@ -1,4 +1,4 @@
-﻿namespace SidWiz
+﻿namespace SidWizPlusGUI
 {
     partial class ColorButton
     {

@@ -5,7 +5,7 @@ using System.Drawing.Drawing2D;
 using System.Linq;
 using System.Windows.Forms;
 
-namespace SidWiz
+namespace SidWizPlusGUI
 {
     public static class HighDpiHelper
     {

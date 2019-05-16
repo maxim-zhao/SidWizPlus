@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Drawing;
-using System.Windows.Forms;
 
 namespace LibSidWiz.Outputs
 {
@@ -33,18 +32,20 @@ namespace LibSidWiz.Outputs
                 return;
             }
 
-            // TODO: support this being called on another thread
-            // - take a copy of the image
-            // - BeginInvoke an action to render it
-            // - Make GUI driver run the render on a worker thread
-            // This may help with the frame rate. It's never going to be that fast though...
-
-            _form.pictureBox1.Image = image;
+            // Copy the bitmap for use on the GUI thread
+            var copy = new Bitmap(image);
             var elapsedSeconds = _stopwatch.Elapsed.TotalSeconds;
             var fps = _frameIndex / elapsedSeconds;
             var eta = TimeSpan.FromSeconds(elapsedSeconds / fractionComplete - elapsedSeconds);
-            _form.toolStripStatusLabel2.Text = $"{fractionComplete:P} @ {fps:F}fps, ETA {eta:g}";
-            Application.DoEvents();
+            _form.BeginInvoke(new Action(() =>
+            {
+                if (_form.IsDisposed || !_form.Visible)
+                {
+                    return;
+                }
+                _form.pictureBox1.Image = copy;
+                _form.toolStripStatusLabel2.Text = $"{fractionComplete:P} @ {fps:F}fps, ETA {eta:g}";
+            }));
         }
 
         public void Dispose()

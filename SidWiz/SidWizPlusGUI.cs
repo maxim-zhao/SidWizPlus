@@ -14,7 +14,7 @@ using LibSidWiz.Outputs;
 using LibSidWiz.Triggers;
 using Newtonsoft.Json;
 
-namespace SidWiz
+namespace SidWizPlusGUI
 {
     public partial class SidWizPlusGui : Form
     {
@@ -706,19 +706,19 @@ namespace SidWiz
 
                 if (_settings.EncodeVideo.Enabled)
                 {
-                    using (var sfd = new SaveFileDialog
+                    using (var saveFileDialog = new SaveFileDialog
                     {
                         Title = "Select destination",
                         Filter = "Video files (*.mp4;*.mkv;*.avi;*.qt)|*.mp4;*.mkv;*.avi;*.qt|All files (*.*)|*.*"
                     })
                     {
-                        if (sfd.ShowDialog(this) != DialogResult.OK)
+                        if (saveFileDialog.ShowDialog(this) != DialogResult.OK)
                         {
                             // Cancel the whole operation
                             return;
                         }
 
-                        var outputFilename = sfd.FileName;
+                        var outputFilename = saveFileDialog.FileName;
 
                         if (_settings.MasterAudio.IsAutomatic && !string.IsNullOrEmpty(outputFilename))
                         {
@@ -738,31 +738,78 @@ namespace SidWiz
                             _settings.MasterAudio.Path));
                     }
                 }
+            }
 
-                if (outputs.Count == 0)
+            outputs.Add(new MainFormProgressOutput(this));
+
+            // Start a background thread to do the rendering work
+            Task.Factory.StartNew(() =>
+            {
+                try
                 {
-                    // Nothing to do
+                    var renderer = CreateWaveformRenderer();
+                    renderer.Render(outputs);
+                }
+                catch (Exception exception)
+                {
+                    BeginInvoke(new Action(() => MessageBox.Show(exception.Message)));
+                }
+                finally
+                {
+                    foreach (var graphicsOutput in outputs)
+                    {
+                        graphicsOutput.Dispose();
+                    }
+                }
+            });
+        }
+
+        private class MainFormProgressOutput : IGraphicsOutput
+        {
+            private readonly SidWizPlusGui _form;
+            private readonly Stopwatch _stopwatch;
+            private int _frameIndex;
+            private DateTime _updateTime = DateTime.MinValue;
+            private readonly TimeSpan _updateInterval = TimeSpan.FromMilliseconds(100);
+
+            public MainFormProgressOutput(SidWizPlusGui form)
+            {
+                _form = form;
+                _stopwatch = Stopwatch.StartNew();
+            }
+
+            public void Dispose()
+            {
+                _form.BeginInvoke(new Action(() =>
+                {
+                    if (_form.IsDisposed || !_form.Visible)
+                    {
+                        return;
+                    }
+                    _form.Text = "SidWizPlusGUI";
+                }));
+            }
+
+            public void Write(byte[] data, Image image, double fractionComplete)
+            {
+                // We don't need the data, just the progress
+                var now = DateTime.UtcNow;
+                if (now - _updateTime < _updateInterval)
+                {
                     return;
                 }
-            }
-
-            try
-            {
-                // TODO: show some progress if no preview?
-                // TODO: need to make GUI updates thread safe then do this on a background thread
-                var renderer = CreateWaveformRenderer();
-                renderer.Render(outputs);
-            }
-            catch (Exception exception)
-            {
-                MessageBox.Show(exception.Message);
-            }
-            finally
-            {
-                foreach (var graphicsOutput in outputs)
+                _updateTime = now;
+                var elapsedSeconds = _stopwatch.Elapsed.TotalSeconds;
+                var fps = ++_frameIndex / elapsedSeconds;
+                var eta = TimeSpan.FromSeconds(elapsedSeconds / fractionComplete - elapsedSeconds);
+                _form.BeginInvoke(new Action(() =>
                 {
-                    graphicsOutput.Dispose();
-                }
+                    if (_form.IsDisposed || !_form.Visible)
+                    {
+                        return;
+                    }
+                    _form.Text = $"SidWizPlusGUI - {fractionComplete:P} @ {fps:F}fps, ETA {eta:g}";
+                }));
             }
         }
 

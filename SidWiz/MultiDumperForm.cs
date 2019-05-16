@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using LibSidWiz;
 
-namespace SidWiz
+namespace SidWizPlusGUI
 {
     public partial class MultiDumperForm : Form
     {

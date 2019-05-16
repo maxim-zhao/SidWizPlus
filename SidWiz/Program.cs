@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Windows.Forms;
 
-namespace SidWiz
+namespace SidWizPlusGUI
 {
     static class Program
     {

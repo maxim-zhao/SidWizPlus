@@ -1,4 +1,4 @@
-﻿namespace SidWiz
+﻿namespace SidWizPlusGUI
 {
     partial class SidWizPlusGui
     {
@@ -89,7 +89,7 @@
             this.label20 = new System.Windows.Forms.Label();
             this.BackgroundImageControl = new System.Windows.Forms.PictureBox();
             this.label21 = new System.Windows.Forms.Label();
-            this.BackgroundColorButton = new SidWiz.ColorButton(this.components);
+            this.BackgroundColorButton = new ColorButton(this.components);
             this.tabPage3 = new System.Windows.Forms.TabPage();
             this.label19 = new System.Windows.Forms.Label();
             this.MasterAudioPath = new System.Windows.Forms.TextBox();
