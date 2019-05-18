@@ -134,6 +134,9 @@ namespace SidWizPlusGUI
         private bool _renderActive;
         private float _renderPosition;
 
+        // We use this to allow cancelling the render
+        private MainFormProgressOutput _progress;
+        
         public SidWizPlusGui()
         {
             InitializeComponent();
@@ -695,7 +698,15 @@ namespace SidWizPlusGUI
 
         private void RenderButton_Click(object sender, EventArgs e)
         {
-            var outputs = new List<IGraphicsOutput>();
+            if (_progress != null)
+            {
+                // Cancel the rendering
+                _progress.Cancel();
+                return;
+            }
+
+            _progress = new MainFormProgressOutput(this);
+            var outputs = new List<IGraphicsOutput> {_progress};
 
             lock (_settings)
             {
@@ -740,7 +751,7 @@ namespace SidWizPlusGUI
                 }
             }
 
-            outputs.Add(new MainFormProgressOutput(this));
+            RenderButton.Text = "Cancel render";
 
             // Start a background thread to do the rendering work
             Task.Factory.StartNew(() =>
@@ -760,6 +771,9 @@ namespace SidWizPlusGUI
                     {
                         graphicsOutput.Dispose();
                     }
+
+                    _progress = null;
+                    BeginInvoke(new Action(() => RenderButton.Text = "Render"));
                 }
             });
         }
@@ -771,11 +785,17 @@ namespace SidWizPlusGUI
             private int _frameIndex;
             private DateTime _updateTime = DateTime.MinValue;
             private readonly TimeSpan _updateInterval = TimeSpan.FromMilliseconds(100);
+            private bool _cancelRequested;
 
             public MainFormProgressOutput(SidWizPlusGui form)
             {
                 _form = form;
                 _stopwatch = Stopwatch.StartNew();
+            }
+
+            public void Cancel()
+            {
+                _cancelRequested = true;
             }
 
             public void Dispose()
@@ -792,6 +812,11 @@ namespace SidWizPlusGUI
 
             public void Write(byte[] data, Image image, double fractionComplete)
             {
+                if (_cancelRequested)
+                {
+                    throw new Exception("Render cancelled");
+                }
+
                 // We don't need the data, just the progress
                 var now = DateTime.UtcNow;
                 if (now - _updateTime < _updateInterval)
@@ -866,7 +891,8 @@ namespace SidWizPlusGUI
                 {
                     _settings.ToControls(this);
                 }
-                this.Icon = Icon.ExtractAssociatedIcon(Application.ExecutablePath);
+                // Use exe icon as form icon
+                Icon = Icon.ExtractAssociatedIcon(Application.ExecutablePath);
             }
             catch (Exception)
             {
