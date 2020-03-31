@@ -469,12 +469,12 @@ namespace SidWizPlus
                         break;
                     case VgmFile.AddressDataCommand c:
                     {
-                        if (c.Address >= 0x30 && c.Address <= 0x37)
+                        if (c.Address >= 0x30 && c.Address <= 0x38)
                         {
                             // YM2413 instrument
                             GetChannelState(c.Address & 0xf).SetInstrument(c.Data >> 4);
                         }
-                        else if (c.Address >= 0x20 && c.Address <= 0x27)
+                        else if (c.Address >= 0x20 && c.Address <= 0x28)
                         {
                             // YM2413 key down
                             var channelState = GetChannelState(c.Address & 0xf);

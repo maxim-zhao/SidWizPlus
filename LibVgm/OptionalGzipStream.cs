@@ -8,24 +8,26 @@ namespace LibVgm
     /// </summary>
     internal class OptionalGzipStream : Stream
     {
-        private readonly FileStream _fileStream;
-        private readonly GZipStream _gZipStream;
         private readonly Stream _stream;
 
         public OptionalGzipStream(string filename)
         {
-            _fileStream = new FileStream(filename, FileMode.Open);
+            var fileStream = new FileStream(filename, FileMode.Open);
             // Check if it's GZipped
-            bool needGzip = _fileStream.ReadByte() == 0x1f && _fileStream.ReadByte() == 0x8b;
-            _fileStream.Seek(0, SeekOrigin.Begin);
+            bool needGzip = fileStream.ReadByte() == 0x1f && fileStream.ReadByte() == 0x8b;
+            fileStream.Seek(0, SeekOrigin.Begin);
             if (needGzip)
             {
-                _gZipStream = new GZipStream(_fileStream, CompressionMode.Decompress);
-                _stream = _gZipStream;
+                using (var gZipStream = new GZipStream(fileStream, CompressionMode.Decompress))
+                {
+                    _stream = new MemoryStream();
+                    gZipStream.CopyTo(_stream);
+                    _stream.Seek(0, SeekOrigin.Begin);
+                }
             }
             else
             {
-                _stream = _fileStream;
+                _stream = fileStream;
             }
         }
 
@@ -47,8 +49,7 @@ namespace LibVgm
 
         protected override void Dispose(bool disposing)
         {
-            _gZipStream?.Dispose();
-            _fileStream?.Dispose();
+            _stream?.Dispose();
             base.Dispose(disposing);
         }
     }
