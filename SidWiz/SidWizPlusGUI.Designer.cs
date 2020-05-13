@@ -38,6 +38,7 @@
             this.toolStripMenuItem1 = new System.Windows.Forms.ToolStripSeparator();
             this.cloneChannelToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.removeChannelToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.splitChannelToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator3 = new System.Windows.Forms.ToolStripSeparator();
             this.copySettingsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.pasteSettingsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -89,7 +90,7 @@
             this.label20 = new System.Windows.Forms.Label();
             this.BackgroundImageControl = new System.Windows.Forms.PictureBox();
             this.label21 = new System.Windows.Forms.Label();
-            this.BackgroundColorButton = new ColorButton(this.components);
+            this.BackgroundColorButton = new SidWizPlusGUI.ColorButton(this.components);
             this.tabPage3 = new System.Windows.Forms.TabPage();
             this.label19 = new System.Windows.Forms.Label();
             this.MasterAudioPath = new System.Windows.Forms.TextBox();
@@ -115,7 +116,8 @@
             this.LoadButton = new System.Windows.Forms.Button();
             this.SaveButton = new System.Windows.Forms.Button();
             this.imageList1 = new System.Windows.Forms.ImageList(this.components);
-            this.splitChannelToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripSeparator4 = new System.Windows.Forms.ToolStripSeparator();
+            this.RemoveLabelsButton = new System.Windows.Forms.ToolStripButton();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
             this.splitContainer1.Panel2.SuspendLayout();
@@ -162,7 +164,7 @@
             // 
             this.splitContainer1.Panel2.Controls.Add(this.tabControl);
             this.splitContainer1.Size = new System.Drawing.Size(914, 408);
-            this.splitContainer1.SplitterDistance = 620;
+            this.splitContainer1.SplitterDistance = 585;
             this.splitContainer1.TabIndex = 0;
             // 
             // Preview
@@ -172,7 +174,7 @@
             this.Preview.Location = new System.Drawing.Point(0, 0);
             this.Preview.Margin = new System.Windows.Forms.Padding(2, 3, 2, 3);
             this.Preview.Name = "Preview";
-            this.Preview.Size = new System.Drawing.Size(620, 363);
+            this.Preview.Size = new System.Drawing.Size(585, 363);
             this.Preview.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
             this.Preview.TabIndex = 0;
             this.Preview.TabStop = false;
@@ -192,7 +194,7 @@
             this.pasteSettingsToolStripMenuItem,
             this.applySettingsToOtherChannelsToolStripMenuItem});
             this.contextMenuStrip1.Name = "contextMenuStrip1";
-            this.contextMenuStrip1.Size = new System.Drawing.Size(245, 214);
+            this.contextMenuStrip1.Size = new System.Drawing.Size(245, 192);
             // 
             // moveLeftupToolStripMenuItem
             // 
@@ -231,6 +233,14 @@
             this.removeChannelToolStripMenuItem.Text = "Re&move";
             this.removeChannelToolStripMenuItem.Click += new System.EventHandler(this.RemoveButton_Click);
             // 
+            // splitChannelToolStripMenuItem
+            // 
+            this.splitChannelToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("splitChannelToolStripMenuItem.Image")));
+            this.splitChannelToolStripMenuItem.Name = "splitChannelToolStripMenuItem";
+            this.splitChannelToolStripMenuItem.Size = new System.Drawing.Size(244, 22);
+            this.splitChannelToolStripMenuItem.Text = "&Split";
+            this.splitChannelToolStripMenuItem.Click += new System.EventHandler(this.SplitChannelButton_Click);
+            // 
             // toolStripSeparator3
             // 
             this.toolStripSeparator3.Name = "toolStripSeparator3";
@@ -268,7 +278,7 @@
             this.PreviewTrackbar.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.PreviewTrackbar.Maximum = 1000;
             this.PreviewTrackbar.Name = "PreviewTrackbar";
-            this.PreviewTrackbar.Size = new System.Drawing.Size(620, 45);
+            this.PreviewTrackbar.Size = new System.Drawing.Size(585, 45);
             this.PreviewTrackbar.TabIndex = 0;
             this.PreviewTrackbar.TickFrequency = 60;
             this.PreviewTrackbar.ValueChanged += new System.EventHandler(this.ControlValueChanged);
@@ -288,7 +298,7 @@
             this.tabControl.Multiline = true;
             this.tabControl.Name = "tabControl";
             this.tabControl.SelectedIndex = 0;
-            this.tabControl.Size = new System.Drawing.Size(290, 408);
+            this.tabControl.Size = new System.Drawing.Size(325, 408);
             this.tabControl.SizeMode = System.Windows.Forms.TabSizeMode.FillToRight;
             this.tabControl.TabIndex = 0;
             // 
@@ -301,7 +311,7 @@
             this.channelsTab.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.channelsTab.Name = "channelsTab";
             this.channelsTab.Padding = new System.Windows.Forms.Padding(3, 4, 3, 4);
-            this.channelsTab.Size = new System.Drawing.Size(282, 360);
+            this.channelsTab.Size = new System.Drawing.Size(317, 360);
             this.channelsTab.TabIndex = 4;
             this.channelsTab.Text = "Channels";
             this.channelsTab.UseVisualStyleBackColor = true;
@@ -312,7 +322,7 @@
             this.PropertyGrid.Location = new System.Drawing.Point(3, 29);
             this.PropertyGrid.Margin = new System.Windows.Forms.Padding(2, 3, 2, 3);
             this.PropertyGrid.Name = "PropertyGrid";
-            this.PropertyGrid.Size = new System.Drawing.Size(276, 327);
+            this.PropertyGrid.Size = new System.Drawing.Size(311, 327);
             this.PropertyGrid.TabIndex = 1;
             this.PropertyGrid.ToolbarVisible = false;
             // 
@@ -331,11 +341,13 @@
             this.toolStripSeparator1,
             this.CopySettingsButton,
             this.CopyChannelSettingsButton,
-            this.PasteChannelSettingsButton});
+            this.PasteChannelSettingsButton,
+            this.toolStripSeparator4,
+            this.RemoveLabelsButton});
             this.toolStrip1.Location = new System.Drawing.Point(3, 4);
             this.toolStrip1.Name = "toolStrip1";
             this.toolStrip1.Padding = new System.Windows.Forms.Padding(0);
-            this.toolStrip1.Size = new System.Drawing.Size(276, 25);
+            this.toolStrip1.Size = new System.Drawing.Size(311, 25);
             this.toolStrip1.TabIndex = 0;
             this.toolStrip1.Text = "toolStrip1";
             // 
@@ -622,7 +634,7 @@
             this.label6.Location = new System.Drawing.Point(10, 24);
             this.label6.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.label6.Name = "label6";
-            this.label6.Size = new System.Drawing.Size(27, 15);
+            this.label6.Size = new System.Drawing.Size(26, 15);
             this.label6.TabIndex = 0;
             this.label6.Text = "Top";
             // 
@@ -746,7 +758,7 @@
             this.label11.Location = new System.Drawing.Point(182, 9);
             this.label11.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.label11.Name = "label11";
-            this.label11.Size = new System.Drawing.Size(19, 15);
+            this.label11.Size = new System.Drawing.Size(20, 15);
             this.label11.TabIndex = 2;
             this.label11.Text = "px";
             // 
@@ -756,7 +768,7 @@
             this.label12.Location = new System.Drawing.Point(182, 38);
             this.label12.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.label12.Name = "label12";
-            this.label12.Size = new System.Drawing.Size(19, 15);
+            this.label12.Size = new System.Drawing.Size(20, 15);
             this.label12.TabIndex = 5;
             this.label12.Text = "px";
             // 
@@ -1147,13 +1159,20 @@
             this.imageList1.Images.SetKeyName(4, "layout.png");
             this.imageList1.Images.SetKeyName(5, "picture.png");
             // 
-            // splitChannelToolStripMenuItem
+            // toolStripSeparator4
             // 
-            this.splitChannelToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("splitChannelToolStripMenuItem.Image")));
-            this.splitChannelToolStripMenuItem.Name = "splitChannelToolStripMenuItem";
-            this.splitChannelToolStripMenuItem.Size = new System.Drawing.Size(244, 22);
-            this.splitChannelToolStripMenuItem.Text = "&Split";
-            this.splitChannelToolStripMenuItem.Click += new System.EventHandler(this.SplitChannelButton_Click);
+            this.toolStripSeparator4.Name = "toolStripSeparator4";
+            this.toolStripSeparator4.Size = new System.Drawing.Size(6, 25);
+            // 
+            // RemoveLabelsButton
+            // 
+            this.RemoveLabelsButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.RemoveLabelsButton.Image = ((System.Drawing.Image)(resources.GetObject("RemoveLabelsButton.Image")));
+            this.RemoveLabelsButton.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.RemoveLabelsButton.Name = "RemoveLabelsButton";
+            this.RemoveLabelsButton.Size = new System.Drawing.Size(23, 22);
+            this.RemoveLabelsButton.Text = "Remove labels";
+            this.RemoveLabelsButton.Click += new System.EventHandler(this.RemoveLabelsButton_Click);
             // 
             // SidWizPlusGui
             // 
@@ -1293,5 +1312,7 @@
         private System.Windows.Forms.ToolStripButton PasteChannelSettingsButton;
         private System.Windows.Forms.ToolStripButton SplitChannelButton;
         private System.Windows.Forms.ToolStripMenuItem splitChannelToolStripMenuItem;
+        private System.Windows.Forms.ToolStripSeparator toolStripSeparator4;
+        private System.Windows.Forms.ToolStripButton RemoveLabelsButton;
     }
 }

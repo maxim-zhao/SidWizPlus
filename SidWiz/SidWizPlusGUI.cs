@@ -1051,5 +1051,16 @@ namespace SidWizPlusGUI
             // We trigger a render to show the "loading" state
             Render();
         }
+
+        private void RemoveLabelsButton_Click(object sender, EventArgs e)
+        {
+            lock (_settings)
+            {
+                foreach (var channel in _settings.Channels)
+                {
+                    channel.Label = "";
+                }
+            }
+        }
     }
 }
