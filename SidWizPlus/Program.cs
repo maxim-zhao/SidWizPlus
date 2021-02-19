@@ -99,9 +99,14 @@ namespace SidWizPlus
             // ReSharper disable once StringLiteralTypo
             [Option('t', "triggeralgorithm", Required = false, HelpText = "Trigger algorithm name", DefaultValue = nameof(PeakSpeedTrigger))]
             public string TriggerAlgorithm { get; set; }
+
             // ReSharper disable once StringLiteralTypo
             [Option("triggerlookahead", Required = false, HelpText = "Number of frames to allow the trigger to look ahead, zero means no lookahead", DefaultValue = 0)]
             public int TriggerLookahead { get; set; }
+
+            // ReSharper disable once StringLiteralTypo
+            [Option("highpass", Required = false, HelpText = "Enable high-pass filtering", DefaultValue = false)]
+            public bool HighPass { get; set; }
 
             // ReSharper disable once StringLiteralTypo
             [Option('p', "previewframeskip", Required = false, HelpText = "Enable a preview window with the specified frameskip - higher values give faster rendering by not drawing every frame to the screen.")]
@@ -304,7 +309,8 @@ namespace SidWizPlus
                             LabelFont = settings.ChannelLabelsFont == null
                                 ? null
                                 : new Font(settings.ChannelLabelsFont, settings.ChannelLabelsSize),
-                            LabelColor = ParseColor(settings.ChannelLabelsColor)
+                            LabelColor = ParseColor(settings.ChannelLabelsColor),
+                            HighPassFilter = settings.HighPass
                         };
                         channel.LoadDataAsync().Wait();
                         channel.ViewWidthInMilliseconds = settings.ViewWidthMs;
@@ -590,7 +596,7 @@ namespace SidWizPlus
                 }
             }
 
-            if (settings.LogoImageFile != null)
+            if (!string.IsNullOrEmpty(settings.LogoImageFile))
             {
                 using (var bm = Image.FromFile(settings.LogoImageFile))
                 {

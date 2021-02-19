@@ -47,6 +47,7 @@ namespace LibSidWiz
         private bool _clip;
         private Sides _side = Sides.Mix;
         private bool _smoothLines = true;
+        private bool _filter = false;
 
         public enum Sides
         {
@@ -79,7 +80,7 @@ namespace LibSidWiz
                     IsEmpty = false;
 
                     Console.WriteLine($"- Reading {Filename}");
-                    _samples = new SampleBuffer(Filename, Side);
+                    _samples = new SampleBuffer(Filename, Side, HighPassFilter);
                     SampleRate = _samples.SampleRate;
                     Length = _samples.Length;
 
@@ -171,6 +172,20 @@ namespace LibSidWiz
             {
                 _side = value;
                 Changed?.Invoke(this, true);
+                LoadDataAsync();
+            }
+        }
+
+        [Category("Data")]
+        [Description("If enabled, high pass filtering will be used to remove DC offsets")]
+        public bool HighPassFilter
+        {
+            get => _filter;
+            set
+            {
+                _filter = value;
+                Changed?.Invoke(this, true);
+                LoadDataAsync();
             }
         }
 

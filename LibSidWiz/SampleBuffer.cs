@@ -1,4 +1,5 @@
 ﻿using System;
+using NAudio.Dsp;
 using NAudio.Wave;
 
 namespace LibSidWiz
@@ -34,7 +35,7 @@ namespace LibSidWiz
 
         public float Min { get; private set; }
 
-        public SampleBuffer(string filename, Channel.Sides side)
+        public SampleBuffer(string filename, Channel.Sides side, bool filter)
         {
             _reader = new WaveFileReader(filename);
             Count = (int) _reader.SampleCount;
@@ -53,18 +54,21 @@ namespace LibSidWiz
                     break;
             }
 
+            if (filter)
+            {
+                _sampleProvider = new HighPassSampleProvider(_sampleProvider);
+            }
+
             _chunk1 = new Chunk
             {
                 Buffer = new float[ChunkSize],
-                Offset = 0
+                Offset = -1
             };
-            _sampleProvider.Read(_chunk1.Buffer, 0, ChunkSize);
             _chunk2 = new Chunk
             {
                 Buffer = new float[ChunkSize],
-                Offset = ChunkSize
+                Offset = -1
             };
-            _sampleProvider.Read(_chunk2.Buffer, 0, ChunkSize);
         }
 
         public void Dispose()
@@ -119,5 +123,32 @@ namespace LibSidWiz
                 }
             }
         }
+    }
+
+    internal class HighPassSampleProvider : ISampleProvider
+    {
+        private readonly ISampleProvider _sampleProvider;
+        private BiQuadFilter _filter;
+
+        public HighPassSampleProvider(ISampleProvider sampleProvider)
+        {
+            _sampleProvider = sampleProvider;
+            _filter = BiQuadFilter.HighPassFilter(sampleProvider.WaveFormat.SampleRate, 20, 1);
+        }
+
+        public int Read(float[] buffer, int offset, int count)
+        {
+            int result = _sampleProvider.Read(buffer, offset, count);
+
+            // Apply the filter
+            for (int i = 0; i < result; ++i)
+            {
+                buffer[i] = _filter.Transform(buffer[i]);
+            }
+
+            return result;
+        }
+
+        public WaveFormat WaveFormat => _sampleProvider.WaveFormat;
     }
 }
