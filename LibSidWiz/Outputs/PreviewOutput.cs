@@ -1,19 +1,22 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Drawing;
+using System.Windows.Forms;
 
 namespace LibSidWiz.Outputs
 {
     public class PreviewOutput : IGraphicsOutput
     {
         private readonly int _frameSkip;
+        private readonly bool _pumpMessageQueue;
         private readonly PreviewOutputForm _form;
         private int _frameIndex;
         private readonly Stopwatch _stopwatch;
 
-        public PreviewOutput(int frameSkip)
+        public PreviewOutput(int frameSkip, bool pumpMessageQueue = false)
         {
             _frameSkip = frameSkip;
+            _pumpMessageQueue = pumpMessageQueue;
             _form = new PreviewOutputForm();
             _form.Show();
             _form.SetDesktopLocation(0, 0);
@@ -46,6 +49,11 @@ namespace LibSidWiz.Outputs
                 _form.pictureBox1.Image = copy;
                 _form.toolStripStatusLabel2.Text = $"{fractionComplete:P} @ {fps:F}fps, ETA {eta:g}";
             }));
+
+            if (_pumpMessageQueue)
+            {
+                Application.DoEvents();
+            }
         }
 
         public void Dispose()

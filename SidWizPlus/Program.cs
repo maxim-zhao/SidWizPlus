@@ -670,7 +670,7 @@ namespace SidWizPlus
             if (settings.PreviewFrameskip > 0)
             {
                 Console.WriteLine("Adding preview renderer...");
-                outputs.Add(new PreviewOutput(settings.PreviewFrameskip));
+                outputs.Add(new PreviewOutput(settings.PreviewFrameskip, true));
             }
 
             try
