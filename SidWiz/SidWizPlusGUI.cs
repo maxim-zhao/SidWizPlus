@@ -731,12 +731,16 @@ namespace SidWizPlusGUI
 
                         var outputFilename = saveFileDialog.FileName;
 
-                        if (_settings.MasterAudio.IsAutomatic && !string.IsNullOrEmpty(outputFilename))
+                        if (_settings.MasterAudio.IsAutomatic)
                         {
                             var filename = outputFilename + ".wav";
                             Mixer.MixToFile(_settings.Channels, filename, MasterMixReplayGain.Checked);
                             MasterAudioPath.Text = filename;
                             _settings.MasterAudio.Path = filename;
+                        }
+                        else
+                        {
+                            _settings.MasterAudio.Path = MasterAudioPath.Text;
                         }
 
                         outputs.Add(new FfmpegOutput(
