@@ -20,7 +20,9 @@ namespace LibSidWiz
             var readers = new List<WaveFileReader>();
             try
             {
-                readers.AddRange(channels.Select(c => new WaveFileReader(c.Filename)));
+                readers.AddRange(channels
+                    .Where(c => !string.IsNullOrEmpty(c.Filename))
+                    .Select(c => new WaveFileReader(c.Filename)));
 
                 if (applyReplayGain)
                 {
