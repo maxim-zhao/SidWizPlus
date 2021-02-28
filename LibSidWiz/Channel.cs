@@ -154,8 +154,9 @@ namespace LibSidWiz
             get => _filename;
             set
             {
+                bool needReload = value != _filename;
                 _filename = value;
-                Changed?.Invoke(this, true);
+                Changed?.Invoke(this, needReload);
                 if (_filename != "" && string.IsNullOrEmpty(_label))
                 {
                     Label = GuessNameFromMultidumperFilename(_filename);
@@ -170,8 +171,9 @@ namespace LibSidWiz
             get => _side;
             set
             {
+                bool needReload = value != _side;
                 _side = value;
-                Changed?.Invoke(this, true);
+                Changed?.Invoke(this, needReload);
                 LoadDataAsync();
             }
         }
@@ -183,8 +185,9 @@ namespace LibSidWiz
             get => _filter;
             set
             {
+                bool needReload = value != _filter;
                 _filter = value;
-                Changed?.Invoke(this, true);
+                Changed?.Invoke(this, needReload);
                 LoadDataAsync();
             }
         }
