@@ -23,7 +23,8 @@ namespace LibSidWiz
         private readonly Chunk _chunk1;
         private readonly Chunk _chunk2;
 
-        private const int ChunkSize = 1024 * 1024;
+        // 4 bytes per sample so this is 1MB
+        private const int ChunkSize = 256 * 1024;
 
         public int Count { get; }
 
