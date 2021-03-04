@@ -821,6 +821,8 @@ namespace SidWizPlusGUI
                     throw new Exception("Render cancelled");
                 }
 
+                ++_frameIndex;
+
                 // We don't need the data, just the progress
                 var now = DateTime.UtcNow;
                 if (now - _updateTime < _updateInterval)
@@ -829,7 +831,7 @@ namespace SidWizPlusGUI
                 }
                 _updateTime = now;
                 var elapsedSeconds = _stopwatch.Elapsed.TotalSeconds;
-                var fps = ++_frameIndex / elapsedSeconds;
+                var fps = _frameIndex / elapsedSeconds;
                 var eta = TimeSpan.FromSeconds(elapsedSeconds / fractionComplete - elapsedSeconds);
                 _form.BeginInvoke(new Action(() =>
                 {
