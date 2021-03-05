@@ -2,6 +2,8 @@
 using System.Diagnostics;
 using System.Drawing;
 using System.Windows.Forms;
+using SkiaSharp;
+using SkiaSharp.Views.Desktop;
 
 namespace LibSidWiz.Outputs
 {
@@ -37,6 +39,11 @@ namespace LibSidWiz.Outputs
 
             // Copy the bitmap for use on the GUI thread
             var copy = new Bitmap(image);
+            UpdatePreview(fractionComplete, copy);
+        }
+
+        private void UpdatePreview(double fractionComplete, Bitmap image)
+        {
             var elapsedSeconds = _stopwatch.Elapsed.TotalSeconds;
             var fps = _frameIndex / elapsedSeconds;
             var eta = TimeSpan.FromSeconds(elapsedSeconds / fractionComplete - elapsedSeconds);
@@ -46,7 +53,13 @@ namespace LibSidWiz.Outputs
                 {
                     return;
                 }
-                _form.pictureBox1.Image = copy;
+
+                if (fractionComplete < 2e-6)
+                {
+                    image.Save($"foo.{fractionComplete}.png");
+                }
+
+                _form.pictureBox1.Image = image;
                 _form.toolStripStatusLabel2.Text = $"{fractionComplete:P} @ {fps:F}fps, ETA {eta:g}";
             }));
 
@@ -56,11 +69,29 @@ namespace LibSidWiz.Outputs
             }
         }
 
+        public void Write(byte[] data, SKImage image, double fractionComplete)
+        {
+            if (!_form.Visible)
+            {
+                throw new Exception("Preview window closed");
+            }
+
+            if (++_frameIndex % _frameSkip != 0)
+            {
+                return;
+            }
+
+            // Copy the image to a Bitmap
+            UpdatePreview(fractionComplete, image.ToBitmap());
+        }
+
         public void Dispose()
         {
             _stopwatch.Stop();
-            _form?.Close();
-            _form?.Dispose();
+            _form?.Invoke(new Action(() =>
+            {
+                _form?.Dispose();
+            }));
         }
     }
 }

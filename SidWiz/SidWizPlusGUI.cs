@@ -13,6 +13,7 @@ using LibSidWiz;
 using LibSidWiz.Outputs;
 using LibSidWiz.Triggers;
 using Newtonsoft.Json;
+using SkiaSharp;
 
 namespace SidWizPlusGUI
 {
@@ -763,7 +764,7 @@ namespace SidWizPlusGUI
                 try
                 {
                     var renderer = CreateWaveformRenderer();
-                    renderer.Render(outputs);
+                    renderer.RenderSkia(outputs);
                 }
                 catch (Exception exception)
                 {
@@ -810,11 +811,22 @@ namespace SidWizPlusGUI
                     {
                         return;
                     }
+
                     _form.Text = "SidWizPlusGUI";
                 }));
             }
 
             public void Write(byte[] data, Image image, double fractionComplete)
+            {
+                ShowProgress(fractionComplete);
+            }
+
+            public void Write(byte[] data, SKImage image, double fractionComplete)
+            {
+                ShowProgress(fractionComplete);
+            }
+
+            private void ShowProgress(double fractionComplete)
             {
                 if (_cancelRequested)
                 {
@@ -829,6 +841,7 @@ namespace SidWizPlusGUI
                 {
                     return;
                 }
+
                 _updateTime = now;
                 var elapsedSeconds = _stopwatch.Elapsed.TotalSeconds;
                 var fps = _frameIndex / elapsedSeconds;
@@ -839,6 +852,7 @@ namespace SidWizPlusGUI
                     {
                         return;
                     }
+
                     _form.Text = $"SidWizPlusGUI - {fractionComplete:P} @ {fps:F}fps, ETA {eta:g}";
                 }));
             }

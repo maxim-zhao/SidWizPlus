@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
 using System.IO;
+using SkiaSharp;
 
 namespace LibSidWiz.Outputs
 {
@@ -46,6 +47,11 @@ namespace LibSidWiz.Outputs
         }
 
         public void Write(byte[] data, Image image, double fractionComplete)
+        {
+            _writer.Write(data);
+        }
+
+        public void Write(byte[] data, SKImage image, double fractionComplete)
         {
             _writer.Write(data);
         }

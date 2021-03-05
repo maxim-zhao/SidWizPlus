@@ -6,8 +6,8 @@ using System.Drawing.Imaging;
 using System.Drawing.Text;
 using System.Linq;
 using System.Runtime.InteropServices;
-using System.Threading.Tasks;
 using LibSidWiz.Outputs;
+using SkiaSharp;
 
 namespace LibSidWiz
 {
@@ -82,6 +82,244 @@ namespace LibSidWiz
             }
         }
 */
+        public void RenderSkia(IList<IGraphicsOutput> outputs)
+        {
+            // This is the raw data buffer we use to store the generated image.
+            // We need it in this form so we can pass it to FFMPEG.
+            var rawData = new byte[Width * Height * 4];
+            for (int i = 0; i < Width * Height * 4; ++i)
+            {
+                rawData[i] = 128;
+            }
+            // We also need to "pin" it so the bitmap can be based on it.
+            var pinnedArray = GCHandle.Alloc(rawData, GCHandleType.Pinned);
+
+            try
+            {
+                using (var pixmap = new SKPixmap(new SKImageInfo(Width, Height, SKColorType.Rgba8888, SKAlphaType.Opaque), pinnedArray.AddrOfPinnedObject()))
+                using (var image = SKImage.FromPixels(pixmap))
+                {
+                    using (var surface = SKSurface.Create(pixmap.Info, pinnedArray.AddrOfPinnedObject()))
+                    {
+                        var canvas = surface.Canvas;
+
+                        int numFrames = (int)((long)_channels.Max(c => c.SampleCount) * FramesPerSecond / SamplingRate);
+
+                        int frameIndex = 0;
+                        Render(canvas, rawData, () =>
+                            {
+                                double fractionComplete = (double) ++frameIndex / numFrames;
+                                foreach (var output in outputs)
+                                {
+                                    // ReSharper disable once AccessToDisposedClosure
+                                    // bm is disposed after Render() returns, but it never invokes this 
+                                    output.Write(rawData, image, fractionComplete);
+                                }
+                            },
+                            0, numFrames);
+                    }
+                }
+            }
+            finally
+            {
+                pinnedArray.Free();
+            }
+        }
+
+        private void Render(SKCanvas g, byte[] imageBuffer, Action onFrame, int startFrame, int endFrame)
+        {
+            // Default rendering bounds if not set
+            var renderingBounds = RenderingBounds;
+            if (renderingBounds.Width == 0 || renderingBounds.Height == 0)
+            {
+                renderingBounds = new Rectangle(0, 0, Width, Height);
+            }
+
+            // Compute channel bounds
+            var numRows = _channels.Count / Columns + (_channels.Count % Columns == 0 ? 0 : 1);
+            for (int i = 0; i < _channels.Count; ++i)
+            {
+                int ChannelX(int column1) => column1 * renderingBounds.Width / Columns + renderingBounds.Left;
+                int ChannelY(int row1) => row1 * renderingBounds.Height / numRows + renderingBounds.Top;
+
+                var channel = _channels[i];
+                var column = i % Columns;
+                var row = i / Columns;
+                // Compute sizes as difference to next one to avoid off by 1 errors
+                var x = ChannelX(column);
+                var y = ChannelY(row);
+                channel.Bounds = new Rectangle(x, y, ChannelX(column + 1) - x, ChannelY(row + 1) - y);
+            }
+
+            // We generate our "base image"
+            var templateData = new byte[Width * Height * 4];
+            GCHandle pinnedArray = GCHandle.Alloc(templateData, GCHandleType.Pinned);
+            try
+            {
+                using (var templateImage = new Bitmap(Width, Height, Width * 4, PixelFormat.Format32bppPArgb,
+                    pinnedArray.AddrOfPinnedObject()))
+                {
+                    GenerateTemplate(templateImage);
+                    // Prepare the pens and brushes we will use
+                    var pens = _channels.Select(c => c.LineColor == Color.Transparent || c.LineWidth <= 0
+                        ? null
+                        : new SKPaint {
+                            Color = new SKColor(c.LineColor.R, c.LineColor.G, c.LineColor.B, c.LineColor.A),
+                            StrokeWidth = c.LineWidth,
+                            IsAntialias = c.SmoothLines,
+                            Style = SKPaintStyle.Stroke,
+                            StrokeMiter = c.LineWidth,
+                            StrokeJoin = SKStrokeJoin.Bevel
+                        }).ToList();
+                    var brushes = _channels.Select(c => c.FillColor == Color.Transparent
+                        ? null
+                        : new SKPaint {
+                            Color = new SKColor(c.LineColor.R, c.LineColor.G, c.LineColor.B, c.LineColor.A),
+                            StrokeWidth = c.LineWidth,
+                            IsAntialias = c.SmoothLines,
+                            Style = SKPaintStyle.Fill,
+                            StrokeMiter = c.LineWidth,
+                            StrokeJoin = SKStrokeJoin.Bevel
+                        }).ToList();
+
+                    var frameSamples = SamplingRate / FramesPerSecond;
+
+                    // Initialise the "previous trigger points"
+                    var triggerPoints = new int[_channels.Count];
+                    for (int channelIndex = 0; channelIndex < _channels.Count; ++channelIndex)
+                    {
+                        triggerPoints[channelIndex] =
+                            (int) ((long) startFrame * SamplingRate / FramesPerSecond) - frameSamples;
+                    }
+
+                    for (int frameIndex = startFrame; frameIndex < endFrame; ++frameIndex)
+                    {
+                        // Compute the start of the sample window
+                        int frameIndexSamples = (int) ((long) frameIndex * SamplingRate / FramesPerSecond);
+
+                        // Copy from the template
+                        if (imageBuffer == null)
+                        {
+                            // TODO g.DrawImageUnscaled(templateImage, 0, 0);
+                        }
+                        else
+                        {
+                            Buffer.BlockCopy(templateData, 0, imageBuffer, 0, templateData.Length);
+                        }
+
+                        // For each channel...
+                        for (int channelIndex = 0; channelIndex < _channels.Count; ++channelIndex)
+                        {
+                            var channel = _channels[channelIndex];
+                            if (channel.IsEmpty)
+                            {
+                                continue;
+                            }
+
+                            if (!string.IsNullOrEmpty(channel.ErrorMessage))
+                            {
+                                g.DrawText(channel.ErrorMessage, SKPoint.Empty, new SKPaint
+                                {
+                                    Typeface = SKTypeface.Default,
+                                    Color = SKColors.Red,
+                                    TextAlign = SKTextAlign.Center,
+                                });
+                            }
+                            else if (channel.Loading)
+                            {
+                                g.DrawText("Loading data...", SKPoint.Empty, new SKPaint
+                                {
+                                    Typeface = SKTypeface.Default,
+                                    Color = SKColors.Green,
+                                    TextAlign = SKTextAlign.Center,
+                                });
+                            }
+                            else if (channel.IsSilent)
+                            {
+                                g.DrawText("This channel is silent", SKPoint.Empty, new SKPaint
+                                {
+                                    Typeface = SKTypeface.Default,
+                                    Color = SKColors.Yellow,
+                                    TextAlign = SKTextAlign.Center,
+                                });
+                            }
+                            else
+                            {
+                                // Compute the "trigger point". This will be the centre of our rendering.
+                                var triggerPoint = channel.GetTriggerPoint(frameIndexSamples, frameSamples,
+                                    triggerPoints[channelIndex]);
+                                triggerPoints[channelIndex] = triggerPoint;
+
+                                RenderWave(g, channel, triggerPoint, pens[channelIndex], brushes[channelIndex]);
+                            }
+                        }
+
+                        // Emit
+                        onFrame();
+                    }
+
+                    foreach (var pen in pens)
+                    {
+                        pen?.Dispose();
+                    }
+
+                    foreach (var brush in brushes)
+                    {
+                        brush?.Dispose();
+                    }
+                }
+            }
+            finally
+            {
+                pinnedArray.Free();
+            }
+        }
+
+        private void RenderWave(SKCanvas g, Channel channel, int triggerPoint, SKPaint linePaint, SKPaint fillPaint)
+        {
+            // And the initial sample index
+            var leftmostSampleIndex = triggerPoint - channel.ViewWidthInSamples / 2;
+
+            float xOffset = channel.Bounds.Left;
+            float xScale = (float) channel.Bounds.Width / channel.ViewWidthInSamples;
+            float yOffset = channel.Bounds.Top + channel.Bounds.Height * 0.5f;
+            float yScale = -channel.Bounds.Height * 0.5f;
+
+            var path = new SKPath(); 
+            for (int i = 0; i < channel.ViewWidthInSamples; ++i)
+            {
+                var sampleValue = channel.GetSample(leftmostSampleIndex + i, false);
+                var x = xOffset + i * xScale;
+                var y = yOffset + sampleValue * yScale;
+                if (channel.Clip)
+                {
+                    y = Math.Min(Math.Max(y, channel.Bounds.Top), channel.Bounds.Bottom);
+                }
+                if (i == 0)
+                {
+                    path.MoveTo(x, y);
+                }
+                else
+                {
+                    path.LineTo(x, y);
+                }
+            }
+
+            // Then draw them all in one go...
+            if (linePaint != null)
+            {
+                g.DrawPath(path, linePaint);
+            }
+
+            if (fillPaint != null)
+            {
+                // We need to add points to complete the path
+                path.LineTo(channel.Bounds.Right, yOffset);
+                path.LineTo(channel.Bounds.Left, yOffset);
+                g.DrawPath(path, fillPaint);
+            }
+        }
+
         public void Render(IList<IGraphicsOutput> outputs)
         {
             // This is the raw data buffer we use to store the generated image.
