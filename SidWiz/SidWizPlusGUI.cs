@@ -789,7 +789,7 @@ namespace SidWizPlusGUI
             private readonly Stopwatch _stopwatch;
             private int _frameIndex;
             private DateTime _updateTime = DateTime.MinValue;
-            private readonly TimeSpan _updateInterval = TimeSpan.FromMilliseconds(100);
+            private readonly TimeSpan _updateInterval = TimeSpan.FromSeconds(1);
             private bool _cancelRequested;
 
             public MainFormProgressOutput(SidWizPlusGui form)

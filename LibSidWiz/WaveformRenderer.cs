@@ -96,7 +96,7 @@ namespace LibSidWiz
 
             try
             {
-                using (var pixmap = new SKPixmap(new SKImageInfo(Width, Height, SKColorType.Rgba8888, SKAlphaType.Opaque), pinnedArray.AddrOfPinnedObject()))
+                using (var pixmap = new SKPixmap(new SKImageInfo(Width, Height, SKColorType.Bgra8888, SKAlphaType.Opaque), pinnedArray.AddrOfPinnedObject()))
                 using (var image = SKImage.FromPixels(pixmap))
                 {
                     using (var surface = SKSurface.Create(pixmap.Info, pinnedArray.AddrOfPinnedObject()))
