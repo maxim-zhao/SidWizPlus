@@ -6,7 +6,6 @@ using System.Drawing.Imaging;
 using System.Drawing.Text;
 using System.Linq;
 using System.Runtime.InteropServices;
-using System.Threading.Tasks;
 using LibSidWiz.Outputs;
 
 namespace LibSidWiz
@@ -225,7 +224,7 @@ namespace LibSidWiz
                                         channel.Bounds,
                                         stringFormat);
                                 }
-                                else if (channel.IsSilent)
+                                else if (channel.IsSilent && !channel.RenderIfSilent)
                                 {
                                     g.DrawString("This channel is silent", SystemFonts.DefaultFont, Brushes.Yellow,
                                         channel.Bounds, stringFormat);

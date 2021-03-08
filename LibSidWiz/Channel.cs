@@ -48,6 +48,7 @@ namespace LibSidWiz
         private Sides _side = Sides.Mix;
         private bool _smoothLines = true;
         private bool _filter = false;
+        private bool _renderIfSilent = false;
 
         public enum Sides
         {
@@ -87,19 +88,6 @@ namespace LibSidWiz
                     token.ThrowIfCancellationRequested();
 
                     _samples.Analyze();
-
-                    // We don't care about ones where the samples are all equal
-                    if (Math.Abs(_samples.Min - _samples.Max) < 0.0001)
-                    {
-                        Console.WriteLine($"- {Filename} is silent");
-                        // So we skip steps here
-                        _samples.Dispose();
-                        _samples = null;
-                        SampleCount = 0;
-                        Max = 0;
-                        Loading = false;
-                        return false;
-                    }
 
                     SampleCount = _samples.Count;
 
@@ -478,6 +466,18 @@ namespace LibSidWiz
         [Description("Sampling rate of the channel")]
         [JsonIgnore]
         public int SampleRate { get; private set; }
+
+        [Category("Appearance")]
+        [Description("Whether to render silent channels normally. If false, a warning message is shown instead.")]
+        public bool RenderIfSilent
+        {
+            get => _renderIfSilent;
+            set
+            {
+                _renderIfSilent = value;
+                Changed?.Invoke(this, false);
+            }
+        }
 
         // ReSharper disable once CompareOfFloatsByEqualityOperator
         [Browsable(false)]
