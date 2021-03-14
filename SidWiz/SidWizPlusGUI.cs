@@ -910,7 +910,7 @@ namespace SidWizPlusGUI
         {
             lock (_settings)
             {
-                foreach (var channel in _settings.Channels.Where(c => c.SampleCount == 0).ToList())
+                foreach (var channel in _settings.Channels.Where(c => c.IsSilent).ToList())
                 {
                     _settings.Channels.Remove(channel);
                     if (PropertyGrid.SelectedObject == channel)

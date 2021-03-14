@@ -24,7 +24,9 @@ namespace LibSidWiz
     public class Channel: IDisposable
     {
         private SampleBuffer _samples;
+        private SampleBuffer _samplesForTrigger;
         private string _filename;
+        private string _externalTriggerFilename;
         private ITriggerAlgorithm _algorithm;
         private int _triggerLookaheadFrames;
         private Color _lineColor = Color.White;
@@ -47,8 +49,8 @@ namespace LibSidWiz
         private bool _clip;
         private Sides _side = Sides.Mix;
         private bool _smoothLines = true;
-        private bool _filter = false;
-        private bool _renderIfSilent = false;
+        private bool _filter;
+        private bool _renderIfSilent;
 
         public enum Sides
         {
@@ -97,6 +99,16 @@ namespace LibSidWiz
 
                     Console.WriteLine($"- Peak sample amplitude for {Filename} is {Max}");
 
+                    if (string.IsNullOrEmpty(ExternalTriggerFilename))
+                    {
+                        // Point at the same SampleBuffer
+                        _samplesForTrigger = _samples;
+                    }
+                    else
+                    {
+                        _samplesForTrigger = new SampleBuffer(ExternalTriggerFilename, Side, HighPassFilter);
+                    }
+
                     Loading = false;
                     return true;
                 }
@@ -144,6 +156,24 @@ namespace LibSidWiz
             {
                 bool needReload = value != _filename;
                 _filename = value;
+                Changed?.Invoke(this, needReload);
+                if (_filename != "" && string.IsNullOrEmpty(_label))
+                {
+                    Label = GuessNameFromMultidumperFilename(_filename);
+                }
+            }
+        }
+
+        [Category("Triggering")]
+        [Editor(typeof(FileNameEditor), typeof(UITypeEditor))]
+        [Description("The filename to use for oscilloscope triggering. Leave blank to use the channel's sound data.")]
+        public string ExternalTriggerFilename
+        {
+            get => _externalTriggerFilename;
+            set
+            {
+                bool needReload = value != _externalTriggerFilename;
+                _externalTriggerFilename = value;
                 Changed?.Invoke(this, needReload);
                 if (_filename != "" && string.IsNullOrEmpty(_label))
                 {
@@ -498,7 +528,8 @@ namespace LibSidWiz
 
         internal float GetSample(int sampleIndex, bool forTrigger = true)
         {
-            return sampleIndex < 0 || sampleIndex >= _samples.Count ? 0 : _samples[sampleIndex] * Scale * (forTrigger && InvertedTrigger ? -1 : 1);
+            var source = forTrigger ? _samplesForTrigger : _samples;
+            return sampleIndex < 0 || sampleIndex >= source.Count ? 0 : source[sampleIndex] * Scale * (forTrigger && InvertedTrigger ? -1 : 1);
         }
 
         internal int GetTriggerPoint(int frameIndexSamples, int frameSamples, int previousTriggerPoint)
@@ -645,7 +676,7 @@ namespace LibSidWiz
                     .GetTypes()
                     .FirstOrDefault(t => 
                         typeof(ITriggerAlgorithm).IsAssignableFrom(t) && 
-                        t.Name.ToLowerInvariant().Equals(reader.Value.ToString().ToLowerInvariant()));
+                        t.Name.ToLowerInvariant().Equals(reader.Value?.ToString().ToLowerInvariant()));
                 if (type != null)
                 {
                     return Activator.CreateInstance(type) as ITriggerAlgorithm;
@@ -658,6 +689,10 @@ namespace LibSidWiz
         public void Dispose()
         {
             _samples?.Dispose();
+            if (_samplesForTrigger != _samples)
+            {
+                _samplesForTrigger.Dispose();
+            }
             _labelFont?.Dispose();
         }
 
