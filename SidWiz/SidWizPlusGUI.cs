@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
 using System.Globalization;
 using System.IO;
@@ -27,7 +26,7 @@ namespace SidWizPlusGUI
 
         private ProgramLocationSettings _programLocationSettings = new ProgramLocationSettings();
 
-        [SuppressMessage("ReSharper", "MemberCanBePrivate.Local")]
+        // ReSharper disable MemberCanBePrivate.Local
         private class Settings
         {
             private bool _ignoreFromControls;
@@ -45,7 +44,9 @@ namespace SidWizPlusGUI
             public string BackgroundImageFilename { get; set; }
             public PreviewSettings Preview { get; } = new PreviewSettings {Enabled = true, Frameskip = 1};
             public EncodeSettings EncodeVideo { get; } = new EncodeSettings {Enabled = false};
-            public MasterAudioSettings MasterAudio { get; } = new MasterAudioSettings {IsAutomatic = true, ApplyReplayGain = true};
+
+            public MasterAudioSettings MasterAudio { get; } = new MasterAudioSettings
+                {IsAutomatic = true, ApplyReplayGain = true};
 
             public class MasterAudioSettings
             {
@@ -72,6 +73,7 @@ namespace SidWizPlusGUI
                 {
                     return;
                 }
+
                 AutoScaleHeight = float.Parse(form.VerticalScaling.Text);
                 Width = int.Parse(form.WidthControl.Text);
                 Height = int.Parse(form.HeightControl.Text);
@@ -124,6 +126,7 @@ namespace SidWizPlusGUI
                     Height - MarginTop - MarginBottom);
             }
         }
+        // ReSharper restore MemberCanBePrivate.Local
 
         private readonly Settings _settings = new Settings();
 
@@ -136,7 +139,7 @@ namespace SidWizPlusGUI
 
         // We use this to allow cancelling the render
         private MainFormProgressOutput _progress;
-        
+
         public SidWizPlusGui()
         {
             InitializeComponent();
@@ -165,6 +168,7 @@ namespace SidWizPlusGUI
                 {
                     return false;
                 }
+
                 if (extension.StartsWith("."))
                 {
                     extension = extension.Substring(1);
@@ -175,6 +179,7 @@ namespace SidWizPlusGUI
                     _handler(filename);
                     return true;
                 }
+
                 return false;
             }
         }
@@ -183,14 +188,16 @@ namespace SidWizPlusGUI
         {
             var handlers = new[]
             {
-                new FileTypeHandler("Multidumper compatible files", LoadMultiDumper, "ay", "gbs", "gym", "hes", "kss", "nsf", "nsfe", "sap", "sfm", "sgc", "spc", "vgm", "vgz", "spu"), 
+                // ReSharper disable once StringLiteralTypo
+                new FileTypeHandler("Multidumper compatible files", LoadMultiDumper, "ay", "gbs", "gym", "hes", "kss",
+                    "nsf", "nsfe", "sap", "sfm", "sgc", "spc", "vgm", "vgz", "spu"),
                 new FileTypeHandler("Wave audio files", AddChannel, "wav"),
                 new FileTypeHandler("SID files", LoadSid, "sid")
             };
 
             var allFilesMask = string.Join("; ", handlers.Select(h => h.Filter));
 
-            var filter = string.Join("|",new[]
+            var filter = string.Join("|", new[]
                 {
                     $"All supported files ({allFilesMask})",
                     allFilesMask
@@ -274,6 +281,7 @@ namespace SidWizPlusGUI
             {
                 _settings.Channels.Add(channel);
             }
+
             // Setting the filename triggers a load
             channel.Filename = filename;
             // We trigger a render to show the "loading" state
@@ -307,7 +315,8 @@ namespace SidWizPlusGUI
 
         private void LoadMultiDumper(string filename)
         {
-            LocateProgram("multidumper.exe", _programLocationSettings.MultiDumperPath, p => _programLocationSettings.MultiDumperPath = p);
+            LocateProgram("multidumper.exe", _programLocationSettings.MultiDumperPath,
+                p => _programLocationSettings.MultiDumperPath = p);
             try
             {
                 // Normalize path
@@ -334,7 +343,8 @@ namespace SidWizPlusGUI
 
         private void LoadSid(string filename)
         {
-            LocateProgram("sidplayfp.exe", _programLocationSettings.SidPlayPath, p => _programLocationSettings.SidPlayPath = p);
+            LocateProgram("sidplayfp.exe", _programLocationSettings.SidPlayPath,
+                p => _programLocationSettings.SidPlayPath = p);
             try
             {
                 using (var form = new SidPlayForm(filename, _programLocationSettings.SidPlayPath))
@@ -373,6 +383,7 @@ namespace SidWizPlusGUI
                         return;
                     }
                 }
+
                 // Else browse for it
                 using (var ofd = new OpenFileDialog
                 {
@@ -425,6 +436,7 @@ namespace SidWizPlusGUI
                     Trace.WriteLine("Render is already queued, nothing to do");
                     return;
                 }
+
                 _renderNeeded = true;
 
                 // The second flag indicates that we have started the task to render.
@@ -434,6 +446,7 @@ namespace SidWizPlusGUI
                     Trace.WriteLine("Render is already active, not starting task");
                     return;
                 }
+
                 _renderActive = true;
             }
 
@@ -463,6 +476,7 @@ namespace SidWizPlusGUI
                     {
                         // Swap it with whatever is in the preview control
                         var oldImage = Preview.Image;
+                        // ReSharper disable once AccessToModifiedClosure
                         Preview.Image = bitmap;
                         Preview.Refresh();
                         oldImage?.Dispose();
@@ -476,6 +490,7 @@ namespace SidWizPlusGUI
                             Trace.WriteLine("Render needed flag was set, rendering again");
                             continue;
                         }
+
                         Trace.WriteLine("Render complete, ending task");
                         _renderActive = false;
                         break;
@@ -556,11 +571,13 @@ namespace SidWizPlusGUI
             {
                 return;
             }
+
             channel.Changed -= ChannelOnChanged;
             lock (_settings)
             {
                 _settings.Channels.Remove(channel);
             }
+
             channel.Dispose();
             PropertyGrid.SelectedObject = null;
             Render();
@@ -593,12 +610,13 @@ namespace SidWizPlusGUI
             else
             {
                 // Image is wider, we have letterboxing
-                y = (y - 0.5) * imageAspectRatio  / previewAspectRatio + 0.5;
+                y = (y - 0.5) * imageAspectRatio / previewAspectRatio + 0.5;
                 if (y < 0 || y > 1)
                 {
                     return;
                 }
             }
+
             // Then we map that to the row/column space
             lock (_settings)
             {
@@ -667,7 +685,8 @@ namespace SidWizPlusGUI
             using (var ofd = new OpenFileDialog
             {
                 Title = "Select an image",
-                Filter = "Image files (*.png;*.gif;*.jpg;*.jpeg;*.bmp;*.wmf)|*.png;*.gif;*.jpg;*.jpeg;*.bmp;*.wmf|All files (*.*)|*.*"
+                Filter =
+                    "Image files (*.png;*.gif;*.jpg;*.jpeg;*.bmp;*.wmf)|*.png;*.gif;*.jpg;*.jpeg;*.bmp;*.wmf|All files (*.*)|*.*"
             })
             {
                 if (ofd.ShowDialog(this) != DialogResult.OK)
@@ -686,6 +705,7 @@ namespace SidWizPlusGUI
                         _settings.BackgroundImageFilename = ofd.FileName;
                     }
                 }
+
                 Render();
             }
         }
@@ -810,6 +830,7 @@ namespace SidWizPlusGUI
                     {
                         return;
                     }
+
                     _form.Text = "SidWizPlusGUI";
                 }));
             }
@@ -829,6 +850,7 @@ namespace SidWizPlusGUI
                 {
                     return;
                 }
+
                 _updateTime = now;
                 var elapsedSeconds = _stopwatch.Elapsed.TotalSeconds;
                 var fps = _frameIndex / elapsedSeconds;
@@ -839,6 +861,7 @@ namespace SidWizPlusGUI
                     {
                         return;
                     }
+
                     _form.Text = $"SidWizPlusGUI - {fractionComplete:P} @ {fps:F}fps, ETA {eta:g}";
                 }));
             }
@@ -874,6 +897,7 @@ namespace SidWizPlusGUI
             {
                 return;
             }
+
             Directory.CreateDirectory(directory);
             File.WriteAllText(path, JsonConvert.SerializeObject(_programLocationSettings));
         }
@@ -891,12 +915,14 @@ namespace SidWizPlusGUI
             try
             {
                 HighDpiHelper.AdjustControlImagesDpiScale(this);
-                _programLocationSettings = JsonConvert.DeserializeObject<ProgramLocationSettings>(File.ReadAllText(GetSettingsPath()));
+                _programLocationSettings =
+                    JsonConvert.DeserializeObject<ProgramLocationSettings>(File.ReadAllText(GetSettingsPath()));
                 FfmpegLocation.Text = _programLocationSettings.FfmpegPath;
                 lock (_settings)
                 {
                     _settings.ToControls(this);
                 }
+
                 // Use exe icon as form icon
                 Icon = Icon.ExtractAssociatedIcon(Application.ExecutablePath);
             }
@@ -917,6 +943,7 @@ namespace SidWizPlusGUI
                     {
                         PropertyGrid.SelectedObject = null;
                     }
+
                     channel.Dispose();
                 }
             }
@@ -932,8 +959,10 @@ namespace SidWizPlusGUI
                 {
                     channel.Dispose();
                 }
+
                 _settings.Channels.Clear();
             }
+
             PropertyGrid.SelectedObject = null;
             Render();
         }
@@ -1003,6 +1032,7 @@ namespace SidWizPlusGUI
             {
                 return;
             }
+
             try
             {
                 channel.FromJson(Clipboard.GetText(), true);
@@ -1023,12 +1053,12 @@ namespace SidWizPlusGUI
             if (channel.IsMono())
             {
                 if (MessageBox.Show(
-                        this,
-                        "Data is not stereo, do you want to clone the channel instead?",
-                        "Split channel",
-                        MessageBoxButtons.YesNo,
-                        MessageBoxIcon.Question,
-                        MessageBoxDefaultButton.Button2) == DialogResult.Yes)
+                    this,
+                    "Data is not stereo, do you want to clone the channel instead?",
+                    "Split channel",
+                    MessageBoxButtons.YesNo,
+                    MessageBoxIcon.Question,
+                    MessageBoxDefaultButton.Button2) == DialogResult.Yes)
                 {
                     CloneChannelButton_Click(sender, e);
                 }
