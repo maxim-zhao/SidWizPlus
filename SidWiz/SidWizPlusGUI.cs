@@ -651,7 +651,8 @@ namespace SidWizPlusGUI
                     .Where(p => p.CanWrite &&
                                 p.GetSetMethod() != null &&
                                 p.Name != nameof(Channel.Filename) &&
-                                p.Name != nameof(Channel.Label)))
+                                p.Name != nameof(Channel.Label) &&
+                                p.Name != nameof(Channel.ExternalTriggerFilename)))
                 {
                     var sourceValue = propertyInfo.GetValue(source);
 
