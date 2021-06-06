@@ -174,11 +174,9 @@ namespace LibSidWiz
             {
                 bool needReload = value != _externalTriggerFilename;
                 _externalTriggerFilename = value;
+                // Change algorithm to RisingEdgeTrigger when using an external trigger
+                _algorithm = new RisingEdgeTrigger();
                 Changed?.Invoke(this, needReload);
-                if (_filename != "" && string.IsNullOrEmpty(_label))
-                {
-                    Label = GuessNameFromMultidumperFilename(_filename);
-                }
             }
         }
 
