@@ -12,16 +12,16 @@
         public int GetTriggerPoint(Channel channel, int startIndex, int endIndex, int previousIndex)
         {
             // We step through the sample and select the first negative -> positive transition
-            int i = startIndex;
-            while (channel.GetSample(i) > 0 && i < endIndex) ++i;
-            while (channel.GetSample(i) <= 0 && i < endIndex) ++i;
-            if (i == endIndex)
+            int result = startIndex;
+            while (channel.GetSample(result) > 0 && result < endIndex) ++result;
+            while (channel.GetSample(result) <= 0 && result < endIndex) ++result;
+            if (result == endIndex)
             {
-                // Failed to find anything, just stick to the left
-                i = startIndex;
+                // Failed to find anything
+                result = -1;
             }
 
-            return i;
+            return result;
         }
     }
 }

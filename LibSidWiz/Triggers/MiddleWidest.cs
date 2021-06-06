@@ -7,7 +7,7 @@ namespace LibSidWiz.Triggers
     /// We measure the width of each full wave, and then select the widest ones.
     /// We then select the start point of the "middle" one, if more than one was found.
     /// </summary>
-    // ReSharper disable once UnusedMember.Global
+    // ReSharper disable once UnusedType.Global
     class MiddleWidest: ITriggerAlgorithm
     {
         public int GetTriggerPoint(Channel channel, int startIndex, int endIndex, int previousIndex)
@@ -44,7 +44,7 @@ namespace LibSidWiz.Triggers
 
             if (candidates.Count == 0)
             {
-                return startIndex; // Default to left if no waves found
+                return -1;
             }
 
             // We select the "middle" one, preferring the one on the right if even

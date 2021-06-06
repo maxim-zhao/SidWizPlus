@@ -103,6 +103,9 @@ namespace SidWizPlus
             // ReSharper disable once StringLiteralTypo
             [Option("triggerlookahead", Required = false, HelpText = "Number of frames to allow the trigger to look ahead, zero means no lookahead", DefaultValue = 0)]
             public int TriggerLookahead { get; set; }
+            // ReSharper disable once StringLiteralTypo
+            [Option("triggerlookaheadonfailure", Required = false, HelpText = "Number of frames to allow the trigger to look ahead when failing to find a match with the default", DefaultValue = 0)]
+            public int TriggerLookaheadOnFailureFrames { get; set; }
 
             // ReSharper disable once StringLiteralTypo
             [Option("highpass", Required = false, HelpText = "Enable high-pass filtering", DefaultValue = false)]
@@ -304,6 +307,7 @@ namespace SidWizPlus
                             Label = Channel.GuessNameFromMultidumperFilename(filename),
                             Algorithm = CreateTriggerAlgorithm(settings.TriggerAlgorithm),
                             TriggerLookaheadFrames = settings.TriggerLookahead,
+                            TriggerLookaheadOnFailureFrames = settings.TriggerLookaheadOnFailureFrames,
                             ZeroLineWidth = settings.ZeroLineWidth,
                             ZeroLineColor = ParseColor(settings.ZeroLineColor),
                             LabelFont = settings.ChannelLabelsFont == null

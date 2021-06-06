@@ -4,7 +4,7 @@ using System.Text;
 
 namespace LibSidWiz.Triggers
 {
-    // ReSharper disable once UnusedMember.Global
+    // ReSharper disable once UnusedType.Global
     internal class AutoCorrelationTrigger: ITriggerAlgorithm
     {
         private float[] _normalDistribution;

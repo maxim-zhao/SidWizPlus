@@ -4,12 +4,12 @@
     /// Finds the widest positive+negative wave in the range
     /// This can get confused by volume changes on SN76489 noise, which it will perceive as a wide wave
     /// </summary>
-    // ReSharper disable once UnusedMember.Global
+    // ReSharper disable once UnusedType.Global
     internal class WidestWaveTrigger : ITriggerAlgorithm
     {
         public int GetTriggerPoint(Channel channel, int startIndex, int endIndex, int previousIndex)
         {
-            int bestOffset = startIndex; // Default to left if no waves found
+            int bestOffset = -1;
             int lastCrossingPoint = endIndex;
             float previousSample = channel.GetSample(startIndex);
             int bestLength = 0;

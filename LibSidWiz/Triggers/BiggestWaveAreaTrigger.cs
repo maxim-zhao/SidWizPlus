@@ -5,12 +5,12 @@ namespace LibSidWiz.Triggers
     /// <summary>
     /// Finds the positive+negative wave with the biggest area (= sum of absolute samples)
     /// </summary>
-    // ReSharper disable once UnusedMember.Global
+    // ReSharper disable once UnusedType.Global
     internal class BiggestWaveAreaTrigger : ITriggerAlgorithm
     {
         public int GetTriggerPoint(Channel channel, int startIndex, int endIndex, int previousIndex)
         {
-            int bestOffset = startIndex; // Default to left if no positive waves found
+            int bestOffset = -1;
             int lastCrossingPoint = endIndex;
             float previousSample = channel.GetSample(startIndex);
             float bestArea = 0;
