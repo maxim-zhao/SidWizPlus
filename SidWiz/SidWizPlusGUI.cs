@@ -738,6 +738,9 @@ namespace SidWizPlusGUI
 
                 if (_settings.EncodeVideo.Enabled)
                 {
+                    LocateProgram("ffmpeg.exe", _programLocationSettings.FfmpegPath,
+                        p => _programLocationSettings.FfmpegPath = p);
+
                     using (var saveFileDialog = new SaveFileDialog
                     {
                         Title = "Select destination",
