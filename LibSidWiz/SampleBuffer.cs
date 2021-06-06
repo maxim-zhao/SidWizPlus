@@ -16,7 +16,7 @@ namespace LibSidWiz
 
             public bool Contains(long index)
             {
-                return index >= Offset && index < Offset + ChunkSize;
+                return Offset >= 0 && index >= Offset && index < Offset + ChunkSize;
             }
         }
 
