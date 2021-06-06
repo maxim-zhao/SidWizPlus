@@ -750,6 +750,11 @@ namespace SidWizPlusGUI
                         if (saveFileDialog.ShowDialog(this) != DialogResult.OK)
                         {
                             // Cancel the whole operation
+                            _progress = null;
+                            foreach (var output in outputs)
+                            {
+                                output.Dispose();
+                            }
                             return;
                         }
 
