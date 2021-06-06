@@ -118,6 +118,11 @@ namespace LibSidWiz
                     Max = 0;
                     SampleRate = 0;
                     Length = TimeSpan.Zero;
+                    if (_samplesForTrigger != _samples)
+                    {
+                        _samplesForTrigger?.Dispose();
+                    }
+                    _samplesForTrigger = null;
                     _samples?.Dispose();
                     _samples = null;
                     Loading = false;
@@ -129,6 +134,11 @@ namespace LibSidWiz
                     Max = 0;
                     SampleRate = 0;
                     Length = TimeSpan.Zero;
+                    if (_samplesForTrigger != _samples)
+                    {
+                        _samplesForTrigger?.Dispose();
+                    }
+                    _samplesForTrigger = null;
                     _samples?.Dispose();
                     _samples = null;
                     Loading = false;
