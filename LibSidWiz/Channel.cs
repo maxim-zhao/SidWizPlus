@@ -28,7 +28,8 @@ namespace LibSidWiz
         private string _filename;
         private string _externalTriggerFilename;
         private ITriggerAlgorithm _algorithm;
-        private int _triggerLookaheadFrames;
+        private int _triggerLookaheadFrames; // Default to current frame only
+        private int _triggerLookaheadOnFailureFrames = 2; // Default to 2 frames ahead
         private Color _lineColor = Color.White;
         private string _label = "";
         private float _lineWidth = 3;
@@ -240,6 +241,18 @@ namespace LibSidWiz
             set
             {
                 _triggerLookaheadFrames = value;
+                Changed?.Invoke(this, false);
+            }
+        }
+
+        [Category("Triggering")]
+        [Description("How many frames to allow the triggering algorithm to look ahead, when nothing is found with the default lookahead.")]
+        public int TriggerLookaheadOnFailureFrames
+        {
+            get => _triggerLookaheadOnFailureFrames;
+            set
+            {
+                _triggerLookaheadOnFailureFrames = value;
                 Changed?.Invoke(this, false);
             }
         }
@@ -542,7 +555,22 @@ namespace LibSidWiz
 
         internal int GetTriggerPoint(int frameIndexSamples, int frameSamples, int previousTriggerPoint)
         {
-            return Algorithm.GetTriggerPoint(this, frameIndexSamples, frameIndexSamples + frameSamples * (TriggerLookaheadFrames + 1), previousTriggerPoint);
+            // Try at default settings
+            var result = Algorithm.GetTriggerPoint(this, frameIndexSamples, frameIndexSamples + frameSamples * (TriggerLookaheadFrames + 1), previousTriggerPoint);
+
+            if (result < frameIndexSamples)
+            {
+                // Try again
+                result = Algorithm.GetTriggerPoint(this, frameIndexSamples, frameIndexSamples + frameSamples * (TriggerLookaheadOnFailureFrames + 1), previousTriggerPoint);
+            }
+
+            if (result < frameIndexSamples)
+            {
+                // Default on failure
+                result = frameIndexSamples;
+            }
+
+            return result;
         }
 
         public static string GuessNameFromMultidumperFilename(string filename)

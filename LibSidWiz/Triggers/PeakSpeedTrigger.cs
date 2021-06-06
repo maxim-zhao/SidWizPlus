@@ -16,7 +16,7 @@
         {
             float peakValue = float.MinValue;
             int shortestDistance = int.MaxValue;
-            int triggerIndex = startIndex; // Default to left if no peaks found
+            int result = -1;
             int i = startIndex;
             while (i < endIndex)
             {
@@ -32,13 +32,14 @@
                     {
                         // It's a new high
                         peakValue = sample;
-                        triggerIndex = lastCrossing;
+                        result = lastCrossing;
                         shortestDistance = i - lastCrossing;
                     }
+                    // ReSharper disable once CompareOfFloatsByEqualityOperator
                     else if (sample == peakValue && (i - lastCrossing) < shortestDistance)
                     {
                         // It's equal to the best peak but closer to the crossing point
-                        triggerIndex = lastCrossing;
+                        result = lastCrossing;
                         shortestDistance = i - lastCrossing;
                     }
 
@@ -46,7 +47,7 @@
                 }
             }
 
-            return triggerIndex;
+            return result;
         }
     }
 }
