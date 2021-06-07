@@ -12,12 +12,12 @@ namespace SidWizPlusGUI
         private readonly string _filename;
         private readonly MultiDumperWrapper _wrapper;
 
-        public IEnumerable<string> Filenames { get; set; }
+        public IEnumerable<string> Filenames { get; private set; }
 
-        public MultiDumperForm(string filename, string multiDumperPath)
+        public MultiDumperForm(string filename, string multiDumperPath, int samplingRate)
         {
             _filename = filename;
-            _wrapper = new MultiDumperWrapper(multiDumperPath);
+            _wrapper = new MultiDumperWrapper(multiDumperPath, samplingRate);
             InitializeComponent();
         }
 

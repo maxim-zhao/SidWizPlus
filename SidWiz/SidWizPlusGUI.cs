@@ -1,13 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
+using System.Drawing.Design;
 using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.Windows.Forms.Design;
 using LibSidWiz;
 using LibSidWiz.Outputs;
 using LibSidWiz.Triggers;
@@ -17,14 +21,40 @@ namespace SidWizPlusGUI
 {
     public partial class SidWizPlusGui : Form
     {
-        private class ProgramLocationSettings
+        [SuppressMessage("ReSharper", "UnusedAutoPropertyAccessor.Local")]
+        [SuppressMessage("ReSharper", "InconsistentNaming")]
+        [SuppressMessage("ReSharper", "FieldCanBeMadeReadOnly.Global")]
+        [SuppressMessage("ReSharper", "UnusedAutoPropertyAccessor.Global")]
+        public class ProgramSettings
         {
+            [Category("FFMPEG")]
+            [Editor(typeof(FileNameEditor), typeof(UITypeEditor))]
+            [DisplayName("Path")]
+            [Description("Path to FFMPEG. Download from https://ffmpeg.org/download.html")]
             public string FfmpegPath { get; set; }
+            [Category("FFMPEG")]
+            [DisplayName("Extra Parameters")]
+            [Description("Extra parameters for FFMPEG. These are inserted just before the output filename; you can use this to select a non-default codec, for example.")]
+            public string FfmpegExtraParameters { get; set; }
+
+            [Category("MultiDumper")]
+            [Editor(typeof(FileNameEditor), typeof(UITypeEditor))]
+            [DisplayName("Path")]
+            [Description("Path to Multidumper. Download from https://github.com/maxim-zhao/multidumper/releases")]
             public string MultiDumperPath { get; set; }
+            [Category("MultiDumper")]
+            [DisplayName("Sampling Rate")]
+            [Description("Sampling rate for generated WAV files. Default is 44100. Requires a build of MultiDumper that supports this!")]
+            [DefaultValue(44100)]
+            public int MultiDumperSamplingRate { get; set; } = 44100;
+
+            [Category("SidPlay")]
+            [Editor(typeof(FileNameEditor), typeof(UITypeEditor))]
+            [DisplayName("Path")]
             public string SidPlayPath { get; set; }
         }
 
-        private ProgramLocationSettings _programLocationSettings = new ProgramLocationSettings();
+        private ProgramSettings _programSettings = new ProgramSettings();
 
         // ReSharper disable MemberCanBePrivate.Local
         private class Settings
@@ -58,7 +88,6 @@ namespace SidWizPlusGUI
             public class EncodeSettings
             {
                 public bool Enabled { get; set; }
-                public string FfmpegParameters { get; set; }
             }
 
             public class PreviewSettings
@@ -87,7 +116,6 @@ namespace SidWizPlusGUI
                 Preview.Enabled = form.PreviewCheckBox.Checked;
                 Preview.Frameskip = (int) form.PreviewFrameskip.Value;
                 EncodeVideo.Enabled = form.EncodeCheckBox.Checked;
-                EncodeVideo.FfmpegParameters = form.FfmpegParameters.Text;
                 MasterAudio.IsAutomatic = form.AutogenerateMasterMix.Checked;
                 MasterAudio.ApplyReplayGain = form.MasterMixReplayGain.Checked;
                 MasterAudio.Path = form.MasterAudioPath.Text;
@@ -110,7 +138,6 @@ namespace SidWizPlusGUI
                 form.PreviewCheckBox.Checked = Preview.Enabled;
                 form.PreviewFrameskip.Value = Preview.Frameskip;
                 form.EncodeCheckBox.Checked = EncodeVideo.Enabled;
-                form.FfmpegParameters.Text = EncodeVideo.FfmpegParameters;
                 form.AutogenerateMasterMix.Checked = MasterAudio.IsAutomatic;
                 form.MasterMixReplayGain.Checked = MasterAudio.ApplyReplayGain;
                 form.MasterAudioPath.Text = MasterAudio.Path;
@@ -315,14 +342,14 @@ namespace SidWizPlusGUI
 
         private void LoadMultiDumper(string filename)
         {
-            LocateProgram("multidumper.exe", _programLocationSettings.MultiDumperPath,
-                p => _programLocationSettings.MultiDumperPath = p);
+            LocateProgram("multidumper.exe", _programSettings.MultiDumperPath,
+                p => _programSettings.MultiDumperPath = p);
             try
             {
                 // Normalize path
                 filename = Path.GetFullPath(filename);
 
-                using (var form = new MultiDumperForm(filename, _programLocationSettings.MultiDumperPath))
+                using (var form = new MultiDumperForm(filename, _programSettings.MultiDumperPath, _programSettings.MultiDumperSamplingRate))
                 {
                     if (form.ShowDialog(this) != DialogResult.OK || form.Filenames == null)
                     {
@@ -343,11 +370,11 @@ namespace SidWizPlusGUI
 
         private void LoadSid(string filename)
         {
-            LocateProgram("sidplayfp.exe", _programLocationSettings.SidPlayPath,
-                p => _programLocationSettings.SidPlayPath = p);
+            LocateProgram("sidplayfp.exe", _programSettings.SidPlayPath,
+                p => _programSettings.SidPlayPath = p);
             try
             {
-                using (var form = new SidPlayForm(filename, _programLocationSettings.SidPlayPath))
+                using (var form = new SidPlayForm(filename, _programSettings.SidPlayPath))
                 {
                     if (form.ShowDialog(this) != DialogResult.OK || form.Filenames == null)
                     {
@@ -711,12 +738,6 @@ namespace SidWizPlusGUI
             }
         }
 
-        private void FfmpegLocation_Click(object sender, EventArgs e)
-        {
-            LocateProgram("ffmpeg.exe", null, p => _programLocationSettings.FfmpegPath = p);
-            FfmpegLocation.Text = _programLocationSettings.FfmpegPath;
-        }
-
         private void RenderButton_Click(object sender, EventArgs e)
         {
             if (_progress != null)
@@ -738,8 +759,8 @@ namespace SidWizPlusGUI
 
                 if (_settings.EncodeVideo.Enabled)
                 {
-                    LocateProgram("ffmpeg.exe", _programLocationSettings.FfmpegPath,
-                        p => _programLocationSettings.FfmpegPath = p);
+                    LocateProgram("ffmpeg.exe", _programSettings.FfmpegPath,
+                        p => _programSettings.FfmpegPath = p);
 
                     using (var saveFileDialog = new SaveFileDialog
                     {
@@ -773,12 +794,12 @@ namespace SidWizPlusGUI
                         }
 
                         outputs.Add(new FfmpegOutput(
-                            _programLocationSettings.FfmpegPath,
+                            _programSettings.FfmpegPath,
                             outputFilename,
                             _settings.Width,
                             _settings.Height,
                             _settings.FrameRate,
-                            _settings.EncodeVideo.FfmpegParameters,
+                            _programSettings.FfmpegExtraParameters,
                             _settings.MasterAudio.Path));
                     }
                 }
@@ -908,7 +929,10 @@ namespace SidWizPlusGUI
             }
 
             Directory.CreateDirectory(directory);
-            File.WriteAllText(path, JsonConvert.SerializeObject(_programLocationSettings));
+            File.WriteAllText(path, JsonConvert.SerializeObject(_programSettings));
+
+            // It may be filled in automatically so we need to refresh the UI
+            ProgramSettingsGrid.SelectedObject = _programSettings;
         }
 
         private static string GetSettingsPath()
@@ -924,9 +948,10 @@ namespace SidWizPlusGUI
             try
             {
                 HighDpiHelper.AdjustControlImagesDpiScale(this);
-                _programLocationSettings =
-                    JsonConvert.DeserializeObject<ProgramLocationSettings>(File.ReadAllText(GetSettingsPath()));
-                FfmpegLocation.Text = _programLocationSettings.FfmpegPath;
+                _programSettings = JsonConvert.DeserializeObject<ProgramSettings>(File.ReadAllText(GetSettingsPath()));
+
+                ProgramSettingsGrid.BeginInvoke(new Action(() => { ProgramSettingsGrid.SelectedObject = _programSettings; }));
+
                 lock (_settings)
                 {
                     _settings.ToControls(this);
@@ -1106,6 +1131,11 @@ namespace SidWizPlusGUI
                     channel.Label = "";
                 }
             }
+        }
+
+        private void SidWizPlusGui_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            SaveSettings();
         }
     }
 }

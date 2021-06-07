@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Text.RegularExpressions;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -12,11 +13,13 @@ namespace LibSidWiz
     public class MultiDumperWrapper: IDisposable
     {
         private readonly string _multiDumperPath;
+        private readonly int _samplingRate;
         private ProcessWrapper _processWrapper;
 
-        public MultiDumperWrapper(string multiDumperPath)
+        public MultiDumperWrapper(string multiDumperPath, int samplingRate)
         {
             _multiDumperPath = multiDumperPath;
+            _samplingRate = samplingRate;
         }
 
         public class Song
@@ -53,6 +56,15 @@ namespace LibSidWiz
                 $"\"{filename}\" --json"))
             {
                 json = string.Join("", p.Lines());
+                // Try to decode any UTF-8 in there
+                try
+                {
+                    json = Encoding.UTF8.GetString(Encoding.Default.GetBytes(json));
+                }
+                catch (Exception)
+                {
+                    // Ignore it, use unfixed string
+                }
             }
 
             if (string.IsNullOrEmpty(json))
@@ -109,7 +121,7 @@ namespace LibSidWiz
         {
             _processWrapper = new ProcessWrapper(
                 _multiDumperPath,
-                $"\"{song.Filename}\" {song.Index}");
+                $"\"{song.Filename}\" {song.Index} --sampling_rate={_samplingRate}");
             var progressParts = Enumerable.Repeat(0.0, song.Channels.Count).ToList();
             var r = new Regex(@"(?<channel>\d+)\|(?<position>\d+)\|(?<total>\d+)");
             var stopwatch = Stopwatch.StartNew();

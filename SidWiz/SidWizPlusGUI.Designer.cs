@@ -64,6 +64,8 @@
             this.CopySettingsButton = new System.Windows.Forms.ToolStripButton();
             this.CopyChannelSettingsButton = new System.Windows.Forms.ToolStripButton();
             this.PasteChannelSettingsButton = new System.Windows.Forms.ToolStripButton();
+            this.toolStripSeparator4 = new System.Windows.Forms.ToolStripSeparator();
+            this.RemoveLabelsButton = new System.Windows.Forms.ToolStripButton();
             this.tabPage1 = new System.Windows.Forms.TabPage();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
             this.MarginBottomControl = new System.Windows.Forms.NumericUpDown();
@@ -90,7 +92,6 @@
             this.label20 = new System.Windows.Forms.Label();
             this.BackgroundImageControl = new System.Windows.Forms.PictureBox();
             this.label21 = new System.Windows.Forms.Label();
-            this.BackgroundColorButton = new SidWizPlusGUI.ColorButton(this.components);
             this.tabPage3 = new System.Windows.Forms.TabPage();
             this.label19 = new System.Windows.Forms.Label();
             this.MasterAudioPath = new System.Windows.Forms.TextBox();
@@ -103,11 +104,7 @@
             this.PreviewFrameskip = new System.Windows.Forms.NumericUpDown();
             this.label13 = new System.Windows.Forms.Label();
             this.groupBox3 = new System.Windows.Forms.GroupBox();
-            this.FfmpegParameters = new System.Windows.Forms.TextBox();
-            this.label18 = new System.Windows.Forms.Label();
             this.EncodeCheckBox = new System.Windows.Forms.CheckBox();
-            this.label22 = new System.Windows.Forms.Label();
-            this.FfmpegLocation = new System.Windows.Forms.TextBox();
             this.FrameRateControl = new System.Windows.Forms.NumericUpDown();
             this.label14 = new System.Windows.Forms.Label();
             this.label15 = new System.Windows.Forms.Label();
@@ -115,9 +112,10 @@
             this.tabPage6 = new System.Windows.Forms.TabPage();
             this.LoadButton = new System.Windows.Forms.Button();
             this.SaveButton = new System.Windows.Forms.Button();
+            this.tabPage5 = new System.Windows.Forms.TabPage();
             this.imageList1 = new System.Windows.Forms.ImageList(this.components);
-            this.toolStripSeparator4 = new System.Windows.Forms.ToolStripSeparator();
-            this.RemoveLabelsButton = new System.Windows.Forms.ToolStripButton();
+            this.ProgramSettingsGrid = new System.Windows.Forms.PropertyGrid();
+            this.BackgroundColorButton = new SidWizPlusGUI.ColorButton(this.components);
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
             this.splitContainer1.Panel2.SuspendLayout();
@@ -144,6 +142,7 @@
             this.groupBox3.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.FrameRateControl)).BeginInit();
             this.tabPage6.SuspendLayout();
+            this.tabPage5.SuspendLayout();
             this.SuspendLayout();
             // 
             // splitContainer1
@@ -291,6 +290,7 @@
             this.tabControl.Controls.Add(this.tabPage3);
             this.tabControl.Controls.Add(this.tabPage2);
             this.tabControl.Controls.Add(this.tabPage6);
+            this.tabControl.Controls.Add(this.tabPage5);
             this.tabControl.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tabControl.ImageList = this.imageList1;
             this.tabControl.Location = new System.Drawing.Point(0, 0);
@@ -492,6 +492,21 @@
             this.PasteChannelSettingsButton.Text = "Paste channel settings";
             this.PasteChannelSettingsButton.Click += new System.EventHandler(this.PasteChannelSettingsButton_ButtonClick);
             // 
+            // toolStripSeparator4
+            // 
+            this.toolStripSeparator4.Name = "toolStripSeparator4";
+            this.toolStripSeparator4.Size = new System.Drawing.Size(6, 25);
+            // 
+            // RemoveLabelsButton
+            // 
+            this.RemoveLabelsButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.RemoveLabelsButton.Image = ((System.Drawing.Image)(resources.GetObject("RemoveLabelsButton.Image")));
+            this.RemoveLabelsButton.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.RemoveLabelsButton.Name = "RemoveLabelsButton";
+            this.RemoveLabelsButton.Size = new System.Drawing.Size(23, 22);
+            this.RemoveLabelsButton.Text = "Remove labels";
+            this.RemoveLabelsButton.Click += new System.EventHandler(this.RemoveLabelsButton_Click);
+            // 
             // tabPage1
             // 
             this.tabPage1.Controls.Add(this.groupBox2);
@@ -512,7 +527,7 @@
             this.tabPage1.Margin = new System.Windows.Forms.Padding(2, 3, 2, 3);
             this.tabPage1.Name = "tabPage1";
             this.tabPage1.Padding = new System.Windows.Forms.Padding(2, 3, 2, 3);
-            this.tabPage1.Size = new System.Drawing.Size(282, 360);
+            this.tabPage1.Size = new System.Drawing.Size(317, 360);
             this.tabPage1.TabIndex = 0;
             this.tabPage1.Text = "Layout";
             this.tabPage1.UseVisualStyleBackColor = true;
@@ -783,7 +798,7 @@
             this.tabPage4.Margin = new System.Windows.Forms.Padding(2, 3, 2, 3);
             this.tabPage4.Name = "tabPage4";
             this.tabPage4.Padding = new System.Windows.Forms.Padding(2, 3, 2, 3);
-            this.tabPage4.Size = new System.Drawing.Size(282, 360);
+            this.tabPage4.Size = new System.Drawing.Size(317, 360);
             this.tabPage4.TabIndex = 3;
             this.tabPage4.Text = "Background";
             this.tabPage4.UseVisualStyleBackColor = true;
@@ -821,20 +836,6 @@
             this.label21.TabIndex = 2;
             this.label21.Text = "Image";
             // 
-            // BackgroundColorButton
-            // 
-            this.BackgroundColorButton.BackColor = System.Drawing.Color.Black;
-            this.BackgroundColorButton.Color = System.Drawing.Color.Black;
-            this.BackgroundColorButton.ForeColor = System.Drawing.Color.White;
-            this.BackgroundColorButton.Location = new System.Drawing.Point(118, 6);
-            this.BackgroundColorButton.Margin = new System.Windows.Forms.Padding(2, 3, 2, 3);
-            this.BackgroundColorButton.Name = "BackgroundColorButton";
-            this.BackgroundColorButton.Size = new System.Drawing.Size(114, 33);
-            this.BackgroundColorButton.TabIndex = 1;
-            this.BackgroundColorButton.Text = "Black";
-            this.BackgroundColorButton.UseVisualStyleBackColor = false;
-            this.BackgroundColorButton.ColorChanged += new System.EventHandler(this.ControlValueChanged);
-            // 
             // tabPage3
             // 
             this.tabPage3.Controls.Add(this.label19);
@@ -846,7 +847,7 @@
             this.tabPage3.Margin = new System.Windows.Forms.Padding(2, 3, 2, 3);
             this.tabPage3.Name = "tabPage3";
             this.tabPage3.Padding = new System.Windows.Forms.Padding(2, 3, 2, 3);
-            this.tabPage3.Size = new System.Drawing.Size(282, 360);
+            this.tabPage3.Size = new System.Drawing.Size(317, 360);
             this.tabPage3.TabIndex = 2;
             this.tabPage3.Text = "Audio";
             this.tabPage3.UseVisualStyleBackColor = true;
@@ -913,7 +914,7 @@
             this.tabPage2.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.tabPage2.Name = "tabPage2";
             this.tabPage2.Padding = new System.Windows.Forms.Padding(3, 4, 3, 4);
-            this.tabPage2.Size = new System.Drawing.Size(282, 360);
+            this.tabPage2.Size = new System.Drawing.Size(317, 360);
             this.tabPage2.TabIndex = 5;
             this.tabPage2.Text = "Video";
             this.tabPage2.UseVisualStyleBackColor = true;
@@ -982,39 +983,15 @@
             // 
             this.groupBox3.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.groupBox3.Controls.Add(this.FfmpegParameters);
-            this.groupBox3.Controls.Add(this.label18);
             this.groupBox3.Controls.Add(this.EncodeCheckBox);
-            this.groupBox3.Controls.Add(this.label22);
-            this.groupBox3.Controls.Add(this.FfmpegLocation);
             this.groupBox3.Location = new System.Drawing.Point(6, 123);
             this.groupBox3.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.groupBox3.Name = "groupBox3";
             this.groupBox3.Padding = new System.Windows.Forms.Padding(3, 4, 3, 4);
-            this.groupBox3.Size = new System.Drawing.Size(270, 149);
+            this.groupBox3.Size = new System.Drawing.Size(270, 56);
             this.groupBox3.TabIndex = 7;
             this.groupBox3.TabStop = false;
             this.groupBox3.Text = "FFMPEG";
-            // 
-            // FfmpegParameters
-            // 
-            this.FfmpegParameters.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.FfmpegParameters.Location = new System.Drawing.Point(11, 112);
-            this.FfmpegParameters.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
-            this.FfmpegParameters.Name = "FfmpegParameters";
-            this.FfmpegParameters.Size = new System.Drawing.Size(251, 23);
-            this.FfmpegParameters.TabIndex = 4;
-            this.FfmpegParameters.TextChanged += new System.EventHandler(this.ControlValueChanged);
-            // 
-            // label18
-            // 
-            this.label18.AutoSize = true;
-            this.label18.Location = new System.Drawing.Point(8, 93);
-            this.label18.Name = "label18";
-            this.label18.Size = new System.Drawing.Size(66, 15);
-            this.label18.TabIndex = 3;
-            this.label18.Text = "Parameters";
             // 
             // EncodeCheckBox
             // 
@@ -1027,28 +1004,6 @@
             this.EncodeCheckBox.Text = "Encode to file";
             this.EncodeCheckBox.UseVisualStyleBackColor = true;
             this.EncodeCheckBox.CheckedChanged += new System.EventHandler(this.ControlValueChanged);
-            // 
-            // label22
-            // 
-            this.label22.AutoSize = true;
-            this.label22.Location = new System.Drawing.Point(8, 47);
-            this.label22.Name = "label22";
-            this.label22.Size = new System.Drawing.Size(53, 15);
-            this.label22.TabIndex = 1;
-            this.label22.Text = "Location";
-            // 
-            // FfmpegLocation
-            // 
-            this.FfmpegLocation.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.FfmpegLocation.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.FfmpegLocation.Location = new System.Drawing.Point(11, 66);
-            this.FfmpegLocation.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
-            this.FfmpegLocation.Name = "FfmpegLocation";
-            this.FfmpegLocation.ReadOnly = true;
-            this.FfmpegLocation.Size = new System.Drawing.Size(251, 23);
-            this.FfmpegLocation.TabIndex = 2;
-            this.FfmpegLocation.Click += new System.EventHandler(this.FfmpegLocation_Click);
             // 
             // FrameRateControl
             // 
@@ -1117,7 +1072,7 @@
             this.tabPage6.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.tabPage6.Name = "tabPage6";
             this.tabPage6.Padding = new System.Windows.Forms.Padding(3, 4, 3, 4);
-            this.tabPage6.Size = new System.Drawing.Size(282, 360);
+            this.tabPage6.Size = new System.Drawing.Size(317, 360);
             this.tabPage6.TabIndex = 6;
             this.tabPage6.Text = "Settings";
             this.tabPage6.UseVisualStyleBackColor = true;
@@ -1148,6 +1103,18 @@
             this.SaveButton.UseVisualStyleBackColor = true;
             this.SaveButton.Click += new System.EventHandler(this.SaveButton_Click);
             // 
+            // tabPage5
+            // 
+            this.tabPage5.Controls.Add(this.ProgramSettingsGrid);
+            this.tabPage5.ImageKey = "application_xp_terminal.png";
+            this.tabPage5.Location = new System.Drawing.Point(4, 44);
+            this.tabPage5.Name = "tabPage5";
+            this.tabPage5.Padding = new System.Windows.Forms.Padding(3);
+            this.tabPage5.Size = new System.Drawing.Size(317, 360);
+            this.tabPage5.TabIndex = 7;
+            this.tabPage5.Text = "Programs";
+            this.tabPage5.UseVisualStyleBackColor = true;
+            // 
             // imageList1
             // 
             this.imageList1.ImageStream = ((System.Windows.Forms.ImageListStreamer)(resources.GetObject("imageList1.ImageStream")));
@@ -1158,21 +1125,32 @@
             this.imageList1.Images.SetKeyName(3, "music.png");
             this.imageList1.Images.SetKeyName(4, "layout.png");
             this.imageList1.Images.SetKeyName(5, "picture.png");
+            this.imageList1.Images.SetKeyName(6, "application_xp_terminal.png");
             // 
-            // toolStripSeparator4
+            // ProgramSettingsGrid
             // 
-            this.toolStripSeparator4.Name = "toolStripSeparator4";
-            this.toolStripSeparator4.Size = new System.Drawing.Size(6, 25);
+            this.ProgramSettingsGrid.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.ProgramSettingsGrid.Location = new System.Drawing.Point(6, 6);
+            this.ProgramSettingsGrid.Name = "ProgramSettingsGrid";
+            this.ProgramSettingsGrid.Size = new System.Drawing.Size(305, 348);
+            this.ProgramSettingsGrid.TabIndex = 0;
+            this.ProgramSettingsGrid.ToolbarVisible = false;
             // 
-            // RemoveLabelsButton
+            // BackgroundColorButton
             // 
-            this.RemoveLabelsButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.RemoveLabelsButton.Image = ((System.Drawing.Image)(resources.GetObject("RemoveLabelsButton.Image")));
-            this.RemoveLabelsButton.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.RemoveLabelsButton.Name = "RemoveLabelsButton";
-            this.RemoveLabelsButton.Size = new System.Drawing.Size(23, 22);
-            this.RemoveLabelsButton.Text = "Remove labels";
-            this.RemoveLabelsButton.Click += new System.EventHandler(this.RemoveLabelsButton_Click);
+            this.BackgroundColorButton.BackColor = System.Drawing.Color.Black;
+            this.BackgroundColorButton.Color = System.Drawing.Color.Black;
+            this.BackgroundColorButton.ForeColor = System.Drawing.Color.White;
+            this.BackgroundColorButton.Location = new System.Drawing.Point(118, 6);
+            this.BackgroundColorButton.Margin = new System.Windows.Forms.Padding(2, 3, 2, 3);
+            this.BackgroundColorButton.Name = "BackgroundColorButton";
+            this.BackgroundColorButton.Size = new System.Drawing.Size(114, 33);
+            this.BackgroundColorButton.TabIndex = 1;
+            this.BackgroundColorButton.Text = "Black";
+            this.BackgroundColorButton.UseVisualStyleBackColor = false;
+            this.BackgroundColorButton.ColorChanged += new System.EventHandler(this.ControlValueChanged);
             // 
             // SidWizPlusGui
             // 
@@ -1184,6 +1162,7 @@
             this.Margin = new System.Windows.Forms.Padding(2, 3, 2, 3);
             this.Name = "SidWizPlusGui";
             this.Text = "SidWizPlusGUI";
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.SidWizPlusGui_FormClosing);
             this.Load += new System.EventHandler(this.SidWizPlusGui_Load);
             this.splitContainer1.Panel1.ResumeLayout(false);
             this.splitContainer1.Panel1.PerformLayout();
@@ -1221,6 +1200,7 @@
             this.groupBox3.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.FrameRateControl)).EndInit();
             this.tabPage6.ResumeLayout(false);
+            this.tabPage5.ResumeLayout(false);
             this.ResumeLayout(false);
 
         }
@@ -1269,8 +1249,6 @@
         private System.Windows.Forms.NumericUpDown MarginLeftControl;
         private System.Windows.Forms.NumericUpDown MarginTopControl;
         private System.Windows.Forms.TabPage tabPage2;
-        private System.Windows.Forms.TextBox FfmpegLocation;
-        private System.Windows.Forms.Label label22;
         private System.Windows.Forms.Label label13;
         private System.Windows.Forms.NumericUpDown PreviewFrameskip;
         private System.Windows.Forms.Label label10;
@@ -1289,8 +1267,6 @@
         private System.Windows.Forms.Label label14;
         private System.Windows.Forms.Label label15;
         private System.Windows.Forms.Button RenderButton;
-        private System.Windows.Forms.TextBox FfmpegParameters;
-        private System.Windows.Forms.Label label18;
         private System.Windows.Forms.TrackBar PreviewTrackbar;
         private System.Windows.Forms.Label label19;
         private System.Windows.Forms.TextBox MasterAudioPath;
@@ -1314,5 +1290,7 @@
         private System.Windows.Forms.ToolStripMenuItem splitChannelToolStripMenuItem;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator4;
         private System.Windows.Forms.ToolStripButton RemoveLabelsButton;
+        private System.Windows.Forms.TabPage tabPage5;
+        private System.Windows.Forms.PropertyGrid ProgramSettingsGrid;
     }
 }
