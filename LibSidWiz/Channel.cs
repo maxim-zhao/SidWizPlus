@@ -761,7 +761,8 @@ namespace LibSidWiz
             {
                 var property = base.CreateProperty(member, memberSerialization);
                 if (property.PropertyName == nameof(Filename) ||
-                    property.PropertyName == nameof(Label))
+                    property.PropertyName == nameof(Label) ||
+                    property.PropertyName == nameof(ExternalTriggerFilename))
                 {
                     property.Ignored = true;
                 }

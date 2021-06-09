@@ -25,6 +25,7 @@ namespace SidWizPlusGUI
         [SuppressMessage("ReSharper", "InconsistentNaming")]
         [SuppressMessage("ReSharper", "FieldCanBeMadeReadOnly.Global")]
         [SuppressMessage("ReSharper", "UnusedAutoPropertyAccessor.Global")]
+        [SuppressMessage("ReSharper", "AutoPropertyCanBeMadeGetOnly.Global")]
         public class ProgramSettings
         {
             [Category("FFMPEG")]
@@ -52,6 +53,14 @@ namespace SidWizPlusGUI
             [Editor(typeof(FileNameEditor), typeof(UITypeEditor))]
             [DisplayName("Path")]
             public string SidPlayPath { get; set; }
+
+            [Browsable(false)]
+            public Channel DefaultChannelSettings { get; set; } = new Channel
+            {
+                Algorithm = new PeakSpeedTrigger(),
+                LabelColor = Color.White,
+                LabelFont = new Font(DefaultFont, FontStyle.Regular)
+            };
         }
 
         private ProgramSettings _programSettings = new ProgramSettings();
@@ -166,6 +175,7 @@ namespace SidWizPlusGUI
 
         // We use this to allow cancelling the render
         private MainFormProgressOutput _progress;
+        private FileSystemWatcher _settingsWatcher;
 
         public SidWizPlusGui()
         {
@@ -297,12 +307,8 @@ namespace SidWizPlusGUI
         private void AddChannel(string filename)
         {
             // We create a new Channel
-            var channel = new Channel
-            {
-                Algorithm = new PeakSpeedTrigger(),
-                LabelColor = Color.White,
-                LabelFont = new Font(DefaultFont, FontStyle.Regular)
-            };
+            var channel = new Channel();
+            channel.FromJson(_programSettings.DefaultChannelSettings.ToJson(), true);
             channel.Changed += ChannelOnChanged;
             lock (_settings)
             {
@@ -406,7 +412,7 @@ namespace SidWizPlusGUI
                     if (File.Exists(path))
                     {
                         saveToSettings(path);
-                        SaveSettings();
+                        SaveProgramSettings();
                         return;
                     }
                 }
@@ -421,7 +427,7 @@ namespace SidWizPlusGUI
                     if (ofd.ShowDialog(this) == DialogResult.OK)
                     {
                         saveToSettings(ofd.FileName);
-                        SaveSettings();
+                        SaveProgramSettings();
                     }
                 }
             }
@@ -673,20 +679,10 @@ namespace SidWizPlusGUI
 
             lock (_settings)
             {
-                foreach (var propertyInfo in typeof(Channel)
-                    .GetProperties(BindingFlags.Instance | BindingFlags.Public)
-                    .Where(p => p.CanWrite &&
-                                p.GetSetMethod() != null &&
-                                p.Name != nameof(Channel.Filename) &&
-                                p.Name != nameof(Channel.Label) &&
-                                p.Name != nameof(Channel.ExternalTriggerFilename)))
+                var json = source.ToJson();
+                foreach (var channel in _settings.Channels.Where(channel => channel != source))
                 {
-                    var sourceValue = propertyInfo.GetValue(source);
-
-                    foreach (var channel in _settings.Channels.Where(channel => channel != source))
-                    {
-                        propertyInfo.SetValue(channel, sourceValue);
-                    }
+                    channel.FromJson(json, true);
                 }
             }
         }
@@ -902,7 +898,7 @@ namespace SidWizPlusGUI
             MasterMixReplayGain.Enabled = AutogenerateMasterMix.Checked;
         }
 
-        private void MasterAudioPath_Click(object sender, EventArgs e)
+        private void SetMasterAudioPath(object sender, EventArgs e)
         {
             using (var ofd = new OpenFileDialog
             {
@@ -919,7 +915,19 @@ namespace SidWizPlusGUI
             }
         }
 
-        private void SaveSettings()
+        private void LoadProgramSettings(string settingsPath)
+        {
+            try
+            {
+                _programSettings = JsonConvert.DeserializeObject<ProgramSettings>(File.ReadAllText(settingsPath));
+            }
+            catch (Exception)
+            {
+                // Ignore it
+            }
+        }
+
+        private void SaveProgramSettings()
         {
             var path = GetSettingsPath();
             var directory = Path.GetDirectoryName(path);
@@ -943,30 +951,60 @@ namespace SidWizPlusGUI
                 "settings.json");
         }
 
-        private void SidWizPlusGui_Load(object sender, EventArgs e)
+        private void Initialize(object sender, EventArgs e)
         {
-            try
+            HighDpiHelper.AdjustControlImagesDpiScale(this);
+            var settingsPath = GetSettingsPath();
+            LoadProgramSettings(settingsPath);
+            _settingsWatcher = new FileSystemWatcher
             {
-                HighDpiHelper.AdjustControlImagesDpiScale(this);
-                _programSettings = JsonConvert.DeserializeObject<ProgramSettings>(File.ReadAllText(GetSettingsPath()));
+                Path = Path.GetDirectoryName(settingsPath),
+                Filter = Path.GetFileName(settingsPath)
+            };
+            _settingsWatcher.Changed += (o, args) => LoadProgramSettings(settingsPath);
 
-                ProgramSettingsGrid.BeginInvoke(new Action(() => { ProgramSettingsGrid.SelectedObject = _programSettings; }));
+            ProgramSettingsGrid.BeginInvoke(new Action(() => { ProgramSettingsGrid.SelectedObject = _programSettings; }));
 
-                lock (_settings)
+            lock (_settings)
+            {
+                _settings.ToControls(this);
+            }
+
+            // Use exe icon as form icon
+            Icon = Icon.ExtractAssociatedIcon(Application.ExecutablePath);
+
+            // Replicate the right-click menu into the toolbar automatically so I don't have to maintain both
+            int indexToInsertAt = toolStrip1.Items.IndexOf(ChannelToolstripItemsSeparator) + 1;
+            foreach (var item in contextMenuStrip1.Items.Cast<ToolStripItem>().Reverse())
+            {
+                ToolStripItem newItem = null;
+                switch (item)
                 {
-                    _settings.ToControls(this);
+                    case ToolStripMenuItem _ when item == removeChannelToolStripMenuItem:
+                        // This is handled separately
+                        continue;
+                    case ToolStripMenuItem _:
+                        newItem = new ToolStripButton
+                        {
+                            Image = item.Image,
+                            Text = item.Text,
+                            DisplayStyle = ToolStripItemDisplayStyle.Image
+                        };
+                        newItem.Click += (o, args) => item.PerformClick();
+                        break;
+                    case ToolStripSeparator _:
+                        newItem = new ToolStripSeparator();
+                        break;
                 }
 
-                // Use exe icon as form icon
-                Icon = Icon.ExtractAssociatedIcon(Application.ExecutablePath);
-            }
-            catch (Exception)
-            {
-                // Swallow it
+                if (newItem != null)
+                {
+                    toolStrip1.Items.Insert(indexToInsertAt, newItem);
+                }
             }
         }
 
-        private void RemoveEmptyToolStripMenuItem_Click(object sender, EventArgs e)
+        private void RemoveSilentChannels(object sender, EventArgs e)
         {
             lock (_settings)
             {
@@ -985,7 +1023,7 @@ namespace SidWizPlusGUI
             Render();
         }
 
-        private void RemoveAllToolStripMenuItem_Click(object sender, EventArgs e)
+        private void RemoveAllChannels(object sender, EventArgs e)
         {
             lock (_settings)
             {
@@ -1001,7 +1039,7 @@ namespace SidWizPlusGUI
             Render();
         }
 
-        private void SaveButton_Click(object sender, EventArgs e)
+        private void SaveProject(object sender, EventArgs e)
         {
             using (var sfd = new SaveFileDialog
             {
@@ -1023,7 +1061,7 @@ namespace SidWizPlusGUI
             }
         }
 
-        private void LoadButton_Click(object sender, EventArgs e)
+        private void LoadProject(object sender, EventArgs e)
         {
             using (var ofd = new OpenFileDialog
             {
@@ -1050,7 +1088,7 @@ namespace SidWizPlusGUI
             }
         }
 
-        private void CopyChannelSettingsButton_Click(object sender, EventArgs e)
+        private void CopyChannelSettings(object sender, EventArgs e)
         {
             if (!(PropertyGrid.SelectedObject is Channel source))
             {
@@ -1060,7 +1098,7 @@ namespace SidWizPlusGUI
             Clipboard.SetText(source.ToJson());
         }
 
-        private void PasteChannelSettingsButton_ButtonClick(object sender, EventArgs e)
+        private void PasteChannelSettings(object sender, EventArgs e)
         {
             if (!(PropertyGrid.SelectedObject is Channel channel))
             {
@@ -1077,7 +1115,7 @@ namespace SidWizPlusGUI
             }
         }
 
-        private void SplitChannelButton_Click(object sender, EventArgs e)
+        private void SplitChannel(object sender, EventArgs e)
         {
             if (!(PropertyGrid.SelectedObject is Channel channel))
             {
@@ -1122,7 +1160,7 @@ namespace SidWizPlusGUI
             Render();
         }
 
-        private void RemoveLabelsButton_Click(object sender, EventArgs e)
+        private void RemoveAllLabels(object sender, EventArgs e)
         {
             lock (_settings)
             {
@@ -1133,9 +1171,34 @@ namespace SidWizPlusGUI
             }
         }
 
-        private void SidWizPlusGui_FormClosing(object sender, FormClosingEventArgs e)
+        private void HandleClosing(object sender, FormClosingEventArgs e)
         {
-            SaveSettings();
+            _settingsWatcher?.Dispose();
+            SaveProgramSettings();
+        }
+
+        private void SaveAsDefaultSettings(object sender, EventArgs e)
+        {
+            if (!(PropertyGrid.SelectedObject is Channel source))
+            {
+                return;
+            }
+
+            _programSettings.DefaultChannelSettings.FromJson(source.ToJson(), true);
+            SaveProgramSettings();
+        }
+
+        private void ResetToDefaultSettings(object sender, EventArgs e)
+        {
+            if (!(PropertyGrid.SelectedObject is Channel channel))
+            {
+                return;
+            }
+
+            lock (_settings)
+            {
+                channel.FromJson(_programSettings.DefaultChannelSettings.ToJson(), true);
+            }
         }
     }
 }
