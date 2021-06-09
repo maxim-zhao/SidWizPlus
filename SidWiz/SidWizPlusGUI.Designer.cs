@@ -414,26 +414,26 @@
             // removeselectedToolStripMenuItem
             // 
             this.removeselectedToolStripMenuItem.Name = "removeselectedToolStripMenuItem";
-            this.removeselectedToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.removeselectedToolStripMenuItem.Size = new System.Drawing.Size(163, 22);
             this.removeselectedToolStripMenuItem.Text = "Remove &selected";
             this.removeselectedToolStripMenuItem.Click += new System.EventHandler(this.RemoveButton_Click);
             // 
             // removeemptyToolStripMenuItem
             // 
             this.removeemptyToolStripMenuItem.Name = "removeemptyToolStripMenuItem";
-            this.removeemptyToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.removeemptyToolStripMenuItem.Size = new System.Drawing.Size(163, 22);
             this.removeemptyToolStripMenuItem.Text = "Remove s&ilent";
             this.removeemptyToolStripMenuItem.Click += new System.EventHandler(this.RemoveSilentChannels);
             // 
             // toolStripMenuItem2
             // 
             this.toolStripMenuItem2.Name = "toolStripMenuItem2";
-            this.toolStripMenuItem2.Size = new System.Drawing.Size(177, 6);
+            this.toolStripMenuItem2.Size = new System.Drawing.Size(160, 6);
             // 
             // removeallToolStripMenuItem
             // 
             this.removeallToolStripMenuItem.Name = "removeallToolStripMenuItem";
-            this.removeallToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.removeallToolStripMenuItem.Size = new System.Drawing.Size(163, 22);
             this.removeallToolStripMenuItem.Text = "Remove &all";
             this.removeallToolStripMenuItem.Click += new System.EventHandler(this.RemoveAllChannels);
             // 
@@ -457,7 +457,7 @@
             this.tabPage1.Margin = new System.Windows.Forms.Padding(2, 3, 2, 3);
             this.tabPage1.Name = "tabPage1";
             this.tabPage1.Padding = new System.Windows.Forms.Padding(2, 3, 2, 3);
-            this.tabPage1.Size = new System.Drawing.Size(317, 600);
+            this.tabPage1.Size = new System.Drawing.Size(433, 600);
             this.tabPage1.TabIndex = 0;
             this.tabPage1.Text = "Layout";
             this.tabPage1.UseVisualStyleBackColor = true;
@@ -478,7 +478,7 @@
             this.groupBox2.Margin = new System.Windows.Forms.Padding(2, 3, 2, 3);
             this.groupBox2.Name = "groupBox2";
             this.groupBox2.Padding = new System.Windows.Forms.Padding(2, 3, 2, 3);
-            this.groupBox2.Size = new System.Drawing.Size(271, 146);
+            this.groupBox2.Size = new System.Drawing.Size(425, 146);
             this.groupBox2.TabIndex = 8;
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "Margins";
@@ -728,7 +728,7 @@
             this.tabPage4.Margin = new System.Windows.Forms.Padding(2, 3, 2, 3);
             this.tabPage4.Name = "tabPage4";
             this.tabPage4.Padding = new System.Windows.Forms.Padding(2, 3, 2, 3);
-            this.tabPage4.Size = new System.Drawing.Size(317, 600);
+            this.tabPage4.Size = new System.Drawing.Size(433, 600);
             this.tabPage4.TabIndex = 3;
             this.tabPage4.Text = "Background";
             this.tabPage4.UseVisualStyleBackColor = true;
@@ -777,7 +777,7 @@
             this.tabPage3.Margin = new System.Windows.Forms.Padding(2, 3, 2, 3);
             this.tabPage3.Name = "tabPage3";
             this.tabPage3.Padding = new System.Windows.Forms.Padding(2, 3, 2, 3);
-            this.tabPage3.Size = new System.Drawing.Size(317, 600);
+            this.tabPage3.Size = new System.Drawing.Size(433, 600);
             this.tabPage3.TabIndex = 2;
             this.tabPage3.Text = "Audio";
             this.tabPage3.UseVisualStyleBackColor = true;
@@ -800,7 +800,7 @@
             this.MasterAudioPath.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.MasterAudioPath.Name = "MasterAudioPath";
             this.MasterAudioPath.ReadOnly = true;
-            this.MasterAudioPath.Size = new System.Drawing.Size(260, 23);
+            this.MasterAudioPath.Size = new System.Drawing.Size(411, 23);
             this.MasterAudioPath.TabIndex = 4;
             this.MasterAudioPath.Click += new System.EventHandler(this.SetMasterAudioPath);
             // 
@@ -844,7 +844,7 @@
             this.tabPage2.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.tabPage2.Name = "tabPage2";
             this.tabPage2.Padding = new System.Windows.Forms.Padding(3, 4, 3, 4);
-            this.tabPage2.Size = new System.Drawing.Size(317, 600);
+            this.tabPage2.Size = new System.Drawing.Size(433, 600);
             this.tabPage2.TabIndex = 5;
             this.tabPage2.Text = "Video";
             this.tabPage2.UseVisualStyleBackColor = true;
@@ -859,7 +859,7 @@
             this.groupBox4.Controls.Add(this.label13);
             this.groupBox4.Location = new System.Drawing.Point(6, 36);
             this.groupBox4.Name = "groupBox4";
-            this.groupBox4.Size = new System.Drawing.Size(270, 80);
+            this.groupBox4.Size = new System.Drawing.Size(421, 80);
             this.groupBox4.TabIndex = 9;
             this.groupBox4.TabStop = false;
             this.groupBox4.Text = "Preview";
@@ -918,7 +918,7 @@
             this.groupBox3.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.groupBox3.Name = "groupBox3";
             this.groupBox3.Padding = new System.Windows.Forms.Padding(3, 4, 3, 4);
-            this.groupBox3.Size = new System.Drawing.Size(270, 56);
+            this.groupBox3.Size = new System.Drawing.Size(421, 56);
             this.groupBox3.TabIndex = 7;
             this.groupBox3.TabStop = false;
             this.groupBox3.Text = "FFMPEG";
@@ -987,7 +987,7 @@
             this.RenderButton.Location = new System.Drawing.Point(6, 280);
             this.RenderButton.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.RenderButton.Name = "RenderButton";
-            this.RenderButton.Size = new System.Drawing.Size(270, 61);
+            this.RenderButton.Size = new System.Drawing.Size(421, 61);
             this.RenderButton.TabIndex = 8;
             this.RenderButton.Text = "Render";
             this.RenderButton.UseVisualStyleBackColor = true;
@@ -1002,7 +1002,7 @@
             this.tabPage6.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.tabPage6.Name = "tabPage6";
             this.tabPage6.Padding = new System.Windows.Forms.Padding(3, 4, 3, 4);
-            this.tabPage6.Size = new System.Drawing.Size(317, 600);
+            this.tabPage6.Size = new System.Drawing.Size(433, 600);
             this.tabPage6.TabIndex = 6;
             this.tabPage6.Text = "Settings";
             this.tabPage6.UseVisualStyleBackColor = true;
@@ -1040,7 +1040,7 @@
             this.tabPage5.Location = new System.Drawing.Point(4, 44);
             this.tabPage5.Name = "tabPage5";
             this.tabPage5.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage5.Size = new System.Drawing.Size(317, 600);
+            this.tabPage5.Size = new System.Drawing.Size(433, 600);
             this.tabPage5.TabIndex = 7;
             this.tabPage5.Text = "Programs";
             this.tabPage5.UseVisualStyleBackColor = true;
@@ -1052,7 +1052,7 @@
             | System.Windows.Forms.AnchorStyles.Right)));
             this.ProgramSettingsGrid.Location = new System.Drawing.Point(6, 6);
             this.ProgramSettingsGrid.Name = "ProgramSettingsGrid";
-            this.ProgramSettingsGrid.Size = new System.Drawing.Size(305, 348);
+            this.ProgramSettingsGrid.Size = new System.Drawing.Size(421, 588);
             this.ProgramSettingsGrid.TabIndex = 0;
             this.ProgramSettingsGrid.ToolbarVisible = false;
             // 
