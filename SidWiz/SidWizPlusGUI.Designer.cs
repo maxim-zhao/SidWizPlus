@@ -43,6 +43,8 @@
             this.copySettingsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.pasteSettingsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.applySettingsToOtherChannelsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.setAsdefaultsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.resetToDefaultSettingsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.PreviewTrackbar = new System.Windows.Forms.TrackBar();
             this.tabControl = new System.Windows.Forms.TabControl();
             this.channelsTab = new System.Windows.Forms.TabPage();
@@ -50,22 +52,14 @@
             this.toolStrip1 = new System.Windows.Forms.ToolStrip();
             this.AddFileButton = new System.Windows.Forms.ToolStripButton();
             this.AddChannelButton = new System.Windows.Forms.ToolStripButton();
-            this.CloneChannelButton = new System.Windows.Forms.ToolStripButton();
-            this.SplitChannelButton = new System.Windows.Forms.ToolStripButton();
-            this.toolStripSeparator2 = new System.Windows.Forms.ToolStripSeparator();
-            this.LeftButton = new System.Windows.Forms.ToolStripButton();
-            this.RightButton = new System.Windows.Forms.ToolStripButton();
+            this.ChannelToolstripItemsSeparator = new System.Windows.Forms.ToolStripSeparator();
+            this.toolStripSeparator5 = new System.Windows.Forms.ToolStripSeparator();
+            this.RemoveLabelsButton = new System.Windows.Forms.ToolStripButton();
             this.RemoveButton = new System.Windows.Forms.ToolStripDropDownButton();
             this.removeselectedToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.removeemptyToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripMenuItem2 = new System.Windows.Forms.ToolStripSeparator();
             this.removeallToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
-            this.CopySettingsButton = new System.Windows.Forms.ToolStripButton();
-            this.CopyChannelSettingsButton = new System.Windows.Forms.ToolStripButton();
-            this.PasteChannelSettingsButton = new System.Windows.Forms.ToolStripButton();
-            this.toolStripSeparator4 = new System.Windows.Forms.ToolStripSeparator();
-            this.RemoveLabelsButton = new System.Windows.Forms.ToolStripButton();
             this.tabPage1 = new System.Windows.Forms.TabPage();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
             this.MarginBottomControl = new System.Windows.Forms.NumericUpDown();
@@ -90,8 +84,8 @@
             this.label12 = new System.Windows.Forms.Label();
             this.tabPage4 = new System.Windows.Forms.TabPage();
             this.label20 = new System.Windows.Forms.Label();
-            this.BackgroundImageControl = new System.Windows.Forms.PictureBox();
             this.label21 = new System.Windows.Forms.Label();
+            this.BackgroundImageControl = new System.Windows.Forms.PictureBox();
             this.tabPage3 = new System.Windows.Forms.TabPage();
             this.label19 = new System.Windows.Forms.Label();
             this.MasterAudioPath = new System.Windows.Forms.TextBox();
@@ -113,8 +107,8 @@
             this.LoadButton = new System.Windows.Forms.Button();
             this.SaveButton = new System.Windows.Forms.Button();
             this.tabPage5 = new System.Windows.Forms.TabPage();
-            this.imageList1 = new System.Windows.Forms.ImageList(this.components);
             this.ProgramSettingsGrid = new System.Windows.Forms.PropertyGrid();
+            this.imageList1 = new System.Windows.Forms.ImageList(this.components);
             this.BackgroundColorButton = new SidWizPlusGUI.ColorButton(this.components);
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
@@ -162,8 +156,8 @@
             // splitContainer1.Panel2
             // 
             this.splitContainer1.Panel2.Controls.Add(this.tabControl);
-            this.splitContainer1.Size = new System.Drawing.Size(914, 408);
-            this.splitContainer1.SplitterDistance = 585;
+            this.splitContainer1.Size = new System.Drawing.Size(1140, 648);
+            this.splitContainer1.SplitterDistance = 695;
             this.splitContainer1.TabIndex = 0;
             // 
             // Preview
@@ -173,7 +167,7 @@
             this.Preview.Location = new System.Drawing.Point(0, 0);
             this.Preview.Margin = new System.Windows.Forms.Padding(2, 3, 2, 3);
             this.Preview.Name = "Preview";
-            this.Preview.Size = new System.Drawing.Size(585, 363);
+            this.Preview.Size = new System.Drawing.Size(695, 603);
             this.Preview.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
             this.Preview.TabIndex = 0;
             this.Preview.TabStop = false;
@@ -191,9 +185,11 @@
             this.toolStripSeparator3,
             this.copySettingsToolStripMenuItem,
             this.pasteSettingsToolStripMenuItem,
-            this.applySettingsToOtherChannelsToolStripMenuItem});
+            this.applySettingsToOtherChannelsToolStripMenuItem,
+            this.setAsdefaultsToolStripMenuItem,
+            this.resetToDefaultSettingsToolStripMenuItem});
             this.contextMenuStrip1.Name = "contextMenuStrip1";
-            this.contextMenuStrip1.Size = new System.Drawing.Size(245, 192);
+            this.contextMenuStrip1.Size = new System.Drawing.Size(245, 236);
             // 
             // moveLeftupToolStripMenuItem
             // 
@@ -238,7 +234,7 @@
             this.splitChannelToolStripMenuItem.Name = "splitChannelToolStripMenuItem";
             this.splitChannelToolStripMenuItem.Size = new System.Drawing.Size(244, 22);
             this.splitChannelToolStripMenuItem.Text = "&Split";
-            this.splitChannelToolStripMenuItem.Click += new System.EventHandler(this.SplitChannelButton_Click);
+            this.splitChannelToolStripMenuItem.Click += new System.EventHandler(this.SplitChannel);
             // 
             // toolStripSeparator3
             // 
@@ -251,7 +247,7 @@
             this.copySettingsToolStripMenuItem.Name = "copySettingsToolStripMenuItem";
             this.copySettingsToolStripMenuItem.Size = new System.Drawing.Size(244, 22);
             this.copySettingsToolStripMenuItem.Text = "&Copy settings";
-            this.copySettingsToolStripMenuItem.Click += new System.EventHandler(this.CopySettingsButton_Click);
+            this.copySettingsToolStripMenuItem.Click += new System.EventHandler(this.CopyChannelSettings);
             // 
             // pasteSettingsToolStripMenuItem
             // 
@@ -259,25 +255,41 @@
             this.pasteSettingsToolStripMenuItem.Name = "pasteSettingsToolStripMenuItem";
             this.pasteSettingsToolStripMenuItem.Size = new System.Drawing.Size(244, 22);
             this.pasteSettingsToolStripMenuItem.Text = "&Paste settings";
-            this.pasteSettingsToolStripMenuItem.Click += new System.EventHandler(this.PasteChannelSettingsButton_ButtonClick);
+            this.pasteSettingsToolStripMenuItem.Click += new System.EventHandler(this.PasteChannelSettings);
             // 
             // applySettingsToOtherChannelsToolStripMenuItem
             // 
-            this.applySettingsToOtherChannelsToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("applySettingsToOtherChannelsToolStripMenuItem.Image")));
+            this.applySettingsToOtherChannelsToolStripMenuItem.Image = global::SidWizPlusGUI.Properties.Resources.lightning;
             this.applySettingsToOtherChannelsToolStripMenuItem.Name = "applySettingsToOtherChannelsToolStripMenuItem";
             this.applySettingsToOtherChannelsToolStripMenuItem.Size = new System.Drawing.Size(244, 22);
             this.applySettingsToOtherChannelsToolStripMenuItem.Text = "&Apply settings to other channels";
             this.applySettingsToOtherChannelsToolStripMenuItem.Click += new System.EventHandler(this.CopySettingsButton_Click);
             // 
+            // setAsdefaultsToolStripMenuItem
+            // 
+            this.setAsdefaultsToolStripMenuItem.Image = global::SidWizPlusGUI.Properties.Resources.page_save;
+            this.setAsdefaultsToolStripMenuItem.Name = "setAsdefaultsToolStripMenuItem";
+            this.setAsdefaultsToolStripMenuItem.Size = new System.Drawing.Size(244, 22);
+            this.setAsdefaultsToolStripMenuItem.Text = "Save as &default settings";
+            this.setAsdefaultsToolStripMenuItem.Click += new System.EventHandler(this.SaveAsDefaultSettings);
+            // 
+            // resetToDefaultSettingsToolStripMenuItem
+            // 
+            this.resetToDefaultSettingsToolStripMenuItem.Image = global::SidWizPlusGUI.Properties.Resources.page_refresh;
+            this.resetToDefaultSettingsToolStripMenuItem.Name = "resetToDefaultSettingsToolStripMenuItem";
+            this.resetToDefaultSettingsToolStripMenuItem.Size = new System.Drawing.Size(244, 22);
+            this.resetToDefaultSettingsToolStripMenuItem.Text = "R&eset to default settings";
+            this.resetToDefaultSettingsToolStripMenuItem.Click += new System.EventHandler(this.ResetToDefaultSettings);
+            // 
             // PreviewTrackbar
             // 
             this.PreviewTrackbar.Dock = System.Windows.Forms.DockStyle.Bottom;
             this.PreviewTrackbar.LargeChange = 60;
-            this.PreviewTrackbar.Location = new System.Drawing.Point(0, 363);
+            this.PreviewTrackbar.Location = new System.Drawing.Point(0, 603);
             this.PreviewTrackbar.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.PreviewTrackbar.Maximum = 1000;
             this.PreviewTrackbar.Name = "PreviewTrackbar";
-            this.PreviewTrackbar.Size = new System.Drawing.Size(585, 45);
+            this.PreviewTrackbar.Size = new System.Drawing.Size(695, 45);
             this.PreviewTrackbar.TabIndex = 0;
             this.PreviewTrackbar.TickFrequency = 60;
             this.PreviewTrackbar.ValueChanged += new System.EventHandler(this.ControlValueChanged);
@@ -298,7 +310,7 @@
             this.tabControl.Multiline = true;
             this.tabControl.Name = "tabControl";
             this.tabControl.SelectedIndex = 0;
-            this.tabControl.Size = new System.Drawing.Size(325, 408);
+            this.tabControl.Size = new System.Drawing.Size(441, 648);
             this.tabControl.SizeMode = System.Windows.Forms.TabSizeMode.FillToRight;
             this.tabControl.TabIndex = 0;
             // 
@@ -311,7 +323,7 @@
             this.channelsTab.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.channelsTab.Name = "channelsTab";
             this.channelsTab.Padding = new System.Windows.Forms.Padding(3, 4, 3, 4);
-            this.channelsTab.Size = new System.Drawing.Size(317, 360);
+            this.channelsTab.Size = new System.Drawing.Size(433, 600);
             this.channelsTab.TabIndex = 4;
             this.channelsTab.Text = "Channels";
             this.channelsTab.UseVisualStyleBackColor = true;
@@ -322,32 +334,25 @@
             this.PropertyGrid.Location = new System.Drawing.Point(3, 29);
             this.PropertyGrid.Margin = new System.Windows.Forms.Padding(2, 3, 2, 3);
             this.PropertyGrid.Name = "PropertyGrid";
-            this.PropertyGrid.Size = new System.Drawing.Size(311, 327);
+            this.PropertyGrid.Size = new System.Drawing.Size(427, 567);
             this.PropertyGrid.TabIndex = 1;
             this.PropertyGrid.ToolbarVisible = false;
             // 
             // toolStrip1
             // 
+            this.toolStrip1.CanOverflow = false;
             this.toolStrip1.GripStyle = System.Windows.Forms.ToolStripGripStyle.Hidden;
             this.toolStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.AddFileButton,
             this.AddChannelButton,
-            this.CloneChannelButton,
-            this.SplitChannelButton,
-            this.toolStripSeparator2,
-            this.LeftButton,
-            this.RightButton,
-            this.RemoveButton,
-            this.toolStripSeparator1,
-            this.CopySettingsButton,
-            this.CopyChannelSettingsButton,
-            this.PasteChannelSettingsButton,
-            this.toolStripSeparator4,
-            this.RemoveLabelsButton});
+            this.ChannelToolstripItemsSeparator,
+            this.toolStripSeparator5,
+            this.RemoveLabelsButton,
+            this.RemoveButton});
             this.toolStrip1.Location = new System.Drawing.Point(3, 4);
             this.toolStrip1.Name = "toolStrip1";
             this.toolStrip1.Padding = new System.Windows.Forms.Padding(0);
-            this.toolStrip1.Size = new System.Drawing.Size(311, 25);
+            this.toolStrip1.Size = new System.Drawing.Size(427, 25);
             this.toolStrip1.TabIndex = 0;
             this.toolStrip1.Text = "toolStrip1";
             // 
@@ -364,57 +369,32 @@
             // AddChannelButton
             // 
             this.AddChannelButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.AddChannelButton.Image = ((System.Drawing.Image)(resources.GetObject("AddChannelButton.Image")));
+            this.AddChannelButton.Image = global::SidWizPlusGUI.Properties.Resources.page;
             this.AddChannelButton.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.AddChannelButton.Name = "AddChannelButton";
             this.AddChannelButton.Size = new System.Drawing.Size(23, 22);
-            this.AddChannelButton.Text = "Add an empty channel";
+            this.AddChannelButton.Text = "Add a channel";
             this.AddChannelButton.Click += new System.EventHandler(this.AddChannelButton_Click);
             // 
-            // CloneChannelButton
+            // ChannelToolstripItemsSeparator
             // 
-            this.CloneChannelButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.CloneChannelButton.Image = ((System.Drawing.Image)(resources.GetObject("CloneChannelButton.Image")));
-            this.CloneChannelButton.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.CloneChannelButton.Name = "CloneChannelButton";
-            this.CloneChannelButton.Size = new System.Drawing.Size(23, 22);
-            this.CloneChannelButton.Text = "Clone channel";
-            this.CloneChannelButton.Click += new System.EventHandler(this.CloneChannelButton_Click);
+            this.ChannelToolstripItemsSeparator.Name = "ChannelToolstripItemsSeparator";
+            this.ChannelToolstripItemsSeparator.Size = new System.Drawing.Size(6, 25);
             // 
-            // SplitChannelButton
+            // toolStripSeparator5
             // 
-            this.SplitChannelButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.SplitChannelButton.Image = ((System.Drawing.Image)(resources.GetObject("SplitChannelButton.Image")));
-            this.SplitChannelButton.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.SplitChannelButton.Name = "SplitChannelButton";
-            this.SplitChannelButton.Size = new System.Drawing.Size(23, 22);
-            this.SplitChannelButton.Text = "Split stereo channel";
-            this.SplitChannelButton.Click += new System.EventHandler(this.SplitChannelButton_Click);
+            this.toolStripSeparator5.Name = "toolStripSeparator5";
+            this.toolStripSeparator5.Size = new System.Drawing.Size(6, 25);
             // 
-            // toolStripSeparator2
+            // RemoveLabelsButton
             // 
-            this.toolStripSeparator2.Name = "toolStripSeparator2";
-            this.toolStripSeparator2.Size = new System.Drawing.Size(6, 25);
-            // 
-            // LeftButton
-            // 
-            this.LeftButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.LeftButton.Image = ((System.Drawing.Image)(resources.GetObject("LeftButton.Image")));
-            this.LeftButton.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.LeftButton.Name = "LeftButton";
-            this.LeftButton.Size = new System.Drawing.Size(23, 22);
-            this.LeftButton.Text = "Move left";
-            this.LeftButton.Click += new System.EventHandler(this.LeftButton_Click);
-            // 
-            // RightButton
-            // 
-            this.RightButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.RightButton.Image = ((System.Drawing.Image)(resources.GetObject("RightButton.Image")));
-            this.RightButton.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.RightButton.Name = "RightButton";
-            this.RightButton.Size = new System.Drawing.Size(23, 22);
-            this.RightButton.Text = "Move right";
-            this.RightButton.Click += new System.EventHandler(this.RightButton_Click);
+            this.RemoveLabelsButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.RemoveLabelsButton.Image = ((System.Drawing.Image)(resources.GetObject("RemoveLabelsButton.Image")));
+            this.RemoveLabelsButton.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.RemoveLabelsButton.Name = "RemoveLabelsButton";
+            this.RemoveLabelsButton.Size = new System.Drawing.Size(23, 22);
+            this.RemoveLabelsButton.Text = "Remove labels";
+            this.RemoveLabelsButton.Click += new System.EventHandler(this.RemoveAllLabels);
             // 
             // RemoveButton
             // 
@@ -434,78 +414,28 @@
             // removeselectedToolStripMenuItem
             // 
             this.removeselectedToolStripMenuItem.Name = "removeselectedToolStripMenuItem";
-            this.removeselectedToolStripMenuItem.Size = new System.Drawing.Size(163, 22);
+            this.removeselectedToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.removeselectedToolStripMenuItem.Text = "Remove &selected";
             this.removeselectedToolStripMenuItem.Click += new System.EventHandler(this.RemoveButton_Click);
             // 
             // removeemptyToolStripMenuItem
             // 
             this.removeemptyToolStripMenuItem.Name = "removeemptyToolStripMenuItem";
-            this.removeemptyToolStripMenuItem.Size = new System.Drawing.Size(163, 22);
+            this.removeemptyToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.removeemptyToolStripMenuItem.Text = "Remove s&ilent";
-            this.removeemptyToolStripMenuItem.Click += new System.EventHandler(this.RemoveEmptyToolStripMenuItem_Click);
+            this.removeemptyToolStripMenuItem.Click += new System.EventHandler(this.RemoveSilentChannels);
             // 
             // toolStripMenuItem2
             // 
             this.toolStripMenuItem2.Name = "toolStripMenuItem2";
-            this.toolStripMenuItem2.Size = new System.Drawing.Size(160, 6);
+            this.toolStripMenuItem2.Size = new System.Drawing.Size(177, 6);
             // 
             // removeallToolStripMenuItem
             // 
             this.removeallToolStripMenuItem.Name = "removeallToolStripMenuItem";
-            this.removeallToolStripMenuItem.Size = new System.Drawing.Size(163, 22);
+            this.removeallToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.removeallToolStripMenuItem.Text = "Remove &all";
-            this.removeallToolStripMenuItem.Click += new System.EventHandler(this.RemoveAllToolStripMenuItem_Click);
-            // 
-            // toolStripSeparator1
-            // 
-            this.toolStripSeparator1.Name = "toolStripSeparator1";
-            this.toolStripSeparator1.Size = new System.Drawing.Size(6, 25);
-            // 
-            // CopySettingsButton
-            // 
-            this.CopySettingsButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.CopySettingsButton.Image = ((System.Drawing.Image)(resources.GetObject("CopySettingsButton.Image")));
-            this.CopySettingsButton.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.CopySettingsButton.Name = "CopySettingsButton";
-            this.CopySettingsButton.Size = new System.Drawing.Size(23, 22);
-            this.CopySettingsButton.Text = "Copy settings to all channels";
-            this.CopySettingsButton.Click += new System.EventHandler(this.CopySettingsButton_Click);
-            // 
-            // CopyChannelSettingsButton
-            // 
-            this.CopyChannelSettingsButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.CopyChannelSettingsButton.Image = ((System.Drawing.Image)(resources.GetObject("CopyChannelSettingsButton.Image")));
-            this.CopyChannelSettingsButton.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.CopyChannelSettingsButton.Name = "CopyChannelSettingsButton";
-            this.CopyChannelSettingsButton.Size = new System.Drawing.Size(23, 22);
-            this.CopyChannelSettingsButton.Text = "Copy channel settings";
-            this.CopyChannelSettingsButton.Click += new System.EventHandler(this.CopyChannelSettingsButton_Click);
-            // 
-            // PasteChannelSettingsButton
-            // 
-            this.PasteChannelSettingsButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.PasteChannelSettingsButton.Image = ((System.Drawing.Image)(resources.GetObject("PasteChannelSettingsButton.Image")));
-            this.PasteChannelSettingsButton.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.PasteChannelSettingsButton.Name = "PasteChannelSettingsButton";
-            this.PasteChannelSettingsButton.Size = new System.Drawing.Size(23, 22);
-            this.PasteChannelSettingsButton.Text = "Paste channel settings";
-            this.PasteChannelSettingsButton.Click += new System.EventHandler(this.PasteChannelSettingsButton_ButtonClick);
-            // 
-            // toolStripSeparator4
-            // 
-            this.toolStripSeparator4.Name = "toolStripSeparator4";
-            this.toolStripSeparator4.Size = new System.Drawing.Size(6, 25);
-            // 
-            // RemoveLabelsButton
-            // 
-            this.RemoveLabelsButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.RemoveLabelsButton.Image = ((System.Drawing.Image)(resources.GetObject("RemoveLabelsButton.Image")));
-            this.RemoveLabelsButton.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.RemoveLabelsButton.Name = "RemoveLabelsButton";
-            this.RemoveLabelsButton.Size = new System.Drawing.Size(23, 22);
-            this.RemoveLabelsButton.Text = "Remove labels";
-            this.RemoveLabelsButton.Click += new System.EventHandler(this.RemoveLabelsButton_Click);
+            this.removeallToolStripMenuItem.Click += new System.EventHandler(this.RemoveAllChannels);
             // 
             // tabPage1
             // 
@@ -527,7 +457,7 @@
             this.tabPage1.Margin = new System.Windows.Forms.Padding(2, 3, 2, 3);
             this.tabPage1.Name = "tabPage1";
             this.tabPage1.Padding = new System.Windows.Forms.Padding(2, 3, 2, 3);
-            this.tabPage1.Size = new System.Drawing.Size(317, 360);
+            this.tabPage1.Size = new System.Drawing.Size(317, 600);
             this.tabPage1.TabIndex = 0;
             this.tabPage1.Text = "Layout";
             this.tabPage1.UseVisualStyleBackColor = true;
@@ -790,15 +720,15 @@
             // tabPage4
             // 
             this.tabPage4.Controls.Add(this.label20);
-            this.tabPage4.Controls.Add(this.BackgroundImageControl);
             this.tabPage4.Controls.Add(this.label21);
+            this.tabPage4.Controls.Add(this.BackgroundImageControl);
             this.tabPage4.Controls.Add(this.BackgroundColorButton);
             this.tabPage4.ImageKey = "picture.png";
             this.tabPage4.Location = new System.Drawing.Point(4, 44);
             this.tabPage4.Margin = new System.Windows.Forms.Padding(2, 3, 2, 3);
             this.tabPage4.Name = "tabPage4";
             this.tabPage4.Padding = new System.Windows.Forms.Padding(2, 3, 2, 3);
-            this.tabPage4.Size = new System.Drawing.Size(317, 360);
+            this.tabPage4.Size = new System.Drawing.Size(317, 600);
             this.tabPage4.TabIndex = 3;
             this.tabPage4.Text = "Background";
             this.tabPage4.UseVisualStyleBackColor = true;
@@ -813,6 +743,16 @@
             this.label20.TabIndex = 0;
             this.label20.Text = "Color";
             // 
+            // label21
+            // 
+            this.label21.AutoSize = true;
+            this.label21.Location = new System.Drawing.Point(14, 49);
+            this.label21.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.label21.Name = "label21";
+            this.label21.Size = new System.Drawing.Size(40, 15);
+            this.label21.TabIndex = 2;
+            this.label21.Text = "Image";
+            // 
             // BackgroundImageControl
             // 
             this.BackgroundImageControl.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
@@ -826,16 +766,6 @@
             this.BackgroundImageControl.TabStop = false;
             this.BackgroundImageControl.Click += new System.EventHandler(this.BackgroundImageControl_Click);
             // 
-            // label21
-            // 
-            this.label21.AutoSize = true;
-            this.label21.Location = new System.Drawing.Point(14, 49);
-            this.label21.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
-            this.label21.Name = "label21";
-            this.label21.Size = new System.Drawing.Size(40, 15);
-            this.label21.TabIndex = 2;
-            this.label21.Text = "Image";
-            // 
             // tabPage3
             // 
             this.tabPage3.Controls.Add(this.label19);
@@ -847,7 +777,7 @@
             this.tabPage3.Margin = new System.Windows.Forms.Padding(2, 3, 2, 3);
             this.tabPage3.Name = "tabPage3";
             this.tabPage3.Padding = new System.Windows.Forms.Padding(2, 3, 2, 3);
-            this.tabPage3.Size = new System.Drawing.Size(317, 360);
+            this.tabPage3.Size = new System.Drawing.Size(317, 600);
             this.tabPage3.TabIndex = 2;
             this.tabPage3.Text = "Audio";
             this.tabPage3.UseVisualStyleBackColor = true;
@@ -872,7 +802,7 @@
             this.MasterAudioPath.ReadOnly = true;
             this.MasterAudioPath.Size = new System.Drawing.Size(260, 23);
             this.MasterAudioPath.TabIndex = 4;
-            this.MasterAudioPath.Click += new System.EventHandler(this.MasterAudioPath_Click);
+            this.MasterAudioPath.Click += new System.EventHandler(this.SetMasterAudioPath);
             // 
             // MasterMixReplayGain
             // 
@@ -914,7 +844,7 @@
             this.tabPage2.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.tabPage2.Name = "tabPage2";
             this.tabPage2.Padding = new System.Windows.Forms.Padding(3, 4, 3, 4);
-            this.tabPage2.Size = new System.Drawing.Size(317, 360);
+            this.tabPage2.Size = new System.Drawing.Size(317, 600);
             this.tabPage2.TabIndex = 5;
             this.tabPage2.Text = "Video";
             this.tabPage2.UseVisualStyleBackColor = true;
@@ -1072,7 +1002,7 @@
             this.tabPage6.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.tabPage6.Name = "tabPage6";
             this.tabPage6.Padding = new System.Windows.Forms.Padding(3, 4, 3, 4);
-            this.tabPage6.Size = new System.Drawing.Size(317, 360);
+            this.tabPage6.Size = new System.Drawing.Size(317, 600);
             this.tabPage6.TabIndex = 6;
             this.tabPage6.Text = "Settings";
             this.tabPage6.UseVisualStyleBackColor = true;
@@ -1088,7 +1018,7 @@
             this.LoadButton.TabIndex = 1;
             this.LoadButton.Text = "Load";
             this.LoadButton.UseVisualStyleBackColor = true;
-            this.LoadButton.Click += new System.EventHandler(this.LoadButton_Click);
+            this.LoadButton.Click += new System.EventHandler(this.LoadProject);
             // 
             // SaveButton
             // 
@@ -1101,7 +1031,7 @@
             this.SaveButton.TabIndex = 0;
             this.SaveButton.Text = "Save";
             this.SaveButton.UseVisualStyleBackColor = true;
-            this.SaveButton.Click += new System.EventHandler(this.SaveButton_Click);
+            this.SaveButton.Click += new System.EventHandler(this.SaveProject);
             // 
             // tabPage5
             // 
@@ -1110,10 +1040,21 @@
             this.tabPage5.Location = new System.Drawing.Point(4, 44);
             this.tabPage5.Name = "tabPage5";
             this.tabPage5.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage5.Size = new System.Drawing.Size(317, 360);
+            this.tabPage5.Size = new System.Drawing.Size(317, 600);
             this.tabPage5.TabIndex = 7;
             this.tabPage5.Text = "Programs";
             this.tabPage5.UseVisualStyleBackColor = true;
+            // 
+            // ProgramSettingsGrid
+            // 
+            this.ProgramSettingsGrid.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.ProgramSettingsGrid.Location = new System.Drawing.Point(6, 6);
+            this.ProgramSettingsGrid.Name = "ProgramSettingsGrid";
+            this.ProgramSettingsGrid.Size = new System.Drawing.Size(305, 348);
+            this.ProgramSettingsGrid.TabIndex = 0;
+            this.ProgramSettingsGrid.ToolbarVisible = false;
             // 
             // imageList1
             // 
@@ -1126,17 +1067,6 @@
             this.imageList1.Images.SetKeyName(4, "layout.png");
             this.imageList1.Images.SetKeyName(5, "picture.png");
             this.imageList1.Images.SetKeyName(6, "application_xp_terminal.png");
-            // 
-            // ProgramSettingsGrid
-            // 
-            this.ProgramSettingsGrid.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.ProgramSettingsGrid.Location = new System.Drawing.Point(6, 6);
-            this.ProgramSettingsGrid.Name = "ProgramSettingsGrid";
-            this.ProgramSettingsGrid.Size = new System.Drawing.Size(305, 348);
-            this.ProgramSettingsGrid.TabIndex = 0;
-            this.ProgramSettingsGrid.ToolbarVisible = false;
             // 
             // BackgroundColorButton
             // 
@@ -1156,14 +1086,14 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
-            this.ClientSize = new System.Drawing.Size(914, 408);
+            this.ClientSize = new System.Drawing.Size(1140, 648);
             this.Controls.Add(this.splitContainer1);
             this.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.Margin = new System.Windows.Forms.Padding(2, 3, 2, 3);
             this.Name = "SidWizPlusGui";
             this.Text = "SidWizPlusGUI";
-            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.SidWizPlusGui_FormClosing);
-            this.Load += new System.EventHandler(this.SidWizPlusGui_Load);
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.HandleClosing);
+            this.Load += new System.EventHandler(this.Initialize);
             this.splitContainer1.Panel1.ResumeLayout(false);
             this.splitContainer1.Panel1.PerformLayout();
             this.splitContainer1.Panel2.ResumeLayout(false);
@@ -1231,14 +1161,10 @@
         private System.Windows.Forms.PropertyGrid PropertyGrid;
         private System.Windows.Forms.SplitContainer splitContainer1;
         private System.Windows.Forms.ToolStrip toolStrip1;
-        private System.Windows.Forms.ToolStripButton LeftButton;
-        private System.Windows.Forms.ToolStripButton RightButton;
         private System.Windows.Forms.PictureBox Preview;
-        private System.Windows.Forms.ToolStripSeparator toolStripSeparator1;
-        private System.Windows.Forms.ToolStripButton CopySettingsButton;
         private System.Windows.Forms.TabPage channelsTab;
         private System.Windows.Forms.ToolStripButton AddFileButton;
-        private System.Windows.Forms.ToolStripSeparator toolStripSeparator2;
+        private System.Windows.Forms.ToolStripSeparator ChannelToolstripItemsSeparator;
         private System.Windows.Forms.GroupBox groupBox2;
         private System.Windows.Forms.Label label9;
         private System.Windows.Forms.Label label8;
@@ -1279,18 +1205,16 @@
         private System.Windows.Forms.Button SaveButton;
         private System.Windows.Forms.Button LoadButton;
         private System.Windows.Forms.GroupBox groupBox4;
-        private System.Windows.Forms.ToolStripButton AddChannelButton;
-        private System.Windows.Forms.ToolStripButton CloneChannelButton;
-        private System.Windows.Forms.ToolStripButton CopyChannelSettingsButton;
         private System.Windows.Forms.ToolStripMenuItem cloneChannelToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem copySettingsToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem pasteSettingsToolStripMenuItem;
-        private System.Windows.Forms.ToolStripButton PasteChannelSettingsButton;
-        private System.Windows.Forms.ToolStripButton SplitChannelButton;
         private System.Windows.Forms.ToolStripMenuItem splitChannelToolStripMenuItem;
-        private System.Windows.Forms.ToolStripSeparator toolStripSeparator4;
         private System.Windows.Forms.ToolStripButton RemoveLabelsButton;
         private System.Windows.Forms.TabPage tabPage5;
         private System.Windows.Forms.PropertyGrid ProgramSettingsGrid;
+        private System.Windows.Forms.ToolStripMenuItem setAsdefaultsToolStripMenuItem;
+        private System.Windows.Forms.ToolStripSeparator toolStripSeparator5;
+        private System.Windows.Forms.ToolStripMenuItem resetToDefaultSettingsToolStripMenuItem;
+        private System.Windows.Forms.ToolStripButton AddChannelButton;
     }
 }

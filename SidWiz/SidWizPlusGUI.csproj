@@ -153,6 +153,10 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="icon.ico" />
+    <None Include="Resources\page.png" />
+    <None Include="Resources\page_refresh.png" />
+    <None Include="Resources\lightning.png" />
+    <None Include="Resources\page_save.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
