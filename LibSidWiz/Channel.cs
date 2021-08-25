@@ -52,6 +52,7 @@ namespace LibSidWiz
         private bool _smoothLines = true;
         private bool _filter;
         private bool _renderIfSilent;
+        private double _fillBase;
 
         public enum Sides
         {
@@ -289,6 +290,18 @@ namespace LibSidWiz
             set
             {
                 _fillColor = value;
+                Changed?.Invoke(this, false);
+            }
+        }
+
+        [Category("Appearance")]
+        [Description("The base of the fill. Set to 0 for the centre line, -1 to fill from the bottom and 1 for the top. Other values also work.")]
+        public double FillBase
+        {
+            get => _fillBase;
+            set
+            {
+                _fillBase = value;
                 Changed?.Invoke(this, false);
             }
         }

@@ -81,8 +81,12 @@ namespace SidWizPlus
             public string LineColor { get; set; }
 
             // ReSharper disable once StringLiteralTypo
-            [Option("fillcolor", Required = false, HelpText = "Line color, can be hex or a .net color name", DefaultValue = "transparent")]
+            [Option("fillcolor", Required = false, HelpText = "Fill color, can be hex or a .net color name", DefaultValue = "transparent")]
             public string FillColor { get; set; }
+
+            // ReSharper disable once StringLiteralTypo
+            [Option("fillbase", Required = false, HelpText = "Fill baseline, values in range -1..+1 make sense", DefaultValue = 0.0)]
+            public double FillBase { get; set; }
 
             // ReSharper disable once StringLiteralTypo
             [Option('a', "autoscale", Required = false, HelpText = "Automatic scaling percentage. A value of 100 will make the peak amplitude just fit in the rendered area.")]
@@ -309,6 +313,7 @@ namespace SidWizPlus
                             LineColor = ParseColor(settings.LineColor),
                             LineWidth = settings.LineWidth,
                             FillColor = ParseColor(settings.FillColor),
+                            FillBase = settings.FillBase,
                             Label = Channel.GuessNameFromMultidumperFilename(filename),
                             Algorithm = CreateTriggerAlgorithm(settings.TriggerAlgorithm),
                             TriggerLookaheadFrames = settings.TriggerLookahead,

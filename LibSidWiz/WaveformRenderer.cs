@@ -237,7 +237,7 @@ namespace LibSidWiz
                                     triggerPoints[channelIndex] = triggerPoint;
 
                                     RenderWave(g, channel, triggerPoint, pens[channelIndex], brushes[channelIndex],
-                                        buffers[channelIndex], path);
+                                        buffers[channelIndex], path, channel.FillBase);
                                 }
                             }
 
@@ -427,7 +427,7 @@ namespace LibSidWiz
             }
         }
 
-        private void RenderWave(Graphics g, Channel channel, int triggerPoint, Pen pen, Brush brush, PointF[] points, GraphicsPath path)
+        private void RenderWave(Graphics g, Channel channel, int triggerPoint, Pen pen, Brush brush, PointF[] points, GraphicsPath path, double fillBase)
         {
             // And the initial sample index
             var leftmostSampleIndex = triggerPoint - channel.ViewWidthInSamples / 2;
@@ -460,7 +460,6 @@ namespace LibSidWiz
                 g.SmoothingMode = SmoothingMode.None;
             }
 
-
             // Then draw them all in one go...
             if (pen != null)
             {
@@ -471,10 +470,12 @@ namespace LibSidWiz
             if (brush != null)
             {
                 // We need to add points to complete the path
+                // We compute the Y position of this line. -0.5 scales -1..1 to bottom..top.
+                var baseY = (float)(yOffset + channel.Bounds.Height * -0.5 * fillBase);
                 path.Reset();
-                path.AddLine(points[0].X, yOffset, points[0].X, points[0].Y);
+                path.AddLine(points[0].X, baseY, points[0].X, points[0].Y);
                 path.AddLines(points);
-                path.AddLine(points[points.Length - 1].X, points[points.Length - 1].Y, points[points.Length - 1].X, yOffset);
+                path.AddLine(points[points.Length - 1].X, points[points.Length - 1].Y, points[points.Length - 1].X, baseY);
                 g.FillPath(brush, path);
             }
         }
