@@ -31,7 +31,7 @@ namespace SidWizPlusGUI
             if (song.GetLength() <= TimeSpan.Zero)
             {
                 // Try to parse the text box
-                if (!TimeSpan.TryParse(lengthBox.Text, out var length))
+                if (!TimeSpan.TryParseExact(lengthBox.Text, "m\\:ss", null, out var length))
                 {
                     return;
                 }
