@@ -94,7 +94,7 @@ namespace SidWizPlus
 
             // ReSharper disable once StringLiteralTypo
             [Option("autoscaleignorepercussion", Required = false, HelpText = "Makes automatic scaling ignore YM2413 percussion channels")]
-            public bool AutoScaleIgnoreYM2413Percussion { get; set; }
+            public bool AutoScaleIgnoreYm2413Percussion { get; set; }
 
             // ReSharper disable once StringLiteralTypo
             [Option("labelsfromvgm", Required = false, HelpText = "Attempt to label channels based on their (filename")]
@@ -335,7 +335,7 @@ namespace SidWizPlus
                     {
                         float max;
                         bool IsYm2413Percussion(Channel ch) => ch.Label.StartsWith("YM2413 ") && !ch.Label.StartsWith("YM2413 Tone");
-                        if (settings.AutoScaleIgnoreYM2413Percussion)
+                        if (settings.AutoScaleIgnoreYm2413Percussion)
                         {
                             var channelsToUse = channels.Where(channel => !IsYm2413Percussion(channel)).ToList();
                             if (channelsToUse.Count == 0)

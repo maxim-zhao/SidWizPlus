@@ -19,7 +19,7 @@ namespace LibVgm
             public uint EndOfFileOffset { get; set; }
             public decimal Version { get; set; }
             public uint Sn76489Clock { get; set; }
-            public uint YM2413Clock { get; set; }
+            public uint Ym2413Clock { get; set; }
             public uint Gd3Offset { get; set; }
             public uint TotalSamples { get; set; }
             public uint LoopOffset { get; set; }
@@ -28,17 +28,17 @@ namespace LibVgm
             public uint SnFeedback { get; set; }
             public uint SnWidth { get; set; }
             public uint SnFlag { get; set; }
-            public uint YM2612Clock { get; set; }
-            public uint YM2151Clock { get; set; }
+            public uint Ym2612Clock { get; set; }
+            public uint Ym2151Clock { get; set; }
             public uint DataOffset { get; set; } = 0x40;
             public uint SegaPcmClock { get; set; }
             public uint SpcmInterface { get; set; }
             public uint Rf5C68Clock { get; set; }
-            public uint YM2203Clock { get; set; }
-            public uint YM2608Clock { get; set; }
-            public uint YM2610BClock { get; set; }
-            public uint YM3812Clock { get; set; }
-            public uint YM3526Clock { get; set; }
+            public uint Ym2203Clock { get; set; }
+            public uint Ym2608Clock { get; set; }
+            public uint Ym2610BClock { get; set; }
+            public uint Ym3812Clock { get; set; }
+            public uint Ym3526Clock { get; set; }
             public uint Y8950Clock { get; set; }
             public uint Ymf262Clock { get; set; }
             public uint Ymf278BClock { get; set; }
@@ -116,7 +116,7 @@ namespace LibVgm
 
                     Version = (decimal) scaled / 100;
                     Sn76489Clock = r.ReadUInt32();
-                    YM2413Clock = r.ReadUInt32();
+                    Ym2413Clock = r.ReadUInt32();
                     Gd3Offset = r.ReadUInt32();
                     if (Gd3Offset != 0)
                     {
@@ -148,8 +148,8 @@ namespace LibVgm
                             r.ReadByte();
                         }
 
-                        YM2612Clock = r.ReadUInt32();
-                        YM2151Clock = r.ReadUInt32();
+                        Ym2612Clock = r.ReadUInt32();
+                        Ym2151Clock = r.ReadUInt32();
 
                         if (Version > 1.50m)
                         {
@@ -168,11 +168,11 @@ namespace LibVgm
                                 SegaPcmClock = r.ReadUInt32();
                                 SpcmInterface = r.ReadUInt32();
                                 Rf5C68Clock = r.ReadUInt32();
-                                YM2203Clock = r.ReadUInt32();
-                                YM2608Clock = r.ReadUInt32();
-                                YM2610BClock = r.ReadUInt32();
-                                YM3812Clock = r.ReadUInt32();
-                                YM3526Clock = r.ReadUInt32();
+                                Ym2203Clock = r.ReadUInt32();
+                                Ym2608Clock = r.ReadUInt32();
+                                Ym2610BClock = r.ReadUInt32();
+                                Ym3812Clock = r.ReadUInt32();
+                                Ym3526Clock = r.ReadUInt32();
                                 Y8950Clock = r.ReadUInt32();
                                 Ymf262Clock = r.ReadUInt32();
                                 Ymf278BClock = r.ReadUInt32();
@@ -509,6 +509,7 @@ namespace LibVgm
                     else if (b == 0x60)
                     {
                         // Unhandled
+                        // ReSharper disable once RedundantJumpStatement
                         continue;
                     }
                     else if (b >= 0x61 && b <= 0x63)
@@ -518,6 +519,7 @@ namespace LibVgm
                     else if (b >= 0x64 && b <= 0x65)
                     {
                         // Unhandled
+                        // ReSharper disable once RedundantJumpStatement
                         continue;
                     }
                     else if (b == 0x66)
@@ -536,6 +538,7 @@ namespace LibVgm
                     else if (b >= 0x69 && b < 0x6f)
                     {
                         // Unhandled
+                        // ReSharper disable once RedundantJumpStatement
                         continue;
                     }
                     else if (b >= 0x70 && b <= 0x7f)
@@ -573,6 +576,7 @@ namespace LibVgm
                     else if (b >= 0x96 && b <= 0x9f)
                     {
                         // Unhandled
+                        // ReSharper disable once RedundantJumpStatement
                         continue;
                     }
                     else if (b == 0xa0)

@@ -96,6 +96,10 @@ namespace LibSidWiz
             // }
             dynamic metadata = JsonConvert.DeserializeObject(json);
 
+            if (metadata == null)
+            {
+                throw new Exception("Failed to parse song metadata");
+            }
             var channels = metadata.channels.ToObject<List<string>>();
             var songs = (JArray) metadata.songs;
             var i = 0;
@@ -149,7 +153,7 @@ namespace LibSidWiz
             onProgress?.Invoke(1.0);
 
             var baseName = Path.Combine(
-                Path.GetDirectoryName(song.Filename),
+                Path.GetDirectoryName(song.Filename) ?? "",
                 Path.GetFileNameWithoutExtension(song.Filename));
             return song.Channels.Select(channel => $"{baseName} - {channel}.wav");
         }
