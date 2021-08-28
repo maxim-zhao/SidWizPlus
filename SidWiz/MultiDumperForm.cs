@@ -14,48 +14,61 @@ namespace SidWizPlusGUI
 
         public IEnumerable<string> Filenames { get; private set; }
 
-        public MultiDumperForm(string filename, string multiDumperPath, int samplingRate)
+        public MultiDumperForm(string filename, string multiDumperPath, int samplingRate, int loopCount, int fadeMs)
         {
             _filename = filename;
-            _wrapper = new MultiDumperWrapper(multiDumperPath, samplingRate);
+            _wrapper = new MultiDumperWrapper(multiDumperPath, samplingRate, loopCount, fadeMs);
             InitializeComponent();
         }
 
         private void OkButtonClick(object sender, EventArgs e)
         {
-            // We start a task to wrap the load task
+            if (!(Subsongs.SelectedItem is MultiDumperWrapper.Song song))
+            {
+                return;
+            }
+
+            if (song.GetLength() <= TimeSpan.Zero)
+            {
+                // Try to parse the text box
+                if (!TimeSpan.TryParse(lengthBox.Text, out var length))
+                {
+                    return;
+                }
+
+                song.ForceLength = length;
+            }
+
             OKButton.Enabled = false;
 
-            if (Subsongs.SelectedItem is MultiDumperWrapper.Song song)
+            // We start a task to wrap the load task
+            Task.Factory.StartNew(() =>
             {
-                Task.Factory.StartNew(() =>
+                try
                 {
-                    try
-                    {
-                        Filenames = _wrapper.Dump(song,
-                            progress =>
-                            {
-                                ProgressBar.BeginInvoke(
-                                    new Action(() => ProgressBar.Value = (int) (progress * 100)));
-                            }).ToList();
+                    Filenames = _wrapper.Dump(song,
+                        progress =>
+                        {
+                            ProgressBar.BeginInvoke(
+                                new Action(() => ProgressBar.Value = (int) (progress * 100)));
+                        }).ToList();
 
-                        BeginInvoke(new Action(() =>
-                        {
-                            DialogResult = DialogResult.OK;
-                            Close();
-                        }));
-                    }
-                    catch (Exception)
+                    BeginInvoke(new Action(() =>
                     {
-                        BeginInvoke(new Action(() =>
-                        {
-                            DialogResult = DialogResult.Cancel;
-                            Filenames = null;
-                            Close();
-                        }));
-                    }
-                });
-            }
+                        DialogResult = DialogResult.OK;
+                        Close();
+                    }));
+                }
+                catch (Exception)
+                {
+                    BeginInvoke(new Action(() =>
+                    {
+                        DialogResult = DialogResult.Cancel;
+                        Filenames = null;
+                        Close();
+                    }));
+                }
+            });
         }
 
         private void SubsongSelectionForm_Load(object sender, EventArgs e)
@@ -65,7 +78,7 @@ namespace SidWizPlusGUI
             // Start a task to load the metadata
             Task.Factory.StartNew(() =>
             {
-                var songs = _wrapper.GetSongs(_filename);
+                var songs = _wrapper.GetSongs(_filename).ToList();
                 Subsongs.BeginInvoke(new Action(() =>
                 {
                     // Back on the GUI thread...
@@ -75,9 +88,9 @@ namespace SidWizPlusGUI
                     Subsongs.SelectedIndex = 0;
                     OKButton.Enabled = true;
 
-                    if (Subsongs.Items.Count == 1)
+                    if (songs.Count == 1 && songs[0].GetLength() > TimeSpan.Zero)
                     {
-                        // If only one song, select it
+                        // If only one song, and it has a length, choose it
                         OkButtonClick(this, EventArgs.Empty);
                     }
                 }));
@@ -87,6 +100,12 @@ namespace SidWizPlusGUI
         private void SubsongSelectionForm_Closing(object sender, EventArgs e)
         {
             _wrapper.Dispose();
+        }
+
+        private void Subsongs_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            // We enable the length controls if the track is missing info
+            label1.Enabled = lengthBox.Enabled = Subsongs.SelectedItem is MultiDumperWrapper.Song s && s.GetLength() <= TimeSpan.Zero;
         }
     }
 }

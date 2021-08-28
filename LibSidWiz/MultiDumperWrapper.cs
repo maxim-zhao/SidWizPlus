@@ -14,12 +14,24 @@ namespace LibSidWiz
     {
         private readonly string _multiDumperPath;
         private readonly int _samplingRate;
+        private readonly int _loopCount;
+        private readonly int _fadeMs;
         private ProcessWrapper _processWrapper;
+        private readonly HashSet<string> _allowedParameters;
 
-        public MultiDumperWrapper(string multiDumperPath, int samplingRate)
+        public MultiDumperWrapper(string multiDumperPath, int samplingRate, int loopCount, int fadeMs)
         {
             _multiDumperPath = multiDumperPath;
             _samplingRate = samplingRate;
+            _loopCount = loopCount;
+            _fadeMs = fadeMs;
+
+            // We parse the usage info first to check for allowed parameters
+            var helpText = GetOutputText("", true);
+            _allowedParameters = new HashSet<string>(
+                Regex.Matches(helpText, "--[^]=]+")
+                    .Cast<Match>()
+                    .Select(x => x.Value));
         }
 
         public class Song
@@ -34,10 +46,46 @@ namespace LibSidWiz
             public List<string> Channels { get; set; }
             public int Index { get; set; }
             public string Filename { get; set; }
+            public TimeSpan IntroLength { get; set; }
+            public TimeSpan LoopLength { get; set; }
+            public int LoopCount { get; set; }
+            public TimeSpan ForceLength { get; set; } = TimeSpan.Zero;
 
             public override string ToString()
             {
-                return $"#{Index}: {Game} - {Name} - {Author} ({Comment})";
+                var length = GetLength();
+
+                var sb = new StringBuilder();
+                sb.Append($"#{Index}: ")
+                    .Append(string.IsNullOrWhiteSpace(Game) ? "Unknown game" : Game)
+                    .Append(" - ")
+                    .Append(string.IsNullOrWhiteSpace(Name) ? "Unknown title" : Name)
+                    .Append(" - ")
+                    .Append(string.IsNullOrWhiteSpace(Author) ? "Unknown author" : Author)
+                    .Append(string.IsNullOrWhiteSpace(Comment) ? "" : $" ({Comment})")
+                    .Append(length <= TimeSpan.Zero ? " (Unknown length)" : $" ({length})");
+                return sb.ToString();
+            }
+
+            public TimeSpan GetLength()
+            {
+                if (ForceLength > TimeSpan.Zero)
+                {
+                    return ForceLength;
+                }
+
+                var length = TimeSpan.Zero;
+                if (IntroLength > TimeSpan.Zero)
+                {
+                    length += IntroLength;
+                }
+
+                if (LoopLength > TimeSpan.Zero)
+                {
+                    length += TimeSpan.FromTicks(LoopLength.Ticks * LoopCount);
+                }
+
+                return length;
             }
         }
 
@@ -50,6 +98,7 @@ namespace LibSidWiz
                 throw new FileNotFoundException("Cannot find VGM file", filename);
             }
 
+            // Don't check the --json parameter as it may not have mentioned it for an old build
             var json = GetOutputText($"\"{filename}\" --json", false);
 
             if (string.IsNullOrEmpty(json))
@@ -75,7 +124,8 @@ namespace LibSidWiz
             //      {
             //          "author":"Masatomo Miyamoto, Takeshi Santo, Shin-kun, Pazu",
             //          "comment":"",
-            //          "name":"Title Screen"
+            //          "name":"Title Screen",
+            //          "length":"12345"
             //      }],
             //  "subsongCount":1
             // }
@@ -102,7 +152,10 @@ namespace LibSidWiz
                 Copyright = Clean(metadata.containerinfo.copyright),
                 Dumper = Clean(metadata.containerinfo.dumper),
                 Game = Clean(metadata.containerinfo.game),
-                System = Clean(metadata.containerinfo.system)
+                System = Clean(metadata.containerinfo.system),
+                IntroLength = TimeSpan.FromMilliseconds((int)(s.intro_length ?? 0)),
+                LoopLength = TimeSpan.FromMilliseconds((int)(s.loop_length ?? 0)),
+                LoopCount = _loopCount
             });
         }
 
@@ -129,13 +182,13 @@ namespace LibSidWiz
 
         public IEnumerable<string> Dump(Song song, Action<double> onProgress)
         {
-            // We check the help first to check for allowed parameters
-            var helpText = GetOutputText("", true);
-
             var args = new StringBuilder($"\"{song.Filename}\" {song.Index}");
-            if (helpText.Contains("--sampling_rate="))
+            addArgIfSupported(args, "sampling_rate", _samplingRate);
+            addArgIfSupported(args, "fade_length", _fadeMs);
+            addArgIfSupported(args, "loop_count", _loopCount);
+            if (song.ForceLength > TimeSpan.Zero)
             {
-                args.Append($" --sampling_rate={_samplingRate}");
+                addArgIfSupported(args, "play_length", (long)song.ForceLength.TotalMilliseconds);
             }
 
             _processWrapper = new ProcessWrapper(
@@ -171,6 +224,14 @@ namespace LibSidWiz
                 Path.GetDirectoryName(song.Filename) ?? "",
                 Path.GetFileNameWithoutExtension(song.Filename));
             return song.Channels.Select(channel => $"{baseName} - {channel}.wav");
+        }
+
+        private void addArgIfSupported(StringBuilder args, string name, object value)
+        {
+            if (_allowedParameters.Contains($"--{name}"))
+            {
+                args.Append($" --{name}={value}");
+            }
         }
 
         public void Dispose()

@@ -48,6 +48,16 @@ namespace SidWizPlusGUI
             [Description("Sampling rate for generated WAV files. Default is 44100. Requires a build of MultiDumper that supports this!")]
             [DefaultValue(44100)]
             public int MultiDumperSamplingRate { get; set; } = 44100;
+            [Category("MultiDumper")]
+            [DisplayName("Loop Count")]
+            [Description("Default is 2 (so looped sections will be played twice in their entirety). Requires a build of MultiDumper that supports this!")]
+            [DefaultValue(2)]
+            public int MultiDumperLoopCount { get; set; } = 2;
+            [Category("MultiDumper")]
+            [DisplayName("Fade out time (ms)")]
+            [Description("Default is 8000 (8s). Requires a build of MultiDumper that supports this!")]
+            [DefaultValue(8000)]
+            public int MultiDumperFadeMs { get; set; } = 8000;
 
             [Category("SidPlay")]
             [Editor(typeof(FileNameEditor), typeof(UITypeEditor))]
@@ -355,7 +365,7 @@ namespace SidWizPlusGUI
                 // Normalize path
                 filename = Path.GetFullPath(filename);
 
-                using (var form = new MultiDumperForm(filename, _programSettings.MultiDumperPath, _programSettings.MultiDumperSamplingRate))
+                using (var form = new MultiDumperForm(filename, _programSettings.MultiDumperPath, _programSettings.MultiDumperSamplingRate, _programSettings.MultiDumperLoopCount, _programSettings.MultiDumperFadeMs))
                 {
                     if (form.ShowDialog(this) != DialogResult.OK || form.Filenames == null)
                     {
