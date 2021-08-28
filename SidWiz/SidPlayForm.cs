@@ -204,7 +204,7 @@ namespace SidWizPlusGUI
                     if (Subsongs.Items.Count == 1)
                     {
                         // If only one song, select it
-                        OkButtonClick(this, new EventArgs());
+                        OkButtonClick(this, EventArgs.Empty);
                     }
                 }));
             });

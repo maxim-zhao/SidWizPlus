@@ -24,7 +24,7 @@ namespace SidWizPlusGUI
                 BackColor = value;
                 ForeColor = _color.GetBrightness() < 0.5 ? Color.White : Color.Black;
                 Text = _color.Name;
-                ColorChanged?.Invoke(this, new EventArgs());
+                ColorChanged?.Invoke(this, EventArgs.Empty);
             }
         }
 
