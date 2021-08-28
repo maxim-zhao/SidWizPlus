@@ -12,7 +12,7 @@ namespace LibSidWiz
         private readonly BlockingCollection<string> _lines = new BlockingCollection<string>(new ConcurrentQueue<string>());
         private readonly CancellationTokenSource _cancellationTokenSource;
 
-        public ProcessWrapper(string filename, string arguments)
+        public ProcessWrapper(string filename, string arguments, bool captureStdErr = false)
         {
             _cancellationTokenSource = new CancellationTokenSource();
 
@@ -23,6 +23,7 @@ namespace LibSidWiz
                     FileName = filename,
                     Arguments = arguments,
                     RedirectStandardOutput = true,
+                    RedirectStandardError = true,
                     UseShellExecute = false,
                     CreateNoWindow = true
                 },
@@ -32,22 +33,33 @@ namespace LibSidWiz
             {
                 throw new Exception($"Error running {filename} {arguments}");
             }
-            _process.OutputDataReceived += (sender, e) =>
+            _process.OutputDataReceived += OnText;
+            if (captureStdErr)
             {
-                if (!_cancellationTokenSource.IsCancellationRequested)
-                {
-                    try
-                    {
-                        _lines.TryAdd(e.Data, 0, _cancellationTokenSource.Token);
-                    }
-                    catch (OperationCanceledException)
-                    {
-                        // Discard it
-                    }
-                }
-            };
+                _process.ErrorDataReceived += OnText;
+            }
             _process.Start();
             _process.BeginOutputReadLine();
+            if (captureStdErr)
+            {
+                _process.BeginErrorReadLine();
+            }
+        }
+
+        private void OnText(object sender, DataReceivedEventArgs e)
+        {
+            if (_cancellationTokenSource.IsCancellationRequested)
+            {
+                return;
+            }
+            try
+            {
+                _lines.TryAdd(e.Data, 0, _cancellationTokenSource.Token);
+            }
+            catch (OperationCanceledException)
+            {
+                // Discard it
+            }
         }
 
         /// <summary>
