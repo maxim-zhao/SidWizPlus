@@ -11,7 +11,7 @@ The primary goals of this project are:
 
 Get builds from here: https://ci.appveyor.com/project/maxim-zhao/sidwizplus/build/artifacts [![Build status](https://ci.appveyor.com/api/projects/status/vpa5eav7sm1n7ik6?svg=true)](https://ci.appveyor.com/project/maxim-zhao/sidwizplus) 
 
-You can get a compatible build of MultiDumper here: https://github.com/maxim-zhao/SidWizPlus/releases/tag/multidumper
+You can get a compatible build of MultiDumper here: https://github.com/maxim-zhao/multidumper/releases/
 
 ## Features added
 
