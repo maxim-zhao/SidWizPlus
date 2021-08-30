@@ -36,6 +36,7 @@ namespace LibSidWiz
 
         public class Song
         {
+            // ReSharper disable UnusedAutoPropertyAccessor.Global
             public string Name { get; set; }
             public string Author { get; set; }
             public string Comment { get; set; }
@@ -48,6 +49,7 @@ namespace LibSidWiz
             public string Filename { get; set; }
             public TimeSpan IntroLength { get; set; }
             public TimeSpan LoopLength { get; set; }
+            // ReSharper restore UnusedAutoPropertyAccessor.Global
             public int LoopCount { get; set; }
             public TimeSpan ForceLength { get; set; } = TimeSpan.Zero;
 
@@ -183,12 +185,12 @@ namespace LibSidWiz
         public IEnumerable<string> Dump(Song song, Action<double> onProgress)
         {
             var args = new StringBuilder($"\"{song.Filename}\" {song.Index}");
-            addArgIfSupported(args, "sampling_rate", _samplingRate);
-            addArgIfSupported(args, "fade_length", _fadeMs);
-            addArgIfSupported(args, "loop_count", _loopCount);
+            AddArgIfSupported(args, "sampling_rate", _samplingRate);
+            AddArgIfSupported(args, "fade_length", _fadeMs);
+            AddArgIfSupported(args, "loop_count", _loopCount);
             if (song.ForceLength > TimeSpan.Zero)
             {
-                addArgIfSupported(args, "play_length", (long)song.ForceLength.TotalMilliseconds);
+                AddArgIfSupported(args, "play_length", (long)song.ForceLength.TotalMilliseconds);
             }
 
             _processWrapper = new ProcessWrapper(
@@ -226,7 +228,7 @@ namespace LibSidWiz
             return song.Channels.Select(channel => $"{baseName} - {channel}.wav");
         }
 
-        private void addArgIfSupported(StringBuilder args, string name, object value)
+        private void AddArgIfSupported(StringBuilder args, string name, object value)
         {
             if (_allowedParameters.Contains($"--{name}"))
             {

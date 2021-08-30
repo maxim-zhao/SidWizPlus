@@ -1210,5 +1210,11 @@ namespace SidWizPlusGUI
                 channel.FromJson(_programSettings.DefaultChannelSettings.ToJson(), true);
             }
         }
+
+        private void PropertyGrid_SelectedObjectsChanged(object sender, EventArgs e)
+        {
+            PropertyGrid.Visible = PropertyGrid.SelectedObject != null;
+            ChannelsHelpLabel.Visible = !PropertyGrid.Visible;
+        }
     }
 }

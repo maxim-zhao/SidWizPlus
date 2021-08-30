@@ -86,6 +86,7 @@
             this.label20 = new System.Windows.Forms.Label();
             this.label21 = new System.Windows.Forms.Label();
             this.BackgroundImageControl = new System.Windows.Forms.PictureBox();
+            this.BackgroundColorButton = new SidWizPlusGUI.ColorButton(this.components);
             this.tabPage3 = new System.Windows.Forms.TabPage();
             this.label19 = new System.Windows.Forms.Label();
             this.MasterAudioPath = new System.Windows.Forms.TextBox();
@@ -109,7 +110,7 @@
             this.tabPage5 = new System.Windows.Forms.TabPage();
             this.ProgramSettingsGrid = new System.Windows.Forms.PropertyGrid();
             this.imageList1 = new System.Windows.Forms.ImageList(this.components);
-            this.BackgroundColorButton = new SidWizPlusGUI.ColorButton(this.components);
+            this.ChannelsHelpLabel = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
             this.splitContainer1.Panel2.SuspendLayout();
@@ -316,6 +317,7 @@
             // 
             // channelsTab
             // 
+            this.channelsTab.Controls.Add(this.ChannelsHelpLabel);
             this.channelsTab.Controls.Add(this.PropertyGrid);
             this.channelsTab.Controls.Add(this.toolStrip1);
             this.channelsTab.ImageKey = "music.png";
@@ -337,6 +339,7 @@
             this.PropertyGrid.Size = new System.Drawing.Size(427, 567);
             this.PropertyGrid.TabIndex = 1;
             this.PropertyGrid.ToolbarVisible = false;
+            this.PropertyGrid.SelectedObjectsChanged += new System.EventHandler(this.PropertyGrid_SelectedObjectsChanged);
             // 
             // toolStrip1
             // 
@@ -766,6 +769,20 @@
             this.BackgroundImageControl.TabStop = false;
             this.BackgroundImageControl.Click += new System.EventHandler(this.BackgroundImageControl_Click);
             // 
+            // BackgroundColorButton
+            // 
+            this.BackgroundColorButton.BackColor = System.Drawing.Color.Black;
+            this.BackgroundColorButton.Color = System.Drawing.Color.Black;
+            this.BackgroundColorButton.ForeColor = System.Drawing.Color.White;
+            this.BackgroundColorButton.Location = new System.Drawing.Point(118, 6);
+            this.BackgroundColorButton.Margin = new System.Windows.Forms.Padding(2, 3, 2, 3);
+            this.BackgroundColorButton.Name = "BackgroundColorButton";
+            this.BackgroundColorButton.Size = new System.Drawing.Size(114, 33);
+            this.BackgroundColorButton.TabIndex = 1;
+            this.BackgroundColorButton.Text = "Black";
+            this.BackgroundColorButton.UseVisualStyleBackColor = false;
+            this.BackgroundColorButton.ColorChanged += new System.EventHandler(this.ControlValueChanged);
+            // 
             // tabPage3
             // 
             this.tabPage3.Controls.Add(this.label19);
@@ -1068,19 +1085,16 @@
             this.imageList1.Images.SetKeyName(5, "picture.png");
             this.imageList1.Images.SetKeyName(6, "application_xp_terminal.png");
             // 
-            // BackgroundColorButton
+            // ChannelsHelpLabel
             // 
-            this.BackgroundColorButton.BackColor = System.Drawing.Color.Black;
-            this.BackgroundColorButton.Color = System.Drawing.Color.Black;
-            this.BackgroundColorButton.ForeColor = System.Drawing.Color.White;
-            this.BackgroundColorButton.Location = new System.Drawing.Point(118, 6);
-            this.BackgroundColorButton.Margin = new System.Windows.Forms.Padding(2, 3, 2, 3);
-            this.BackgroundColorButton.Name = "BackgroundColorButton";
-            this.BackgroundColorButton.Size = new System.Drawing.Size(114, 33);
-            this.BackgroundColorButton.TabIndex = 1;
-            this.BackgroundColorButton.Text = "Black";
-            this.BackgroundColorButton.UseVisualStyleBackColor = false;
-            this.BackgroundColorButton.ColorChanged += new System.EventHandler(this.ControlValueChanged);
+            this.ChannelsHelpLabel.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.ChannelsHelpLabel.Location = new System.Drawing.Point(3, 29);
+            this.ChannelsHelpLabel.Name = "ChannelsHelpLabel";
+            this.ChannelsHelpLabel.Size = new System.Drawing.Size(427, 567);
+            this.ChannelsHelpLabel.TabIndex = 2;
+            this.ChannelsHelpLabel.Text = "Click a channel to view its properties\r\n\r\nOpen files using the first toolbar butt" +
+    "on to add channels";
+            this.ChannelsHelpLabel.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
             // SidWizPlusGui
             // 
@@ -1216,5 +1230,6 @@
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator5;
         private System.Windows.Forms.ToolStripMenuItem resetToDefaultSettingsToolStripMenuItem;
         private System.Windows.Forms.ToolStripButton AddChannelButton;
+        private System.Windows.Forms.Label ChannelsHelpLabel;
     }
 }
