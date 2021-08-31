@@ -1,4 +1,7 @@
 # SidWizPlus
+
+![](https://github.com/maxim-zhao/SidWizPlus/wiki/logo.png)
+
 This is a program which generates "oscilloscope view" videos from multi-track audio files. It is often used for VGM/chiptune rendering for use on video sharing sites, but can also be used for other multitrack audio files.
 
 [![](http://img.youtube.com/vi/H-Ip9c0yjGk/0.jpg)](http://www.youtube.com/watch?v=H-Ip9c0yjGk "Sonic 3 - Ice Cap Zone - Brad Buxer")
