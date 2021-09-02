@@ -87,7 +87,6 @@
             this.label20 = new System.Windows.Forms.Label();
             this.label21 = new System.Windows.Forms.Label();
             this.BackgroundImageControl = new System.Windows.Forms.PictureBox();
-            this.BackgroundColorButton = new SidWizPlusGUI.ColorButton(this.components);
             this.tabPage3 = new System.Windows.Forms.TabPage();
             this.label19 = new System.Windows.Forms.Label();
             this.MasterAudioPath = new System.Windows.Forms.TextBox();
@@ -111,6 +110,7 @@
             this.tabPage5 = new System.Windows.Forms.TabPage();
             this.ProgramSettingsGrid = new System.Windows.Forms.PropertyGrid();
             this.imageList1 = new System.Windows.Forms.ImageList(this.components);
+            this.BackgroundColorButton = new SidWizPlusGUI.ColorButton(this.components);
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
             this.splitContainer1.Panel2.SuspendLayout();
@@ -173,7 +173,6 @@
             this.Preview.TabIndex = 0;
             this.Preview.TabStop = false;
             this.Preview.MouseDown += new System.Windows.Forms.MouseEventHandler(this.Preview_MouseClick);
-            this.Preview.MouseMove += new System.Windows.Forms.MouseEventHandler(this.Preview_MouseMove);
             // 
             // contextMenuStrip1
             // 
@@ -781,20 +780,6 @@
             this.BackgroundImageControl.TabStop = false;
             this.BackgroundImageControl.Click += new System.EventHandler(this.BackgroundImageControl_Click);
             // 
-            // BackgroundColorButton
-            // 
-            this.BackgroundColorButton.BackColor = System.Drawing.Color.Black;
-            this.BackgroundColorButton.Color = System.Drawing.Color.Black;
-            this.BackgroundColorButton.ForeColor = System.Drawing.Color.White;
-            this.BackgroundColorButton.Location = new System.Drawing.Point(118, 6);
-            this.BackgroundColorButton.Margin = new System.Windows.Forms.Padding(2, 3, 2, 3);
-            this.BackgroundColorButton.Name = "BackgroundColorButton";
-            this.BackgroundColorButton.Size = new System.Drawing.Size(114, 33);
-            this.BackgroundColorButton.TabIndex = 1;
-            this.BackgroundColorButton.Text = "Black";
-            this.BackgroundColorButton.UseVisualStyleBackColor = false;
-            this.BackgroundColorButton.ColorChanged += new System.EventHandler(this.ControlValueChanged);
-            // 
             // tabPage3
             // 
             this.tabPage3.Controls.Add(this.label19);
@@ -1096,6 +1081,20 @@
             this.imageList1.Images.SetKeyName(4, "layout.png");
             this.imageList1.Images.SetKeyName(5, "picture.png");
             this.imageList1.Images.SetKeyName(6, "application_xp_terminal.png");
+            // 
+            // BackgroundColorButton
+            // 
+            this.BackgroundColorButton.BackColor = System.Drawing.Color.Black;
+            this.BackgroundColorButton.Color = System.Drawing.Color.Black;
+            this.BackgroundColorButton.ForeColor = System.Drawing.Color.White;
+            this.BackgroundColorButton.Location = new System.Drawing.Point(118, 6);
+            this.BackgroundColorButton.Margin = new System.Windows.Forms.Padding(2, 3, 2, 3);
+            this.BackgroundColorButton.Name = "BackgroundColorButton";
+            this.BackgroundColorButton.Size = new System.Drawing.Size(114, 33);
+            this.BackgroundColorButton.TabIndex = 1;
+            this.BackgroundColorButton.Text = "Black";
+            this.BackgroundColorButton.UseVisualStyleBackColor = false;
+            this.BackgroundColorButton.ColorChanged += new System.EventHandler(this.ControlValueChanged);
             // 
             // SidWizPlusGui
             // 

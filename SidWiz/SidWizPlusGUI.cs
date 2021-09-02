@@ -1243,11 +1243,5 @@ namespace SidWizPlusGUI
             PropertyGrid.Visible = PropertyGrid.SelectedObject != null;
             ChannelsHelpLabel.Visible = !PropertyGrid.Visible;
         }
-
-        private void Preview_MouseMove(object sender, MouseEventArgs e)
-        {
-            var channel = GetClickedChannel(e.X, e.Y);
-            Text = channel?.Label ?? "";
-        }
     }
 }
