@@ -514,7 +514,20 @@ namespace SidWizPlusGUI
 
                     // Render a bitmap
                     var bitmap = renderer.RenderFrame(renderPosition);
-
+/*
+                    if (PropertyGrid.SelectedObject != null)
+                    {
+                        // Figure out which one is selected
+                        lock (_settings)
+                        {
+                            var index = _settings.Channels.IndexOf(PropertyGrid.SelectedObject as Channel);
+                            var columnIndex = index % _settings.Columns;
+                            var rowIndex = index / _settings.Columns;
+                            var numRows = _settings.Channels.Count / _settings.Columns +
+                                          (_settings.Channels.Count % _settings.Columns == 0 ? 0 : 1);
+                        }
+                    }
+*/
                     BeginInvoke(new Action(() =>
                     {
                         // Swap it with whatever is in the preview control
@@ -1241,7 +1254,7 @@ namespace SidWizPlusGUI
         private void PropertyGrid_SelectedObjectsChanged(object sender, EventArgs e)
         {
             PropertyGrid.Visible = PropertyGrid.SelectedObject != null;
-            ChannelsHelpLabel.Visible = !PropertyGrid.Visible;
+            ChannelsHelpLabel.Visible = PropertyGrid.SelectedObject == null;;
         }
     }
 }
