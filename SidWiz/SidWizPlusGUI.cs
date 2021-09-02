@@ -628,12 +628,21 @@ namespace SidWizPlusGUI
 
         private void Preview_MouseClick(object sender, MouseEventArgs e)
         {
+            PropertyGrid.SelectedObject = GetClickedChannel(e.X, e.Y);
+            if (PropertyGrid.SelectedObject != null)
+            {
+                tabControl.SelectedTab = channelsTab;
+            }
+        }
+
+        private Channel GetClickedChannel(int clickX, int clickY)
+        {
             // Determine which channel was clicked
             // This is tricky because the preview is scaling the image to fit, but we don't know the details
             // So we need to map the click into the image space
-            // First we map the click to the preview space 
-            var x = (double) e.X / Preview.Width;
-            var y = (double) e.Y / Preview.Height;
+            // First we map the click to the preview space in the range 0..1 in each dimension
+            var x = (double) clickX / Preview.Width;
+            var y = (double) clickY / Preview.Height;
             // Next we map that to image space
             var imageAspectRatio = (double) Preview.Image.Width / Preview.Image.Height;
             var previewAspectRatio = (double) Preview.Width / Preview.Height;
@@ -647,7 +656,7 @@ namespace SidWizPlusGUI
                 x = (x - 0.5) * previewAspectRatio / imageAspectRatio + 0.5;
                 if (x < 0 || x > 1)
                 {
-                    return;
+                    return null;
                 }
             }
             else
@@ -656,27 +665,45 @@ namespace SidWizPlusGUI
                 y = (y - 0.5) * imageAspectRatio / previewAspectRatio + 0.5;
                 if (y < 0 || y > 1)
                 {
-                    return;
+                    return null;
                 }
             }
 
-            // Then we map that to the row/column space
             lock (_settings)
             {
+                // Then we map that into the range for the borders in the image
+                // 0,0------------------+
+                // |                    |
+                // |    0,0--------+    |
+                // |    |          |    |
+                // |    +--------1,1    |
+                // |                    |
+                // +--------------------1,1
+                x = (x - (double)_settings.MarginLeft / _settings.Width) * _settings.Width /
+                    (_settings.Width - _settings.MarginLeft - _settings.MarginRight);
+                if (x < 0.0 || x > 1.0)
+                {
+                    return null;
+                }
+
+                y = (y - (double)_settings.MarginTop / _settings.Height) * _settings.Height /
+                    (_settings.Height - _settings.MarginTop - _settings.MarginBottom);
+                if (y < 0.0 || y > 1.0)
+                {
+                    return null;
+                }
+
+                // Then we map that to the row/column space
                 var column = (int) (_settings.Columns * x);
                 var numRows = _settings.Channels.Count / _settings.Columns +
                               (_settings.Channels.Count % _settings.Columns == 0 ? 0 : 1);
                 var row = (int) (numRows * y);
                 var index = row * _settings.Columns + column;
-                if (index >= _settings.Channels.Count)
+                if (index >= _settings.Channels.Count || index < 0)
                 {
-                    PropertyGrid.SelectedObject = null;
+                    return null;
                 }
-                else
-                {
-                    PropertyGrid.SelectedObject = _settings.Channels[index];
-                    tabControl.SelectedTab = channelsTab;
-                }
+                return _settings.Channels[index];
             }
         }
 
@@ -1215,6 +1242,12 @@ namespace SidWizPlusGUI
         {
             PropertyGrid.Visible = PropertyGrid.SelectedObject != null;
             ChannelsHelpLabel.Visible = !PropertyGrid.Visible;
+        }
+
+        private void Preview_MouseMove(object sender, MouseEventArgs e)
+        {
+            var channel = GetClickedChannel(e.X, e.Y);
+            Text = channel?.Label ?? "";
         }
     }
 }

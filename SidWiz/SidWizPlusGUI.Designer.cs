@@ -48,6 +48,7 @@
             this.PreviewTrackbar = new System.Windows.Forms.TrackBar();
             this.tabControl = new System.Windows.Forms.TabControl();
             this.channelsTab = new System.Windows.Forms.TabPage();
+            this.ChannelsHelpLabel = new System.Windows.Forms.Label();
             this.PropertyGrid = new System.Windows.Forms.PropertyGrid();
             this.toolStrip1 = new System.Windows.Forms.ToolStrip();
             this.AddFileButton = new System.Windows.Forms.ToolStripButton();
@@ -110,7 +111,6 @@
             this.tabPage5 = new System.Windows.Forms.TabPage();
             this.ProgramSettingsGrid = new System.Windows.Forms.PropertyGrid();
             this.imageList1 = new System.Windows.Forms.ImageList(this.components);
-            this.ChannelsHelpLabel = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
             this.splitContainer1.Panel2.SuspendLayout();
@@ -173,6 +173,7 @@
             this.Preview.TabIndex = 0;
             this.Preview.TabStop = false;
             this.Preview.MouseDown += new System.Windows.Forms.MouseEventHandler(this.Preview_MouseClick);
+            this.Preview.MouseMove += new System.Windows.Forms.MouseEventHandler(this.Preview_MouseMove);
             // 
             // contextMenuStrip1
             // 
@@ -329,6 +330,17 @@
             this.channelsTab.TabIndex = 4;
             this.channelsTab.Text = "Channels";
             this.channelsTab.UseVisualStyleBackColor = true;
+            // 
+            // ChannelsHelpLabel
+            // 
+            this.ChannelsHelpLabel.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.ChannelsHelpLabel.Location = new System.Drawing.Point(3, 29);
+            this.ChannelsHelpLabel.Name = "ChannelsHelpLabel";
+            this.ChannelsHelpLabel.Size = new System.Drawing.Size(427, 567);
+            this.ChannelsHelpLabel.TabIndex = 2;
+            this.ChannelsHelpLabel.Text = "Click a channel to view its properties\r\n\r\nOpen files using the first toolbar butt" +
+    "on to add channels";
+            this.ChannelsHelpLabel.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
             // PropertyGrid
             // 
@@ -1084,17 +1096,6 @@
             this.imageList1.Images.SetKeyName(4, "layout.png");
             this.imageList1.Images.SetKeyName(5, "picture.png");
             this.imageList1.Images.SetKeyName(6, "application_xp_terminal.png");
-            // 
-            // ChannelsHelpLabel
-            // 
-            this.ChannelsHelpLabel.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.ChannelsHelpLabel.Location = new System.Drawing.Point(3, 29);
-            this.ChannelsHelpLabel.Name = "ChannelsHelpLabel";
-            this.ChannelsHelpLabel.Size = new System.Drawing.Size(427, 567);
-            this.ChannelsHelpLabel.TabIndex = 2;
-            this.ChannelsHelpLabel.Text = "Click a channel to view its properties\r\n\r\nOpen files using the first toolbar butt" +
-    "on to add channels";
-            this.ChannelsHelpLabel.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
             // SidWizPlusGui
             // 
