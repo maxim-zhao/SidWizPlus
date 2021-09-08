@@ -23,6 +23,7 @@ namespace LibSidWiz
     /// </summary>
     public class Channel: IDisposable
     {
+        private readonly bool _autoReloadOnSettingChanged;
         private SampleBuffer _samples;
         private SampleBuffer _samplesForTrigger;
         private string _filename;
@@ -53,6 +54,11 @@ namespace LibSidWiz
         private bool _filter;
         private bool _renderIfSilent;
         private double _fillBase;
+
+        public Channel(bool autoReloadOnSettingChanged)
+        {
+            _autoReloadOnSettingChanged = autoReloadOnSettingChanged;
+        }
 
         public enum Sides
         {
@@ -202,7 +208,10 @@ namespace LibSidWiz
                 bool needReload = value != _side;
                 _side = value;
                 Changed?.Invoke(this, needReload);
-                LoadDataAsync();
+                if (_autoReloadOnSettingChanged)
+                {
+                    LoadDataAsync();
+                }
             }
         }
 
@@ -216,7 +225,10 @@ namespace LibSidWiz
                 bool needReload = value != _filter;
                 _filter = value;
                 Changed?.Invoke(this, needReload);
-                LoadDataAsync();
+                if (_autoReloadOnSettingChanged)
+                {
+                    LoadDataAsync();
+                }
             }
         }
 

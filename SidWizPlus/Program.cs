@@ -97,7 +97,7 @@ namespace SidWizPlus
             public bool AutoScaleIgnoreYm2413Percussion { get; set; }
 
             // ReSharper disable once StringLiteralTypo
-            [Option("labelsfromvgm", Required = false, HelpText = "Attempt to label channels based on their (filename")]
+            [Option("labelsfromvgm", Required = false, HelpText = "Attempt to label channels based on their filename")]
             public bool ChannelLabelsFromVgm { get; set; }
 
             // ReSharper disable once StringLiteralTypo
@@ -107,8 +107,9 @@ namespace SidWizPlus
             // ReSharper disable once StringLiteralTypo
             [Option("triggerlookahead", Required = false, HelpText = "Number of frames to allow the trigger to look ahead, zero means no lookahead", DefaultValue = 0)]
             public int TriggerLookahead { get; set; }
+
             // ReSharper disable once StringLiteralTypo
-            [Option("triggerlookaheadonfailure", Required = false, HelpText = "Number of frames to allow the trigger to look ahead when failing to find a match with the default", DefaultValue = 0)]
+            [Option("triggerlookaheadonfailure", Required = false, HelpText = "Number of frames to allow the trigger to look ahead when failing to find a match with the default", DefaultValue = 1)]
             public int TriggerLookaheadOnFailureFrames { get; set; }
 
             // ReSharper disable once StringLiteralTypo
@@ -316,30 +317,33 @@ namespace SidWizPlus
                     var channels = settings.InputFiles
                         .AsParallel()
                         .Select(filename =>
-                    {
-                        var channel = new Channel
                         {
-                            Filename = filename,
-                            LineColor = ParseColor(settings.LineColor),
-                            LineWidth = settings.LineWidth,
-                            FillColor = ParseColor(settings.FillColor),
-                            FillBase = settings.FillBase,
-                            Label = Channel.GuessNameFromMultidumperFilename(filename),
-                            Algorithm = CreateTriggerAlgorithm(settings.TriggerAlgorithm),
-                            TriggerLookaheadFrames = settings.TriggerLookahead,
-                            TriggerLookaheadOnFailureFrames = settings.TriggerLookaheadOnFailureFrames,
-                            ZeroLineWidth = settings.ZeroLineWidth,
-                            ZeroLineColor = ParseColor(settings.ZeroLineColor),
-                            LabelFont = settings.ChannelLabelsFont == null
-                                ? null
-                                : new Font(settings.ChannelLabelsFont, settings.ChannelLabelsSize),
-                            LabelColor = ParseColor(settings.ChannelLabelsColor),
-                            HighPassFilter = settings.HighPass
-                        };
-                        channel.LoadDataAsync().Wait();
-                        channel.ViewWidthInMilliseconds = settings.ViewWidthMs;
-                        return channel;
-                    }).Where(ch => ch.SampleCount > 0).ToList();
+                            var channel = new Channel(false)
+                            {
+                                Filename = filename,
+                                LineColor = ParseColor(settings.LineColor),
+                                LineWidth = settings.LineWidth,
+                                FillColor = ParseColor(settings.FillColor),
+                                FillBase = settings.FillBase,
+                                Label = Channel.GuessNameFromMultidumperFilename(filename),
+                                Algorithm = CreateTriggerAlgorithm(settings.TriggerAlgorithm),
+                                TriggerLookaheadFrames = settings.TriggerLookahead,
+                                TriggerLookaheadOnFailureFrames = settings.TriggerLookaheadOnFailureFrames,
+                                ZeroLineWidth = settings.ZeroLineWidth,
+                                ZeroLineColor = ParseColor(settings.ZeroLineColor),
+                                LabelFont = settings.ChannelLabelsFont == null
+                                    ? null
+                                    : new Font(settings.ChannelLabelsFont, settings.ChannelLabelsSize),
+                                LabelColor = ParseColor(settings.ChannelLabelsColor),
+                                HighPassFilter = settings.HighPass
+                            };
+                            channel.LoadDataAsync().Wait();
+                            // We can only set this when the file is loaded
+                            channel.ViewWidthInMilliseconds = settings.ViewWidthMs;
+                            return channel;
+                        })
+                        .Where(ch => ch.SampleCount > 0 && !ch.IsSilent)
+                        .ToList();
 
                     if (settings.AutoScalePercentage > 0)
                     {
@@ -713,7 +717,7 @@ namespace SidWizPlus
             catch (Exception ex)
             {
                 // Should mean it was cancelled
-                Console.WriteLine($"Rendering cancelled: {ex.Message}");
+                Console.WriteLine($"Rendering cancelled: {ex.Message}\n{ex}");
             }
             finally
             {

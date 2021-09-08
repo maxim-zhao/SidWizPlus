@@ -65,7 +65,7 @@ namespace SidWizPlusGUI
             public string SidPlayPath { get; set; }
 
             [Browsable(false)]
-            public Channel DefaultChannelSettings { get; set; } = new Channel
+            public Channel DefaultChannelSettings { get; set; } = new Channel(true)
             {
                 Algorithm = new PeakSpeedTrigger(),
                 LabelColor = Color.White,
@@ -301,7 +301,7 @@ namespace SidWizPlusGUI
                 }
 
                 // Duplicate the channel
-                var channel = new Channel();
+                var channel = new Channel(true);
                 channel.FromJson(source.ToJson(), false);
                 // Insert it after the selected one
                 _settings.Channels.Insert(index + 1, channel);
@@ -317,7 +317,7 @@ namespace SidWizPlusGUI
         private void AddChannel(string filename)
         {
             // We create a new Channel
-            var channel = new Channel();
+            var channel = new Channel(true);
             channel.FromJson(_programSettings.DefaultChannelSettings.ToJson(), true);
             channel.Changed += ChannelOnChanged;
             lock (_settings)
@@ -1189,7 +1189,7 @@ namespace SidWizPlusGUI
             }
 
             // We clone the channel for the right side
-            var right = new Channel();
+            var right = new Channel(true);
             var json = channel.ToJson();
             right.FromJson(json, false);
             right.Side = Channel.Sides.Right;
