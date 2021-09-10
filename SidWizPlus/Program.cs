@@ -750,7 +750,7 @@ namespace SidWizPlus
             {
                 using (var stream = new FileStream(settings.YouTubeUploadClientSecret, FileMode.Open, FileAccess.Read))
                 {
-                    secrets = GoogleClientSecrets.Load(stream).Secrets;
+                    secrets = (await GoogleClientSecrets.FromStreamAsync(stream)).Secrets;
                 }
             }
             else
@@ -758,7 +758,7 @@ namespace SidWizPlus
                 // We use our embedded client secret
                 using (var stream = Properties.Resources.ResourceManager.GetStream(nameof(Properties.Resources.ClientSecret)))
                 {
-                    secrets = GoogleClientSecrets.Load(stream).Secrets;
+                    secrets = (await GoogleClientSecrets.FromStreamAsync(stream)).Secrets;
                 }
             }
 
@@ -848,14 +848,14 @@ namespace SidWizPlus
             {
                 var request = youtubeService.VideoCategories.List("snippet");
                 request.RegionCode = "US";
-                var response = request.Execute();
+                var response = await request.ExecuteAsync();
                 video.Snippet.CategoryId = response.Items
                     .Where(c => c.Snippet.Title.ToLowerInvariant().Contains(settings.YouTubeCategory.ToLowerInvariant()))
                     .Select(c => c.Id)
                     .FirstOrDefault();
                 if (video.Snippet.CategoryId == null)
                 {
-                    Console.Error.WriteLine($"Warning: couldn't find category matching \"{settings.YouTubeCategory}\", defaulting to \"Music\"");
+                    await Console.Error.WriteLineAsync($"Warning: couldn't find category matching \"{settings.YouTubeCategory}\", defaulting to \"Music\"");
                 }
             }
 
@@ -925,22 +925,22 @@ namespace SidWizPlus
 
                 try
                 {
-                    videosInsertRequest.Upload();
+                    await videosInsertRequest.UploadAsync();
                 }
                 catch (Exception ex)
                 {
-                    Console.Error.WriteLine($"Upload failed: {ex}");
+                    await Console.Error.WriteLineAsync($"Upload failed: {ex}");
                 }
 
                 while (shouldRetry)
                 {
                     try
                     {
-                        videosInsertRequest.Resume();
+                        await videosInsertRequest.ResumeAsync();
                     }
                     catch (Exception ex)
                     {
-                        Console.Error.WriteLine($"Upload failed: {ex}");
+                        await Console.Error.WriteLineAsync($"Upload failed: {ex}");
                     }
                 }
             }
@@ -957,7 +957,7 @@ namespace SidWizPlus
                 // We iterate over all channels...
                 var playlistsRequest = youtubeService.Playlists.List("snippet");
                 playlistsRequest.Mine = true;
-                var playlistsResponse = playlistsRequest.Execute();
+                var playlistsResponse = await playlistsRequest.ExecuteAsync();
                 var playlist = playlistsResponse.Items.FirstOrDefault(p => p.Snippet.Title == settings.YouTubePlaylist);
                 if (playlist == null)
                 {
@@ -983,7 +983,7 @@ namespace SidWizPlus
                         playlist.Snippet.Description += "\n\n" + settings.YouTubeDescriptionsExtra;
                     }
 
-                    playlist = youtubeService.Playlists.Insert(playlist, "snippet, status").Execute();
+                    playlist = await youtubeService.Playlists.Insert(playlist, "snippet, status").ExecuteAsync();
                     Console.WriteLine($"Created playlist \"{settings.YouTubePlaylist}\" with ID {playlist.Id}");
                 }
 
