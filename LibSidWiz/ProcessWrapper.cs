@@ -11,8 +11,9 @@ namespace LibSidWiz
         private readonly Process _process;
         private readonly BlockingCollection<string> _lines = new BlockingCollection<string>(new ConcurrentQueue<string>());
         private readonly CancellationTokenSource _cancellationTokenSource;
+        private int _streamCount;
 
-        public ProcessWrapper(string filename, string arguments, bool captureStdErr = false)
+        public ProcessWrapper(string filename, string arguments, bool captureStdErr = false, bool captureStdOut = true, bool showConsole = false)
         {
             _cancellationTokenSource = new CancellationTokenSource();
 
@@ -22,10 +23,10 @@ namespace LibSidWiz
                 {
                     FileName = filename,
                     Arguments = arguments,
-                    RedirectStandardOutput = true,
-                    RedirectStandardError = true,
+                    RedirectStandardOutput = captureStdOut,
+                    RedirectStandardError = captureStdErr,
                     UseShellExecute = false,
-                    CreateNoWindow = true
+                    CreateNoWindow = !showConsole
                 },
                 EnableRaisingEvents = true
             };
@@ -33,16 +34,27 @@ namespace LibSidWiz
             {
                 throw new Exception($"Error running {filename} {arguments}");
             }
-            _process.OutputDataReceived += OnText;
+
+            if (captureStdOut)
+            {
+                _process.OutputDataReceived += OnText;
+            }
             if (captureStdErr)
             {
                 _process.ErrorDataReceived += OnText;
             }
+
             _process.Start();
-            _process.BeginOutputReadLine();
+
+            if (captureStdOut)
+            {
+                _process.BeginOutputReadLine();
+                ++_streamCount;
+            }
             if (captureStdErr)
             {
                 _process.BeginErrorReadLine();
+                ++_streamCount;
             }
         }
 
@@ -82,8 +94,13 @@ namespace LibSidWiz
 
                 if (line == null)
                 {
-                    // We see a null to indicate the end of the stream
-                    yield break;
+                    if (--_streamCount == 0)
+                    {
+                        // We see a null to indicate the end of each stream. We break on the last one.
+                        yield break;
+                    }
+                    // Else drop it
+                    continue;
                 }
 
                 yield return line;

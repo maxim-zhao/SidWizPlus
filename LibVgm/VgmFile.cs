@@ -455,7 +455,16 @@ namespace LibVgm
             Gd3Tag = new Gd3Tag();
         }
 
-        public void LoadFromFile(string filename)
+        public VgmFile(string filename)
+        {
+            _stream = new MemoryStream();
+            Header = new VgmHeader();
+            Gd3Tag = new Gd3Tag();
+
+            LoadFromFile(filename);
+        }
+
+        private void LoadFromFile(string filename)
         {
             // We copy all the data into a memory stream to allow seeking
             using (var s = new OptionalGzipStream(filename))

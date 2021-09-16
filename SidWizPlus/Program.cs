@@ -7,6 +7,7 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Reflection;
+using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
@@ -27,7 +28,8 @@ using Channel = LibSidWiz.Channel;
 
 namespace SidWizPlus
 {
-    class Program
+    // ReSharper disable once ClassNeverInstantiated.Global
+    internal class Program
     {
         [SuppressMessage("ReSharper", "UnusedAutoPropertyAccessor.Local")]
         private class Settings
@@ -219,6 +221,10 @@ namespace SidWizPlus
             [Option("youtubeonly", HelpText = "Only upload to YouTube")]
             public bool YouTubeOnly { get; set; }
 
+            // ReSharper disable once StringLiteralTypo
+            [Option("youtubemerge", HelpText = "Merge the specified videos (wildcard, results sorted alphabetically) to one file and upload to YouTube")]
+            public string YouTubeMerge { get; set; }
+
             [HelpOption]
             public string GetUsage()
             {
@@ -398,7 +404,14 @@ namespace SidWizPlus
 
                 if (settings.YouTubeTitle != null)
                 {
-                    UploadToYouTube(settings).Wait();
+                    if (settings.YouTubeMerge != null)
+                    {
+                        UploadMergedToYouTube(settings).Wait();
+                    }
+                    else
+                    {
+                        UploadToYouTube(settings).Wait();
+                    }
                 }
             }
             catch (Exception e)
@@ -475,8 +488,7 @@ namespace SidWizPlus
 
         private static void TryGuessLabelsFromVgm(List<Channel> channels, string vgmFile)
         {
-            var file = new VgmFile();
-            file.LoadFromFile(vgmFile);
+            var file = new VgmFile(vgmFile);
 
             var channelStates = new Dictionary<int, ChannelState>();
             ChannelState GetChannelState(int channelIndex)
@@ -745,38 +757,7 @@ namespace SidWizPlus
 
         private static async Task<string> UploadToYouTube(Settings settings)
         {
-            ClientSecrets secrets;
-            if (settings.YouTubeUploadClientSecret != null)
-            {
-                using (var stream = new FileStream(settings.YouTubeUploadClientSecret, FileMode.Open, FileAccess.Read))
-                {
-                    secrets = (await GoogleClientSecrets.FromStreamAsync(stream)).Secrets;
-                }
-            }
-            else
-            {
-                // We use our embedded client secret
-                using (var stream = Properties.Resources.ResourceManager.GetStream(nameof(Properties.Resources.ClientSecret)))
-                {
-                    secrets = (await GoogleClientSecrets.FromStreamAsync(stream)).Secrets;
-                }
-            }
-
-            var credential = await GoogleWebAuthorizationBroker.AuthorizeAsync(
-                secrets,
-                // This OAuth 2.0 access scope allows an application to upload files to the
-                // authenticated user's YouTube channel, but doesn't allow other types of access.
-                new[] { YouTubeService.Scope.YoutubeUpload, YouTubeService.Scope.YoutubeForceSsl },
-                "SidWizPlus",
-                CancellationToken.None
-            );
-
-            var youtubeService = new YouTubeService(new BaseClientService.Initializer
-            {
-                HttpClientInitializer = credential,
-                ApplicationName = Assembly.GetExecutingAssembly().GetName().Name,
-                GZipEnabled = true
-            });
+            var youtubeService = await GetYouTubeService(settings);
 
             var video = new Video
             {
@@ -874,76 +855,7 @@ namespace SidWizPlus
             video.Snippet.Description = RemoveAngledBrackets(video.Snippet.Description);
             video.Snippet.Tags = video.Snippet.Tags.Select(RemoveAngledBrackets).ToList();
 
-            using (var fileStream = new FileStream(settings.OutputFile, FileMode.Open))
-            {
-                var videosInsertRequest = youtubeService.Videos.Insert(video, "snippet,status", fileStream, "video/*");
-                videosInsertRequest.ChunkSize = ResumableUpload.MinimumChunkSize;
-                long totalSize = fileStream.Length;
-                bool shouldRetry = true;
-                var sw = Stopwatch.StartNew();
-                videosInsertRequest.ProgressChanged += progress =>
-                {
-                    switch (progress.Status)
-                    {
-                        case UploadStatus.Uploading:
-                        {
-                            var elapsedSeconds = sw.Elapsed.TotalSeconds;
-                            var fractionComplete = (double) progress.BytesSent / totalSize;
-                            var eta = TimeSpan.FromSeconds(elapsedSeconds / fractionComplete - elapsedSeconds);
-                            var sent = (double) progress.BytesSent / 1024 / 1024;
-                            var kbPerSecond = progress.BytesSent / sw.Elapsed.TotalSeconds / 1024;
-                            Console.Write($"\r{sent:f}MB sent ({fractionComplete:P}, average {kbPerSecond:f}KB/s, ETA {eta:g})");
-                            break;
-                        }
-                        case UploadStatus.Failed:
-                            Console.Error.WriteLine($"Upload failed: {progress.Exception}");
-                            // Google API says we can retry if we get a non-API error, or one of these four 5xx error codes
-                            shouldRetry = !(progress.Exception is GoogleApiException errorCode) 
-                                || new[] {
-                                    HttpStatusCode.InternalServerError, HttpStatusCode.BadGateway,
-                                    HttpStatusCode.ServiceUnavailable, HttpStatusCode.GatewayTimeout
-                                }.Contains(errorCode.HttpStatusCode);
-                            if (shouldRetry)
-                            {
-                                Console.WriteLine("Retrying...");
-                            }
-                            break;
-                        case UploadStatus.Completed:
-                            Console.WriteLine($"Progress: {progress.Status}");
-                            shouldRetry = false;
-                            break;
-                        default:
-                            Console.WriteLine($"Progress: {progress.Status}");
-                            break;
-                    }
-                };
-                videosInsertRequest.ResponseReceived += video1 =>
-                {
-                    video.Id = video1.Id;
-                    Console.WriteLine($"\nUpload completed: video ID is {video1.Id}");
-                };
-
-                try
-                {
-                    await videosInsertRequest.UploadAsync();
-                }
-                catch (Exception ex)
-                {
-                    await Console.Error.WriteLineAsync($"Upload failed: {ex}");
-                }
-
-                while (shouldRetry)
-                {
-                    try
-                    {
-                        await videosInsertRequest.ResumeAsync();
-                    }
-                    catch (Exception ex)
-                    {
-                        await Console.Error.WriteLineAsync($"Upload failed: {ex}");
-                    }
-                }
-            }
+            await UploadVideo(settings.OutputFile, youtubeService, video);
 
             if (settings.YouTubePlaylist != null && !string.IsNullOrEmpty(video.Id))
             {
@@ -1001,6 +913,295 @@ namespace SidWizPlus
             }
 
             return video.Id;
+        }
+
+        private static async Task UploadVideo(string filename, YouTubeService youtubeService, Video video)
+        {
+            using (var fileStream = new FileStream(filename, FileMode.Open))
+            {
+                var videosInsertRequest = youtubeService.Videos.Insert(video, "snippet,status", fileStream, "video/*");
+                videosInsertRequest.ChunkSize = ResumableUpload.MinimumChunkSize;
+                long totalSize = fileStream.Length;
+                bool shouldRetry = true;
+                var sw = Stopwatch.StartNew();
+                videosInsertRequest.ProgressChanged += progress =>
+                {
+                    switch (progress.Status)
+                    {
+                        case UploadStatus.Uploading:
+                        {
+                            var elapsedSeconds = sw.Elapsed.TotalSeconds;
+                            var fractionComplete = (double)progress.BytesSent / totalSize;
+                            var eta = TimeSpan.FromSeconds(elapsedSeconds / fractionComplete - elapsedSeconds);
+                            var sent = (double)progress.BytesSent / 1024 / 1024;
+                            var kbPerSecond = progress.BytesSent / sw.Elapsed.TotalSeconds / 1024;
+                            Console.Write(
+                                $"\r{sent:f}MB sent ({fractionComplete:P}, average {kbPerSecond:f}KB/s, ETA {eta:g})");
+                            break;
+                        }
+                        case UploadStatus.Failed:
+                            Console.Error.WriteLine($"Upload failed: {progress.Exception}");
+                            // Google API says we can retry if we get a non-API error, or one of these four 5xx error codes
+                            shouldRetry = !(progress.Exception is GoogleApiException errorCode)
+                                          || new[]
+                                          {
+                                              HttpStatusCode.InternalServerError, HttpStatusCode.BadGateway,
+                                              HttpStatusCode.ServiceUnavailable, HttpStatusCode.GatewayTimeout
+                                          }.Contains(errorCode.HttpStatusCode);
+                            if (shouldRetry)
+                            {
+                                Console.WriteLine("Retrying...");
+                            }
+
+                            break;
+                        case UploadStatus.Completed:
+                            Console.WriteLine($"Progress: {progress.Status}");
+                            shouldRetry = false;
+                            break;
+                        default:
+                            Console.WriteLine($"Progress: {progress.Status}");
+                            break;
+                    }
+                };
+                videosInsertRequest.ResponseReceived += video1 =>
+                {
+                    video.Id = video1.Id;
+                    Console.WriteLine($"\nUpload completed: video ID is {video1.Id}");
+                };
+
+                try
+                {
+                    await videosInsertRequest.UploadAsync();
+                }
+                catch (Exception ex)
+                {
+                    await Console.Error.WriteLineAsync($"Upload failed: {ex}");
+                }
+
+                while (shouldRetry)
+                {
+                    try
+                    {
+                        await videosInsertRequest.ResumeAsync();
+                    }
+                    catch (Exception ex)
+                    {
+                        await Console.Error.WriteLineAsync($"Upload failed: {ex}");
+                    }
+                }
+            }
+        }
+
+        private static async Task<YouTubeService> GetYouTubeService(Settings settings)
+        {
+            ClientSecrets secrets;
+            if (settings.YouTubeUploadClientSecret != null)
+            {
+                using (var stream = new FileStream(settings.YouTubeUploadClientSecret, FileMode.Open, FileAccess.Read))
+                {
+                    secrets = (await GoogleClientSecrets.FromStreamAsync(stream)).Secrets;
+                }
+            }
+            else
+            {
+                // We use our embedded client secret
+                using (var stream = Properties.Resources.ResourceManager.GetStream(nameof(Properties.Resources.ClientSecret)))
+                {
+                    secrets = (await GoogleClientSecrets.FromStreamAsync(stream)).Secrets;
+                }
+            }
+
+            var credential = await GoogleWebAuthorizationBroker.AuthorizeAsync(
+                secrets,
+                // This OAuth 2.0 access scope allows an application to upload files to the
+                // authenticated user's YouTube channel, but doesn't allow other types of access.
+                new[] { YouTubeService.Scope.YoutubeUpload, YouTubeService.Scope.YoutubeForceSsl },
+                "SidWizPlus",
+                CancellationToken.None
+            );
+
+            var youtubeService = new YouTubeService(new BaseClientService.Initializer
+            {
+                HttpClientInitializer = credential,
+                ApplicationName = Assembly.GetExecutingAssembly().GetName().Name,
+                GZipEnabled = true
+            });
+            return youtubeService;
+        }
+
+        private static async Task UploadMergedToYouTube(Settings settings)
+        {
+            // First we look for the videos and collect some metadata
+            var files = Directory.EnumerateFiles(
+                    Path.GetDirectoryName(settings.YouTubeMerge) ?? ".",
+                    Path.GetFileName(settings.YouTubeMerge))
+                .AsParallel()
+                .Select(path => new
+                {
+                    Path = path,
+                    Length = GetVideoDuration(path, settings),
+                    Gd3 = GetGd3(path)
+                })
+                .OrderBy(x => x.Path)
+                .ToList();
+
+            foreach (var file in files)
+            {
+                Console.WriteLine($"{file.Path} is {file.Length}, tag is {file.Gd3}");
+            }
+
+            var mergedGd3 = MergeGd3Tags(files.Select(x => x.Gd3).ToList());
+
+            // Next we start to build the description with "chapter markers"
+            var description = new StringBuilder()
+                .AppendLine(
+                    $"Oscilloscope View of music from the game {mergedGd3.Game} for the {mergedGd3.System}.");
+            if (mergedGd3.Composer.English.Length > 0)
+            {
+                description.AppendLine($"Composed by {mergedGd3.Composer}.");
+            }
+
+            description.AppendLine($"Ripped by {mergedGd3.Ripper}");
+
+            description.AppendLine("\nPlaylist:");
+            var position = TimeSpan.Zero;
+            foreach (var file in files)
+            {
+                description.AppendLine($"{position:hh':'mm':'ss} {file.Gd3.Title}");
+                position += file.Length;
+            }
+
+            if (settings.YouTubeDescriptionsExtra != null)
+            {
+                description.AppendLine($"\n{settings.YouTubeDescriptionsExtra}");
+            }
+
+            description.AppendLine("\nVideo created using SidWizPlus - https://github.com/maxim-zhao/SidWizPlus");
+
+            Console.WriteLine("Video description:");
+            Console.WriteLine(description);
+
+            // Now we merge the files...
+            // We need to write them to a list file for FFMPEG
+            var listFile = Path.GetTempFileName();
+            File.WriteAllLines(listFile, files.Select(f => $"file '{f.Path.Replace("'", "'\''")}'"));
+            using (var wrapper = new ProcessWrapper(
+                settings.FfMpegPath,
+                $"-hide_banner -y -f concat -safe 0 -i \"{listFile}\" -c copy \"{settings.OutputFile}\"",
+                false,
+                false,
+                true))
+            {
+                wrapper.WaitForExit();
+            }
+            File.Delete(listFile);
+
+            // Now we start the YouTube work...
+
+            var youtubeService = await GetYouTubeService(settings);
+
+            var video = new Video
+            {
+                Snippet = new VideoSnippet
+                {
+                    Title = FormatFromGd3(settings.YouTubeTitle, mergedGd3),
+                    CategoryId = "10", // Music
+                    Description = description.ToString()
+                },
+                Status = new VideoStatus {PrivacyStatus = "public"}
+            };
+
+            if (settings.YouTubeCategory != null)
+            {
+                var request = youtubeService.VideoCategories.List("snippet");
+                request.RegionCode = "US";
+                var response = await request.ExecuteAsync();
+                video.Snippet.CategoryId = response.Items
+                    .Where(c => c.Snippet.Title.ToLowerInvariant().Contains(settings.YouTubeCategory.ToLowerInvariant()))
+                    .Select(c => c.Id)
+                    .FirstOrDefault();
+                if (video.Snippet.CategoryId == null)
+                {
+                    await Console.Error.WriteLineAsync($"Warning: couldn't find category matching \"{settings.YouTubeCategory}\", defaulting to \"Music\"");
+                }
+            }
+
+            if (video.Snippet.Title.Length > 100)
+            {
+                video.Snippet.Title = video.Snippet.Title.Substring(0, 97) + "...";
+            }
+
+            // We now escape some strings as the API doesn't do it internally...
+            video.Snippet.Title = RemoveAngledBrackets(video.Snippet.Title);
+            video.Snippet.Description = RemoveAngledBrackets(video.Snippet.Description);
+
+            await UploadVideo(settings.OutputFile, youtubeService, video);
+        }
+
+        private static Gd3Tag MergeGd3Tags(IList<Gd3Tag> tags)
+        {
+            return new Gd3Tag
+            {
+                System = new Gd3Tag.MultiLanguageTag
+                {
+                    English = MergeTags(tags, t => t.System.English),
+                    Japanese = MergeTags(tags, t => t.System.Japanese)
+                },
+                Game = new Gd3Tag.MultiLanguageTag
+                {
+                    English = MergeTags(tags, t => t.Game.English),
+                    Japanese = MergeTags(tags, t => t.Game.Japanese)
+                },
+                Title = new Gd3Tag.MultiLanguageTag
+                {
+                    English = MergeTags(tags, t => t.Title.English),
+                    Japanese = MergeTags(tags, t => t.Title.Japanese)
+                },
+                Composer = new Gd3Tag.MultiLanguageTag
+                {
+                    English = MergeTags(tags, t => t.Composer.English),
+                    Japanese = MergeTags(tags, t => t.Composer.Japanese)
+                },
+                Ripper = MergeTags(tags, t => t.Ripper),
+                Date = MergeTags(tags, t => t.Date)
+            };
+        }
+
+        private static string MergeTags(IEnumerable<Gd3Tag> tags, Func<Gd3Tag, string> getter)
+        {
+            return string.Join("; ",
+                tags.Select(getter)
+                    .SelectMany(s => s.Split(';', ','))
+                    .Select(s => s.Trim())
+                    .Distinct()
+                    .OrderBy(s => s));
+        }
+
+        private static Gd3Tag GetGd3(string path)
+        {
+            // We guess a file path for the VGM
+            var vgmPath = Path.ChangeExtension(path, "vgm");
+            if (!File.Exists(vgmPath))
+            {
+                return null;
+            }
+
+            return new VgmFile(vgmPath).Gd3Tag;
+        }
+
+        private static TimeSpan GetVideoDuration(string path, Settings settings)
+        {
+            // This is a bit of a hack...
+            var re = new Regex(" +Duration: (?<duration>[0-9:.]+)");
+            using (var wrapper = new ProcessWrapper(
+                settings.FfMpegPath,
+                $"-i \"{path}\" -hide_banner",
+                true))
+            {
+                wrapper.WaitForExit();
+                var line = wrapper.Lines().First(s => re.IsMatch(s));
+                return TimeSpan.Parse(re.Match(line).Groups["duration"].Value);
+            }
         }
 
         private static string RemoveAngledBrackets(string s)
