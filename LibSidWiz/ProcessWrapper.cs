@@ -54,7 +54,7 @@ namespace LibSidWiz
             }
             try
             {
-                _lines.TryAdd(e.Data, 0, _cancellationTokenSource.Token);
+                _lines.TryAdd(e.Data, -1, _cancellationTokenSource.Token);
             }
             catch (OperationCanceledException)
             {
@@ -82,6 +82,7 @@ namespace LibSidWiz
 
                 if (line == null)
                 {
+                    // We see a null to indicate the end of the stream
                     yield break;
                 }
 

@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
 using System.IO;
+using System.Text;
 
 namespace LibSidWiz.Outputs
 {
@@ -30,18 +31,30 @@ namespace LibSidWiz.Outputs
             // Extra args
             arguments += $" {extraArgs} \"{filename}\"";
 
+            Console.WriteLine($"Starting FFMPEG: {pathToExe} {arguments}");
+
+            // We don't want a BOM to be injected if the system code page is set to UTF-8
+            Console.InputEncoding = Encoding.ASCII;
+
             // Start it up
-            _process = Process.Start(new ProcessStartInfo
-            {
-                FileName = pathToExe, 
-                Arguments = arguments, 
-                UseShellExecute = false, 
-                RedirectStandardInput = true
-            });
+            _process = Process.Start(
+                new ProcessStartInfo
+                {
+                    FileName = pathToExe,
+                    Arguments = arguments,
+                    UseShellExecute = false,
+                    RedirectStandardInput = true,
+                    RedirectStandardError = false,
+                    RedirectStandardOutput = false,
+                    CreateNoWindow = false // makes it inline in console mode
+                }
+            );
+
             if (_process == null)
             {
                 throw new Exception($"Couldn't start FFMPEG with commandline {pathToExe} {arguments}");
             }
+
             _writer = new BinaryWriter(_process.StandardInput.BaseStream);
         }
 
@@ -52,8 +65,8 @@ namespace LibSidWiz.Outputs
 
         public void Dispose()
         {
-            // This triggers a shutdown (TODO: doesn't?)
-            _process?.StandardInput.Close();
+            // This triggers a shutdown
+            _process?.StandardInput.BaseStream.Close();
             // And we wait for it to finish...
             _process?.WaitForExit();
             _process?.Dispose();
