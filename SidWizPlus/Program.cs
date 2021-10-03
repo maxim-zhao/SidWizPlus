@@ -192,6 +192,24 @@ namespace SidWizPlus
             // ReSharper disable once StringLiteralTypo
             [Option("labelscolor", HelpText = "Font color for channel labels", DefaultValue = "white")]
             public string ChannelLabelsColor { get; set; }
+            // ReSharper disable once StringLiteralTypo
+            [Option("labelspadding", HelpText = "Padding for channel labels - more specific settings override this", DefaultValue = 0)]
+            public int ChannelLabelsPadding { get; set; }
+            // ReSharper disable once StringLiteralTypo
+            [Option("labelspaddingleft", HelpText = "Left padding for channel labels", DefaultValue = null)]
+            public int? ChannelLabelsPaddingLeft { get; set; }
+            // ReSharper disable once StringLiteralTypo
+            [Option("labelspaddingright", HelpText = "Right padding for channel labels", DefaultValue = null)]
+            public int? ChannelLabelsPaddingRight { get; set; }
+            // ReSharper disable once StringLiteralTypo
+            [Option("labelspaddingtop", HelpText = "Top padding for channel labels", DefaultValue = null)]
+            public int? ChannelLabelsPaddingTop { get; set; }
+            // ReSharper disable once StringLiteralTypo
+            [Option("labelspaddingbottom", HelpText = "Bottom padding for channel labels", DefaultValue = null)]
+            public int? ChannelLabelsPaddingBottom { get; set; }
+            // ReSharper disable once StringLiteralTypo
+            [Option("labelsalignment", HelpText = "Alignment for channel labels", DefaultValue = ContentAlignment.TopLeft)]
+            public ContentAlignment ChannelLabelsAlignment { get; set; }
 
             // ReSharper disable once StringLiteralTypo
             [Option("youtubesecret", HelpText = "YouTube client secret JSON file. Use this to specify a custom OAth key if the embedded one doesn't work.")]
@@ -341,6 +359,12 @@ namespace SidWizPlus
                                     ? null
                                     : new Font(settings.ChannelLabelsFont, settings.ChannelLabelsSize),
                                 LabelColor = ParseColor(settings.ChannelLabelsColor),
+                                LabelAlignment = settings.ChannelLabelsAlignment,
+                                LabelMargins = new Padding(
+                                    settings.ChannelLabelsPaddingLeft ?? settings.ChannelLabelsPadding,
+                                    settings.ChannelLabelsPaddingTop ?? settings.ChannelLabelsPadding,
+                                    settings.ChannelLabelsPaddingRight ?? settings.ChannelLabelsPadding,
+                                    settings.ChannelLabelsPaddingBottom ?? settings.ChannelLabelsPadding),
                                 HighPassFilter = settings.HighPass
                             };
                             channel.LoadDataAsync().Wait();
@@ -1036,6 +1060,7 @@ namespace SidWizPlus
                     Path.GetDirectoryName(settings.YouTubeMerge) ?? ".",
                     Path.GetFileName(settings.YouTubeMerge))
                 .AsParallel()
+                .Select(Path.GetFullPath)
                 .Select(path => new
                 {
                     Path = path,
@@ -1084,7 +1109,7 @@ namespace SidWizPlus
             // Now we merge the files...
             // We need to write them to a list file for FFMPEG
             var listFile = Path.GetTempFileName();
-            File.WriteAllLines(listFile, files.Select(f => $"file '{f.Path.Replace("'", "'\''")}'"));
+            File.WriteAllLines(listFile, files.Select(f => $"file '{f.Path.Replace("'", "'\\''")}'"));
             using (var wrapper = new ProcessWrapper(
                 settings.FfMpegPath,
                 $"-hide_banner -y -f concat -safe 0 -i \"{listFile}\" -c copy \"{settings.OutputFile}\"",
@@ -1131,6 +1156,11 @@ namespace SidWizPlus
                 video.Snippet.Title = video.Snippet.Title.Substring(0, 97) + "...";
             }
 
+            if (video.Snippet.Description.Length > 4500)
+            {
+                video.Snippet.Description = video.Snippet.Description.Substring(0, 4450) + "...\nDescription truncated to fit in YouTube limits";
+            }
+
             // We now escape some strings as the API doesn't do it internally...
             video.Snippet.Title = RemoveAngledBrackets(video.Snippet.Title);
             video.Snippet.Description = RemoveAngledBrackets(video.Snippet.Description);
@@ -1173,6 +1203,7 @@ namespace SidWizPlus
                 tags.Select(getter)
                     .SelectMany(s => s.Split(';', ','))
                     .Select(s => s.Trim())
+                    .Where(s => s.Length > 0)
                     .Distinct()
                     .OrderBy(s => s));
         }
@@ -1199,7 +1230,12 @@ namespace SidWizPlus
                 true))
             {
                 wrapper.WaitForExit();
-                var line = wrapper.Lines().First(s => re.IsMatch(s));
+                var lines = wrapper.Lines().ToList();
+                var line = lines.FirstOrDefault(s => re.IsMatch(s));
+                if (line == null)
+                {
+                    throw new Exception($"Failed to find duration for {path}. FFMPEG output:\n{string.Join("\n", lines)}");
+                }
                 return TimeSpan.Parse(re.Match(line).Groups["duration"].Value);
             }
         }
