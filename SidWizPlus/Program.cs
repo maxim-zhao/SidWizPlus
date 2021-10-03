@@ -166,25 +166,25 @@ namespace SidWizPlus
             [Option("gridwidth", Required = false, HelpText = "Grid line width", DefaultValue = 0)]
             public float GridLineWidth { get; set; }
             // ReSharper disable once StringLiteralTypo
-            [Option("gridborder", HelpText = "Draw a border around the waves as well as between them", DefaultValue = true)]
+            [Option("gridborder", Required = false, HelpText = "Draw a border around the waves as well as between them", DefaultValue = true)]
             public bool GridBorder { get; set; }
             // ReSharper disable once StringLiteralTypo
-            [Option("zerolinecolor", HelpText = "Zero line color", DefaultValue = "white")]
+            [Option("zerolinecolor", Required = false, HelpText = "Zero line color", DefaultValue = "white")]
             public string ZeroLineColor { get; set; }
             // ReSharper disable once StringLiteralTypo
-            [Option("zerolinewith", HelpText = "Zero line width", DefaultValue = 0)]
+            [Option("zerolinewith", Required = false, HelpText = "Zero line width", DefaultValue = 0)]
             public float ZeroLineWidth { get; set; }
 
             // ReSharper disable once StringLiteralTypo
-            [Option("gd3font", HelpText = "Font for GD3 info", DefaultValue = "Tahoma")]
+            [Option("gd3font", Required = false, HelpText = "Font for GD3 info", DefaultValue = "Tahoma")]
             public string Gd3Font { get; set; }
-            [Option("gd3size", HelpText = "Font size (in points) for GD3 info", DefaultValue = 16)]
+            [Option("gd3size", Required = false, HelpText = "Font size (in points) for GD3 info", DefaultValue = 16)]
             public float Gd3FontSize { get; set; }
-            [Option("gd3color", HelpText = "Font color for GD3 info", DefaultValue = "white")]
+            [Option("gd3color", Required = false, HelpText = "Font color for GD3 info", DefaultValue = "white")]
             public string Gd3FontColor { get; set; }
 
             // ReSharper disable once StringLiteralTypo
-            [Option("labelsfont", HelpText = "Font for channel labels")]
+            [Option("labelsfont", Required = false, HelpText = "Font for channel labels")]
             public string ChannelLabelsFont { get; set; }
             // ReSharper disable once StringLiteralTypo
             [Option("labelssize", HelpText = "Font size for channel labels", DefaultValue = 8)]
@@ -196,16 +196,16 @@ namespace SidWizPlus
             [Option("labelspadding", HelpText = "Padding for channel labels - more specific settings override this", DefaultValue = 0)]
             public int ChannelLabelsPadding { get; set; }
             // ReSharper disable once StringLiteralTypo
-            [Option("labelspaddingleft", HelpText = "Left padding for channel labels", DefaultValue = null)]
+            [Option("labelspaddingleft", HelpText = "Left padding for channel labels")]
             public int? ChannelLabelsPaddingLeft { get; set; }
             // ReSharper disable once StringLiteralTypo
-            [Option("labelspaddingright", HelpText = "Right padding for channel labels", DefaultValue = null)]
+            [Option("labelspaddingright", HelpText = "Right padding for channel labels")]
             public int? ChannelLabelsPaddingRight { get; set; }
             // ReSharper disable once StringLiteralTypo
-            [Option("labelspaddingtop", HelpText = "Top padding for channel labels", DefaultValue = null)]
+            [Option("labelspaddingtop", HelpText = "Top padding for channel labels")]
             public int? ChannelLabelsPaddingTop { get; set; }
             // ReSharper disable once StringLiteralTypo
-            [Option("labelspaddingbottom", HelpText = "Bottom padding for channel labels", DefaultValue = null)]
+            [Option("labelspaddingbottom", HelpText = "Bottom padding for channel labels")]
             public int? ChannelLabelsPaddingBottom { get; set; }
             // ReSharper disable once StringLiteralTypo
             [Option("labelsalignment", HelpText = "Alignment for channel labels", DefaultValue = ContentAlignment.TopLeft)]
@@ -248,7 +248,7 @@ namespace SidWizPlus
             {
                 var help = new HelpText {
                     Heading = new HeadingInfo("SidWizPlus", "0.9"),
-                    Copyright = new CopyrightInfo("Maxim", 2019),
+                    Copyright = new CopyrightInfo("Maxim", 2019, 2020, 2021),
                     AdditionalNewLineAfterOption = false,
                     AddDashesToOption = true,
                     MaximumDisplayWidth = Console.WindowWidth
@@ -256,18 +256,25 @@ namespace SidWizPlus
                 help.AddPreOptionsLine("Licensed under MIT License");
                 help.AddOptions(this);
 
-                if (LastParserState?.Errors.Any() == true)
+                if (LastParserState != null)
                 {
-                    var errors = help.RenderParsingErrorsText(this, 2); // indent with two spaces
-
-                    if (!string.IsNullOrEmpty(errors))
+                    if (LastParserState.Errors.Any())
                     {
-                        help.AddPostOptionsLine("ERROR(S):");
-                        help.AddPostOptionsLine(errors);
+                        var errors = help.RenderParsingErrorsText(this, 2); // indent with two spaces
+
+                        if (!string.IsNullOrEmpty(errors))
+                        {
+                            help.AddPostOptionsLine("ERROR(S):");
+                            help.AddPostOptionsLine(errors);
+                        }
+                    }
+                    else
+                    {
+                        help.AddPostOptionsLine("Failed to parse commandline parameters");
                     }
                 }
 
-                return help;
+                return help.ToString();
             }
 
             // ReSharper disable once MemberCanBePrivate.Local
@@ -275,7 +282,7 @@ namespace SidWizPlus
             public IParserState LastParserState { get; set; }
         }
 
-        static void Main(string[] args)
+        static int Main(string[] args)
         {
             try
             {
@@ -284,13 +291,13 @@ namespace SidWizPlus
                 using (var parser = new CommandLine.Parser(x =>
                 {
                     x.CaseSensitive = false;
-                    x.IgnoreUnknownArguments = true;
+                    x.IgnoreUnknownArguments = false;
                 }))
                 {
                     if (!parser.ParseArguments(args, settings))
                     {
                         Console.Error.WriteLine(settings.GetUsage());
-                        return;
+                        return 1;
                     }
                 }
 
@@ -441,7 +448,10 @@ namespace SidWizPlus
             catch (Exception e)
             {
                 Console.Error.WriteLine($"Fatal: {e}");
+                return 1;
             }
+
+            return 0;
         }
 
         private class InstrumentState
