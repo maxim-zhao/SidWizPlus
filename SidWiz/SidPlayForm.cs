@@ -25,6 +25,7 @@ namespace SidWizPlusGUI
 
             public string Chip { get; }
 
+            // ReSharper disable once MemberCanBePrivate.Global
             public int Version { get; }
 
             public SidFile(string filename)
@@ -141,7 +142,7 @@ namespace SidWizPlusGUI
         private readonly string _filename;
         private readonly SidPlayWrapper _wrapper;
 
-        public IEnumerable<string> Filenames { get; set; }
+        public IEnumerable<string> Filenames { get; private set; }
 
         public SidPlayForm(string filename, string sidPlayPath)
         {

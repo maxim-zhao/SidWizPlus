@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.28010.2046
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.31702.278
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SidWizPlusGUI", "SidWiz\SidWizPlusGUI.csproj", "{190749A3-C233-4825-9678-66CA9CEF295E}"
 EndProject
@@ -9,7 +9,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LibSidWiz", "LibSidWiz\LibS
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SidWizPlus", "SidWizPlus\SidWizPlus.csproj", "{6E0D8279-E2FA-4FF5-921F-A408915A93A0}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LibVgm", "LibVgm\LibVgm.csproj", "{04D48368-33AC-4DF0-B165-C5D032771E66}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LibVgm", "LibVgm\LibVgm.csproj", "{50DBEB28-7D52-4658-A276-724E7415B7E1}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -29,10 +29,10 @@ Global
 		{6E0D8279-E2FA-4FF5-921F-A408915A93A0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6E0D8279-E2FA-4FF5-921F-A408915A93A0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6E0D8279-E2FA-4FF5-921F-A408915A93A0}.Release|Any CPU.Build.0 = Release|Any CPU
-		{04D48368-33AC-4DF0-B165-C5D032771E66}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{04D48368-33AC-4DF0-B165-C5D032771E66}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{04D48368-33AC-4DF0-B165-C5D032771E66}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{04D48368-33AC-4DF0-B165-C5D032771E66}.Release|Any CPU.Build.0 = Release|Any CPU
+		{50DBEB28-7D52-4658-A276-724E7415B7E1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{50DBEB28-7D52-4658-A276-724E7415B7E1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{50DBEB28-7D52-4658-A276-724E7415B7E1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{50DBEB28-7D52-4658-A276-724E7415B7E1}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

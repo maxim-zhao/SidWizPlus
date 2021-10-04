@@ -129,7 +129,7 @@ namespace LibSidWiz
     internal class HighPassSampleProvider : ISampleProvider
     {
         private readonly ISampleProvider _sampleProvider;
-        private BiQuadFilter _filter;
+        private readonly BiQuadFilter _filter;
 
         public HighPassSampleProvider(ISampleProvider sampleProvider)
         {

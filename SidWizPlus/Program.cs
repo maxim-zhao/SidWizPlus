@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
 using System.IO;
 using System.Linq;
@@ -31,9 +30,10 @@ namespace SidWizPlus
     // ReSharper disable once ClassNeverInstantiated.Global
     internal class Program
     {
-        [SuppressMessage("ReSharper", "UnusedAutoPropertyAccessor.Local")]
         private class Settings
         {
+            // ReSharper disable UnusedAutoPropertyAccessor.Local
+
             [OptionList('f', "files", Separator = ',', HelpText = "Input WAV files, comma-separated. Wildcards are accepted.")] 
             public List<string> InputFiles { get; set; }
 
@@ -243,6 +243,8 @@ namespace SidWizPlus
             [Option("youtubemerge", HelpText = "Merge the specified videos (wildcard, results sorted alphabetically) to one file and upload to YouTube")]
             public string YouTubeMerge { get; set; }
 
+            // ReSharper restore UnusedAutoPropertyAccessor.Local
+
             [HelpOption]
             public string GetUsage()
             {
@@ -278,6 +280,7 @@ namespace SidWizPlus
             }
 
             // ReSharper disable once MemberCanBePrivate.Local
+            // ReSharper disable once UnusedAutoPropertyAccessor.Local
             [ParserState]
             public IParserState LastParserState { get; set; }
         }
@@ -385,7 +388,7 @@ namespace SidWizPlus
                     if (settings.AutoScalePercentage > 0)
                     {
                         float max;
-                        bool IsYm2413Percussion(Channel ch) => ch.Label.StartsWith("YM2413 ") && !ch.Label.StartsWith("YM2413 Tone");
+                        static bool IsYm2413Percussion(Channel ch) => ch.Label.StartsWith("YM2413 ") && !ch.Label.StartsWith("YM2413 Tone");
                         if (settings.AutoScaleIgnoreYm2413Percussion)
                         {
                             var channelsToUse = channels.Where(channel => !IsYm2413Percussion(channel)).ToList();
@@ -490,8 +493,8 @@ namespace SidWizPlus
 
         private class ChannelState
         {
-            private readonly List<InstrumentState> _instruments = new List<InstrumentState>();
-            private readonly Dictionary<int, InstrumentState> _instrumentsByChannel = new Dictionary<int, InstrumentState>();
+            private readonly List<InstrumentState> _instruments = new();
+            private readonly Dictionary<int, InstrumentState> _instrumentsByChannel = new();
             private InstrumentState _currentInstrument;
             public bool KeyDown { private get; set; }
 
@@ -549,12 +552,12 @@ namespace SidWizPlus
                         break;
                     case VgmFile.AddressDataCommand c:
                     {
-                        if (c.Address >= 0x30 && c.Address <= 0x38)
+                        if (c.Address is >= 0x30 and <= 0x38)
                         {
                             // YM2413 instrument
                             GetChannelState(c.Address & 0xf).SetInstrument(c.Data >> 4);
                         }
-                        else if (c.Address >= 0x20 && c.Address <= 0x28)
+                        else if (c.Address is >= 0x20 and <= 0x28)
                         {
                             // YM2413 key down
                             var channelState = GetChannelState(c.Address & 0xf);
@@ -668,18 +671,14 @@ namespace SidWizPlus
             var backgroundImage = new BackgroundRenderer(settings.Width, settings.Height, ParseColor(settings.BackgroundColor));
             if (settings.BackgroundImageFile != null)
             {
-                using (var bm = Image.FromFile(settings.BackgroundImageFile))
-                {
-                    backgroundImage.Add(new ImageInfo(bm, ContentAlignment.MiddleCenter, true, DockStyle.None, 0.5f));
-                }
+                using var bm = Image.FromFile(settings.BackgroundImageFile);
+                backgroundImage.Add(new ImageInfo(bm, ContentAlignment.MiddleCenter, true, DockStyle.None, 0.5f));
             }
 
             if (!string.IsNullOrEmpty(settings.LogoImageFile))
             {
-                using (var bm = Image.FromFile(settings.LogoImageFile))
-                {
-                    backgroundImage.Add(new ImageInfo(bm, ContentAlignment.BottomRight, false, DockStyle.None, 1));
-                }
+                using var bm = Image.FromFile(settings.LogoImageFile);
+                backgroundImage.Add(new ImageInfo(bm, ContentAlignment.BottomRight, false, DockStyle.None, 1));
             }
 
             if (settings.VgmFile != null)
@@ -951,77 +950,75 @@ namespace SidWizPlus
 
         private static async Task UploadVideo(string filename, YouTubeService youtubeService, Video video)
         {
-            using (var fileStream = new FileStream(filename, FileMode.Open))
+            using var fileStream = new FileStream(filename, FileMode.Open);
+            var videosInsertRequest = youtubeService.Videos.Insert(video, "snippet,status", fileStream, "video/*");
+            videosInsertRequest.ChunkSize = ResumableUpload.MinimumChunkSize;
+            long totalSize = fileStream.Length;
+            bool shouldRetry = true;
+            var sw = Stopwatch.StartNew();
+            videosInsertRequest.ProgressChanged += progress =>
             {
-                var videosInsertRequest = youtubeService.Videos.Insert(video, "snippet,status", fileStream, "video/*");
-                videosInsertRequest.ChunkSize = ResumableUpload.MinimumChunkSize;
-                long totalSize = fileStream.Length;
-                bool shouldRetry = true;
-                var sw = Stopwatch.StartNew();
-                videosInsertRequest.ProgressChanged += progress =>
+                switch (progress.Status)
                 {
-                    switch (progress.Status)
+                    case UploadStatus.Uploading:
                     {
-                        case UploadStatus.Uploading:
-                        {
-                            var elapsedSeconds = sw.Elapsed.TotalSeconds;
-                            var fractionComplete = (double)progress.BytesSent / totalSize;
-                            var eta = TimeSpan.FromSeconds(elapsedSeconds / fractionComplete - elapsedSeconds);
-                            var sent = (double)progress.BytesSent / 1024 / 1024;
-                            var kbPerSecond = progress.BytesSent / sw.Elapsed.TotalSeconds / 1024;
-                            Console.Write(
-                                $"\r{sent:f}MB sent ({fractionComplete:P}, average {kbPerSecond:f}KB/s, ETA {eta:g})");
-                            break;
-                        }
-                        case UploadStatus.Failed:
-                            Console.Error.WriteLine($"Upload failed: {progress.Exception}");
-                            // Google API says we can retry if we get a non-API error, or one of these four 5xx error codes
-                            shouldRetry = !(progress.Exception is GoogleApiException errorCode)
-                                          || new[]
-                                          {
-                                              HttpStatusCode.InternalServerError, HttpStatusCode.BadGateway,
-                                              HttpStatusCode.ServiceUnavailable, HttpStatusCode.GatewayTimeout
-                                          }.Contains(errorCode.HttpStatusCode);
-                            if (shouldRetry)
-                            {
-                                Console.WriteLine("Retrying...");
-                            }
-
-                            break;
-                        case UploadStatus.Completed:
-                            Console.WriteLine($"Progress: {progress.Status}");
-                            shouldRetry = false;
-                            break;
-                        default:
-                            Console.WriteLine($"Progress: {progress.Status}");
-                            break;
+                        var elapsedSeconds = sw.Elapsed.TotalSeconds;
+                        var fractionComplete = (double)progress.BytesSent / totalSize;
+                        var eta = TimeSpan.FromSeconds(elapsedSeconds / fractionComplete - elapsedSeconds);
+                        var sent = (double)progress.BytesSent / 1024 / 1024;
+                        var kbPerSecond = progress.BytesSent / sw.Elapsed.TotalSeconds / 1024;
+                        Console.Write(
+                            $"\r{sent:f}MB sent ({fractionComplete:P}, average {kbPerSecond:f}KB/s, ETA {eta:g})");
+                        break;
                     }
-                };
-                videosInsertRequest.ResponseReceived += video1 =>
-                {
-                    video.Id = video1.Id;
-                    Console.WriteLine($"\nUpload completed: video ID is {video1.Id}");
-                };
+                    case UploadStatus.Failed:
+                        Console.Error.WriteLine($"Upload failed: {progress.Exception}");
+                        // Google API says we can retry if we get a non-API error, or one of these four 5xx error codes
+                        shouldRetry = progress.Exception is not GoogleApiException errorCode
+                                      || new[]
+                                      {
+                                          HttpStatusCode.InternalServerError, HttpStatusCode.BadGateway,
+                                          HttpStatusCode.ServiceUnavailable, HttpStatusCode.GatewayTimeout
+                                      }.Contains(errorCode.HttpStatusCode);
+                        if (shouldRetry)
+                        {
+                            Console.WriteLine("Retrying...");
+                        }
 
+                        break;
+                    case UploadStatus.Completed:
+                        Console.WriteLine($"Progress: {progress.Status}");
+                        shouldRetry = false;
+                        break;
+                    default:
+                        Console.WriteLine($"Progress: {progress.Status}");
+                        break;
+                }
+            };
+            videosInsertRequest.ResponseReceived += video1 =>
+            {
+                video.Id = video1.Id;
+                Console.WriteLine($"\nUpload completed: video ID is {video1.Id}");
+            };
+
+            try
+            {
+                await videosInsertRequest.UploadAsync();
+            }
+            catch (Exception ex)
+            {
+                await Console.Error.WriteLineAsync($"Upload failed: {ex}");
+            }
+
+            while (shouldRetry)
+            {
                 try
                 {
-                    await videosInsertRequest.UploadAsync();
+                    await videosInsertRequest.ResumeAsync();
                 }
                 catch (Exception ex)
                 {
                     await Console.Error.WriteLineAsync($"Upload failed: {ex}");
-                }
-
-                while (shouldRetry)
-                {
-                    try
-                    {
-                        await videosInsertRequest.ResumeAsync();
-                    }
-                    catch (Exception ex)
-                    {
-                        await Console.Error.WriteLineAsync($"Upload failed: {ex}");
-                    }
                 }
             }
         }
@@ -1031,18 +1028,14 @@ namespace SidWizPlus
             ClientSecrets secrets;
             if (settings.YouTubeUploadClientSecret != null)
             {
-                using (var stream = new FileStream(settings.YouTubeUploadClientSecret, FileMode.Open, FileAccess.Read))
-                {
-                    secrets = (await GoogleClientSecrets.FromStreamAsync(stream)).Secrets;
-                }
+                using var stream = new FileStream(settings.YouTubeUploadClientSecret, FileMode.Open, FileAccess.Read);
+                secrets = (await GoogleClientSecrets.FromStreamAsync(stream)).Secrets;
             }
             else
             {
                 // We use our embedded client secret
-                using (var stream = Properties.Resources.ResourceManager.GetStream(nameof(Properties.Resources.ClientSecret)))
-                {
-                    secrets = (await GoogleClientSecrets.FromStreamAsync(stream)).Secrets;
-                }
+                using var stream = Properties.Resources.ResourceManager.GetStream(nameof(Properties.Resources.ClientSecret));
+                secrets = (await GoogleClientSecrets.FromStreamAsync(stream)).Secrets;
             }
 
             var credential = await GoogleWebAuthorizationBroker.AuthorizeAsync(
@@ -1234,20 +1227,18 @@ namespace SidWizPlus
         {
             // This is a bit of a hack...
             var re = new Regex(" +Duration: (?<duration>[0-9:.]+)");
-            using (var wrapper = new ProcessWrapper(
+            using var wrapper = new ProcessWrapper(
                 settings.FfMpegPath,
                 $"-i \"{path}\" -hide_banner",
-                true))
+                true);
+            wrapper.WaitForExit();
+            var lines = wrapper.Lines().ToList();
+            var line = lines.FirstOrDefault(s => re.IsMatch(s));
+            if (line == null)
             {
-                wrapper.WaitForExit();
-                var lines = wrapper.Lines().ToList();
-                var line = lines.FirstOrDefault(s => re.IsMatch(s));
-                if (line == null)
-                {
-                    throw new Exception($"Failed to find duration for {path}. FFMPEG output:\n{string.Join("\n", lines)}");
-                }
-                return TimeSpan.Parse(re.Match(line).Groups["duration"].Value);
+                throw new Exception($"Failed to find duration for {path}. FFMPEG output:\n{string.Join("\n", lines)}");
             }
+            return TimeSpan.Parse(re.Match(line).Groups["duration"].Value);
         }
 
         private static string RemoveAngledBrackets(string s)

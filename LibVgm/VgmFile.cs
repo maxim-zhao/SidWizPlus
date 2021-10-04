@@ -7,11 +7,15 @@ namespace LibVgm
 {
     public class VgmFile: IDisposable
     {
-        public VgmHeader Header { get; }
-        public Gd3Tag Gd3Tag { get; }
-
         // It's painful to seek in GZipped streams, so we don't bother...
         private readonly MemoryStream _stream;
+
+        // ReSharper disable MemberCanBePrivate.Global
+        // ReSharper disable UnusedAutoPropertyAccessor.Global
+        // ReSharper disable AutoPropertyCanBeMadeGetOnly.Global
+        // ReSharper disable MemberCanBeProtected.Global
+        public VgmHeader Header { get; }
+        public Gd3Tag Gd3Tag { get; }
 
         public class VgmHeader
         {
@@ -89,160 +93,159 @@ namespace LibVgm
 
             internal void Parse(Stream s)
             {
-                using (var r = new BinaryReader(s, Encoding.ASCII, true))
+                using var r = new BinaryReader(s, Encoding.ASCII, true);
+                
+                // VGM 1.00
+                Ident = string.Concat(r.ReadChars(4));
+                EndOfFileOffset = r.ReadUInt32();
+                if (EndOfFileOffset == 0)
                 {
-                    // VGM 1.00
-                    Ident = string.Concat(r.ReadChars(4));
-                    EndOfFileOffset = r.ReadUInt32();
-                    if (EndOfFileOffset == 0)
+                    EndOfFileOffset = (uint) s.Length;
+                }
+                else
+                {
+                    EndOfFileOffset += 4; // Make absolute
+                }
+                var version = r.ReadUInt32();
+                // BCD to integer
+                int scaled = 0;
+                int factor = 1;
+                for (int i = 0; i < 8; ++i)
+                {
+                    var digit = (int) version & 0xf;
+                    scaled += digit * factor;
+                    version >>= 4;
+                    factor *= 10;
+                }
+
+                Version = (decimal) scaled / 100;
+                Sn76489Clock = r.ReadUInt32();
+                Ym2413Clock = r.ReadUInt32();
+                Gd3Offset = r.ReadUInt32();
+                if (Gd3Offset != 0)
+                {
+                    Gd3Offset += 0x14; // Make absolute
+                }
+                TotalSamples = r.ReadUInt32();
+                LoopOffset = r.ReadUInt32();
+                if (LoopOffset > 0)
+                {
+                    LoopOffset += 0x1c; // Make absolute
+                }
+                LoopSamples = r.ReadUInt32();
+                if (Version > 1.01m)
+                {
+                    Rate = r.ReadUInt32();
+                }
+
+                // VGM 1.10
+                if (Version > 1.10m)
+                {
+                    SnFeedback = r.ReadUInt16();
+                    SnWidth = r.ReadByte();
+                    if (Version > 1.51m)
                     {
-                        EndOfFileOffset = (uint) s.Length;
+                        SnFlag = r.ReadByte();
                     }
                     else
                     {
-                        EndOfFileOffset += 4; // Make absolute
-                    }
-                    var version = r.ReadUInt32();
-                    // BCD to integer
-                    int scaled = 0;
-                    int factor = 1;
-                    for (int i = 0; i < 8; ++i)
-                    {
-                        var digit = (int) version & 0xf;
-                        scaled += digit * factor;
-                        version >>= 4;
-                        factor *= 10;
+                        r.ReadByte();
                     }
 
-                    Version = (decimal) scaled / 100;
-                    Sn76489Clock = r.ReadUInt32();
-                    Ym2413Clock = r.ReadUInt32();
-                    Gd3Offset = r.ReadUInt32();
-                    if (Gd3Offset != 0)
-                    {
-                        Gd3Offset += 0x14; // Make absolute
-                    }
-                    TotalSamples = r.ReadUInt32();
-                    LoopOffset = r.ReadUInt32();
-                    if (LoopOffset > 0)
-                    {
-                        LoopOffset += 0x1c; // Make absolute
-                    }
-                    LoopSamples = r.ReadUInt32();
-                    if (Version > 1.01m)
-                    {
-                        Rate = r.ReadUInt32();
-                    }
+                    Ym2612Clock = r.ReadUInt32();
+                    Ym2151Clock = r.ReadUInt32();
 
-                    // VGM 1.10
-                    if (Version > 1.10m)
+                    if (Version > 1.50m)
                     {
-                        SnFeedback = r.ReadUInt16();
-                        SnWidth = r.ReadByte();
-                        if (Version > 1.51m)
+                        DataOffset = r.ReadUInt32();
+                        if (DataOffset == 0)
                         {
-                            SnFlag = r.ReadByte();
+                            DataOffset = 0x40; // Assume default
                         }
                         else
                         {
-                            r.ReadByte();
+                            DataOffset += 0x34; // Make absolute
                         }
 
-                        Ym2612Clock = r.ReadUInt32();
-                        Ym2151Clock = r.ReadUInt32();
-
-                        if (Version > 1.50m)
+                        if (Version > 1.51m)
                         {
-                            DataOffset = r.ReadUInt32();
-                            if (DataOffset == 0)
+                            SegaPcmClock = r.ReadUInt32();
+                            SpcmInterface = r.ReadUInt32();
+                            Rf5C68Clock = r.ReadUInt32();
+                            Ym2203Clock = r.ReadUInt32();
+                            Ym2608Clock = r.ReadUInt32();
+                            Ym2610BClock = r.ReadUInt32();
+                            Ym3812Clock = r.ReadUInt32();
+                            Ym3526Clock = r.ReadUInt32();
+                            Y8950Clock = r.ReadUInt32();
+                            Ymf262Clock = r.ReadUInt32();
+                            Ymf278BClock = r.ReadUInt32();
+                            Ymf271Clock = r.ReadUInt32();
+                            Ymz280BClock = r.ReadUInt32();
+                            Rf5C164Clock = r.ReadUInt32();
+                            PwmClock = r.ReadUInt32();
+                            Ay8910Clock = r.ReadUInt32();
+                            var n = r.ReadUInt32();
+                            AyType = n >> 24;
+                            AyFlags = n & 0xffffff;
+
+                            if (Version > 1.60m)
                             {
-                                DataOffset = 0x40; // Assume default
+                                VolumeModifier = r.ReadByte();
+                                r.ReadByte();
+                                LoopBase = r.ReadByte();
                             }
                             else
                             {
-                                DataOffset += 0x34; // Make absolute
+                                r.ReadBytes(3);
                             }
 
-                            if (Version > 1.51m)
+                            LoopModifier = r.ReadByte();
+                            if (Version > 1.61m)
                             {
-                                SegaPcmClock = r.ReadUInt32();
-                                SpcmInterface = r.ReadUInt32();
-                                Rf5C68Clock = r.ReadUInt32();
-                                Ym2203Clock = r.ReadUInt32();
-                                Ym2608Clock = r.ReadUInt32();
-                                Ym2610BClock = r.ReadUInt32();
-                                Ym3812Clock = r.ReadUInt32();
-                                Ym3526Clock = r.ReadUInt32();
-                                Y8950Clock = r.ReadUInt32();
-                                Ymf262Clock = r.ReadUInt32();
-                                Ymf278BClock = r.ReadUInt32();
-                                Ymf271Clock = r.ReadUInt32();
-                                Ymz280BClock = r.ReadUInt32();
-                                Rf5C164Clock = r.ReadUInt32();
-                                PwmClock = r.ReadUInt32();
-                                Ay8910Clock = r.ReadUInt32();
-                                var n = r.ReadUInt32();
-                                AyType = n >> 24;
-                                AyFlags = n & 0xffffff;
-
-                                if (Version > 1.60m)
+                                GbDmgClock = r.ReadUInt32();
+                                NesApuClock = r.ReadUInt32();
+                                MultiPcmClock = r.ReadUInt32();
+                                Upd7759Clock = r.ReadUInt32();
+                                Okim6258Clock = r.ReadUInt32();
+                                Okim6258Flags = r.ReadByte();
+                                K054539Flags = r.ReadByte();
+                                C140ChipType = r.ReadByte();
+                                r.ReadByte();
+                                Okim6295Clock = r.ReadUInt32();
+                                K051649Clock = r.ReadUInt32();
+                                K054539Clock = r.ReadUInt32();
+                                HuC6280Clock = r.ReadUInt32();
+                                C140Clock = r.ReadUInt32();
+                                K053260Clock = r.ReadUInt32();
+                                PokeyClock = r.ReadUInt32();
+                                QSoundClock = r.ReadUInt32();
+                                if (Version > 1.70m)
                                 {
-                                    VolumeModifier = r.ReadByte();
-                                    r.ReadByte();
-                                    LoopBase = r.ReadByte();
-                                }
-                                else
-                                {
-                                    r.ReadBytes(3);
-                                }
-
-                                LoopModifier = r.ReadByte();
-                                if (Version > 1.61m)
-                                {
-                                    GbDmgClock = r.ReadUInt32();
-                                    NesApuClock = r.ReadUInt32();
-                                    MultiPcmClock = r.ReadUInt32();
-                                    Upd7759Clock = r.ReadUInt32();
-                                    Okim6258Clock = r.ReadUInt32();
-                                    Okim6258Flags = r.ReadByte();
-                                    K054539Flags = r.ReadByte();
-                                    C140ChipType = r.ReadByte();
-                                    r.ReadByte();
-                                    Okim6295Clock = r.ReadUInt32();
-                                    K051649Clock = r.ReadUInt32();
-                                    K054539Clock = r.ReadUInt32();
-                                    HuC6280Clock = r.ReadUInt32();
-                                    C140Clock = r.ReadUInt32();
-                                    K053260Clock = r.ReadUInt32();
-                                    PokeyClock = r.ReadUInt32();
-                                    QSoundClock = r.ReadUInt32();
-                                    if (Version > 1.70m)
+                                    if (Version > 1.71m)
                                     {
-                                        if (Version > 1.71m)
-                                        {
-                                            ScspClock = r.ReadUInt32();
-                                        }
-                                        else
-                                        {
-                                            r.ReadUInt32();
-                                        }
+                                        ScspClock = r.ReadUInt32();
+                                    }
+                                    else
+                                    {
+                                        r.ReadUInt32();
+                                    }
 
-                                        ExtraHeaderOffset = (uint) r.BaseStream.Position + r.ReadUInt32();
+                                    ExtraHeaderOffset = (uint) r.BaseStream.Position + r.ReadUInt32();
 
-                                        if (Version > 1.71m)
-                                        {
-                                            WonderSwanClock = r.ReadUInt32();
-                                            VsuClock = r.ReadUInt32();
-                                            Saa1099Clock = r.ReadUInt32();
-                                            Es5503Clock = r.ReadUInt32();
-                                            Es5506Clock = r.ReadUInt32();
-                                            Es5503Channels = r.ReadUInt16();
-                                            Es5506Channels = r.ReadByte();
-                                            r.ReadByte();
-                                            X1010Clock = r.ReadUInt32();
-                                            C352Clock = r.ReadUInt32();
-                                            Ga20Clock = r.ReadUInt32();
-                                        }
+                                    if (Version > 1.71m)
+                                    {
+                                        WonderSwanClock = r.ReadUInt32();
+                                        VsuClock = r.ReadUInt32();
+                                        Saa1099Clock = r.ReadUInt32();
+                                        Es5503Clock = r.ReadUInt32();
+                                        Es5506Clock = r.ReadUInt32();
+                                        Es5503Channels = r.ReadUInt16();
+                                        Es5506Channels = r.ReadByte();
+                                        r.ReadByte();
+                                        X1010Clock = r.ReadUInt32();
+                                        C352Clock = r.ReadUInt32();
+                                        Ga20Clock = r.ReadUInt32();
                                     }
                                 }
                             }
@@ -446,7 +449,12 @@ namespace LibVgm
 
             public ushort BlockId { get; set; }
         }
+        // ReSharper restore MemberCanBeProtected.Global
+        // ReSharper restore UnusedAutoPropertyAccessor.Global
+        // ReSharper restore MemberCanBePrivate.Global
+        // ReSharper restore AutoPropertyCanBeMadeGetOnly.Global
 
+        // ReSharper disable once UnusedMember.Global
         public VgmFile()
         {
             // Empty file
@@ -489,131 +497,98 @@ namespace LibVgm
             // Seek to the start
             _stream.Seek(Header.DataOffset, SeekOrigin.Begin);
 
-            using (var reader = new BinaryReader(_stream, Encoding.Default, true))
+            using var reader = new BinaryReader(_stream, Encoding.Default, true);
+            while (_stream.Position < _stream.Length)
             {
-                while (_stream.Position < _stream.Length)
+                //var b = reader.ReadByte();
+
+                switch (reader.ReadByte())
                 {
-                    var b = reader.ReadByte();
-                    if (b <= 0x2f)
-                    {
+                    case <= 0x2f:
                         // Unhandled
                         continue;
-                    }
-                    if (b >= 0x30 && b <= 0x3f)
-                    {
+                    case >= 0x30 and <= 0x3f:
                         yield return new GenericCommand(reader, 1); // Reserved range
-                    }
-                    else if (b >= 0x40 && b <= 0x4e)
-                    {
+                        break;
+                    case >= 0x40 and <= 0x4e:
                         yield return new GenericCommand(reader, 2); // Reserved range
-                    }
-                    else if (b >= 0x4f && b <= 0x50)
-                    {
+                        break;
+                    case >= 0x4f and <= 0x50:
                         yield return new GenericCommand(reader, 1); // GG stereo or PSG
-                    }
-                    else if (b >= 0x51 && b <= 0x5f)
-                    {
+                        break;
+                    case var b and >= 0x51 and <= 0x5f:
                         yield return new AddressDataCommand(reader, b); // FM chips
-                    }
-                    else if (b == 0x60)
-                    {
+                        break;
+                    case 0x60:
                         // Unhandled
-                        // ReSharper disable once RedundantJumpStatement
                         continue;
-                    }
-                    else if (b >= 0x61 && b <= 0x63)
-                    {
+                    case var b and >= 0x61 and <= 0x63:
                         yield return new WaitCommand(reader, b);
-                    }
-                    else if (b >= 0x64 && b <= 0x65)
-                    {
+                        break;
+                    case <= 0x65 and >= 0x64:
                         // Unhandled
-                        // ReSharper disable once RedundantJumpStatement
                         continue;
-                    }
-                    else if (b == 0x66)
-                    {
+                    case 0x66:
                         yield return new StopCommand();
                         yield break;
-                    }
-                    else if (b == 0x67)
-                    {
+                    case 0x67:
                         yield return new DataBlock(reader);
-                    }
-                    else if (b == 0x68)
-                    {
+                        break;
+                    case 0x68:
                         yield return new PcmRamWrite(reader);
-                    }
-                    else if (b >= 0x69 && b < 0x6f)
-                    {
+                        break;
+                    case < 0x6f and >= 0x69:
                         // Unhandled
-                        // ReSharper disable once RedundantJumpStatement
                         continue;
-                    }
-                    else if (b >= 0x70 && b <= 0x7f)
-                    {
+                    case var b and >= 0x70 and <= 0x7f:
                         yield return new WaitCommand(reader, b);
-                    }
-                    else if (b >= 0x80 && b <= 0x8f)
-                    {
+                        break;
+                    case var b and >= 0x80 and <= 0x8f:
                         yield return new SampleWaitCommand(reader, b);
-                    }
-                    else if (b == 0x90)
-                    {
-                        yield return new DacStreamStartCommand(reader);
-                    }
-                    else if (b == 0x91)
-                    {
+                        break;
+                    case 0x90:
+                        yield return new DacStreamSetupCommand(reader);
+                        break;
+                    case 0x91:
                         yield return new DacStreamDataCommand(reader);
-                    }
-                    else if (b == 0x92)
-                    {
+                        break;
+                    case 0x92:
                         yield return new DacStreamFrequencyCommand(reader);
-                    }
-                    else if (b == 0x93)
-                    {
+                        break;
+                    case 0x93:
                         yield return new DacStreamStartCommand(reader);
-                    }
-                    else if (b == 0x94)
-                    {
+                        break;
+                    case 0x94:
                         yield return new DacStreamStopCommand(reader);
-                    }
-                    else if (b == 0x95)
-                    {
+                        break;
+                    case 0x95:
                         yield return new DacStreamFastStartCommand(reader);
-                    }
-                    else if (b >= 0x96 && b <= 0x9f)
-                    {
+                        break;
+                    case <= 0x9f and >= 0x96:
                         // Unhandled
-                        // ReSharper disable once RedundantJumpStatement
                         continue;
-                    }
-                    else if (b == 0xa0)
-                    {
+                    case var b and 0xa0:
                         yield return new AddressDataCommand(reader, b);
-                    }
-                    else if (b >= 0xa1 && b <= 0xaf)
-                    {
+                        break;
+                    case <= 0xaf and >= 0xa1:
                         yield return new GenericCommand(reader, 2); // Reserved range
-                    }
-                    else if (b >= 0xb0 && b <= 0xbf)
-                    {
+                        break;
+                    case var b and >= 0xb0 and <= 0xbf:
                         yield return new AddressDataCommand(reader, b);
-                    }
-                    else if (b >= 0xc0 && b <= 0xdf)
-                    {
+                        break;
+                    case <= 0xdf and >= 0xc0:
                         yield return new GenericCommand(reader, 3); // Reserved + some allocated
-                    }
-                    else if (b >= 0xe0 && b <= 0xff)
-                    {
+                        break;
+                    case <= 0xff and >= 0xe0:
                         yield return new GenericCommand(reader, 4); // Reserved + some allocated
-                    }
+                        break;
                 }
             }
         }
         public void Dispose()
         {
             _stream?.Dispose();
+            GC.SuppressFinalize(this);
         }
     }
 }

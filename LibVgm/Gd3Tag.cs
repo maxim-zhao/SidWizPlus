@@ -18,6 +18,7 @@ namespace LibVgm
             }
         }
 
+        // ReSharper disable MemberCanBePrivate.Global
         public string Ident { get; private set; }
         public decimal Version { get; private set; }
         
@@ -28,30 +29,29 @@ namespace LibVgm
         public string Date { get; set; }
         public string Ripper { get; set; }
         public string Notes { get; set; }
+        // ReSharper restore MemberCanBePrivate.Global
 
         public static Gd3Tag LoadFromVgm(string filename)
         {
             // Open the stream
-            using (var s = new OptionalGzipStream(filename))
-            using (var r = new BinaryReader(s, Encoding.ASCII))
+            using var s = new OptionalGzipStream(filename);
+            using var r = new BinaryReader(s, Encoding.ASCII);
+            r.ReadBytes(0x14);
+            var offset = r.ReadUInt32() + 0x14;
+            if (offset == 0)
             {
-                r.ReadBytes(0x14);
-                var offset = r.ReadUInt32() + 0x14;
-                if (offset == 0)
-                {
-                    // No tag
-                    return null;
-                }
-
-                if (offset > s.Length - 8 - 11*2)
-                {
-                    throw new InvalidDataException("Not enough room in file for GD3 offset");
-                }
-
-                var result = new Gd3Tag();
-                result.Parse(s, offset);
-                return result;
+                // No tag
+                return null;
             }
+
+            if (offset > s.Length - 8 - 11*2)
+            {
+                throw new InvalidDataException("Not enough room in file for GD3 offset");
+            }
+
+            var result = new Gd3Tag();
+            result.Parse(s, offset);
+            return result;
         }
 
         public void Parse(Stream s, uint offset)

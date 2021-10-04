@@ -514,6 +514,7 @@ namespace LibSidWiz
 
         [Category("Triggering")]
         [Description("Set to true to trigger in the opposite direction")]
+        // ReSharper disable once MemberCanBePrivate.Global
         public bool InvertedTrigger
         {
             get => _invertedTrigger;
@@ -680,6 +681,7 @@ namespace LibSidWiz
         /// <summary>
         /// This allows us to use a property grid to select a trigger algorithm
         /// </summary>
+        // ReSharper disable once MemberCanBePrivate.Global
         public class TriggerAlgorithmTypeConverter: StringConverter
         {
             public override bool GetStandardValuesExclusive(ITypeDescriptorContext context)
@@ -724,6 +726,7 @@ namespace LibSidWiz
             }
         }
 
+        // ReSharper disable once MemberCanBePrivate.Global
         public class TriggerAlgorithmJsonConverter: JsonConverter<ITriggerAlgorithm>
         {
             public override void WriteJson(JsonWriter writer, ITriggerAlgorithm value, JsonSerializer serializer)

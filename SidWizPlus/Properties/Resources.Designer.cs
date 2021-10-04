@@ -19,7 +19,7 @@ namespace SidWizPlus.Properties {
     // class via a tool like ResGen or Visual Studio.
     // To add or remove a member, edit your .ResX file then rerun ResGen
     // with the /str option, or rebuild your VS project.
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "15.0.0.0")]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "16.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
     internal class Resources {
@@ -61,7 +61,8 @@ namespace SidWizPlus.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to {&quot;installed&quot;:{&quot;client_id&quot;:&quot;819979745864-hug4v2sv1134hcohqcov0h5enl4326a8.apps.googleusercontent.com&quot;,&quot;project_id&quot;:&quot;animated-flare-219522&quot;,&quot;auth_uri&quot;:&quot;https://accounts.google.com/o/oauth2/auth&quot;,&quot;token_uri&quot;:&quot;https://www.googleapis.com/oauth2/v3/token&quot;,&quot;auth_provider_x509_cert_url&quot;:&quot;https://www.googleapis.com/oauth2/v1/certs&quot;,&quot;client_secret&quot;:&quot;TLMaXApoiQ-IYz_s5bPlMgtG&quot;,&quot;redirect_uris&quot;:[&quot;urn:ietf:wg:oauth:2.0:oob&quot;,&quot;http://localhost&quot;]}}.
+        ///   Looks up a localized string similar to { &quot;placeholder&quot;: &quot;Client secret can&apos;t be committed to Git...&quot; }
+        ///.
         /// </summary>
         internal static string ClientSecret {
             get {

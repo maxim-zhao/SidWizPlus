@@ -10,7 +10,7 @@ namespace LibSidWiz
     /// <summary>
     /// Deals with mixing audio to a "master file"
     /// </summary>
-    public class Mixer
+    public static class Mixer
     {
         public static void MixToFile(IList<Channel> channels, string filename, bool applyReplayGain)
         {

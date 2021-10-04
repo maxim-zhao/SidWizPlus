@@ -82,66 +82,44 @@ namespace SidWizPlus
 
         public void Add(TextInfo textInfo)
         {
-            using (var font = new Font(textInfo.FontName, textInfo.FontSize, textInfo.FontStyle))
+            using var font = new Font(textInfo.FontName, textInfo.FontSize, textInfo.FontStyle);
+            // Measure it
+            var size = _graphics.MeasureString(textInfo.Text, font, new SizeF(_width, _height));
+            // Draw it
+            var rect = AlignedRect(textInfo.Alignment, _width, _height, (int) Math.Ceiling(size.Width),
+                (int) Math.Ceiling(size.Height));
+            using (var brush = new SolidBrush(textInfo.Color))
             {
-                // Measure it
-                var size = _graphics.MeasureString(textInfo.Text, font, new SizeF(_width, _height));
-                // Draw it
-                var rect = AlignedRect(textInfo.Alignment, _width, _height, (int) Math.Ceiling(size.Width),
-                    (int) Math.Ceiling(size.Height));
-                using (var brush = new SolidBrush(textInfo.Color))
+                _graphics.DrawString(textInfo.Text, font, brush, rect, new StringFormat
                 {
-                    var format = new StringFormat();
-                    switch (textInfo.Alignment)
+                    Alignment = textInfo.Alignment switch
                     {
-                        case ContentAlignment.BottomCenter:
-                        case ContentAlignment.MiddleCenter:
-                        case ContentAlignment.TopCenter:
-                            format.Alignment = StringAlignment.Center;
-                            break;
-                        case ContentAlignment.BottomLeft:
-                        case ContentAlignment.MiddleLeft:
-                        case ContentAlignment.TopLeft:
-                            format.Alignment = StringAlignment.Near;
-                            break;
-                        default:
-                            format.Alignment = StringAlignment.Far;
-                            break;
+                        ContentAlignment.BottomCenter or ContentAlignment.MiddleCenter or ContentAlignment.TopCenter => StringAlignment.Center,
+                        ContentAlignment.BottomLeft or ContentAlignment.MiddleLeft or ContentAlignment.TopLeft => StringAlignment.Near,
+                        _ => StringAlignment.Far,
                     }
-
-                    _graphics.DrawString(textInfo.Text, font, brush, rect, format);
-                }
-
-                // Apply constriction
-                Constrain(rect, textInfo.ConstrainWaves);
+                });
             }
+
+            // Apply constriction
+            Constrain(rect, textInfo.ConstrainWaves);
         }
 
         private Rectangle AlignedRect(ContentAlignment alignment, int width, int height, int imageWidth, int imageHeight)
         {
-            switch (alignment)
+            return alignment switch
             {
-                case ContentAlignment.TopLeft:
-                    return new Rectangle(0, 0, imageWidth, imageHeight);
-                case ContentAlignment.TopCenter:
-                    return new Rectangle((width - imageWidth) / 2, 0, imageWidth, imageHeight);
-                case ContentAlignment.TopRight:
-                    return new Rectangle(width - imageWidth, 0, imageWidth, imageHeight);
-                case ContentAlignment.MiddleLeft:
-                    return new Rectangle(0, (height - imageHeight) / 2, imageWidth, imageHeight);
-                case ContentAlignment.MiddleCenter:
-                    return new Rectangle((width - imageWidth) / 2, (height - imageHeight) / 2, imageWidth, imageHeight);
-                case ContentAlignment.MiddleRight:
-                    return new Rectangle(width - imageWidth, (height - imageHeight) / 2, imageWidth, imageHeight);
-                case ContentAlignment.BottomLeft:
-                    return new Rectangle(0, height - imageHeight, imageWidth, imageHeight);
-                case ContentAlignment.BottomCenter:
-                    return new Rectangle((width - imageWidth) / 2, height - imageHeight, imageWidth, imageHeight);
-                case ContentAlignment.BottomRight:
-                    return new Rectangle(width - imageWidth, height - imageHeight, imageWidth, imageHeight);
-                default:
-                    throw new Exception("Unhandled enum value " + alignment);
-            }
+                ContentAlignment.TopLeft => new Rectangle(0, 0, imageWidth, imageHeight),
+                ContentAlignment.TopCenter => new Rectangle((width - imageWidth) / 2, 0, imageWidth, imageHeight),
+                ContentAlignment.TopRight => new Rectangle(width - imageWidth, 0, imageWidth, imageHeight),
+                ContentAlignment.MiddleLeft => new Rectangle(0, (height - imageHeight) / 2, imageWidth, imageHeight),
+                ContentAlignment.MiddleCenter => new Rectangle((width - imageWidth) / 2, (height - imageHeight) / 2, imageWidth, imageHeight),
+                ContentAlignment.MiddleRight => new Rectangle(width - imageWidth, (height - imageHeight) / 2, imageWidth, imageHeight),
+                ContentAlignment.BottomLeft => new Rectangle(0, height - imageHeight, imageWidth, imageHeight),
+                ContentAlignment.BottomCenter => new Rectangle((width - imageWidth) / 2, height - imageHeight, imageWidth, imageHeight),
+                ContentAlignment.BottomRight => new Rectangle(width - imageWidth, height - imageHeight, imageWidth, imageHeight),
+                _ => throw new Exception("Unhandled enum value " + alignment),
+            };
         }
 
         private void Constrain(Rectangle source, DockStyle dockStyle)
