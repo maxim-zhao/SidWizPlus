@@ -289,6 +289,8 @@ namespace SidWizPlus
         {
             try
             {
+                Console.OutputEncoding = Encoding.UTF8;
+
                 var settings = new Settings();
                 // ReSharper disable once RedundantNameQualifier
                 using (var parser = new CommandLine.Parser(x =>
