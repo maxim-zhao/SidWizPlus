@@ -1079,10 +1079,10 @@ namespace SidWizPlus
 
             foreach (var file in files)
             {
-                Console.WriteLine($"{file.Path} is {file.Length}, tag is {file.Gd3}");
+                Console.WriteLine($"{file.Path} is {file.Length}, tag is {file.Gd3?.ToString() ?? "<unknown>"}");
             }
 
-            var mergedGd3 = MergeGd3Tags(files.Select(x => x.Gd3).ToList());
+            var mergedGd3 = MergeGd3Tags(files.Select(x => x.Gd3).Where(x => x != null).ToList());
 
             // Next we start to build the description with "chapter markers"
             var description = new StringBuilder()
@@ -1099,7 +1099,7 @@ namespace SidWizPlus
             var position = TimeSpan.Zero;
             foreach (var file in files)
             {
-                description.AppendLine($"{position:hh':'mm':'ss} {file.Gd3.Title}");
+                description.AppendLine($"{position:hh':'mm':'ss} {file.Gd3?.Title.ToString() ?? Path.GetFileNameWithoutExtension(file.Path)}");
                 position += file.Length;
             }
 
