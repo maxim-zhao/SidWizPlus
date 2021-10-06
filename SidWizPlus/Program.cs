@@ -1061,11 +1061,13 @@ namespace SidWizPlus
         private static async Task UploadMergedToYouTube(Settings settings)
         {
             // First we look for the videos and collect some metadata
+            var outputPath = Path.GetFullPath(settings.OutputFile);
             var files = Directory.EnumerateFiles(
                     Path.GetDirectoryName(settings.YouTubeMerge) ?? ".",
                     Path.GetFileName(settings.YouTubeMerge))
                 .AsParallel()
                 .Select(Path.GetFullPath)
+                .Where(path => path != outputPath)
                 .Select(path => new
                 {
                     Path = path,
