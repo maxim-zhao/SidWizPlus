@@ -1,6 +1,8 @@
 ﻿using System;
+#if DEBUG
 using System.Diagnostics;
 using System.Text;
+#endif
 
 namespace LibSidWiz.Triggers
 {
