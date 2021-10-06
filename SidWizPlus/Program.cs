@@ -1119,7 +1119,7 @@ namespace SidWizPlus
             File.WriteAllLines(listFile, files.Select(f => $"file '{f.Path.Replace("'", "'\\''")}'"));
             using (var wrapper = new ProcessWrapper(
                 settings.FfMpegPath,
-                $"-hide_banner -y -f concat -safe 0 -i \"{listFile}\" -c copy \"{settings.OutputFile}\"",
+                $"-hide_banner -y -f concat -safe 0 -i \"{listFile}\" -c copy {settings.FfMpegExtraOptions} \"{settings.OutputFile}\"",
                 false,
                 false,
                 true))
