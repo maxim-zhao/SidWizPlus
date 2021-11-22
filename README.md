@@ -12,7 +12,9 @@ The primary goals of this project are:
 1. Generating videos from VGM packs from [SMS Power!](http://www.smspower.org/Music) - [see them on YouTube](https://www.youtube.com/channel/UCCsvqzh7JjNNheYTplGvhCQ)
 2. Producing a base for others to work on the features they want
 
-Get builds from here: https://ci.appveyor.com/project/maxim-zhao/sidwizplus/build/artifacts [![Build status](https://ci.appveyor.com/api/projects/status/vpa5eav7sm1n7ik6?svg=true)](https://ci.appveyor.com/project/maxim-zhao/sidwizplus) 
+Get builds from here: https://github.com/maxim-zhao/SidWizPlus/releases/
+
+[![Build status](https://ci.appveyor.com/api/projects/status/vpa5eav7sm1n7ik6?svg=true)](https://ci.appveyor.com/project/maxim-zhao/sidwizplus) 
 
 You can get a compatible build of MultiDumper here: https://github.com/maxim-zhao/multidumper/releases/
 
