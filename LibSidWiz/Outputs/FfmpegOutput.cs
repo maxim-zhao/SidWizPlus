@@ -33,8 +33,16 @@ namespace LibSidWiz.Outputs
 
             Console.WriteLine($"Starting FFMPEG: {pathToExe} {arguments}");
 
-            // We don't want a BOM to be injected if the system code page is set to UTF-8
-            Console.InputEncoding = Encoding.ASCII;
+            // We don't want a BOM to be injected if the system code page is set to UTF-8.
+            // This fails sometimes, so we swallow the error...
+            try
+            {
+                Console.InputEncoding = Encoding.ASCII;
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine($"Failed to change console encoding to ASCII. You may get video corruption. Exception said: {e.Message}");
+            }
 
             // Start it up
             _process = Process.Start(
