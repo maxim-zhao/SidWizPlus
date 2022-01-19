@@ -126,7 +126,11 @@ namespace SidWizPlusGUI
 
                 _processWrappers.Clear();
 
-                return filenames;
+                // Older sidplayfp versions use the filename we give; newer ones always add .wav to the end.
+                // We check which one appeared.
+                return filenames.Select(x => File.Exists(x + ".wav")
+                    ? x + ".wav"
+                    : x);
             }
 
             public void Dispose()
