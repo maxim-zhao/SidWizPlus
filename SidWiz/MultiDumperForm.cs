@@ -14,10 +14,10 @@ namespace SidWizPlusGUI
 
         public IEnumerable<string> Filenames { get; private set; }
 
-        public MultiDumperForm(string filename, string multiDumperPath, int samplingRate, int loopCount, int fadeMs)
+        public MultiDumperForm(string filename, string multiDumperPath, int samplingRate, int loopCount, int fadeMs, int gapMs)
         {
             _filename = filename;
-            _wrapper = new MultiDumperWrapper(multiDumperPath, samplingRate, loopCount, fadeMs);
+            _wrapper = new MultiDumperWrapper(multiDumperPath, samplingRate, loopCount, fadeMs, gapMs);
             InitializeComponent();
         }
 

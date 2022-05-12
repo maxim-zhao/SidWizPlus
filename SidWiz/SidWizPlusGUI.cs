@@ -58,6 +58,11 @@ namespace SidWizPlusGUI
             [Description("Default is 8000 (8s). Requires a build of MultiDumper that supports this!")]
             [DefaultValue(8000)]
             public int MultiDumperFadeMs { get; set; } = 8000;
+            [Category("MultiDumper")]
+            [DisplayName("Gap time (ms)")]
+            [Description("Default is 1000 (1s). Requires a build of MultiDumper that supports this!")]
+            [DefaultValue(1000)]
+            public int MultiDumperGapMs { get; set; } = 1000;
 
             [Category("SidPlay")]
             [Editor(typeof(FileNameEditor), typeof(UITypeEditor))]
@@ -365,7 +370,7 @@ namespace SidWizPlusGUI
                 // Normalize path
                 filename = Path.GetFullPath(filename);
 
-                using (var form = new MultiDumperForm(filename, _programSettings.MultiDumperPath, _programSettings.MultiDumperSamplingRate, _programSettings.MultiDumperLoopCount, _programSettings.MultiDumperFadeMs))
+                using (var form = new MultiDumperForm(filename, _programSettings.MultiDumperPath, _programSettings.MultiDumperSamplingRate, _programSettings.MultiDumperLoopCount, _programSettings.MultiDumperFadeMs, _programSettings.MultiDumperGapMs))
                 {
                     if (form.ShowDialog(this) != DialogResult.OK || form.Filenames == null)
                     {

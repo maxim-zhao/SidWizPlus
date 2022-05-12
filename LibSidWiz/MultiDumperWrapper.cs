@@ -16,15 +16,17 @@ namespace LibSidWiz
         private readonly int _samplingRate;
         private readonly int _loopCount;
         private readonly int _fadeMs;
+        private readonly int _gapMs;
         private ProcessWrapper _processWrapper;
         private readonly HashSet<string> _allowedParameters;
 
-        public MultiDumperWrapper(string multiDumperPath, int samplingRate, int loopCount, int fadeMs)
+        public MultiDumperWrapper(string multiDumperPath, int samplingRate, int loopCount, int fadeMs, int gapMs)
         {
             _multiDumperPath = multiDumperPath;
             _samplingRate = samplingRate;
             _loopCount = loopCount;
             _fadeMs = fadeMs;
+            _gapMs = gapMs;
 
             // We parse the usage info first to check for allowed parameters
             var helpText = GetOutputText("", true);
@@ -188,6 +190,7 @@ namespace LibSidWiz
             AddArgIfSupported(args, "sampling_rate", _samplingRate);
             AddArgIfSupported(args, "fade_length", _fadeMs);
             AddArgIfSupported(args, "loop_count", _loopCount);
+            AddArgIfSupported(args, "gap_length", _gapMs);
             if (song.ForceLength > TimeSpan.Zero)
             {
                 AddArgIfSupported(args, "play_length", (long)song.ForceLength.TotalMilliseconds);
