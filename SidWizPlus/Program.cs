@@ -976,7 +976,7 @@ namespace SidWizPlus
                         var sent = (double)progress.BytesSent / 1024 / 1024;
                         var kbPerSecond = progress.BytesSent / sw.Elapsed.TotalSeconds / 1024;
                         Console.Write(
-                            $"\r{fractionComplete:P} {sent:f}MB sent, average {kbPerSecond:f}KB/s, ETA {eta:g}");
+                            $"\r{fractionComplete:P0} {sent:f}MB sent, average {kbPerSecond:f}KB/s, ETA {eta:g}");
                         break;
                     }
                     case UploadStatus.Failed:
@@ -1142,7 +1142,7 @@ namespace SidWizPlus
             {
                 Snippet = new VideoSnippet
                 {
-                    Title = FormatFromGd3(settings.YouTubeTitle, mergedGd3),
+                    Title = FormatFromGd3(settings.YouTubeTitle, mergedGd3).TrimEnd(' ', '-'),
                     CategoryId = "10", // Music
                     Description = description.ToString()
                 },
