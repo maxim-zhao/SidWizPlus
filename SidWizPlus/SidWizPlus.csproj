@@ -79,7 +79,7 @@
       <Version>1.9.71</Version>
     </PackageReference>
     <PackageReference Include="Google.Apis.YouTube.v3">
-      <Version>1.55.0.2440</Version>
+      <Version>1.57.0.2756</Version>
     </PackageReference>
   </ItemGroup>
   <ItemGroup>

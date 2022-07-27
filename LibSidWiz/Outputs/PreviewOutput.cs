@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using System.Drawing;
 using System.Windows.Forms;
+using Microsoft.WindowsAPICodePack.Taskbar;
 
 namespace LibSidWiz.Outputs
 {
@@ -48,6 +49,8 @@ namespace LibSidWiz.Outputs
                 }
                 _form.pictureBox1.Image = copy;
                 _form.toolStripStatusLabel2.Text = $"{fractionComplete:P} @ {fps:F}fps, ETA {eta:g}";
+                TaskbarManager.Instance.SetProgressState(TaskbarProgressBarState.Normal, _form.Handle);
+                TaskbarManager.Instance.SetProgressValue((int)(fractionComplete * 100), 100, _form.Handle);
             }));
 
             if (_pumpMessageQueue)

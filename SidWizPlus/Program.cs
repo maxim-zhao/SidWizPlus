@@ -976,7 +976,7 @@ namespace SidWizPlus
                         var sent = (double)progress.BytesSent / 1024 / 1024;
                         var kbPerSecond = progress.BytesSent / sw.Elapsed.TotalSeconds / 1024;
                         Console.Write(
-                            $"\r{sent:f}MB sent ({fractionComplete:P}, average {kbPerSecond:f}KB/s, ETA {eta:g})");
+                            $"\r{fractionComplete:P} {sent:f}MB sent, average {kbPerSecond:f}KB/s, ETA {eta:g}");
                         break;
                     }
                     case UploadStatus.Failed:

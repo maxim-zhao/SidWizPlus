@@ -134,8 +134,8 @@ namespace LibVgm
             // Ripped by Ripper
 
             if (title.Length > 0) sb.Append(title);
-            if (game.Length > 0) sb.Append($" – {game}");
-            if (system.Length > 0) sb.Append($" – {system}");
+            if (game.Length > 0) sb.Append($" â€“ {game}");
+            if (system.Length > 0) sb.Append($" â€“ {system}");
             if (Date.Length > 0) sb.Append($" ({Date})");
             if (composer.Length > 0)
             {
