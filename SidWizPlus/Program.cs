@@ -672,7 +672,7 @@ namespace SidWizPlus
             }
         }
 
-        private static void Render(Settings settings, IReadOnlyCollection<Channel> channels)
+        private static void Render(Settings settings, List<Channel> channels)
         {
             Console.WriteLine("Generating background image...");
 
@@ -715,6 +715,26 @@ namespace SidWizPlus
                         settings.Columns = columns;
                         break;
                     }
+                }
+            }
+
+            // If we are doing only YM2413, we consider adding a blank channel after the tone channels
+            if (channels.All(x => x.Label.Contains("YM2413") && channels.Count % settings.Columns != 0))
+            {
+                var numTone = channels.Count(x => x.Label.Contains(" Tone "));
+                // We add enough to pad out the tones, or to right-fill the percussion, whichever is fewer.
+                var numToAdd = Math.Min(numTone % settings.Columns, channels.Count % settings.Columns);
+                // Add add them
+                if (numToAdd > 0)
+                {
+                    var emptyChannel = new Channel(false);
+                    emptyChannel.Filename = "";
+                    emptyChannel.LoadDataAsync().Wait();
+                    for (var i = 0; i < numToAdd; ++i)
+                    {
+                        channels.InsertRange(numTone, Enumerable.Repeat(emptyChannel, numToAdd));
+                    }
+
                 }
             }
 
