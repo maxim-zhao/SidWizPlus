@@ -133,14 +133,22 @@ namespace LibSidWiz
             //      }],
             //  "subsongCount":1
             // }
+            // or:
+            // { "error": "some error message" }
             dynamic metadata = JsonConvert.DeserializeObject(json);
 
             if (metadata == null)
             {
                 throw new Exception("Failed to parse song metadata");
             }
+
+            if (metadata["error"] != null)
+            {
+                throw new Exception($"Failed to parse song metadata: {metadata.error}");
+            }
+
             var channels = metadata.channels.ToObject<List<string>>();
-            var songs = (JArray) metadata.songs;
+            var songs = (JArray)metadata.songs;
             var i = 0;
 
             // This helps us reject any junk strings MultiDumper gives us for empty tags

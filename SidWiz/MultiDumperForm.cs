@@ -78,22 +78,33 @@ namespace SidWizPlusGUI
             // Start a task to load the metadata
             Task.Factory.StartNew(() =>
             {
-                var songs = _wrapper.GetSongs(_filename).ToList();
-                Subsongs.BeginInvoke(new Action(() =>
+                try
                 {
-                    // Back on the GUI thread...
-                    Subsongs.Items.Clear();
-                    Subsongs.Items.AddRange(songs.ToArray<object>());
-
-                    Subsongs.SelectedIndex = 0;
-                    OKButton.Enabled = true;
-
-                    if (songs.Count == 1 && songs[0].GetLength() > TimeSpan.Zero)
+                    var songs = _wrapper.GetSongs(_filename).ToList();
+                    Subsongs.BeginInvoke(new Action(() =>
                     {
-                        // If only one song, and it has a length, choose it
-                        OkButtonClick(this, EventArgs.Empty);
-                    }
-                }));
+                        // Back on the GUI thread...
+                        Subsongs.Items.Clear();
+                        Subsongs.Items.AddRange(songs.ToArray<object>());
+
+                        Subsongs.SelectedIndex = 0;
+                        OKButton.Enabled = true;
+
+                        if (songs.Count == 1 && songs[0].GetLength() > TimeSpan.Zero)
+                        {
+                            // If only one song, and it has a length, choose it
+                            OkButtonClick(this, EventArgs.Empty);
+                        }
+                    }));
+                }
+                catch (Exception ex)
+                {
+                    Subsongs.BeginInvoke(new Action(() =>
+                    {
+                        // Back on the GUI thread...
+                        Subsongs.Items.Add($"Failed to read {_filename}: {ex.Message}");
+                    }));
+                }
             });
         }
 
