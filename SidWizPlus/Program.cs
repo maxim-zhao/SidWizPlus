@@ -15,6 +15,7 @@ using CommandLine;
 using CommandLine.Text;
 using Google;
 using Google.Apis.Auth.OAuth2;
+using Google.Apis.Auth.OAuth2.Responses;
 using Google.Apis.Services;
 using Google.Apis.Upload;
 using Google.Apis.YouTube.v3;
@@ -1171,17 +1172,33 @@ namespace SidWizPlus
 
             if (settings.YouTubeCategory != null)
             {
-                var request = youtubeService.VideoCategories.List("snippet");
-                request.RegionCode = "US";
-                var response = await request.ExecuteAsync();
-                video.Snippet.CategoryId = response.Items
-                    .Where(c => c.Snippet.Title.ToLowerInvariant().Contains(settings.YouTubeCategory.ToLowerInvariant()))
-                    .Select(c => c.Id)
-                    .FirstOrDefault();
-                if (video.Snippet.CategoryId == null)
+                bool retry = false;
+                int tryCount = 0;
+                do
                 {
-                    await Console.Error.WriteLineAsync($"Warning: couldn't find category matching \"{settings.YouTubeCategory}\", defaulting to \"Music\"");
-                }
+                    try
+                    {
+                        var request = youtubeService.VideoCategories.List("snippet");
+                        request.RegionCode = "US";
+                        ++tryCount;
+                        var response = await request.ExecuteAsync();
+                        video.Snippet.CategoryId = response.Items
+                            .Where(c => c.Snippet.Title.ToLowerInvariant()
+                                .Contains(settings.YouTubeCategory.ToLowerInvariant()))
+                            .Select(c => c.Id)
+                            .FirstOrDefault();
+                        if (video.Snippet.CategoryId == null)
+                        {
+                            await Console.Error.WriteLineAsync(
+                                $"Warning: couldn't find category matching \"{settings.YouTubeCategory}\", defaulting to \"Music\"");
+                        }
+                    }
+                    catch (AggregateException ex)
+                    {
+                        retry = ex.InnerExceptions.OfType<TokenResponseException>().Any() && tryCount < 10;
+                        await Console.Error.WriteLineAsync($"Exception talking to YouTube; retry = {retry}, tryCount = {tryCount}");
+                    }
+                } while (retry);
             }
 
             if (video.Snippet.Title.Length > 100)

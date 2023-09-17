@@ -507,25 +507,25 @@ namespace LibVgm
                     case <= 0x2f:
                         // Unhandled
                         continue;
-                    case >= 0x30 and <= 0x3f:
+                    case <= 0x3f:
                         yield return new GenericCommand(reader, 1); // Reserved range
                         break;
-                    case >= 0x40 and <= 0x4e:
+                    case <= 0x4e:
                         yield return new GenericCommand(reader, 2); // Reserved range
                         break;
-                    case >= 0x4f and <= 0x50:
+                    case <= 0x50:
                         yield return new GenericCommand(reader, 1); // GG stereo or PSG
                         break;
-                    case var b and >= 0x51 and <= 0x5f:
+                    case var b and <= 0x5f:
                         yield return new AddressDataCommand(reader, b); // FM chips
                         break;
                     case 0x60:
                         // Unhandled
                         continue;
-                    case var b and >= 0x61 and <= 0x63:
+                    case var b and <= 0x63:
                         yield return new WaitCommand(reader, b);
                         break;
-                    case <= 0x65 and >= 0x64:
+                    case <= 0x65:
                         // Unhandled
                         continue;
                     case 0x66:
@@ -537,13 +537,13 @@ namespace LibVgm
                     case 0x68:
                         yield return new PcmRamWrite(reader);
                         break;
-                    case < 0x6f and >= 0x69:
+                    case < 0x6f:
                         // Unhandled
                         continue;
                     case var b and >= 0x70 and <= 0x7f:
                         yield return new WaitCommand(reader, b);
                         break;
-                    case var b and >= 0x80 and <= 0x8f:
+                    case var b and <= 0x8f:
                         yield return new SampleWaitCommand(reader, b);
                         break;
                     case 0x90:
@@ -564,22 +564,22 @@ namespace LibVgm
                     case 0x95:
                         yield return new DacStreamFastStartCommand(reader);
                         break;
-                    case <= 0x9f and >= 0x96:
+                    case <= 0x9f:
                         // Unhandled
                         continue;
                     case var b and 0xa0:
                         yield return new AddressDataCommand(reader, b);
                         break;
-                    case <= 0xaf and >= 0xa1:
+                    case <= 0xaf:
                         yield return new GenericCommand(reader, 2); // Reserved range
                         break;
-                    case var b and >= 0xb0 and <= 0xbf:
+                    case var b and <= 0xbf:
                         yield return new AddressDataCommand(reader, b);
                         break;
-                    case <= 0xdf and >= 0xc0:
+                    case <= 0xdf:
                         yield return new GenericCommand(reader, 3); // Reserved + some allocated
                         break;
-                    case <= 0xff and >= 0xe0:
+                    default:
                         yield return new GenericCommand(reader, 4); // Reserved + some allocated
                         break;
                 }

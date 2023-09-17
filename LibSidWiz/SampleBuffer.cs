@@ -6,7 +6,7 @@ namespace LibSidWiz
 {
     internal class SampleBuffer: IDisposable
     {
-        private readonly WaveFileReader _reader;
+        private readonly WaveStream _reader;
         private readonly ISampleProvider _sampleProvider;
 
         private class Chunk
@@ -26,7 +26,7 @@ namespace LibSidWiz
         // 4 bytes per sample so this is 1MB
         private const int ChunkSize = 256 * 1024;
 
-        public int Count { get; }
+        public long Count { get; }
 
         public int SampleRate { get; }
 
@@ -38,10 +38,10 @@ namespace LibSidWiz
 
         public SampleBuffer(string filename, Channel.Sides side, bool filter)
         {
-            _reader = new WaveFileReader(filename);
-            Count = (int) _reader.SampleCount;
+            _reader = new AudioFileReader(filename);
+            Count = _reader.Length;
             SampleRate = _reader.WaveFormat.SampleRate;
-            Length = TimeSpan.FromSeconds((double) Count / SampleRate);
+            Length = _reader.TotalTime;
             switch (side)
             {
                 case Channel.Sides.Left:

@@ -243,7 +243,7 @@ namespace SidWizPlusGUI
                 // ReSharper disable once StringLiteralTypo
                 new FileTypeHandler("Multidumper compatible files", LoadMultiDumper, "ay", "gbs", "gym", "hes", "kss",
                     "nsf", "nsfe", "sap", "sfm", "sgc", "spc", "vgm", "vgz", "spu"),
-                new FileTypeHandler("Wave audio files", AddChannel, "wav"),
+                new FileTypeHandler("Wave audio files", AddChannel, "wav", "mp3"),
                 new FileTypeHandler("SID files", LoadSid, "sid")
             };
 
@@ -260,13 +260,11 @@ namespace SidWizPlusGUI
                     "All files", "*.*"
                 }));
 
-            using (var ofd = new OpenFileDialog
+            using (var ofd = new OpenFileDialog())
             {
-                CheckFileExists = true,
-                Filter = filter,
-                Multiselect = true
-            })
-            {
+                ofd.CheckFileExists = true;
+                ofd.Filter = filter;
+                ofd.Multiselect = true;
                 if (ofd.ShowDialog(this) != DialogResult.OK)
                 {
                     return;
@@ -433,12 +431,10 @@ namespace SidWizPlusGUI
                 }
 
                 // Else browse for it
-                using (var ofd = new OpenFileDialog
+                using (var ofd = new OpenFileDialog())
                 {
-                    Title = $"Please locate {filename}",
-                    Filter = $"{filename}|{filename}|All files (*.*)|*.*"
-                })
-                {
+                    ofd.Title = $"Please locate {filename}";
+                    ofd.Filter = $"{filename}|{filename}|All files (*.*)|*.*";
                     if (ofd.ShowDialog(this) == DialogResult.OK)
                     {
                         saveToSettings(ofd.FileName);
@@ -761,13 +757,10 @@ namespace SidWizPlusGUI
 
         private void BackgroundImageControl_Click(object sender, EventArgs e)
         {
-            using (var ofd = new OpenFileDialog
+            using (var ofd = new OpenFileDialog())
             {
-                Title = "Select an image",
-                Filter =
-                    "Image files (*.png;*.gif;*.jpg;*.jpeg;*.bmp;*.wmf)|*.png;*.gif;*.jpg;*.jpeg;*.bmp;*.wmf|All files (*.*)|*.*"
-            })
-            {
+                ofd.Title = "Select an image";
+                ofd.Filter = "Image files (*.png;*.gif;*.jpg;*.jpeg;*.bmp;*.wmf)|*.png;*.gif;*.jpg;*.jpeg;*.bmp;*.wmf|All files (*.*)|*.*";
                 if (ofd.ShowDialog(this) != DialogResult.OK)
                 {
                     BackgroundImageControl.Image = null;
@@ -813,12 +806,10 @@ namespace SidWizPlusGUI
                     LocateProgram("ffmpeg.exe", _programSettings.FfmpegPath,
                         p => _programSettings.FfmpegPath = p);
 
-                    using (var saveFileDialog = new SaveFileDialog
+                    using (var saveFileDialog = new SaveFileDialog())
                     {
-                        Title = "Select destination",
-                        Filter = "Video files (*.mp4;*.mkv;*.avi;*.qt)|*.mp4;*.mkv;*.avi;*.qt|All files (*.*)|*.*"
-                    })
-                    {
+                        saveFileDialog.Title = "Select destination";
+                        saveFileDialog.Filter = "Video files (*.mp4;*.mkv;*.avi;*.qt)|*.mp4;*.mkv;*.avi;*.qt|All files (*.*)|*.*";
                         if (saveFileDialog.ShowDialog(this) != DialogResult.OK)
                         {
                             // Cancel the whole operation
@@ -955,12 +946,10 @@ namespace SidWizPlusGUI
 
         private void SetMasterAudioPath(object sender, EventArgs e)
         {
-            using (var ofd = new OpenFileDialog
+            using (var ofd = new OpenFileDialog())
             {
-                Title = "Select master audio file",
-                Filter = "Wave audio files (*.wav)|*.wav|All files (*.*)|*.*"
-            })
-            {
+                ofd.Title = "Select master audio file";
+                ofd.Filter = "Wave audio files (*.wav)|*.wav|All files (*.*)|*.*";
                 if (ofd.ShowDialog(this) != DialogResult.OK)
                 {
                     return;
@@ -1096,11 +1085,9 @@ namespace SidWizPlusGUI
 
         private void SaveProject(object sender, EventArgs e)
         {
-            using (var sfd = new SaveFileDialog
+            using (var sfd = new SaveFileDialog())
             {
-                Filter = "SidWizPlus settings (*.sidwizplus.json)|*.sidwizplus.json|All files (*.*)|*.*"
-            })
-            {
+                sfd.Filter = "SidWizPlus settings (*.sidwizplus.json)|*.sidwizplus.json|All files (*.*)|*.*";
                 if (sfd.ShowDialog(this) != DialogResult.OK)
                 {
                     return;
@@ -1118,11 +1105,9 @@ namespace SidWizPlusGUI
 
         private void LoadProject(object sender, EventArgs e)
         {
-            using (var ofd = new OpenFileDialog
+            using (var ofd = new OpenFileDialog())
             {
-                Filter = "SidWizPlus settings (*.sidwizplus.json)|*.sidwizplus.json|All files (*.*)|*.*"
-            })
-            {
+                ofd.Filter = "SidWizPlus settings (*.sidwizplus.json)|*.sidwizplus.json|All files (*.*)|*.*";
                 if (ofd.ShowDialog(this) != DialogResult.OK)
                 {
                     return;

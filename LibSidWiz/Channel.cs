@@ -89,6 +89,7 @@ namespace LibSidWiz
                     }
 
                     IsEmpty = false;
+                    Loading = true;
 
                     Console.WriteLine($"- Reading {Filename}");
                     _samples = new SampleBuffer(Filename, Side, HighPassFilter);
@@ -532,7 +533,7 @@ namespace LibSidWiz
 
         [Browsable(false)]
         [JsonIgnore]
-        public int SampleCount { get; private set; }
+        public long SampleCount { get; private set; }
 
         [Category("Data")]
         [Description("Duration of the channel")]
