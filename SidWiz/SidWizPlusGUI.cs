@@ -1000,12 +1000,15 @@ namespace SidWizPlusGUI
             HighDpiHelper.AdjustControlImagesDpiScale(this);
             var settingsPath = GetSettingsPath();
             LoadProgramSettings(settingsPath);
-            _settingsWatcher = new FileSystemWatcher
+            if (File.Exists(settingsPath))
             {
-                Path = Path.GetDirectoryName(settingsPath),
-                Filter = Path.GetFileName(settingsPath)
-            };
-            _settingsWatcher.Changed += (o, args) => LoadProgramSettings(settingsPath);
+                _settingsWatcher = new FileSystemWatcher
+                {
+                    Path = Path.GetDirectoryName(settingsPath),
+                    Filter = Path.GetFileName(settingsPath)
+                };
+                _settingsWatcher.Changed += (o, args) => LoadProgramSettings(settingsPath);
+            }
 
             ProgramSettingsGrid.BeginInvoke(new Action(() => { ProgramSettingsGrid.SelectedObject = _programSettings; }));
 
