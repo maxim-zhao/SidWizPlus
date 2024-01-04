@@ -39,7 +39,7 @@ namespace LibSidWiz
         public SampleBuffer(string filename, Channel.Sides side, bool filter)
         {
             _reader = new AudioFileReader(filename);
-            Count = _reader.Length;
+            Count = _reader.Length * 8 / _reader.WaveFormat.BitsPerSample / _reader.WaveFormat.Channels;
             SampleRate = _reader.WaveFormat.SampleRate;
             Length = _reader.TotalTime;
             switch (side)
