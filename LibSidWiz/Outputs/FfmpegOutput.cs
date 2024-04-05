@@ -66,7 +66,7 @@ namespace LibSidWiz.Outputs
             _writer = new BinaryWriter(_process.StandardInput.BaseStream);
         }
 
-        public void Write(byte[] data, Image image, double fractionComplete)
+        public void Write(Image image, byte[] data, double fractionComplete, TimeSpan length)
         {
             _writer.Write(data);
         }

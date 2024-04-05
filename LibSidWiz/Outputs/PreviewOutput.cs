@@ -24,7 +24,7 @@ namespace LibSidWiz.Outputs
             _stopwatch = Stopwatch.StartNew();
         }
 
-        public void Write(byte[] data, Image image, double fractionComplete)
+        public void Write(Image image, byte[] data, double fractionComplete, TimeSpan length)
         {
             if (!_form.Visible)
             {
@@ -48,7 +48,7 @@ namespace LibSidWiz.Outputs
                     return;
                 }
                 _form.pictureBox1.Image = copy;
-                _form.toolStripStatusLabel2.Text = $"{fractionComplete:P} @ {fps:F}fps, ETA {eta:g}";
+                _form.toolStripStatusLabel2.Text = $"{fractionComplete:P} of {length} @ {fps:F}fps, ETA {eta:g}";
                 TaskbarManager.Instance.SetProgressState(TaskbarProgressBarState.Normal, _form.Handle);
                 TaskbarManager.Instance.SetProgressValue((int)(fractionComplete * 100), 100, _form.Handle);
             }));

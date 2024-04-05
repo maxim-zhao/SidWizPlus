@@ -93,6 +93,7 @@ namespace LibSidWiz
                 using (var bm = new Bitmap(Width, Height, Width * 4, PixelFormat.Format32bppPArgb, pinnedArray.AddrOfPinnedObject()))
                 {
                     int numFrames = (int)(_channels.Max(c => c.SampleCount) * FramesPerSecond / SamplingRate);
+                    var length = TimeSpan.FromSeconds((double)numFrames / FramesPerSecond);
 
                     int frameIndex = 0;
                     Render(bm, rawData, () =>
@@ -102,7 +103,7 @@ namespace LibSidWiz
                             {
                                 // ReSharper disable once AccessToDisposedClosure
                                 // bm is disposed after Render() returns, but it never invokes this 
-                                output.Write(rawData, bm, fractionComplete);
+                                output.Write(bm, rawData, fractionComplete, length);
                             }
                         },
                         0, numFrames);

@@ -5,6 +5,6 @@ namespace LibSidWiz.Outputs
 {
     public interface IGraphicsOutput: IDisposable
     {
-        void Write(byte[] data, Image image, double fractionComplete);
+        void Write(Image image, byte[] data, double fractionComplete, TimeSpan length);
     }
 }

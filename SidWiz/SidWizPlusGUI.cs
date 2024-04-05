@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
-using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
 using System.Drawing.Design;
 using System.Globalization;
@@ -21,11 +20,6 @@ namespace SidWizPlusGUI
 {
     public partial class SidWizPlusGui : Form
     {
-        [SuppressMessage("ReSharper", "UnusedAutoPropertyAccessor.Local")]
-        [SuppressMessage("ReSharper", "InconsistentNaming")]
-        [SuppressMessage("ReSharper", "FieldCanBeMadeReadOnly.Global")]
-        [SuppressMessage("ReSharper", "UnusedAutoPropertyAccessor.Global")]
-        [SuppressMessage("ReSharper", "AutoPropertyCanBeMadeGetOnly.Global")]
         public class ProgramSettings
         {
             [Category("FFMPEG")]
@@ -907,7 +901,7 @@ namespace SidWizPlusGUI
                 }));
             }
 
-            public void Write(byte[] data, Image image, double fractionComplete)
+            public void Write(Image image, byte[] data, double fractionComplete, TimeSpan length)
             {
                 if (_cancelRequested)
                 {
@@ -934,7 +928,7 @@ namespace SidWizPlusGUI
                         return;
                     }
 
-                    _form.Text = $"SidWizPlusGUI - {fractionComplete:P} @ {fps:F}fps, ETA {eta:g}";
+                    _form.Text = $"SidWizPlusGUI - {fractionComplete:P} of {length} @ {fps:F}fps, ETA {eta:g}";
                 }));
             }
         }
