@@ -21,12 +21,11 @@ namespace LibSidWiz.Outputs
             // Audio part
             if (File.Exists(masterAudioFilename))
             {
-                arguments += $" -i \"{masterAudioFilename}\"";
-                arguments += " -acodec aac";
+                arguments += $" -i \"{masterAudioFilename}\" -acodec flac";
             }
 
             // Video part
-            arguments += $" -f rawvideo -pixel_format bgr0 -video_size {width}x{height} -framerate {fps} -i pipe: -movflags +faststart";
+            arguments += $" -f rawvideo -pixel_format bgr0 -video_size {width}x{height} -framerate {fps} -thread_queue_size 4096 -i pipe: -movflags +faststart";
 
             // Extra args
             arguments += $" {extraArgs} \"{filename}\"";

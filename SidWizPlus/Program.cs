@@ -127,7 +127,7 @@ namespace SidWizPlus
             [Option("ffmpeg", Required = false, HelpText = "Path to FFMPEG. If not given, no output is produced.")]
             public string FfMpegPath { get; set; }
             // ReSharper disable once StringLiteralTypo
-            [Option("ffmpegoptions", Required = false, HelpText = "Extra commandline options for FFMPEG, e.g. to set the output format", DefaultValue = "")]
+            [Option("ffmpegoptions", Required = false, HelpText = "Extra commandline options for FFMPEG, e.g. to set the output format. Surround value with quotes and start with a space, e.g. \" -acodec flac\", to avoid conflicts with other parameters.", DefaultValue = "")]
             public string FfMpegExtraOptions { get; set; }
 
             // ReSharper disable once StringLiteralTypo
@@ -880,12 +880,13 @@ namespace SidWizPlus
 
             if (settings.YouTubeTagsFromGd3 && gd3 != null)
             {
+                // We have a VGM file
                 tags.Add(gd3.Game.English);
                 tags.Add(gd3.System.English);
                 tags.AddRange(gd3.Composer.English.Split(';'));
             }
 
-            video.Snippet.Tags = tags.Where(t => !string.IsNullOrEmpty(t)).Select(t => t.Trim()).ToList();
+            video.Snippet.Tags = tags.Distinct().Where(t => !string.IsNullOrEmpty(t)).Select(t => t.Trim()).ToList();
 
             if (settings.YouTubeCategory != null)
             {
@@ -1087,10 +1088,20 @@ namespace SidWizPlus
 
         private static async Task UploadMergedToYouTube(Settings settings)
         {
+            if (!File.Exists(settings.FfMpegPath))
+            {
+                throw new Exception("FFMPEG path is required");
+            }
+
             // First we look for the videos and collect some metadata
             var outputPath = Path.GetFullPath(settings.OutputFile);
+            var directoryName = Path.GetDirectoryName(settings.YouTubeMerge);
+            if (string.IsNullOrEmpty(directoryName))
+            {
+                directoryName = ".";
+            }
             var files = Directory.EnumerateFiles(
-                    Path.GetDirectoryName(settings.YouTubeMerge) ?? ".",
+                    directoryName,
                     Path.GetFileName(settings.YouTubeMerge))
                 .AsParallel()
                 .Select(Path.GetFullPath)
