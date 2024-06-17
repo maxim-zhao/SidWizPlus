@@ -2,7 +2,6 @@
   <PropertyGroup>
     <TargetFramework>net48</TargetFramework>
     <OutputType>Exe</OutputType>
-    <ImportWindowsDesktopTargets>true</ImportWindowsDesktopTargets>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <LangVersion>latest</LangVersion>
   </PropertyGroup>
@@ -12,6 +11,6 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="CommandLineParser" Version="1.9.71" />
-    <PackageReference Include="Google.Apis.YouTube.v3" Version="1.57.0.2756" />
+    <PackageReference Include="Google.Apis.YouTube.v3" Version="1.68.0.3421" />
   </ItemGroup>
 </Project>
