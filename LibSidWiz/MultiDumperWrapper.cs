@@ -30,10 +30,12 @@ namespace LibSidWiz
 
             // We parse the usage info first to check for allowed parameters
             var helpText = GetOutputText("", true);
-            _allowedParameters = new HashSet<string>(
-                Regex.Matches(helpText, "--[^]=]+")
+            _allowedParameters =
+            [
+                ..Regex.Matches(helpText, "--[^]=]+")
                     .Cast<Match>()
-                    .Select(x => x.Value));
+                    .Select(x => x.Value)
+            ];
         }
 
         public class Song
@@ -135,12 +137,8 @@ namespace LibSidWiz
             // }
             // or:
             // { "error": "some error message" }
-            dynamic metadata = JsonConvert.DeserializeObject(json);
-
-            if (metadata == null)
-            {
-                throw new Exception("Failed to parse song metadata");
-            }
+            dynamic metadata = JsonConvert.DeserializeObject(json) 
+                ?? throw new Exception("Failed to parse song metadata");
 
             if (metadata["error"] != null)
             {
@@ -151,8 +149,6 @@ namespace LibSidWiz
             var songs = (JArray)metadata.songs;
             var i = 0;
 
-            // This helps us reject any junk strings MultiDumper gives us for empty tags
-            string Clean(string s) => string.IsNullOrEmpty(s) || s.Any(char.IsControl) ? string.Empty : s;
             return songs.Cast<dynamic>().Select(s => new Song
             {
                 Filename = filename,
@@ -169,6 +165,9 @@ namespace LibSidWiz
                 LoopLength = TimeSpan.FromMilliseconds((int)(s.loop_length ?? 0)),
                 LoopCount = _loopCount
             });
+
+            // This helps us reject any junk strings MultiDumper gives us for empty tags
+            static string Clean(string s) => string.IsNullOrEmpty(s) || s.Any(char.IsControl) ? string.Empty : s;
         }
 
         private string GetOutputText(string args, bool includeStdErr)

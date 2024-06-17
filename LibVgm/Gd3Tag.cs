@@ -12,7 +12,7 @@ namespace LibVgm
             public string English { get; set; }
             public string Japanese { get; set; }
 
-            public override string ToString()
+            public readonly override string ToString()
             {
                 return English.Length > 0 ? Japanese.Length > 0 ? $"{English} ({Japanese})" : $"{English}" : "";
             }

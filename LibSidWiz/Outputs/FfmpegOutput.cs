@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Diagnostics;
-using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
 using System.IO;
 using System.Text;
@@ -12,7 +11,6 @@ namespace LibSidWiz.Outputs
         private readonly Process _process;
         private readonly BinaryWriter _writer;
 
-        [SuppressMessage("ReSharper", "StringLiteralTypo")]
         public FfmpegOutput(string pathToExe, string filename, int width, int height, int fps, string extraArgs, string masterAudioFilename)
         {
             // Build the FFMPEG commandline

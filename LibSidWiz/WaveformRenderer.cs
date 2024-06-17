@@ -15,7 +15,7 @@ namespace LibSidWiz
     /// </summary>
     public class WaveformRenderer
     {
-        private readonly List<Channel> _channels = new();
+        private readonly List<Channel> _channels = [];
 
         public int Width { get; set; }
         public int Height { get; set; }
