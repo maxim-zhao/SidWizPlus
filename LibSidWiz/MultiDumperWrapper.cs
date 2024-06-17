@@ -173,23 +173,21 @@ namespace LibSidWiz
 
         private string GetOutputText(string args, bool includeStdErr)
         {
-            using (var p = new ProcessWrapper(
+            using var p = new ProcessWrapper(
                 _multiDumperPath,
                 args,
-                includeStdErr))
+                includeStdErr);
+            string text = string.Join("", p.Lines());
+            // Try to decode any UTF-8 in there
+            try
             {
-                string text = string.Join("", p.Lines());
-                // Try to decode any UTF-8 in there
-                try
-                {
-                    text = Encoding.UTF8.GetString(Encoding.Default.GetBytes(text));
-                }
-                catch (Exception)
-                {
-                    // Ignore it, use unfixed string
-                }
-                return text;
+                text = Encoding.UTF8.GetString(Encoding.Default.GetBytes(text));
             }
+            catch (Exception)
+            {
+                // Ignore it, use unfixed string
+            }
+            return text;
         }
 
         public IEnumerable<string> Dump(Song song, Action<double> onProgress)

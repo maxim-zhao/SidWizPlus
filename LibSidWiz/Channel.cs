@@ -44,7 +44,7 @@ namespace LibSidWiz
         private Color _borderColor = Color.Transparent;
         private float _borderWidth;
         private ContentAlignment _labelAlignment = ContentAlignment.TopLeft;
-        private Padding _labelMargins = new Padding(0, 0, 0, 0);
+        private Padding _labelMargins = new(0, 0, 0, 0);
         private bool _invertedTrigger;
         private bool _borderEdges = true;
         private Color _backgroundColor = Color.Transparent;
@@ -69,7 +69,7 @@ namespace LibSidWiz
 
         public event Action<Channel, bool> Changed;
 
-        public Task<bool> LoadDataAsync(CancellationToken token = new CancellationToken())
+        public Task<bool> LoadDataAsync(CancellationToken token = new())
         {
             return Task.Factory.StartNew(() =>
             {
@@ -108,15 +108,10 @@ namespace LibSidWiz
 
                     Console.WriteLine($"- Peak sample amplitude for {Filename} is {Max}");
 
-                    if (string.IsNullOrEmpty(ExternalTriggerFilename))
-                    {
-                        // Point at the same SampleBuffer
-                        _samplesForTrigger = _samples;
-                    }
-                    else
-                    {
-                        _samplesForTrigger = new SampleBuffer(ExternalTriggerFilename, Side, HighPassFilter);
-                    }
+                    // Point at the same SampleBuffer
+                    _samplesForTrigger = string.IsNullOrEmpty(ExternalTriggerFilename) 
+                        ? _samples 
+                        : new SampleBuffer(ExternalTriggerFilename, Side, HighPassFilter);
 
                     Loading = false;
                     return true;
@@ -806,24 +801,22 @@ namespace LibSidWiz
                 return true;
             }
 
-            using (var reader = new WaveFileReader(_filename))
+            using var reader = new WaveFileReader(_filename);
+            var sp = reader.ToSampleProvider().ToStereo();
+            if (sp.WaveFormat.Channels == 1)
             {
-                var sp = reader.ToSampleProvider().ToStereo();
-                if (sp.WaveFormat.Channels == 1)
-                {
-                    return true;
-                }
+                return true;
+            }
 
-                int bufferSize = sp.WaveFormat.SampleRate * 10;
-                var buffer = new float[bufferSize];
-                sp.Read(buffer, 0, bufferSize);
-                for (int i = 0; i < bufferSize; i += 2)
+            int bufferSize = sp.WaveFormat.SampleRate * 10;
+            var buffer = new float[bufferSize];
+            sp.Read(buffer, 0, bufferSize);
+            for (int i = 0; i < bufferSize; i += 2)
+            {
+                // ReSharper disable once CompareOfFloatsByEqualityOperator
+                if (buffer[i] != buffer[i + 1])
                 {
-                    // ReSharper disable once CompareOfFloatsByEqualityOperator
-                    if (buffer[i] != buffer[i + 1])
-                    {
-                        return false;
-                    }
+                    return false;
                 }
             }
 

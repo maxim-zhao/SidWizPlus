@@ -9,7 +9,7 @@ namespace LibSidWiz
     public class ProcessWrapper: IDisposable
     {
         private readonly Process _process;
-        private readonly BlockingCollection<string> _lines = new BlockingCollection<string>(new ConcurrentQueue<string>());
+        private readonly BlockingCollection<string> _lines = new(new ConcurrentQueue<string>());
         private readonly CancellationTokenSource _cancellationTokenSource;
         private int _streamCount;
 

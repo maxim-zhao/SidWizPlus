@@ -126,20 +126,13 @@ namespace LibSidWiz
         }
     }
 
-    internal class HighPassSampleProvider : ISampleProvider
+    internal class HighPassSampleProvider(ISampleProvider sampleProvider) : ISampleProvider
     {
-        private readonly ISampleProvider _sampleProvider;
-        private readonly BiQuadFilter _filter;
-
-        public HighPassSampleProvider(ISampleProvider sampleProvider)
-        {
-            _sampleProvider = sampleProvider;
-            _filter = BiQuadFilter.HighPassFilter(sampleProvider.WaveFormat.SampleRate, 20, 1);
-        }
+        private readonly BiQuadFilter _filter = BiQuadFilter.HighPassFilter(sampleProvider.WaveFormat.SampleRate, 20, 1);
 
         public int Read(float[] buffer, int offset, int count)
         {
-            int result = _sampleProvider.Read(buffer, offset, count);
+            int result = sampleProvider.Read(buffer, offset, count);
 
             // Apply the filter
             for (int i = 0; i < result; ++i)
@@ -150,6 +143,6 @@ namespace LibSidWiz
             return result;
         }
 
-        public WaveFormat WaveFormat => _sampleProvider.WaveFormat;
+        public WaveFormat WaveFormat => sampleProvider.WaveFormat;
     }
 }
