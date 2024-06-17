@@ -1,4 +1,4 @@
-﻿
+
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.31702.278
@@ -9,7 +9,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LibSidWiz", "LibSidWiz\LibS
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SidWizPlus", "SidWizPlus\SidWizPlus.csproj", "{6E0D8279-E2FA-4FF5-921F-A408915A93A0}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LibVgm", "LibVgm\LibVgm.csproj", "{50DBEB28-7D52-4658-A276-724E7415B7E1}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LibVgm", "LibVgm\LibVgm.csproj", "{50DBEB28-7D52-4658-A276-724E7415B7E1}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
