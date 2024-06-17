@@ -93,8 +93,8 @@ namespace SidWizPlusGUI
             this.ShowInTaskbar = false;
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             this.Text = "SidPlay subsong selection";
-            this.Closing += new System.ComponentModel.CancelEventHandler(this.SubsongSelectionForm_Closing);
-            this.Load += new System.EventHandler(this.SubsongSelectionForm_Load);
+            this.Closing += new System.ComponentModel.CancelEventHandler(this.SubSongSelectionForm_Closing);
+            this.Load += new System.EventHandler(this.SubSongSelectionForm_Load);
             this.ResumeLayout(false);
 
         }

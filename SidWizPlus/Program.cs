@@ -403,12 +403,9 @@ namespace SidWizPlus
                             if (channelsToUse.Count == 0)
                             {
                                 // Fall back on overall max if all channels are percussion
-                                max = channels.Max(ch => ch.Max);
+                                channelsToUse = channels;
                             }
-                            else
-                            {
-                                max = channelsToUse.Max(ch => ch.Max);
-                            }
+                            max = channelsToUse.Max(ch => ch.Max);
                         }
                         else
                         {
@@ -470,7 +467,8 @@ namespace SidWizPlus
             public int Instrument { private get; set; }
             public int Ticks { get; private set; }
 
-            private static readonly string[] Names = {
+            private static readonly string[] Names =
+            [
                 "Custom Instrument",
                 "Violin",
                 "Guitar",
@@ -486,8 +484,8 @@ namespace SidWizPlus
                 "Vibraphone",
                 "Synthesizer Bass",
                 "Acoustic Bass",
-                "Electric Guitar",
-            };
+                "Electric Guitar"
+            ];
 
             public string Name => Names[Instrument];
 
@@ -725,11 +723,13 @@ namespace SidWizPlus
                 var numTone = channels.Count(x => x.Label.Contains(" Tone "));
                 // We add enough to pad out the tones, or to right-fill the percussion, whichever is fewer.
                 var numToAdd = Math.Min(numTone % settings.Columns, channels.Count % settings.Columns);
-                // Add add them
+                // Add them
                 if (numToAdd > 0)
                 {
-                    var emptyChannel = new Channel(false);
-                    emptyChannel.Filename = "";
+                    var emptyChannel = new Channel(false)
+                    {
+                        Filename = ""
+                    };
                     emptyChannel.LoadDataAsync().Wait();
                     for (var i = 0; i < numToAdd; ++i)
                     {
@@ -1055,35 +1055,27 @@ namespace SidWizPlus
 
         private static async Task<YouTubeService> GetYouTubeService(Settings settings)
         {
-            ClientSecrets secrets;
-            if (settings.YouTubeUploadClientSecret != null)
+            if (settings.YouTubeUploadClientSecret == null)
             {
-                using var stream = new FileStream(settings.YouTubeUploadClientSecret, FileMode.Open, FileAccess.Read);
-                secrets = (await GoogleClientSecrets.FromStreamAsync(stream)).Secrets;
-            }
-            else
-            {
-                // We use our embedded client secret
-                using var stream = Properties.Resources.ResourceManager.GetStream(nameof(Properties.Resources.ClientSecret));
-                secrets = (await GoogleClientSecrets.FromStreamAsync(stream)).Secrets;
+                throw new Exception("No YouTube client secret provided");
             }
 
             var credential = await GoogleWebAuthorizationBroker.AuthorizeAsync(
-                secrets,
-                // This OAuth 2.0 access scope allows an application to upload files to the
-                // authenticated user's YouTube channel, but doesn't allow other types of access.
-                new[] { YouTubeService.Scope.YoutubeUpload, YouTubeService.Scope.YoutubeForceSsl },
-                "SidWizPlus",
-                CancellationToken.None
-            );
+                    (await GoogleClientSecrets.FromFileAsync(settings.YouTubeUploadClientSecret)).Secrets,
+                    // This OAuth 2.0 access scope allows an application to upload files to the
+                    // authenticated user's YouTube channel, but doesn't allow other types of access.
+                    [YouTubeService.Scope.YoutubeUpload, YouTubeService.Scope.YoutubeForceSsl],
+                    "SidWizPlus",
+                    CancellationToken.None
+                );
 
-            var youtubeService = new YouTubeService(new BaseClientService.Initializer
-            {
-                HttpClientInitializer = credential,
-                ApplicationName = Assembly.GetExecutingAssembly().GetName().Name,
-                GZipEnabled = true
-            });
-            return youtubeService;
+                var youtubeService = new YouTubeService(new BaseClientService.Initializer
+                {
+                    HttpClientInitializer = credential,
+                    ApplicationName = Assembly.GetExecutingAssembly().GetName().Name,
+                    GZipEnabled = true
+                });
+                return youtubeService;
         }
 
         private static async Task UploadMergedToYouTube(Settings settings)

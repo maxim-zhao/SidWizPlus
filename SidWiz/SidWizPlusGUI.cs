@@ -552,7 +552,7 @@ namespace SidWizPlusGUI
 
         private WaveformRenderer CreateWaveformRenderer()
         {
-            // This can be on a worker thread so we need to lock...
+            // This can be on a worker thread, so we need to lock...
             lock (_settings)
             {
                 var renderer = new WaveformRenderer
@@ -977,7 +977,7 @@ namespace SidWizPlusGUI
             Directory.CreateDirectory(directory);
             File.WriteAllText(path, JsonConvert.SerializeObject(_programSettings));
 
-            // It may be filled in automatically so we need to refresh the UI
+            // It may be filled in automatically, so we need to refresh the UI
             ProgramSettingsGrid.SelectedObject = _programSettings;
         }
 
@@ -1014,7 +1014,7 @@ namespace SidWizPlusGUI
             // Use exe icon as form icon
             Icon = Icon.ExtractAssociatedIcon(Application.ExecutablePath);
 
-            // Replicate the right-click menu into the toolbar automatically so I don't have to maintain both
+            // Replicate the right-click menu into the toolbar automatically, so I don't have to maintain both
             int indexToInsertAt = toolStrip1.Items.IndexOf(ChannelToolstripItemsSeparator) + 1;
             foreach (var item in contextMenuStrip1.Items.Cast<ToolStripItem>().Reverse())
             {

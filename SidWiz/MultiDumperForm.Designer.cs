@@ -115,7 +115,7 @@ namespace SidWizPlusGUI
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             this.Text = "Multidumper subsong selection";
             this.Closing += new System.ComponentModel.CancelEventHandler(this.SubsongSelectionForm_Closing);
-            this.Load += new System.EventHandler(this.SubsongSelectionForm_Load);
+            this.Load += new System.EventHandler(this.SubSongSelectionForm_Load);
             this.ResumeLayout(false);
             this.PerformLayout();
 

@@ -189,7 +189,7 @@ namespace SidWizPlusGUI
             }
         }
 
-        private void SubsongSelectionForm_Load(object sender, EventArgs e)
+        private void SubSongSelectionForm_Load(object sender, EventArgs e)
         {
             Subsongs.Items.Clear();
             Subsongs.Items.Add($"Checking {_filename}...");
@@ -215,7 +215,7 @@ namespace SidWizPlusGUI
             });
         }
 
-        private void SubsongSelectionForm_Closing(object sender, EventArgs e)
+        private void SubSongSelectionForm_Closing(object sender, EventArgs e)
         {
             _wrapper.Dispose();
         }

@@ -44,8 +44,10 @@ namespace SidWizPlusGUI
 
         private void OnClick(object sender, EventArgs e)
         {
-            using (var colorDialog = new ColorDialog{Color = _color, FullOpen = true})
+            using (var colorDialog = new ColorDialog())
             {
+                colorDialog.Color = _color;
+                colorDialog.FullOpen = true;
                 if (colorDialog.ShowDialog(this) != DialogResult.OK)
                 {
                     return;
