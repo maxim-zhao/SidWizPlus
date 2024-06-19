@@ -246,7 +246,7 @@ namespace SidWizPlus
             public bool YouTubeOnly { get; set; }
 
             // ReSharper disable once StringLiteralTypo
-            [Option("youtubemerge", HelpText = "Merge the specified videos (wildcard, results sorted alphabetically) to one file and upload to YouTube")]
+            [Option("youtubemerge", HelpText = "Merge the specified videos (wildcard, results sorted alphabetically) to one file and upload to YouTube", Group="Inputs")]
             public string YouTubeMerge { get; set; }
         }
 
@@ -792,14 +792,10 @@ namespace SidWizPlus
             }
 
             var values = Environment.GetEnvironmentVariable("PATH");
-            if (values != null)
-            {
-                return values.Split(Path.PathSeparator)
+            return values?.Split(Path.PathSeparator)
                     .Select(path => Path.Combine(path, name))
-                    .FirstOrDefault(File.Exists);
-            }
-
-            throw new Exception($"Could not find path to {name}");
+                    .FirstOrDefault(File.Exists)
+                ?? throw new Exception($"Could not find path to {name}");
         }
 
         private static ITriggerAlgorithm CreateTriggerAlgorithm(string name)
@@ -1082,7 +1078,7 @@ namespace SidWizPlus
         {
             if (!File.Exists(settings.FfMpegPath))
             {
-                throw new Exception("FFMPEG path is required");
+                settings.FfMpegPath = FindExecutable("ffmpeg.exe");
             }
 
             // First we look for the videos and collect some metadata
