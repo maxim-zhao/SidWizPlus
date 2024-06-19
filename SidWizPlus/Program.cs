@@ -12,7 +12,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using CommandLine;
-using CommandLine.Text;
 using Google;
 using Google.Apis.Auth.OAuth2;
 using Google.Apis.Auth.OAuth2.Responses;
@@ -31,14 +30,15 @@ namespace SidWizPlus
     // ReSharper disable once ClassNeverInstantiated.Global
     internal class Program
     {
+        // ReSharper disable once ClassNeverInstantiated.Local
         private class Settings
         {
             // ReSharper disable UnusedAutoPropertyAccessor.Local
 
-            [OptionList('f', "files", Separator = ',', HelpText = "Input WAV files, comma-separated. Wildcards are accepted.")] 
-            public List<string> InputFiles { get; set; }
+            [Option('f', "files", Separator = ',', HelpText = "Input WAV files, comma-separated. Wildcards are accepted.", Group = "Inputs")] 
+            public IEnumerable<string> InputFiles { get; set; }
 
-            [Option('v', "vgm", Required = false, HelpText = "VGM file, if specified GD3 text is drawn")]
+            [Option('v', "vgm", Required = false, HelpText = "VGM file, if specified GD3 text is drawn", Group = "Inputs")]
             public string VgmFile { get; set; }
 
             [Option('m', "master", Required = false, HelpText = "Master audio file, if not specified then the inputs will be mixed to a new file")]
@@ -52,43 +52,47 @@ namespace SidWizPlus
             [Option("nomastermixreplaygain", HelpText = "Disable automatic ReplayGain adjustment of automatically generated master audio file (on by default)")]
             public bool NoMasterMixReplayGain { get; set;}
 
-            [Option('o', "output", Required = false, HelpText = "Output file")]
+            [Option('o', "output", Required = false, HelpText = "Output file", Group = "Outputs")]
             public string OutputFile { get; set; }
 
-            [Option('w', "width", Required = false, HelpText = "Width of image rendered", DefaultValue = 1024)]
+            // ReSharper disable once StringLiteralTypo
+            [Option('p', "previewframeskip", Required = false, HelpText = "Enable a preview window with the specified frameskip - higher values give faster rendering by not drawing every frame to the screen.", Group = "Outputs")]
+            public int PreviewFrameskip { get; set; }
+
+            [Option('w', "width", Required = false, HelpText = "Width of image rendered", Default = 720*16/9)]
             public int Width { get; set; }
 
-            [Option('h', "height", Required = false, HelpText = "Height of image rendered", DefaultValue = 720)]
+            [Option('h', "height", Required = false, HelpText = "Height of image rendered", Default = 720)]
             public int Height { get; set; }
 
-            [Option('c', "columns", Required = false, HelpText = "Number of columns to render", DefaultValue = 1)]
+            [Option('c', "columns", Required = false, HelpText = "Number of columns to render", Default = 1)]
             public int Columns { get; set; }
 
             // ReSharper disable once StringLiteralTypo
-            [Option("maxaspectratio", Required = false, HelpText = "Maximum aspect ratio, used to automatically determine the number of columns", DefaultValue = -1.0)]
+            [Option("maxaspectratio", Required = false, HelpText = "Maximum aspect ratio, used to automatically determine the number of columns", Default = -1.0)]
             public double MaximumAspectRatio { get; set; }
 
             // ReSharper disable once StringLiteralTypo
-            [Option("viewms", Required = false, HelpText = "Rendered view width in ms", DefaultValue = 35)]
+            [Option("viewms", Required = false, HelpText = "Rendered view width in ms", Default = 35)]
             public int ViewWidthMs { get; set; }
 
-            [Option('r', "fps", Required = false, HelpText = "Frame rate", DefaultValue = 60)]
+            [Option('r', "fps", Required = false, HelpText = "Frame rate", Default = 60)]
             public int FramesPerSecond { get; set; }
             
             // ReSharper disable once StringLiteralTypo
-            [Option("linewidth", Required = false, HelpText = "Line width", DefaultValue = 3)]
+            [Option("linewidth", Required = false, HelpText = "Line width", Default = 3)]
             public float LineWidth { get; set; }
 
             // ReSharper disable once StringLiteralTypo
-            [Option("linecolor", Required = false, HelpText = "Line color, can be hex or a .net color name", DefaultValue = "white")]
+            [Option("linecolor", Required = false, HelpText = "Line color, can be hex or a .net color name", Default = "white")]
             public string LineColor { get; set; }
 
             // ReSharper disable once StringLiteralTypo
-            [Option("fillcolor", Required = false, HelpText = "Fill color, can be hex or a .net color name", DefaultValue = "transparent")]
+            [Option("fillcolor", Required = false, HelpText = "Fill color, can be hex or a .net color name", Default = "transparent")]
             public string FillColor { get; set; }
 
             // ReSharper disable once StringLiteralTypo
-            [Option("fillbase", Required = false, HelpText = "Fill baseline, values in range -1..+1 make sense", DefaultValue = 0.0)]
+            [Option("fillbase", Required = false, HelpText = "Fill baseline, values in range -1..+1 make sense", Default = 0.0)]
             public double FillBase { get; set; }
 
             // ReSharper disable once StringLiteralTypo
@@ -104,30 +108,26 @@ namespace SidWizPlus
             public bool ChannelLabelsFromVgm { get; set; }
 
             // ReSharper disable once StringLiteralTypo
-            [Option('t', "triggeralgorithm", Required = false, HelpText = "Trigger algorithm name", DefaultValue = nameof(PeakSpeedTrigger))]
+            [Option('t', "triggeralgorithm", Required = false, HelpText = "Trigger algorithm name", Default = nameof(PeakSpeedTrigger))]
             public string TriggerAlgorithm { get; set; }
 
             // ReSharper disable once StringLiteralTypo
-            [Option("triggerlookahead", Required = false, HelpText = "Number of frames to allow the trigger to look ahead, zero means no lookahead", DefaultValue = 0)]
+            [Option("triggerlookahead", Required = false, HelpText = "Number of frames to allow the trigger to look ahead, zero means no lookahead", Default = 0)]
             public int TriggerLookahead { get; set; }
 
             // ReSharper disable once StringLiteralTypo
-            [Option("triggerlookaheadonfailure", Required = false, HelpText = "Number of frames to allow the trigger to look ahead when failing to find a match with the default", DefaultValue = 1)]
+            [Option("triggerlookaheadonfailure", Required = false, HelpText = "Number of frames to allow the trigger to look ahead when failing to find a match with the default", Default = 1)]
             public int TriggerLookaheadOnFailureFrames { get; set; }
 
             // ReSharper disable once StringLiteralTypo
-            [Option("highpass", Required = false, HelpText = "Enable high-pass filtering", DefaultValue = false)]
+            [Option("highpass", Required = false, HelpText = "Enable high-pass filtering", Default = false)]
             public bool HighPass { get; set; }
 
             // ReSharper disable once StringLiteralTypo
-            [Option('p', "previewframeskip", Required = false, HelpText = "Enable a preview window with the specified frameskip - higher values give faster rendering by not drawing every frame to the screen.")]
-            public int PreviewFrameskip { get; set; }
-
-            // ReSharper disable once StringLiteralTypo
-            [Option("ffmpeg", Required = false, HelpText = "Path to FFMPEG. If not given, no output is produced.")]
+            [Option("ffmpeg", Required = false, HelpText = "Path to FFMPEG. Required if rendering to a file. Will be discovered if on the path.")]
             public string FfMpegPath { get; set; }
             // ReSharper disable once StringLiteralTypo
-            [Option("ffmpegoptions", Required = false, HelpText = "Extra commandline options for FFMPEG, e.g. to set the output format. Surround value with quotes and start with a space, e.g. \" -acodec flac\", to avoid conflicts with other parameters.", DefaultValue = "")]
+            [Option("ffmpegoptions", Required = false, HelpText = "Extra commandline options for FFMPEG, e.g. to set the output format. Surround value with quotes and start with a space, e.g. \" -acodec flac\", to avoid conflicts with other parameters.", Default = "")]
             public string FfMpegExtraOptions { get; set; }
 
             // ReSharper disable once StringLiteralTypo
@@ -136,27 +136,27 @@ namespace SidWizPlus
             public string MultidumperPath { get; set; }
 
             // ReSharper disable once StringLiteralTypo
-            [Option("multidumpersamplingrate", Required = false, HelpText = "Sampling rate for MultiDumper", DefaultValue = 44100)]
+            [Option("multidumpersamplingrate", Required = false, HelpText = "Sampling rate for MultiDumper", Default = 44100)]
             // ReSharper disable once IdentifierTypo
             public int MultidumperSamplingRate { get; set; }
 
             // ReSharper disable once StringLiteralTypo
-            [Option("multidumperloopcount", Required = false, HelpText = "Loop count for MultiDumper", DefaultValue = 2)]
+            [Option("multidumperloopcount", Required = false, HelpText = "Loop count for MultiDumper", Default = 2)]
             // ReSharper disable once IdentifierTypo
             public int MultidumperLoopCount { get; set; }
 
             // ReSharper disable once StringLiteralTypo
-            [Option("multidumperfadeoutms", Required = false, HelpText = "Fade out time after looping for MultiDumper, in ms", DefaultValue = 8000)]
+            [Option("multidumperfadeoutms", Required = false, HelpText = "Fade out time after looping for MultiDumper, in ms", Default = 8000)]
             // ReSharper disable once IdentifierTypo
             public int MultidumperFadeOutMs { get; set; }
 
             // ReSharper disable once StringLiteralTypo
-            [Option("multidumpergapms", Required = false, HelpText = "Gap time for non-looping tracks for MultiDumper, in ms", DefaultValue = 1000)]
+            [Option("multidumpergapms", Required = false, HelpText = "Gap time for non-looping tracks for MultiDumper, in ms", Default = 1000)]
             // ReSharper disable once IdentifierTypo
             public int MultidumperGapMs { get; set; }
 
             // ReSharper disable once StringLiteralTypo
-            [Option("backgroundcolor", Required = false, HelpText = "Background color, can be hex or a .net color name", DefaultValue = "black")]
+            [Option("backgroundcolor", Required = false, HelpText = "Background color, can be hex or a .net color name", Default = "black")]
             public string BackgroundColor { get; set; }
 
             [Option("background", Required = false, HelpText = "Background image, drawn transparently in the background")]
@@ -166,40 +166,40 @@ namespace SidWizPlus
             public string LogoImageFile { get; set; }
             
             // ReSharper disable once StringLiteralTypo
-            [Option("gridcolor", Required = false, HelpText = "Grid color, can be hex or a .net color name", DefaultValue = "white")]
+            [Option("gridcolor", Required = false, HelpText = "Grid color, can be hex or a .net color name", Default = "white")]
             public string GridColor { get; set; }
             // ReSharper disable once StringLiteralTypo
-            [Option("gridwidth", Required = false, HelpText = "Grid line width", DefaultValue = 0)]
+            [Option("gridwidth", Required = false, HelpText = "Grid line width", Default = 0)]
             public float GridLineWidth { get; set; }
             // ReSharper disable once StringLiteralTypo
-            [Option("gridborder", Required = false, HelpText = "Draw a border around the waves as well as between them", DefaultValue = true)]
+            [Option("gridborder", Required = false, HelpText = "Draw a border around the waves as well as between them", Default = true)]
             public bool GridBorder { get; set; }
             // ReSharper disable once StringLiteralTypo
-            [Option("zerolinecolor", Required = false, HelpText = "Zero line color", DefaultValue = "white")]
+            [Option("zerolinecolor", Required = false, HelpText = "Zero line color", Default = "white")]
             public string ZeroLineColor { get; set; }
             // ReSharper disable once StringLiteralTypo
-            [Option("zerolinewith", Required = false, HelpText = "Zero line width", DefaultValue = 0)]
+            [Option("zerolinewith", Required = false, HelpText = "Zero line width", Default = 0)]
             public float ZeroLineWidth { get; set; }
 
             // ReSharper disable once StringLiteralTypo
-            [Option("gd3font", Required = false, HelpText = "Font for GD3 info", DefaultValue = "Tahoma")]
+            [Option("gd3font", Required = false, HelpText = "Font for GD3 info", Default = "Tahoma")]
             public string Gd3Font { get; set; }
-            [Option("gd3size", Required = false, HelpText = "Font size (in points) for GD3 info", DefaultValue = 16)]
+            [Option("gd3size", Required = false, HelpText = "Font size (in points) for GD3 info", Default = 16)]
             public float Gd3FontSize { get; set; }
-            [Option("gd3color", Required = false, HelpText = "Font color for GD3 info", DefaultValue = "white")]
+            [Option("gd3color", Required = false, HelpText = "Font color for GD3 info", Default = "white")]
             public string Gd3FontColor { get; set; }
 
             // ReSharper disable once StringLiteralTypo
             [Option("labelsfont", Required = false, HelpText = "Font for channel labels")]
             public string ChannelLabelsFont { get; set; }
             // ReSharper disable once StringLiteralTypo
-            [Option("labelssize", HelpText = "Font size for channel labels", DefaultValue = 8)]
+            [Option("labelssize", HelpText = "Font size for channel labels", Default = 8)]
             public float ChannelLabelsSize { get; set; }
             // ReSharper disable once StringLiteralTypo
-            [Option("labelscolor", HelpText = "Font color for channel labels", DefaultValue = "white")]
+            [Option("labelscolor", HelpText = "Font color for channel labels", Default = "white")]
             public string ChannelLabelsColor { get; set; }
             // ReSharper disable once StringLiteralTypo
-            [Option("labelspadding", HelpText = "Padding for channel labels - more specific settings override this", DefaultValue = 0)]
+            [Option("labelspadding", HelpText = "Padding for channel labels - more specific settings override this", Default = 0)]
             public int ChannelLabelsPadding { get; set; }
             // ReSharper disable once StringLiteralTypo
             [Option("labelspaddingleft", HelpText = "Left padding for channel labels")]
@@ -214,7 +214,7 @@ namespace SidWizPlus
             [Option("labelspaddingbottom", HelpText = "Bottom padding for channel labels")]
             public int? ChannelLabelsPaddingBottom { get; set; }
             // ReSharper disable once StringLiteralTypo
-            [Option("labelsalignment", HelpText = "Alignment for channel labels", DefaultValue = ContentAlignment.TopLeft)]
+            [Option("labelsalignment", HelpText = "Alignment for channel labels", Default = ContentAlignment.TopLeft)]
             public ContentAlignment ChannelLabelsAlignment { get; set; }
 
             // ReSharper disable once StringLiteralTypo
@@ -224,7 +224,7 @@ namespace SidWizPlus
             [Option("youtubetitle", HelpText = "YouTube video title. If a VGM is specified then you can reference GD3 tags like [title], [system], [game], [composer]")]
             public string YouTubeTitle { get; set; }
             // ReSharper disable once StringLiteralTypo
-            [Option("youtubecategory", HelpText = "YouTube video category", DefaultValue = "Gaming")]
+            [Option("youtubecategory", HelpText = "YouTube video category", Default = "Gaming")]
             public string YouTubeCategory { get; set; }
             // ReSharper disable once StringLiteralTypo
             [Option("youtubetags", HelpText = "YouTube video tags, comma separated")]
@@ -248,47 +248,6 @@ namespace SidWizPlus
             // ReSharper disable once StringLiteralTypo
             [Option("youtubemerge", HelpText = "Merge the specified videos (wildcard, results sorted alphabetically) to one file and upload to YouTube")]
             public string YouTubeMerge { get; set; }
-
-            // ReSharper restore UnusedAutoPropertyAccessor.Local
-
-            [HelpOption]
-            public string GetUsage()
-            {
-                var help = new HelpText {
-                    Heading = new HeadingInfo("SidWizPlus", "0.9"),
-                    Copyright = new CopyrightInfo("Maxim", 2019, 2020, 2021),
-                    AdditionalNewLineAfterOption = false,
-                    AddDashesToOption = true,
-                    MaximumDisplayWidth = Console.WindowWidth
-                };
-                help.AddPreOptionsLine("Licensed under MIT License");
-                help.AddOptions(this);
-
-                if (LastParserState != null)
-                {
-                    if (LastParserState.Errors.Any())
-                    {
-                        var errors = help.RenderParsingErrorsText(this, 2); // indent with two spaces
-
-                        if (!string.IsNullOrEmpty(errors))
-                        {
-                            help.AddPostOptionsLine("ERROR(S):");
-                            help.AddPostOptionsLine(errors);
-                        }
-                    }
-                    else
-                    {
-                        help.AddPostOptionsLine("Failed to parse commandline parameters");
-                    }
-                }
-
-                return help.ToString();
-            }
-
-            // ReSharper disable once MemberCanBePrivate.Local
-            // ReSharper disable once UnusedAutoPropertyAccessor.Local
-            [ParserState]
-            public IParserState LastParserState { get; set; }
         }
 
         static int Main(string[] args)
@@ -297,161 +256,16 @@ namespace SidWizPlus
             {
                 Console.OutputEncoding = Encoding.UTF8;
 
-                var settings = new Settings();
                 // ReSharper disable once RedundantNameQualifier
-                using (var parser = new CommandLine.Parser(x =>
+                new CommandLine.Parser(settings =>
                 {
-                    x.CaseSensitive = false;
-                    x.IgnoreUnknownArguments = false;
-                }))
-                {
-                    if (!parser.ParseArguments(args, settings))
-                    {
-                        Console.Error.WriteLine(settings.GetUsage());
-                        return 1;
-                    }
-                }
-
-                if (!settings.YouTubeOnly)
-                {
-                    if (settings.InputFiles == null)
-                    {
-                        RunMultiDumper(ref settings);
-                    }
-                    else
-                    {
-                        // We want to expand any wildcards in the input file list (and also fully qualify them)
-                        var inputs = new List<string>();
-                        foreach (var inputFile in settings.InputFiles)
-                        {
-                            if (File.Exists(inputFile))
-                            {
-                                inputs.Add(Path.GetFullPath(inputFile));
-                                continue;
-                            }
-
-                            var pattern = Path.GetFileName(inputFile);
-                            if (pattern == null)
-                            {
-                                throw new Exception($"Failed to match {inputFile}");
-                            }
-                            var pathPart = inputFile.Substring(0, inputFile.Length - pattern.Length);
-                            var directory = pathPart.Length > 0
-                                ? Path.GetFullPath(pathPart)
-                                : Directory.GetCurrentDirectory();
-                            var files = Directory.EnumerateFiles(directory, pattern).ToList();
-                            if (files.Count == 0)
-                            {
-                                throw new Exception($"Failed to match {inputFile}");
-                            }
-                            inputs.AddRange(files.OrderByAlphaNumeric(x => x));
-                        }
-
-                        settings.InputFiles = inputs;
-                    }
-
-                    if (settings.InputFiles == null || !settings.InputFiles.Any())
-                    {
-                        Console.Error.WriteLine(settings.GetUsage());
-                        throw new Exception("No inputs specified");
-                    }
-
-                    var channels = settings.InputFiles
-                        .AsParallel()
-                        .Select(filename =>
-                        {
-                            var channel = new Channel(false)
-                            {
-                                Filename = filename,
-                                LineColor = ParseColor(settings.LineColor),
-                                LineWidth = settings.LineWidth,
-                                FillColor = ParseColor(settings.FillColor),
-                                FillBase = settings.FillBase,
-                                Label = Channel.GuessNameFromMultidumperFilename(filename),
-                                Algorithm = CreateTriggerAlgorithm(settings.TriggerAlgorithm),
-                                TriggerLookaheadFrames = settings.TriggerLookahead,
-                                TriggerLookaheadOnFailureFrames = settings.TriggerLookaheadOnFailureFrames,
-                                ZeroLineWidth = settings.ZeroLineWidth,
-                                ZeroLineColor = ParseColor(settings.ZeroLineColor),
-                                LabelFont = settings.ChannelLabelsFont == null
-                                    ? null
-                                    : new Font(settings.ChannelLabelsFont, settings.ChannelLabelsSize),
-                                LabelColor = ParseColor(settings.ChannelLabelsColor),
-                                LabelAlignment = settings.ChannelLabelsAlignment,
-                                LabelMargins = new Padding(
-                                    settings.ChannelLabelsPaddingLeft ?? settings.ChannelLabelsPadding,
-                                    settings.ChannelLabelsPaddingTop ?? settings.ChannelLabelsPadding,
-                                    settings.ChannelLabelsPaddingRight ?? settings.ChannelLabelsPadding,
-                                    settings.ChannelLabelsPaddingBottom ?? settings.ChannelLabelsPadding),
-                                HighPassFilter = settings.HighPass
-                            };
-                            channel.LoadDataAsync().Wait();
-                            // We can only set this when the file is loaded
-                            channel.ViewWidthInMilliseconds = settings.ViewWidthMs;
-                            return channel;
-                        })
-                        .Where(ch => ch.SampleCount > 0 && !ch.IsSilent)
-                        .ToList();
-
-                    if (settings.AutoScalePercentage > 0)
-                    {
-                        float max;
-                        static bool IsYm2413Percussion(Channel ch) => ch.Label.StartsWith("YM2413 ") && !ch.Label.StartsWith("YM2413 Tone");
-                        if (settings.AutoScaleIgnoreYm2413Percussion)
-                        {
-                            var channelsToUse = channels.Where(channel => !IsYm2413Percussion(channel)).ToList();
-                            if (channelsToUse.Count == 0)
-                            {
-                                // Fall back on overall max if all channels are percussion
-                                channelsToUse = channels;
-                            }
-                            max = channelsToUse.Max(ch => ch.Max);
-                        }
-                        else
-                        {
-                            max = channels.Max(ch => ch.Max);
-                        }
-                        var scale = settings.AutoScalePercentage / 100 / max;
-                        foreach (var channel in channels)
-                        {
-                            channel.Scale = scale;
-                        }
-                    }
-
-                    if (settings.ChannelLabelsFromVgm && settings.VgmFile != null)
-                    {
-                        TryGuessLabelsFromVgm(channels, settings.VgmFile);
-                    }
-
-                    if (settings.OutputFile != null)
-                    {
-                        // Emit normalized data to a WAV file for later mixing
-                        if (settings.MasterAudioFile == null && !settings.NoMasterMix)
-                        {
-                            settings.MasterAudioFile = settings.OutputFile + ".wav";
-                            Mixer.MixToFile(channels, settings.MasterAudioFile, !settings.NoMasterMixReplayGain);
-                        }
-                    }
-
-                    Render(settings, channels);
-
-                    foreach (var channel in channels)
-                    {
-                        channel.Dispose();
-                    }
-                }
-
-                if (settings.YouTubeTitle != null)
-                {
-                    if (settings.YouTubeMerge != null)
-                    {
-                        UploadMergedToYouTube(settings).Wait();
-                    }
-                    else
-                    {
-                        UploadToYouTube(settings).Wait();
-                    }
-                }
+                    settings.CaseSensitive = false;
+                    settings.AutoHelp = true;
+                    settings.AutoVersion = true;
+                    settings.HelpWriter = Console.Error;
+                })
+                    .ParseArguments<Settings>(args)
+                    .WithParsed(Run);
             }
             catch (Exception e)
             {
@@ -460,6 +274,152 @@ namespace SidWizPlus
             }
 
             return 0;
+        }
+
+        private static void Run(Settings settings)
+        {
+            if (!settings.YouTubeOnly)
+            {
+                if (settings.VgmFile != null)
+                {
+                    RunMultiDumper(ref settings);
+                }
+                else
+                {
+                    // We want to expand any wildcards in the input file list (and also fully qualify them)
+                    var inputs = new List<string>();
+                    foreach (var inputFile in settings.InputFiles)
+                    {
+                        if (File.Exists(inputFile))
+                        {
+                            inputs.Add(Path.GetFullPath(inputFile));
+                            continue;
+                        }
+
+                        var pattern = Path.GetFileName(inputFile) ??
+                                      throw new Exception($"Failed to match {inputFile}");
+                        var pathPart = inputFile.Substring(0, inputFile.Length - pattern.Length);
+                        var directory = pathPart.Length > 0
+                            ? Path.GetFullPath(pathPart)
+                            : Directory.GetCurrentDirectory();
+                        var files = Directory.EnumerateFiles(directory, pattern).ToList();
+                        if (files.Count == 0)
+                        {
+                            throw new Exception($"Failed to match {inputFile}");
+                        }
+
+                        inputs.AddRange(files.OrderByAlphaNumeric(x => x));
+                    }
+
+                    settings.InputFiles = inputs;
+                }
+
+                if (settings.InputFiles == null || !settings.InputFiles.Any())
+                {
+                    throw new Exception("No inputs specified");
+                }
+
+                var channels = settings.InputFiles
+                    .AsParallel()
+                    .Select(filename =>
+                    {
+                        var channel = new Channel(false)
+                        {
+                            Filename = filename,
+                            LineColor = ParseColor(settings.LineColor),
+                            LineWidth = settings.LineWidth,
+                            FillColor = ParseColor(settings.FillColor),
+                            FillBase = settings.FillBase,
+                            Label = Channel.GuessNameFromMultidumperFilename(filename),
+                            Algorithm = CreateTriggerAlgorithm(settings.TriggerAlgorithm),
+                            TriggerLookaheadFrames = settings.TriggerLookahead,
+                            TriggerLookaheadOnFailureFrames = settings.TriggerLookaheadOnFailureFrames,
+                            ZeroLineWidth = settings.ZeroLineWidth,
+                            ZeroLineColor = ParseColor(settings.ZeroLineColor),
+                            LabelFont = settings.ChannelLabelsFont == null
+                                ? null
+                                : new Font(settings.ChannelLabelsFont, settings.ChannelLabelsSize),
+                            LabelColor = ParseColor(settings.ChannelLabelsColor),
+                            LabelAlignment = settings.ChannelLabelsAlignment,
+                            LabelMargins = new Padding(
+                                settings.ChannelLabelsPaddingLeft ?? settings.ChannelLabelsPadding,
+                                settings.ChannelLabelsPaddingTop ?? settings.ChannelLabelsPadding,
+                                settings.ChannelLabelsPaddingRight ?? settings.ChannelLabelsPadding,
+                                settings.ChannelLabelsPaddingBottom ?? settings.ChannelLabelsPadding),
+                            HighPassFilter = settings.HighPass
+                        };
+                        channel.LoadDataAsync().Wait();
+                        // We can only set this when the file is loaded
+                        channel.ViewWidthInMilliseconds = settings.ViewWidthMs;
+                        return channel;
+                    })
+                    .Where(ch => ch.SampleCount > 0 && !ch.IsSilent)
+                    .ToList();
+
+                if (settings.AutoScalePercentage > 0)
+                {
+                    float max;
+
+                    static bool IsYm2413Percussion(Channel ch) =>
+                        ch.Label.StartsWith("YM2413 ") && !ch.Label.StartsWith("YM2413 Tone");
+
+                    if (settings.AutoScaleIgnoreYm2413Percussion)
+                    {
+                        var channelsToUse = channels.Where(channel => !IsYm2413Percussion(channel)).ToList();
+                        if (channelsToUse.Count == 0)
+                        {
+                            // Fall back on overall max if all channels are percussion
+                            channelsToUse = channels;
+                        }
+
+                        max = channelsToUse.Max(ch => ch.Max);
+                    }
+                    else
+                    {
+                        max = channels.Max(ch => ch.Max);
+                    }
+
+                    var scale = settings.AutoScalePercentage / 100 / max;
+                    foreach (var channel in channels)
+                    {
+                        channel.Scale = scale;
+                    }
+                }
+
+                if (settings.ChannelLabelsFromVgm && settings.VgmFile != null)
+                {
+                    TryGuessLabelsFromVgm(channels, settings.VgmFile);
+                }
+
+                if (settings.OutputFile != null)
+                {
+                    // Emit normalized data to a WAV file for later mixing
+                    if (settings.MasterAudioFile == null && !settings.NoMasterMix)
+                    {
+                        settings.MasterAudioFile = settings.OutputFile + ".wav";
+                        Mixer.MixToFile(channels, settings.MasterAudioFile, !settings.NoMasterMixReplayGain);
+                    }
+                }
+
+                Render(settings, channels);
+
+                foreach (var channel in channels)
+                {
+                    channel.Dispose();
+                }
+            }
+
+            if (settings.YouTubeTitle != null)
+            {
+                if (settings.YouTubeMerge != null)
+                {
+                    UploadMergedToYouTube(settings).Wait();
+                }
+                else
+                {
+                    UploadToYouTube(settings).Wait();
+                }
+            }
         }
 
         private class InstrumentState
@@ -638,10 +598,26 @@ namespace SidWizPlus
 
         private static void RunMultiDumper(ref Settings settings)
         {
-            if (settings.MultidumperPath == null || settings.VgmFile == null || settings.InputFiles != null)
+            if (!File.Exists(settings.MultidumperPath))
             {
-                return;
+                settings.MultidumperPath = FindExecutable("multidumper.exe");
             }
+
+            if (settings.MultidumperPath == null && settings.VgmFile != null)
+            {
+                throw new Exception("Please pass --multidumper parameter to load a VGM file");
+            }
+
+            if (settings.VgmFile != null && settings.InputFiles.Any())
+            {
+                throw new Exception("Can't pass both --files and --vgm");
+            }
+
+            if (settings.VgmFile == null)
+            {
+                throw new Exception("VGM file not specified");
+            }
+
             // We normalize the VGM path here because we need to know its directory...
             settings.VgmFile = Path.GetFullPath(settings.VgmFile);
             // Check if we have WAVs. Note that we use "natural" sorting to make sure 10 comes after 9.
@@ -662,12 +638,12 @@ namespace SidWizPlus
                     settings.MultidumperGapMs);
                 var song = wrapper.GetSongs(settings.VgmFile).First();
                 var filenames = wrapper.Dump(song, d => Console.Write($"\r{d:P0}"));
-                settings.InputFiles = filenames.OrderByAlphaNumeric(s => s).ToList();
-                Console.WriteLine($" done. {settings.InputFiles.Count} files found.");
+                settings.InputFiles = filenames.OrderByAlphaNumeric(s => s);
+                Console.WriteLine($" done. {settings.InputFiles.Count()} files found.");
             }
             else
             {
-                Console.WriteLine($"Skipping MultiDumper as {settings.InputFiles.Count} files were already present.");
+                Console.WriteLine($"Skipping MultiDumper as {settings.InputFiles.Count()} files were already present.");
             }
         }
 
@@ -767,9 +743,14 @@ namespace SidWizPlus
             }
 
             var outputs = new List<IGraphicsOutput>();
-            if (settings.FfMpegPath != null)
+            if (settings.OutputFile != null)
             {
                 Console.WriteLine("Adding FFMPEG renderer...");
+                if (!File.Exists(settings.FfMpegPath))
+                {
+                    // Try to find it
+                    settings.FfMpegPath = FindExecutable("ffmpeg.exe");
+                }
                 outputs.Add(new FfmpegOutput(settings.FfMpegPath, settings.OutputFile, settings.Width, settings.Height, settings.FramesPerSecond, settings.FfMpegExtraOptions, settings.MasterAudioFile));
             }
 
@@ -800,6 +781,25 @@ namespace SidWizPlus
                     graphicsOutput.Dispose();
                 }
             }
+        }
+
+        private static string FindExecutable(string name)
+        {
+            // Look in the current directory...
+            if (File.Exists(name))
+            {
+                return Path.GetFullPath(name);
+            }
+
+            var values = Environment.GetEnvironmentVariable("PATH");
+            if (values != null)
+            {
+                return values.Split(Path.PathSeparator)
+                    .Select(path => Path.Combine(path, name))
+                    .FirstOrDefault(File.Exists);
+            }
+
+            throw new Exception($"Could not find path to {name}");
         }
 
         private static ITriggerAlgorithm CreateTriggerAlgorithm(string name)
