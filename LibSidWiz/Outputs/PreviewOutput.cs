@@ -13,6 +13,7 @@ namespace LibSidWiz.Outputs
         private readonly PreviewOutputForm _form;
         private int _frameIndex;
         private readonly Stopwatch _stopwatch;
+        private TimeSpan _lastFpsUpdateTime = TimeSpan.Zero;
 
         public PreviewOutput(int frameSkip, bool pumpMessageQueue = false)
         {
@@ -31,27 +32,41 @@ namespace LibSidWiz.Outputs
                 throw new Exception("Preview window closed");
             }
 
-            if (++_frameIndex % _frameSkip != 0)
+            // Post-increment so we take frame 0
+            var showFrame = _frameIndex++ % _frameSkip == 0;
+            var showFps = showFrame || (_stopwatch.Elapsed - _lastFpsUpdateTime).TotalMilliseconds > 100;
+            if (showFps)
             {
-                return;
+                var elapsedSeconds = _stopwatch.Elapsed.TotalSeconds;
+                var fps = _frameIndex / elapsedSeconds;
+                var eta = TimeSpan.FromSeconds(elapsedSeconds / fractionComplete - elapsedSeconds);
+                _form.BeginInvoke(new Action(() =>
+                {
+                    if (_form.IsDisposed || !_form.Visible)
+                    {
+                        return;
+                    }
+                    _form.toolStripStatusLabel2.Text = $"{fractionComplete:P} of {length} @ {fps:F}fps, ETA {eta:g}";
+                    TaskbarManager.Instance.SetProgressState(TaskbarProgressBarState.Normal, _form.Handle);
+                    TaskbarManager.Instance.SetProgressValue((int)(fractionComplete * 100), 100, _form.Handle);
+                }));
+                _lastFpsUpdateTime = _stopwatch.Elapsed;
             }
 
-            // Copy the bitmap for use on the GUI thread
-            var copy = new Bitmap(image);
-            var elapsedSeconds = _stopwatch.Elapsed.TotalSeconds;
-            var fps = _frameIndex / elapsedSeconds;
-            var eta = TimeSpan.FromSeconds(elapsedSeconds / fractionComplete - elapsedSeconds);
-            _form.BeginInvoke(new Action(() =>
+            if (showFrame)
             {
-                if (_form.IsDisposed || !_form.Visible)
+                // Copy the bitmap for use on the GUI thread
+                var copy = new Bitmap(image);
+                _form.BeginInvoke(new Action(() =>
                 {
-                    return;
-                }
-                _form.pictureBox1.Image = copy;
-                _form.toolStripStatusLabel2.Text = $"{fractionComplete:P} of {length} @ {fps:F}fps, ETA {eta:g}";
-                TaskbarManager.Instance.SetProgressState(TaskbarProgressBarState.Normal, _form.Handle);
-                TaskbarManager.Instance.SetProgressValue((int)(fractionComplete * 100), 100, _form.Handle);
-            }));
+                    if (_form.IsDisposed || !_form.Visible)
+                    {
+                        return;
+                    }
+
+                    _form.pictureBox1.Image = copy;
+                }));
+            }
 
             if (_pumpMessageQueue)
             {
