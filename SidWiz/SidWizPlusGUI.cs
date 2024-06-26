@@ -15,6 +15,7 @@ using LibSidWiz;
 using LibSidWiz.Outputs;
 using LibSidWiz.Triggers;
 using Newtonsoft.Json;
+using SkiaSharp;
 
 namespace SidWizPlusGUI
 {
@@ -787,44 +788,42 @@ namespace SidWizPlusGUI
                     LocateProgram("ffmpeg.exe", _programSettings.FfmpegPath,
                         p => _programSettings.FfmpegPath = p);
 
-                    using (var saveFileDialog = new SaveFileDialog())
+                    using var saveFileDialog = new SaveFileDialog();
+                    saveFileDialog.Title = "Select destination";
+                    saveFileDialog.Filter = "Video files (*.mp4;*.mkv;*.avi;*.qt)|*.mp4;*.mkv;*.avi;*.qt|All files (*.*)|*.*";
+                    if (saveFileDialog.ShowDialog(this) != DialogResult.OK)
                     {
-                        saveFileDialog.Title = "Select destination";
-                        saveFileDialog.Filter = "Video files (*.mp4;*.mkv;*.avi;*.qt)|*.mp4;*.mkv;*.avi;*.qt|All files (*.*)|*.*";
-                        if (saveFileDialog.ShowDialog(this) != DialogResult.OK)
+                        // Cancel the whole operation
+                        _progress = null;
+                        foreach (var output in outputs)
                         {
-                            // Cancel the whole operation
-                            _progress = null;
-                            foreach (var output in outputs)
-                            {
-                                output.Dispose();
-                            }
-                            return;
+                            output.Dispose();
                         }
-
-                        var outputFilename = saveFileDialog.FileName;
-
-                        if (_settings.MasterAudio.IsAutomatic)
-                        {
-                            var filename = outputFilename + ".wav";
-                            Mixer.MixToFile(_settings.Channels, filename, MasterMixReplayGain.Checked);
-                            MasterAudioPath.Text = filename;
-                            _settings.MasterAudio.Path = filename;
-                        }
-                        else
-                        {
-                            _settings.MasterAudio.Path = MasterAudioPath.Text;
-                        }
-
-                        outputs.Add(new FfmpegOutput(
-                            _programSettings.FfmpegPath,
-                            outputFilename,
-                            _settings.Width,
-                            _settings.Height,
-                            _settings.FrameRate,
-                            _programSettings.FfmpegExtraParameters,
-                            _settings.MasterAudio.Path));
+                        return;
                     }
+
+                    var outputFilename = saveFileDialog.FileName;
+
+                    if (_settings.MasterAudio.IsAutomatic)
+                    {
+                        var filename = outputFilename + ".wav";
+                        Mixer.MixToFile(_settings.Channels, filename, MasterMixReplayGain.Checked);
+                        MasterAudioPath.Text = filename;
+                        _settings.MasterAudio.Path = filename;
+                    }
+                    else
+                    {
+                        _settings.MasterAudio.Path = MasterAudioPath.Text;
+                    }
+
+                    outputs.Add(new FfmpegOutput(
+                        _programSettings.FfmpegPath,
+                        outputFilename,
+                        _settings.Width,
+                        _settings.Height,
+                        _settings.FrameRate,
+                        _programSettings.FfmpegExtraParameters,
+                        _settings.MasterAudio.Path));
                 }
             }
 
@@ -888,7 +887,7 @@ namespace SidWizPlusGUI
                 }));
             }
 
-            public void Write(Image image, byte[] data, double fractionComplete, TimeSpan length)
+            public void Write(SKImage image, byte[] data, double fractionComplete, TimeSpan length)
             {
                 if (_cancelRequested)
                 {

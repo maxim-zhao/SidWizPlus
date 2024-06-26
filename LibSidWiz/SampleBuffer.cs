@@ -6,6 +6,7 @@ namespace LibSidWiz
 {
     internal class SampleBuffer: IDisposable
     {
+        private readonly string _filename;
         private readonly WaveStream _reader;
         private readonly ISampleProvider _sampleProvider;
 
@@ -17,7 +18,7 @@ namespace LibSidWiz
 
             public bool TryGet(long index, out float value)
             {
-                if (index > Offset && index < End)
+                if (index >= Offset && index < End)
                 {
                     value = Buffer[index - Offset];
                     return true;
@@ -32,7 +33,9 @@ namespace LibSidWiz
         private readonly Chunk _chunk2;
 
         // 4 bytes per sample so this is 1MB
-        private const int ChunkSize = 256 * 1024;
+        // If we are rendering ~16 frames at once, we need (typically) 1323 samples per frame,
+        // which is a window of 84KB. This is far from causing us trouble here.
+        private const int ChunkSize = 256 * 1024 * 1;
 
         public long Count { get; }
 
@@ -46,6 +49,7 @@ namespace LibSidWiz
 
         public SampleBuffer(string filename, Channel.Sides side, bool filter)
         {
+            _filename = filename;
             _reader = new AudioFileReader(filename);
             Count = _reader.Length * 8 / _reader.WaveFormat.BitsPerSample / _reader.WaveFormat.Channels;
             SampleRate = _reader.WaveFormat.SampleRate;
@@ -92,6 +96,12 @@ namespace LibSidWiz
                     if (_chunk1.TryGet(index, out var value) || _chunk2.TryGet(index, out value))
                     {
                         return value;
+                    }
+
+                    // If we are asked for sample 0, reset the buffers
+                    if (index == 0)
+                    {
+                        _chunk1.Offset = _chunk1.End = _chunk2.Offset = _chunk2.End = -1;
                     }
 
                     // Else pick the lower index chunk to read into

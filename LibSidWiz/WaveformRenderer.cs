@@ -95,7 +95,7 @@ namespace LibSidWiz
                 // 4. Call the callback in strict frame order
                 // #3 is the slowest part, but we'd like to somewhat parallelize parts 1-2 as well.
                 // So we do that in a parallel for, in a task, emitting into a queue...
-                var queue = new BlockingCollection<FrameInfo>(1000);
+                var queue = new BlockingCollection<FrameInfo>(16);
                 // Initialise the "previous trigger points"
                 var frameSamples = SamplingRate / FramesPerSecond;
                 var triggerPoints = new int[_channels.Count];
@@ -186,9 +186,9 @@ namespace LibSidWiz
 
                         try
                         {
-                            using var pixmap = new SKPixmap(new SKImageInfo(Width, Height, SKColorType.Rgba8888, SKAlphaType.Opaque), pinnedArray.AddrOfPinnedObject());
+                            using var pixmap = new SKPixmap(new SKImageInfo(Width, Height, SKColorType.Bgra8888, SKAlphaType.Opaque), innerPinnedArray.AddrOfPinnedObject());
                             using var image = SKImage.FromPixels(pixmap);
-                            using var surface = SKSurface.Create(pixmap.Info, pinnedArray.AddrOfPinnedObject());
+                            using var surface = SKSurface.Create(pixmap.Info, innerPinnedArray.AddrOfPinnedObject());
 
                             // Prepare buffers to hold the line coordinates
                             var points = _channels.Select(channel => new PointF[channel.ViewWidthInSamples]).ToList();
@@ -455,7 +455,7 @@ namespace LibSidWiz
             float yOffset = channel.Bounds.Top + channel.Bounds.Height * 0.5f;
             float yScale = -channel.Bounds.Height * 0.5f;
             path.Reset();
-            for (int i = 0; i < channel.ViewWidthInSamples; ++i)
+            for (var i = 0; i < channel.ViewWidthInSamples; ++i)
             {
                 var sampleValue = channel.GetSample(leftmostSampleIndex + i, false);
                 var x = xOffset + i * xScale;
