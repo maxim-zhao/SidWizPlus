@@ -152,7 +152,7 @@ namespace LibSidWiz
                 var stringFormat = new StringFormat
                     { LineAlignment = StringAlignment.Center, Alignment = StringAlignment.Center };
 
-                foreach (var _ in Enumerable.Range(0, 1))
+                foreach (var _ in Enumerable.Range(0, 16))
                 {
                     Task.Factory.StartNew(() =>
                     {
@@ -182,7 +182,7 @@ namespace LibSidWiz
                             using var g = Graphics.FromImage(bm);
 
                             // Prepare buffers to hold the line coordinates
-                            var buffers = _channels.Select(channel => new PointF[channel.ViewWidthInSamples]).ToList();
+                            var points = _channels.Select(channel => new PointF[channel.ViewWidthInSamples]).ToList();
                             var path = new GraphicsPath();
 
                             while (!queue.IsCompleted)
@@ -227,7 +227,7 @@ namespace LibSidWiz
                                         // ReSharper disable once AccessToDisposedClosure
                                         RenderWave(g, channel, frame.ChannelTriggerPoints[channelIndex],
                                             pens[channelIndex], brushes[channelIndex],
-                                            buffers[channelIndex], path, channel.FillBase);
+                                            points[channelIndex], path, channel.FillBase);
                                 }
 
                                 // We "lend" the data to the frame info temporarily

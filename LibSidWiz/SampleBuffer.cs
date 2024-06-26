@@ -12,11 +12,19 @@ namespace LibSidWiz
         private class Chunk
         {
             public long Offset;
+            public long End;
             public float[] Buffer;
 
-            public bool Contains(long index)
+            public bool TryGet(long index, out float value)
             {
-                return Offset >= 0 && index >= Offset && index < Offset + ChunkSize;
+                if (index > Offset && index < End)
+                {
+                    value = Buffer[index - Offset];
+                    return true;
+                }
+
+                value = 0;
+                return false;
             }
         }
 
@@ -42,18 +50,13 @@ namespace LibSidWiz
             Count = _reader.Length * 8 / _reader.WaveFormat.BitsPerSample / _reader.WaveFormat.Channels;
             SampleRate = _reader.WaveFormat.SampleRate;
             Length = _reader.TotalTime;
-            switch (side)
+            _sampleProvider = side switch
             {
-                case Channel.Sides.Left:
-                    _sampleProvider = _reader.ToSampleProvider().ToMono(1.0f, 0.0f);
-                    break;
-                case Channel.Sides.Right:
-                    _sampleProvider = _reader.ToSampleProvider().ToMono(0.0f, 1.0f);
-                    break;
-                case Channel.Sides.Mix:
-                    _sampleProvider = _reader.ToSampleProvider().ToMono();
-                    break;
-            }
+                Channel.Sides.Left => _reader.ToSampleProvider().ToMono(1.0f, 0.0f),
+                Channel.Sides.Right => _reader.ToSampleProvider().ToMono(0.0f, 1.0f),
+                Channel.Sides.Mix => _reader.ToSampleProvider().ToMono(),
+                _ => throw new ArgumentOutOfRangeException(nameof(side), side, null)
+            };
 
             if (filter)
             {
@@ -63,12 +66,14 @@ namespace LibSidWiz
             _chunk1 = new Chunk
             {
                 Buffer = new float[ChunkSize],
-                Offset = -1
+                Offset = -1,
+                End = -1
             };
             _chunk2 = new Chunk
             {
                 Buffer = new float[ChunkSize],
-                Offset = -1
+                Offset = -1,
+                End = -1
             };
         }
 
@@ -84,23 +89,17 @@ namespace LibSidWiz
                 // We may be accessed from multiple threads; we therefore need to lock access to avoid concurrent access.
                 lock (this)
                 {
-                    // Return from an existing chunk if possible
-                    if (_chunk1.Contains(index))
+                    if (_chunk1.TryGet(index, out var value) || _chunk2.TryGet(index, out value))
                     {
-                        return _chunk1.Buffer[index - _chunk1.Offset];
-                    }
-
-                    if (_chunk2.Contains(index))
-                    {
-                        return _chunk2.Buffer[index - _chunk2.Offset];
+                        return value;
                     }
 
                     // Else pick the lower index chunk to read into
                     var chunk = _chunk1.Offset < _chunk2.Offset ? _chunk1 : _chunk2;
                     // Pick the rounded offset
                     chunk.Offset = (index / ChunkSize) * ChunkSize;
-                    _reader.Position = chunk.Offset * _reader.WaveFormat.BitsPerSample / 8 *
-                                       _reader.WaveFormat.Channels;
+                    chunk.End = chunk.Offset + ChunkSize;
+                    _reader.Position = chunk.Offset * _reader.WaveFormat.BitsPerSample / 8 * _reader.WaveFormat.Channels;
                     _sampleProvider.Read(chunk.Buffer, 0, ChunkSize);
                     return chunk.Buffer[index - chunk.Offset];
                 }
