@@ -31,38 +31,36 @@ namespace SidWizPlusGUI
             public SidFile(string filename)
             {
                 Filename = filename;
-                using (var f = new FileStream(filename, FileMode.Open))
-                using (var r = new BinaryReader(f, Encoding.ASCII))
-                {
-                    // C64 is big-endian...
-                    f.Seek(0x04, SeekOrigin.Begin);
-                    Version = r.ReadByte() << 8 | r.ReadByte();
-                    f.Seek(0x0e, SeekOrigin.Begin);
-                    SongCount = r.ReadByte() << 8 | r.ReadByte();
-                    f.Seek(0x16, SeekOrigin.Begin);
-                    Name = new string(r.ReadChars(32)).TrimEnd('\0');
-                    Author = new string(r.ReadChars(32)).TrimEnd('\0');
-                    Released = new string(r.ReadChars(32)).TrimEnd('\0');
+                using var f = new FileStream(filename, FileMode.Open);
+                using var r = new BinaryReader(f, Encoding.ASCII);
+                // C64 is big-endian...
+                f.Seek(0x04, SeekOrigin.Begin);
+                Version = r.ReadByte() << 8 | r.ReadByte();
+                f.Seek(0x0e, SeekOrigin.Begin);
+                SongCount = r.ReadByte() << 8 | r.ReadByte();
+                f.Seek(0x16, SeekOrigin.Begin);
+                Name = new string(r.ReadChars(32)).TrimEnd('\0');
+                Author = new string(r.ReadChars(32)).TrimEnd('\0');
+                Released = new string(r.ReadChars(32)).TrimEnd('\0');
 
-                    if (Version >= 2)
+                if (Version >= 2)
+                {
+                    f.Seek(0x76, SeekOrigin.Begin);
+                    var flags = r.ReadByte() << 8 | r.ReadByte();
+                    switch ((flags >> 4) & 0b11)
                     {
-                        f.Seek(0x76, SeekOrigin.Begin);
-                        var flags = r.ReadByte() << 8 | r.ReadByte();
-                        switch ((flags >> 4) & 0b11)
-                        {
-                            case 0b00:
-                                Chip = "SID";
-                                break;
-                            case 0b01:
-                                Chip = "MOS6581";
-                                break;
-                            case 0b10:
-                                Chip = "MOS8580";
-                                break;
-                            case 0b11:
-                                Chip = "MOS6581 & MOS8580";
-                                break;
-                        }
+                        case 0b00:
+                            Chip = "SID";
+                            break;
+                        case 0b01:
+                            Chip = "MOS6581";
+                            break;
+                        case 0b10:
+                            Chip = "MOS8580";
+                            break;
+                        case 0b11:
+                            Chip = "MOS6581 & MOS8580";
+                            break;
                     }
                 }
             }

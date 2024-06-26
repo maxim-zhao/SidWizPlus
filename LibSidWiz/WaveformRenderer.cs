@@ -36,7 +36,7 @@ namespace LibSidWiz
             _channels.Add(channel);
         }
 
-        public void Render(IList<IGraphicsOutput> outputs)
+        public void Render(IList<IGraphicsOutput> outputs, int numThreads)
         {
             int numFrames = (int)(_channels.Max(c => c.SampleCount) * FramesPerSecond / SamplingRate);
             var length = TimeSpan.FromSeconds((double)numFrames / FramesPerSecond);
@@ -49,13 +49,13 @@ namespace LibSidWiz
                 {
                     output.Write(bm, rawData, fractionComplete, length);
                 }
-            });
+            }, numThreads >= 1 ? numThreads : Environment.ProcessorCount);
         }
 
         /// <summary>
         /// Renders a range of frames into the given destination image, calling back the handler for each one
         /// </summary>
-        private void Render(int startFrame, int endFrame, Action<SKImage, byte[]> onFrame)
+        private void Render(int startFrame, int endFrame, Action<SKImage, byte[]> onFrame, int numThreads)
         {
             // Default rendering bounds if not set
             var renderingBounds = RenderingBounds;
@@ -95,7 +95,7 @@ namespace LibSidWiz
                 // 4. Call the callback in strict frame order
                 // #3 is the slowest part, but we'd like to somewhat parallelize parts 1-2 as well.
                 // So we do that in a parallel for, in a task, emitting into a queue...
-                var queue = new BlockingCollection<FrameInfo>(16);
+                var queue = new BlockingCollection<FrameInfo>(numThreads);
                 // Initialise the "previous trigger points"
                 var frameSamples = SamplingRate / FramesPerSecond;
                 var triggerPoints = new int[_channels.Count];
@@ -177,11 +177,8 @@ namespace LibSidWiz
                             ? null
                             : new SKPaint {
                                 Color = new SKColor(c.FillColor.R, c.FillColor.G, c.FillColor.B, c.FillColor.A),
-                                StrokeWidth = c.LineWidth,
                                 IsAntialias = c.SmoothLines,
-                                Style = SKPaintStyle.Fill,
-                                StrokeMiter = c.LineWidth,
-                                StrokeJoin = SKStrokeJoin.Bevel
+                                Style = SKPaintStyle.Fill
                             }).ToList();
 
                         try
@@ -211,26 +208,34 @@ namespace LibSidWiz
 
                                     if (!string.IsNullOrEmpty(channel.ErrorMessage))
                                         g.DrawText(
-                                            channel.ErrorMessage, SKPoint.Empty, new SKPaint
+                                            channel.ErrorMessage, 
+                                            new SKPoint(channel.Bounds.Left + channel.Bounds.Width / 2.0f, channel.Bounds.Top + channel.Bounds.Height / 2.0f), 
+                                            new SKPaint
                                             {
                                                 Typeface = SKTypeface.Default,
                                                 Color = SKColors.Red,
                                                 TextAlign = SKTextAlign.Center,
                                             });
                                     else if (channel.Loading)
-                                        g.DrawText("Loading data...", SKPoint.Empty, new SKPaint
-                                        {
-                                            Typeface = SKTypeface.Default,
-                                            Color = SKColors.Green,
-                                            TextAlign = SKTextAlign.Center,
-                                        });
+                                        g.DrawText(
+                                            "Loading data...",
+                                            new SKPoint(channel.Bounds.Left + channel.Bounds.Width / 2.0f, channel.Bounds.Top + channel.Bounds.Height / 2.0f), 
+                                            new SKPaint
+                                            {
+                                                Typeface = SKTypeface.Default,
+                                                Color = SKColors.Green,
+                                                TextAlign = SKTextAlign.Center,
+                                            });
                                     else if (channel.IsSilent && !channel.RenderIfSilent)
-                                        g.DrawText("This channel is silent", SKPoint.Empty, new SKPaint
-                                        {
-                                            Typeface = SKTypeface.Default,
-                                            Color = SKColors.Yellow,
-                                            TextAlign = SKTextAlign.Center,
-                                        });
+                                        g.DrawText(
+                                            "This channel is silent",
+                                            new SKPoint(channel.Bounds.Left + channel.Bounds.Width / 2.0f, channel.Bounds.Top + channel.Bounds.Height / 2.0f), 
+                                            new SKPaint
+                                            {
+                                                Typeface = SKTypeface.Default,
+                                                Color = SKColors.Yellow,
+                                                TextAlign = SKTextAlign.Center,
+                                            });
                                     else
                                         // ReSharper disable once AccessToDisposedClosure
                                         RenderWave(g, channel, frame.ChannelTriggerPoints[channelIndex],
@@ -250,14 +255,9 @@ namespace LibSidWiz
                         finally
                         {
                             innerPinnedArray.Free();
-                            foreach (var pen in linePaints)
+                            foreach (var paint in linePaints.Concat(fillPaints))
                             {
-                                pen?.Dispose();
-                            }
-
-                            foreach (var brush in fillPaints)
-                            {
-                                brush?.Dispose();
+                                paint?.Dispose();
                             }
                         }
                     });
@@ -506,7 +506,7 @@ namespace LibSidWiz
             Render(frameIndex, frameIndex + 1, (bm, _) =>
             {
                 bitmap = bm.ToBitmap();
-            });
+            }, 1);
             return bitmap;
         }
     }

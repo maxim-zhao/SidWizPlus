@@ -44,16 +44,14 @@ namespace SidWizPlusGUI
 
         private void OnClick(object sender, EventArgs e)
         {
-            using (var colorDialog = new ColorDialog())
+            using var colorDialog = new ColorDialog();
+            colorDialog.Color = _color;
+            colorDialog.FullOpen = true;
+            if (colorDialog.ShowDialog(this) != DialogResult.OK)
             {
-                colorDialog.Color = _color;
-                colorDialog.FullOpen = true;
-                if (colorDialog.ShowDialog(this) != DialogResult.OK)
-                {
-                    return;
-                }
-                Color = colorDialog.Color;
+                return;
             }
+            Color = colorDialog.Color;
         }
     }
 }

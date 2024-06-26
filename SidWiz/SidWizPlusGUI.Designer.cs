@@ -87,6 +87,7 @@
             this.label20 = new System.Windows.Forms.Label();
             this.label21 = new System.Windows.Forms.Label();
             this.BackgroundImageControl = new System.Windows.Forms.PictureBox();
+            this.BackgroundColorButton = new SidWizPlusGUI.ColorButton(this.components);
             this.tabPage3 = new System.Windows.Forms.TabPage();
             this.label19 = new System.Windows.Forms.Label();
             this.MasterAudioPath = new System.Windows.Forms.TextBox();
@@ -110,7 +111,8 @@
             this.tabPage5 = new System.Windows.Forms.TabPage();
             this.ProgramSettingsGrid = new System.Windows.Forms.PropertyGrid();
             this.imageList1 = new System.Windows.Forms.ImageList(this.components);
-            this.BackgroundColorButton = new SidWizPlusGUI.ColorButton(this.components);
+            this.RenderThreadsControl = new System.Windows.Forms.NumericUpDown();
+            this.label2 = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
             this.splitContainer1.Panel2.SuspendLayout();
@@ -138,6 +140,7 @@
             ((System.ComponentModel.ISupportInitialize)(this.FrameRateControl)).BeginInit();
             this.tabPage6.SuspendLayout();
             this.tabPage5.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.RenderThreadsControl)).BeginInit();
             this.SuspendLayout();
             // 
             // splitContainer1
@@ -780,6 +783,20 @@
             this.BackgroundImageControl.TabStop = false;
             this.BackgroundImageControl.Click += new System.EventHandler(this.BackgroundImageControl_Click);
             // 
+            // BackgroundColorButton
+            // 
+            this.BackgroundColorButton.BackColor = System.Drawing.Color.Black;
+            this.BackgroundColorButton.Color = System.Drawing.Color.Black;
+            this.BackgroundColorButton.ForeColor = System.Drawing.Color.White;
+            this.BackgroundColorButton.Location = new System.Drawing.Point(118, 6);
+            this.BackgroundColorButton.Margin = new System.Windows.Forms.Padding(2, 3, 2, 3);
+            this.BackgroundColorButton.Name = "BackgroundColorButton";
+            this.BackgroundColorButton.Size = new System.Drawing.Size(114, 33);
+            this.BackgroundColorButton.TabIndex = 1;
+            this.BackgroundColorButton.Text = "Black";
+            this.BackgroundColorButton.UseVisualStyleBackColor = false;
+            this.BackgroundColorButton.ColorChanged += new System.EventHandler(this.ControlValueChanged);
+            // 
             // tabPage3
             // 
             this.tabPage3.Controls.Add(this.label19);
@@ -847,6 +864,8 @@
             // 
             // tabPage2
             // 
+            this.tabPage2.Controls.Add(this.RenderThreadsControl);
+            this.tabPage2.Controls.Add(this.label2);
             this.tabPage2.Controls.Add(this.groupBox4);
             this.tabPage2.Controls.Add(this.groupBox3);
             this.tabPage2.Controls.Add(this.FrameRateControl);
@@ -1082,19 +1101,40 @@
             this.imageList1.Images.SetKeyName(5, "picture.png");
             this.imageList1.Images.SetKeyName(6, "application_xp_terminal.png");
             // 
-            // BackgroundColorButton
+            // RenderThreadsControl
             // 
-            this.BackgroundColorButton.BackColor = System.Drawing.Color.Black;
-            this.BackgroundColorButton.Color = System.Drawing.Color.Black;
-            this.BackgroundColorButton.ForeColor = System.Drawing.Color.White;
-            this.BackgroundColorButton.Location = new System.Drawing.Point(118, 6);
-            this.BackgroundColorButton.Margin = new System.Windows.Forms.Padding(2, 3, 2, 3);
-            this.BackgroundColorButton.Name = "BackgroundColorButton";
-            this.BackgroundColorButton.Size = new System.Drawing.Size(114, 33);
-            this.BackgroundColorButton.TabIndex = 1;
-            this.BackgroundColorButton.Text = "Black";
-            this.BackgroundColorButton.UseVisualStyleBackColor = false;
-            this.BackgroundColorButton.ColorChanged += new System.EventHandler(this.ControlValueChanged);
+            this.RenderThreadsControl.Location = new System.Drawing.Point(118, 186);
+            this.RenderThreadsControl.Margin = new System.Windows.Forms.Padding(2, 3, 2, 3);
+            this.RenderThreadsControl.Maximum = new decimal(new int[] {
+            1000,
+            0,
+            0,
+            0});
+            this.RenderThreadsControl.Minimum = new decimal(new int[] {
+            1,
+            0,
+            0,
+            0});
+            this.RenderThreadsControl.Name = "RenderThreadsControl";
+            this.RenderThreadsControl.Size = new System.Drawing.Size(63, 23);
+            this.RenderThreadsControl.TabIndex = 11;
+            this.RenderThreadsControl.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
+            this.RenderThreadsControl.Value = new decimal(new int[] {
+            4,
+            0,
+            0,
+            0});
+            this.RenderThreadsControl.ValueChanged += new System.EventHandler(this.ControlValueChanged);
+            // 
+            // label2
+            // 
+            this.label2.AutoSize = true;
+            this.label2.Location = new System.Drawing.Point(14, 188);
+            this.label2.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(86, 15);
+            this.label2.TabIndex = 10;
+            this.label2.Text = "Render threads";
             // 
             // SidWizPlusGui
             // 
@@ -1145,6 +1185,7 @@
             ((System.ComponentModel.ISupportInitialize)(this.FrameRateControl)).EndInit();
             this.tabPage6.ResumeLayout(false);
             this.tabPage5.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.RenderThreadsControl)).EndInit();
             this.ResumeLayout(false);
 
         }
@@ -1231,5 +1272,7 @@
         private System.Windows.Forms.ToolStripMenuItem resetToDefaultSettingsToolStripMenuItem;
         private System.Windows.Forms.ToolStripButton AddChannelButton;
         private System.Windows.Forms.Label ChannelsHelpLabel;
+        private System.Windows.Forms.NumericUpDown RenderThreadsControl;
+        private System.Windows.Forms.Label label2;
     }
 }

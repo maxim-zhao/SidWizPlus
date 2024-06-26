@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
 using System.Drawing.Design;
 using System.Globalization;
@@ -21,6 +22,8 @@ namespace SidWizPlusGUI
 {
     public partial class SidWizPlusGui : Form
     {
+        [SuppressMessage("ReSharper", "UnusedAutoPropertyAccessor.Global")]
+        [SuppressMessage("ReSharper", "AutoPropertyCanBeMadeGetOnly.Global")]
         public class ProgramSettings
         {
             [Category("FFMPEG")]
@@ -65,7 +68,7 @@ namespace SidWizPlusGUI
             public string SidPlayPath { get; set; }
 
             [Browsable(false)]
-            public Channel DefaultChannelSettings { get; set; } = new Channel(true)
+            public Channel DefaultChannelSettings { get; set; } = new(true)
             {
                 Algorithm = new PeakSpeedTrigger(),
                 LabelColor = Color.White,
@@ -73,14 +76,14 @@ namespace SidWizPlusGUI
             };
         }
 
-        private ProgramSettings _programSettings = new ProgramSettings();
+        private ProgramSettings _programSettings = new();
 
         // ReSharper disable MemberCanBePrivate.Local
         private class Settings
         {
             private bool _ignoreFromControls;
             public int Columns { get; set; } = 1;
-            public List<Channel> Channels { get; } = new List<Channel>();
+            public List<Channel> Channels { get; } = [];
             public float AutoScaleHeight { get; set; } = 100;
             public int Width { get; set; } = 1280;
             public int Height { get; set; } = 720;
@@ -91,11 +94,11 @@ namespace SidWizPlusGUI
             public int FrameRate { get; set; } = 60;
             public Color BackgroundColor { get; set; } = Color.Black;
             public string BackgroundImageFilename { get; set; }
-            public PreviewSettings Preview { get; } = new PreviewSettings {Enabled = true, Frameskip = 1};
-            public EncodeSettings EncodeVideo { get; } = new EncodeSettings {Enabled = false};
+            public PreviewSettings Preview { get; } = new() {Enabled = true, Frameskip = 1};
+            public EncodeSettings EncodeVideo { get; } = new() {Enabled = false};
+            public int RenderThreads { get; set; } = Environment.ProcessorCount;
 
-            public MasterAudioSettings MasterAudio { get; } = new MasterAudioSettings
-                {IsAutomatic = true, ApplyReplayGain = true};
+            public MasterAudioSettings MasterAudio { get; } = new() {IsAutomatic = true, ApplyReplayGain = true};
 
             public class MasterAudioSettings
             {
@@ -138,6 +141,7 @@ namespace SidWizPlusGUI
                 MasterAudio.IsAutomatic = form.AutogenerateMasterMix.Checked;
                 MasterAudio.ApplyReplayGain = form.MasterMixReplayGain.Checked;
                 MasterAudio.Path = form.MasterAudioPath.Text;
+                RenderThreads = (int) form.RenderThreadsControl.Value;
             }
 
             public void ToControls(SidWizPlusGui form)
@@ -160,6 +164,7 @@ namespace SidWizPlusGUI
                 form.AutogenerateMasterMix.Checked = MasterAudio.IsAutomatic;
                 form.MasterMixReplayGain.Checked = MasterAudio.ApplyReplayGain;
                 form.MasterAudioPath.Text = MasterAudio.Path;
+                form.RenderThreadsControl.Value = RenderThreads;
                 _ignoreFromControls = false;
             }
 
@@ -174,11 +179,11 @@ namespace SidWizPlusGUI
         }
         // ReSharper restore MemberCanBePrivate.Local
 
-        private readonly Settings _settings = new Settings();
+        private readonly Settings _settings = new();
 
         // We do rendering on a worker thread, this means we have some complicated interactions
         // to make sure it doesn't render more or less than needed. This lot deals with that.
-        private readonly object _renderLock = new object();
+        private readonly object _renderLock = new();
         private bool _renderNeeded;
         private bool _renderActive;
         private float _renderPosition;
@@ -201,7 +206,7 @@ namespace SidWizPlusGUI
             {
                 Name = name;
                 _handler = handler;
-                _extensions = new HashSet<string>(extensions);
+                _extensions = [..extensions];
                 Filter = "*." + string.Join("; *.", extensions);
             }
 
@@ -255,30 +260,28 @@ namespace SidWizPlusGUI
                     "All files", "*.*"
                 }));
 
-            using (var ofd = new OpenFileDialog())
+            using var ofd = new OpenFileDialog();
+            ofd.CheckFileExists = true;
+            ofd.Filter = filter;
+            ofd.Multiselect = true;
+            if (ofd.ShowDialog(this) != DialogResult.OK)
             {
-                ofd.CheckFileExists = true;
-                ofd.Filter = filter;
-                ofd.Multiselect = true;
-                if (ofd.ShowDialog(this) != DialogResult.OK)
-                {
-                    return;
-                }
+                return;
+            }
 
-                var errors = new List<string>();
-                foreach (var filename in ofd.FileNames.OrderByAlphaNumeric(x => x))
+            var errors = new List<string>();
+            foreach (var filename in ofd.FileNames.OrderByAlphaNumeric(x => x))
+            {
+                var path = Path.GetFullPath(filename);
+                if (!handlers.Any(h => h.TryHandle(path)))
                 {
-                    var path = Path.GetFullPath(filename);
-                    if (!handlers.Any(h => h.TryHandle(path)))
-                    {
-                        errors.Add($"Could not load \"{filename}\" - unknown extension");
-                    }
+                    errors.Add($"Could not load \"{filename}\" - unknown extension");
                 }
+            }
 
-                if (errors.Count > 0)
-                {
-                    MessageBox.Show(this, "Error(s) loading files:\n" + string.Join("\n", errors));
-                }
+            if (errors.Count > 0)
+            {
+                MessageBox.Show(this, "Error(s) loading files:\n" + string.Join("\n", errors));
             }
         }
 
@@ -363,17 +366,15 @@ namespace SidWizPlusGUI
                 // Normalize path
                 filename = Path.GetFullPath(filename);
 
-                using (var form = new MultiDumperForm(filename, _programSettings.MultiDumperPath, _programSettings.MultiDumperSamplingRate, _programSettings.MultiDumperLoopCount, _programSettings.MultiDumperFadeMs, _programSettings.MultiDumperGapMs))
+                using var form = new MultiDumperForm(filename, _programSettings.MultiDumperPath, _programSettings.MultiDumperSamplingRate, _programSettings.MultiDumperLoopCount, _programSettings.MultiDumperFadeMs, _programSettings.MultiDumperGapMs);
+                if (form.ShowDialog(this) != DialogResult.OK || form.Filenames == null)
                 {
-                    if (form.ShowDialog(this) != DialogResult.OK || form.Filenames == null)
-                    {
-                        return;
-                    }
+                    return;
+                }
 
-                    foreach (var wavFile in form.Filenames)
-                    {
-                        AddChannel(wavFile);
-                    }
+                foreach (var wavFile in form.Filenames)
+                {
+                    AddChannel(wavFile);
                 }
             }
             catch (Exception ex)
@@ -388,17 +389,15 @@ namespace SidWizPlusGUI
                 p => _programSettings.SidPlayPath = p);
             try
             {
-                using (var form = new SidPlayForm(filename, _programSettings.SidPlayPath))
+                using var form = new SidPlayForm(filename, _programSettings.SidPlayPath);
+                if (form.ShowDialog(this) != DialogResult.OK || form.Filenames == null)
                 {
-                    if (form.ShowDialog(this) != DialogResult.OK || form.Filenames == null)
-                    {
-                        return;
-                    }
+                    return;
+                }
 
-                    foreach (var wavFile in form.Filenames)
-                    {
-                        AddChannel(wavFile);
-                    }
+                foreach (var wavFile in form.Filenames)
+                {
+                    AddChannel(wavFile);
                 }
             }
             catch (Exception ex)
@@ -426,15 +425,13 @@ namespace SidWizPlusGUI
                 }
 
                 // Else browse for it
-                using (var ofd = new OpenFileDialog())
+                using var ofd = new OpenFileDialog();
+                ofd.Title = $"Please locate {filename}";
+                ofd.Filter = $"{filename}|{filename}|All files (*.*)|*.*";
+                if (ofd.ShowDialog(this) == DialogResult.OK)
                 {
-                    ofd.Title = $"Please locate {filename}";
-                    ofd.Filter = $"{filename}|{filename}|All files (*.*)|*.*";
-                    if (ofd.ShowDialog(this) == DialogResult.OK)
-                    {
-                        saveToSettings(ofd.FileName);
-                        SaveProgramSettings();
-                    }
+                    saveToSettings(ofd.FileName);
+                    SaveProgramSettings();
                 }
             }
         }
@@ -641,7 +638,7 @@ namespace SidWizPlusGUI
                 // |  |     |  |
                 // +--+-----+--+
                 x = (x - 0.5) * previewAspectRatio / imageAspectRatio + 0.5;
-                if (x < 0 || x > 1)
+                if (x is < 0 or > 1)
                 {
                     return null;
                 }
@@ -650,7 +647,7 @@ namespace SidWizPlusGUI
             {
                 // Image is wider, we have letterboxing
                 y = (y - 0.5) * imageAspectRatio / previewAspectRatio + 0.5;
-                if (y < 0 || y > 1)
+                if (y is < 0 or > 1)
                 {
                     return null;
                 }
@@ -668,14 +665,14 @@ namespace SidWizPlusGUI
                 // +--------------------1,1
                 x = (x - (double)_settings.MarginLeft / _settings.Width) * _settings.Width /
                     (_settings.Width - _settings.MarginLeft - _settings.MarginRight);
-                if (x < 0.0 || x > 1.0)
+                if (x is < 0.0 or > 1.0)
                 {
                     return null;
                 }
 
                 y = (y - (double)_settings.MarginTop / _settings.Height) * _settings.Height /
                     (_settings.Height - _settings.MarginTop - _settings.MarginBottom);
-                if (y < 0.0 || y > 1.0)
+                if (y is < 0.0 or > 1.0)
                 {
                     return null;
                 }
@@ -696,7 +693,7 @@ namespace SidWizPlusGUI
 
         private void CopySettingsButton_Click(object sender, EventArgs e)
         {
-            if (!(PropertyGrid.SelectedObject is Channel source))
+            if (PropertyGrid.SelectedObject is not Channel source)
             {
                 return;
             }
@@ -730,29 +727,27 @@ namespace SidWizPlusGUI
 
         private void BackgroundImageControl_Click(object sender, EventArgs e)
         {
-            using (var ofd = new OpenFileDialog())
+            using var ofd = new OpenFileDialog();
+            ofd.Title = "Select an image";
+            ofd.Filter = "Image files (*.png;*.gif;*.jpg;*.jpeg;*.bmp;*.wmf)|*.png;*.gif;*.jpg;*.jpeg;*.bmp;*.wmf|All files (*.*)|*.*";
+            if (ofd.ShowDialog(this) != DialogResult.OK)
             {
-                ofd.Title = "Select an image";
-                ofd.Filter = "Image files (*.png;*.gif;*.jpg;*.jpeg;*.bmp;*.wmf)|*.png;*.gif;*.jpg;*.jpeg;*.bmp;*.wmf|All files (*.*)|*.*";
-                if (ofd.ShowDialog(this) != DialogResult.OK)
+                BackgroundImageControl.Image = null;
+                lock (_settings)
                 {
-                    BackgroundImageControl.Image = null;
-                    lock (_settings)
-                    {
-                        _settings.BackgroundImageFilename = null;
-                    }
+                    _settings.BackgroundImageFilename = null;
                 }
-                else
-                {
-                    BackgroundImageControl.ImageLocation = ofd.FileName;
-                    lock (_settings)
-                    {
-                        _settings.BackgroundImageFilename = ofd.FileName;
-                    }
-                }
-
-                Render();
             }
+            else
+            {
+                BackgroundImageControl.ImageLocation = ofd.FileName;
+                lock (_settings)
+                {
+                    _settings.BackgroundImageFilename = ofd.FileName;
+                }
+            }
+
+            Render();
         }
 
         private void RenderButton_Click(object sender, EventArgs e)
@@ -826,7 +821,7 @@ namespace SidWizPlusGUI
                 try
                 {
                     var renderer = CreateWaveformRenderer();
-                    renderer.Render(outputs);
+                    renderer.Render(outputs, _settings.RenderThreads);
                 }
                 catch (Exception exception)
                 {
@@ -917,17 +912,15 @@ namespace SidWizPlusGUI
 
         private void SetMasterAudioPath(object sender, EventArgs e)
         {
-            using (var ofd = new OpenFileDialog())
+            using var ofd = new OpenFileDialog();
+            ofd.Title = "Select master audio file";
+            ofd.Filter = "Wave audio files (*.wav)|*.wav|All files (*.*)|*.*";
+            if (ofd.ShowDialog(this) != DialogResult.OK)
             {
-                ofd.Title = "Select master audio file";
-                ofd.Filter = "Wave audio files (*.wav)|*.wav|All files (*.*)|*.*";
-                if (ofd.ShowDialog(this) != DialogResult.OK)
-                {
-                    return;
-                }
-
-                MasterAudioPath.Text = ofd.FileName;
+                return;
             }
+
+            MasterAudioPath.Text = ofd.FileName;
         }
 
         private void LoadProgramSettings(string settingsPath)
@@ -978,7 +971,7 @@ namespace SidWizPlusGUI
                     Path = Path.GetDirectoryName(settingsPath),
                     Filter = Path.GetFileName(settingsPath)
                 };
-                _settingsWatcher.Changed += (o, args) => LoadProgramSettings(settingsPath);
+                _settingsWatcher.Changed += (_, _) => LoadProgramSettings(settingsPath);
             }
 
             ProgramSettingsGrid.BeginInvoke(new Action(() => { ProgramSettingsGrid.SelectedObject = _programSettings; }));
@@ -998,19 +991,19 @@ namespace SidWizPlusGUI
                 ToolStripItem newItem = null;
                 switch (item)
                 {
-                    case ToolStripMenuItem _ when item == removeChannelToolStripMenuItem:
+                    case ToolStripMenuItem when item == removeChannelToolStripMenuItem:
                         // This is handled separately
                         continue;
-                    case ToolStripMenuItem _:
+                    case ToolStripMenuItem:
                         newItem = new ToolStripButton
                         {
                             Image = item.Image,
                             Text = item.Text,
                             DisplayStyle = ToolStripItemDisplayStyle.Image
                         };
-                        newItem.Click += (o, args) => item.PerformClick();
+                        newItem.Click += (_, _) => item.PerformClick();
                         break;
-                    case ToolStripSeparator _:
+                    case ToolStripSeparator:
                         newItem = new ToolStripSeparator();
                         break;
                 }
@@ -1059,46 +1052,42 @@ namespace SidWizPlusGUI
 
         private void SaveProject(object sender, EventArgs e)
         {
-            using (var sfd = new SaveFileDialog())
+            using var sfd = new SaveFileDialog();
+            sfd.Filter = "SidWizPlus settings (*.sidwizplus.json)|*.sidwizplus.json|All files (*.*)|*.*";
+            if (sfd.ShowDialog(this) != DialogResult.OK)
             {
-                sfd.Filter = "SidWizPlus settings (*.sidwizplus.json)|*.sidwizplus.json|All files (*.*)|*.*";
-                if (sfd.ShowDialog(this) != DialogResult.OK)
-                {
-                    return;
-                }
+                return;
+            }
 
-                lock (_settings)
+            lock (_settings)
+            {
+                File.WriteAllText(sfd.FileName, JsonConvert.SerializeObject(_settings, new JsonSerializerSettings
                 {
-                    File.WriteAllText(sfd.FileName, JsonConvert.SerializeObject(_settings, new JsonSerializerSettings
-                    {
-                        Formatting = Formatting.Indented
-                    }));
-                }
+                    Formatting = Formatting.Indented
+                }));
             }
         }
 
         private void LoadProject(object sender, EventArgs e)
         {
-            using (var ofd = new OpenFileDialog())
+            using var ofd = new OpenFileDialog();
+            ofd.Filter = "SidWizPlus settings (*.sidwizplus.json)|*.sidwizplus.json|All files (*.*)|*.*";
+            if (ofd.ShowDialog(this) != DialogResult.OK)
             {
-                ofd.Filter = "SidWizPlus settings (*.sidwizplus.json)|*.sidwizplus.json|All files (*.*)|*.*";
-                if (ofd.ShowDialog(this) != DialogResult.OK)
+                return;
+            }
+
+            lock (_settings)
+            {
+                JsonConvert.PopulateObject(File.ReadAllText(ofd.FileName), _settings);
+
+                foreach (var channel in _settings.Channels)
                 {
-                    return;
+                    channel.Changed += ChannelOnChanged;
+                    channel.LoadDataAsync();
                 }
 
-                lock (_settings)
-                {
-                    JsonConvert.PopulateObject(File.ReadAllText(ofd.FileName), _settings);
-
-                    foreach (var channel in _settings.Channels)
-                    {
-                        channel.Changed += ChannelOnChanged;
-                        channel.LoadDataAsync();
-                    }
-
-                    _settings.ToControls(this);
-                }
+                _settings.ToControls(this);
             }
         }
 

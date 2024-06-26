@@ -85,10 +85,8 @@ namespace SidWizPlusGUI
         {
             return new Lazy<float>(() =>
             {
-                using (var graphics = control.CreateGraphics())
-                {
-                    return graphics.DpiX / 96.0f;
-                }
+                using var graphics = control.CreateGraphics();
+                return graphics.DpiX / 96.0f;
             });
         }
 

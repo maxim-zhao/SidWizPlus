@@ -248,6 +248,9 @@ namespace SidWizPlus
             // ReSharper disable once StringLiteralTypo
             [Option("youtubemerge", HelpText = "Merge the specified videos (wildcard, results sorted alphabetically) to one file and upload to YouTube", Group="Inputs")]
             public string YouTubeMerge { get; set; }
+
+            [Option("threads", HelpText = "Number of rendering threads to use. Defaults to as many CPUs as your computer has.", Group="Inputs", Default = -1)]
+            public int ThreadCount { get; set; }
         }
 
         static int Main(string[] args)
@@ -765,7 +768,7 @@ namespace SidWizPlus
             {
                 Console.WriteLine("Rendering...");
                 var sw = Stopwatch.StartNew();
-                renderer.Render(outputs);
+                renderer.Render(outputs, settings.ThreadCount);
                 sw.Stop();
                 int numFrames = (int) (channels.Max(x => x.Length).TotalSeconds * settings.FramesPerSecond);
                 Console.WriteLine($"Rendering complete in {sw.Elapsed:g}, average {numFrames / sw.Elapsed.TotalSeconds:N} fps");
