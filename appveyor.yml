@@ -1,0 +1,28 @@
+version: '{build}'
+skip_tags: true
+image: Visual Studio 2022
+configuration: Release
+environment:
+  secret:
+    secure: mFvP2wRhzLBcR2kQJuZw1pj5tpB0R17V4xSwO8VWuRLeLPQXn8AhyNgLjpnry/AoLdCQGMWxl94VlgdxfGlIl+QmhR+glo29vvPTQzyyKwCV4B5i/OvFngZ4PJX4225tlUr8lPEU+/JV82/FOscVwnXEEaOvp3NVegiCrrferZm0ufKd5Xy7L1noCAAPa3/r909r4rFcdA5cGQqLKb7t2S73hpM4zu7sj9ytxfgtg7ID/Hp1KXhkO9zS/OhCD3bTPIgqry4w1DIQ26U9yysSpFPfOePV3SOqNZWZjW2IcQ0ra6cwFL+6UQu8ZYFBWpL81mEM7+kCQYCh4XdXtpIEIVKSGG1qD7i4KWdziG4e/DBKDsIdNa0jxD0RJlU0sIVdIiPzf8mgMsbKgVWD/PmazGTkB2je9CdVOzQBMgAUkUs/6sthNTTEUCELdwc26TiHzGZYd5Tg+b99tjAp6jcoDAt2si85rEfFtk2q5ezbWQuUly41kOhd87C7/xEZRPSReM+VWt3MFCowK0UBpynxjj8lHp2fm8/PQOTRj6gJ3fQED8HbBfUrOLwvvEF/7U4QWs3atHhKcSWImNDk9QIfHg==
+before_build:
+- cmd: nuget restore
+build:
+  parallel: true
+  verbosity: minimal
+after_build:
+- cmd: |
+    7z a sidwizplus.zip %APPVEYOR_BUILD_FOLDER%\SidWizPlus\bin\Release\net48\*.dll %APPVEYOR_BUILD_FOLDER%\SidWizPlus\bin\Release\net48\*.exe
+    7z a sidwizplusgui.zip %APPVEYOR_BUILD_FOLDER%\SidWiz\bin\Release\*.dll %APPVEYOR_BUILD_FOLDER%\SidWiz\bin\Release\*.exe"
+artifacts:
+- path: '*.zip'
+  name: Binaries
+deploy:
+- provider: GitHub
+  description: Appveyor automated build
+  auth_token:
+    secure: rKUfRHMGs7wVh/SYX9kJ67VqiPlztPwvnh3yjC3C2NX/Wpn9XsZrxIx0BXe9ZztT
+  artifact: Binaries
+  draft: false
+  prerelease: false
+  force_update: true
