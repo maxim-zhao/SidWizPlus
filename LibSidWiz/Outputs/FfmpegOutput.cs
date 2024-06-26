@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Diagnostics;
-using System.Drawing;
 using System.IO;
 using System.Text;
+using SkiaSharp;
 
 namespace LibSidWiz.Outputs
 {
@@ -63,7 +63,7 @@ namespace LibSidWiz.Outputs
             _writer = new BinaryWriter(_process.StandardInput.BaseStream);
         }
 
-        public void Write(Image image, byte[] data, double fractionComplete, TimeSpan length)
+        public void Write(SKImage _, byte[] data, double __, TimeSpan ___)
         {
             _writer.Write(data);
         }

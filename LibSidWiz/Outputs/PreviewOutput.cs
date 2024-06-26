@@ -1,8 +1,9 @@
 ﻿using System;
 using System.Diagnostics;
-using System.Drawing;
 using System.Windows.Forms;
 using Microsoft.WindowsAPICodePack.Taskbar;
+using SkiaSharp;
+using SkiaSharp.Views.Desktop;
 
 namespace LibSidWiz.Outputs
 {
@@ -25,7 +26,7 @@ namespace LibSidWiz.Outputs
             _stopwatch = Stopwatch.StartNew();
         }
 
-        public void Write(Image image, byte[] data, double fractionComplete, TimeSpan length)
+        public void Write(SKImage image, byte[] data, double fractionComplete, TimeSpan length)
         {
             if (!_form.Visible)
             {
@@ -56,7 +57,7 @@ namespace LibSidWiz.Outputs
             if (showFrame)
             {
                 // Copy the bitmap for use on the GUI thread
-                var copy = new Bitmap(image);
+                var copy = image.ToBitmap();
                 _form.BeginInvoke(new Action(() =>
                 {
                     if (_form.IsDisposed || !_form.Visible)

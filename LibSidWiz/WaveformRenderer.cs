@@ -10,6 +10,8 @@ using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
 using LibSidWiz.Outputs;
+using SkiaSharp;
+using SkiaSharp.Views.Desktop;
 
 namespace LibSidWiz
 {
@@ -53,7 +55,7 @@ namespace LibSidWiz
         /// <summary>
         /// Renders a range of frames into the given destination image, calling back the handler for each one
         /// </summary>
-        private void Render(int startFrame, int endFrame, Action<Bitmap, byte[]> onFrame)
+        private void Render(int startFrame, int endFrame, Action<SKImage, byte[]> onFrame)
         {
             // Default rendering bounds if not set
             var renderingBounds = RenderingBounds;
@@ -148,9 +150,6 @@ namespace LibSidWiz
                 var renderedFrames = new ConcurrentDictionary<int, FrameInfo>();
                 var frameReadySignal = new AutoResetEvent(false);
                 // Then we kick off some parallel threads to do the rendering, consuming from queue and emitting to renderedFrames indexed by frame index
-                // Formatting for error/progress messages
-                var stringFormat = new StringFormat
-                    { LineAlignment = StringAlignment.Center, Alignment = StringAlignment.Center };
 
                 foreach (var _ in Enumerable.Range(0, 16))
                 {
@@ -166,29 +165,40 @@ namespace LibSidWiz
                         // Prepare the pens and brushes we will use
                         var pens = _channels.Select(c => c.LineColor == Color.Transparent || c.LineWidth <= 0
                             ? null
-                            : new Pen(c.LineColor, c.LineWidth)
-                            {
-                                MiterLimit = c.LineWidth,
-                                LineJoin = LineJoin.Bevel
+                            : new SKPaint {
+                                Color = new SKColor(c.LineColor.R, c.LineColor.G, c.LineColor.B, c.LineColor.A),
+                                StrokeWidth = c.LineWidth,
+                                IsAntialias = c.SmoothLines,
+                                Style = SKPaintStyle.Stroke,
+                                StrokeMiter = c.LineWidth,
+                                StrokeJoin = SKStrokeJoin.Bevel
                             }).ToList();
                         var brushes = _channels.Select(c => c.FillColor == Color.Transparent
                             ? null
-                            : new SolidBrush(c.FillColor)).ToList();
+                            : new SKPaint {
+                                Color = new SKColor(c.LineColor.R, c.LineColor.G, c.LineColor.B, c.LineColor.A),
+                                StrokeWidth = c.LineWidth,
+                                IsAntialias = c.SmoothLines,
+                                Style = SKPaintStyle.Fill,
+                                StrokeMiter = c.LineWidth,
+                                StrokeJoin = SKStrokeJoin.Bevel
+                            }).ToList();
 
                         try
                         {
-                            using var bm = new Bitmap(Width, Height, Width * 4, PixelFormat.Format32bppPArgb,
-                                innerPinnedArray.AddrOfPinnedObject());
-                            using var g = Graphics.FromImage(bm);
+                            using var pixmap = new SKPixmap(new SKImageInfo(Width, Height, SKColorType.Rgba8888, SKAlphaType.Opaque), pinnedArray.AddrOfPinnedObject());
+                            using var image = SKImage.FromPixels(pixmap);
+                            using var surface = SKSurface.Create(pixmap.Info, pinnedArray.AddrOfPinnedObject());
 
                             // Prepare buffers to hold the line coordinates
                             var points = _channels.Select(channel => new PointF[channel.ViewWidthInSamples]).ToList();
-                            var path = new GraphicsPath();
+                            var path = new SKPath();
 
                             while (!queue.IsCompleted)
                             {
                                 // Get a frame to work on. This may block.
                                 var frame = queue.Take();
+                                var g = surface.Canvas;
 
                                 // Copy from the template
                                 Buffer.BlockCopy(templateData, 0, rawData, 0, templateData.Length);
@@ -200,29 +210,27 @@ namespace LibSidWiz
                                     if (channel.IsEmpty) continue;
 
                                     if (!string.IsNullOrEmpty(channel.ErrorMessage))
-                                        // ReSharper disable once AccessToDisposedClosure
-                                        g.DrawString(
-                                            channel.ErrorMessage,
-                                            SystemFonts.DefaultFont,
-                                            Brushes.Red,
-                                            channel.Bounds,
-                                            stringFormat);
+                                        g.DrawText(
+                                            channel.ErrorMessage, SKPoint.Empty, new SKPaint
+                                            {
+                                                Typeface = SKTypeface.Default,
+                                                Color = SKColors.Red,
+                                                TextAlign = SKTextAlign.Center,
+                                            });
                                     else if (channel.Loading)
-                                        // ReSharper disable once AccessToDisposedClosure
-                                        g.DrawString(
-                                            "Loading data...",
-                                            SystemFonts.DefaultFont,
-                                            Brushes.Green,
-                                            channel.Bounds,
-                                            stringFormat);
+                                        g.DrawText("Loading data...", SKPoint.Empty, new SKPaint
+                                        {
+                                            Typeface = SKTypeface.Default,
+                                            Color = SKColors.Green,
+                                            TextAlign = SKTextAlign.Center,
+                                        });
                                     else if (channel.IsSilent && !channel.RenderIfSilent)
-                                        // ReSharper disable once AccessToDisposedClosure
-                                        g.DrawString(
-                                            "This channel is silent",
-                                            SystemFonts.DefaultFont,
-                                            Brushes.Yellow,
-                                            channel.Bounds,
-                                            stringFormat);
+                                        g.DrawText("This channel is silent", SKPoint.Empty, new SKPaint
+                                        {
+                                            Typeface = SKTypeface.Default,
+                                            Color = SKColors.Yellow,
+                                            TextAlign = SKTextAlign.Center,
+                                        });
                                     else
                                         // ReSharper disable once AccessToDisposedClosure
                                         RenderWave(g, channel, frame.ChannelTriggerPoints[channelIndex],
@@ -231,7 +239,7 @@ namespace LibSidWiz
                                 }
 
                                 // We "lend" the data to the frame info temporarily
-                                frame.Bitmap = bm;
+                                frame.Bitmap = image;
                                 frame.RawData = rawData;
                                 renderedFrames.TryAdd(frame.FrameIndex, frame);
                                 // Signal the consuming thread
@@ -282,7 +290,7 @@ namespace LibSidWiz
         {
             public int FrameIndex { get; set; }
             public List<int> ChannelTriggerPoints { get; set; }
-            public Bitmap Bitmap { get; set; }
+            public SKImage Bitmap { get; set; }
             public byte[] RawData { get; set; }
             public AutoResetEvent BitmapConsumed { get; } = new(false);
         }
@@ -437,7 +445,7 @@ namespace LibSidWiz
             }
         }
 
-        private void RenderWave(Graphics g, Channel channel, int triggerPoint, Pen pen, Brush brush, PointF[] points, GraphicsPath path, double fillBase)
+        private void RenderWave(SKCanvas g, Channel channel, int triggerPoint, SKPaint linePaint, SKPaint fillPaint, PointF[] points, SKPath path, double fillBase)
         {
             // And the initial sample index
             var leftmostSampleIndex = triggerPoint - channel.ViewWidthInSamples / 2;
@@ -446,40 +454,38 @@ namespace LibSidWiz
             float xScale = (float) channel.Bounds.Width / channel.ViewWidthInSamples;
             float yOffset = channel.Bounds.Top + channel.Bounds.Height * 0.5f;
             float yScale = -channel.Bounds.Height * 0.5f;
+            path.Reset();
             for (int i = 0; i < channel.ViewWidthInSamples; ++i)
             {
                 var sampleValue = channel.GetSample(leftmostSampleIndex + i, false);
-                points[i].X = xOffset + i * xScale;
-                points[i].Y = yOffset + sampleValue * yScale;
-            }
-            if (channel.Clip)
-            {
-                for (int i = 0; i < channel.ViewWidthInSamples; ++i)
+                var x = xOffset + i * xScale;
+                var y = yOffset + sampleValue * yScale;
+                if (channel.Clip)
                 {
-                    points[i].Y = Math.Min(Math.Max(points[i].Y, channel.Bounds.Top), channel.Bounds.Bottom);
+                    y = Math.Min(Math.Max(y, channel.Bounds.Top), channel.Bounds.Bottom);
+                }
+                if (i == 0)
+                {
+                    path.MoveTo(x, y);
+                }
+                else
+                {
+                    path.LineTo(x, y);
                 }
             }
 
-            // Enable anti-aliased lines
-            g.SmoothingMode = channel.SmoothLines ? SmoothingMode.HighQuality : SmoothingMode.None;
-
             // Then draw them all in one go...
-            if (pen != null)
+            if (linePaint != null)
             {
-                // This is the slowest part...
-                g.DrawLines(pen, points);
+                g.DrawPath(path, linePaint);
             }
 
-            if (brush != null)
+            if (fillPaint != null)
             {
                 // We need to add points to complete the path
-                // We compute the Y position of this line. -0.5 scales -1..1 to bottom..top.
-                var baseY = (float)(yOffset + channel.Bounds.Height * -0.5 * fillBase);
-                path.Reset();
-                path.AddLine(points[0].X, baseY, points[0].X, points[0].Y);
-                path.AddLines(points);
-                path.AddLine(points[points.Length - 1].X, points[points.Length - 1].Y, points[points.Length - 1].X, baseY);
-                g.FillPath(brush, path);
+                path.LineTo(channel.Bounds.Right, yOffset);
+                path.LineTo(channel.Bounds.Left, yOffset);
+                g.DrawPath(path, fillPaint);
             }
         }
 
@@ -494,7 +500,7 @@ namespace LibSidWiz
             Bitmap bitmap = null;
             Render(frameIndex, frameIndex + 1, (bm, _) =>
             {
-                bitmap = (Bitmap)bm.Clone();
+                bitmap = bm.ToBitmap();
             });
             return bitmap;
         }

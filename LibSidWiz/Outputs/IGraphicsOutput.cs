@@ -1,10 +1,10 @@
 ﻿using System;
-using System.Drawing;
+using SkiaSharp;
 
 namespace LibSidWiz.Outputs
 {
     public interface IGraphicsOutput: IDisposable
     {
-        void Write(Image image, byte[] data, double fractionComplete, TimeSpan length);
+        void Write(SKImage image, byte[] data, double fractionComplete, TimeSpan length);
     }
 }
