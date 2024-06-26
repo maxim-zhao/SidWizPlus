@@ -354,6 +354,7 @@ namespace SidWizPlus
                         return channel;
                     })
                     .Where(ch => ch.SampleCount > 0 && !ch.IsSilent)
+                    .OrderBy(ch => ch.Filename)
                     .ToList();
 
                 if (settings.AutoScalePercentage > 0)
