@@ -6,7 +6,6 @@ namespace LibSidWiz
 {
     internal class SampleBuffer: IDisposable
     {
-        private readonly string _filename;
         private readonly WaveStream _reader;
         private readonly ISampleProvider _sampleProvider;
 
@@ -49,7 +48,6 @@ namespace LibSidWiz
 
         public SampleBuffer(string filename, Channel.Sides side, bool filter)
         {
-            _filename = filename;
             _reader = new AudioFileReader(filename);
             Count = _reader.Length * 8 / _reader.WaveFormat.BitsPerSample / _reader.WaveFormat.Channels;
             SampleRate = _reader.WaveFormat.SampleRate;

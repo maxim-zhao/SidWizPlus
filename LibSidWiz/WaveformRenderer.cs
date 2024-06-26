@@ -163,7 +163,7 @@ namespace LibSidWiz
                         var innerPinnedArray = GCHandle.Alloc(rawData, GCHandleType.Pinned);
 
                         // Prepare the pens and brushes we will use
-                        var pens = _channels.Select(c => c.LineColor == Color.Transparent || c.LineWidth <= 0
+                        var linePaints = _channels.Select(c => c.LineColor == Color.Transparent || c.LineWidth <= 0
                             ? null
                             : new SKPaint {
                                 Color = new SKColor(c.LineColor.R, c.LineColor.G, c.LineColor.B, c.LineColor.A),
@@ -173,10 +173,10 @@ namespace LibSidWiz
                                 StrokeMiter = c.LineWidth,
                                 StrokeJoin = SKStrokeJoin.Bevel
                             }).ToList();
-                        var brushes = _channels.Select(c => c.FillColor == Color.Transparent
+                        var fillPaints = _channels.Select(c => c.FillColor == Color.Transparent
                             ? null
                             : new SKPaint {
-                                Color = new SKColor(c.LineColor.R, c.LineColor.G, c.LineColor.B, c.LineColor.A),
+                                Color = new SKColor(c.FillColor.R, c.FillColor.G, c.FillColor.B, c.FillColor.A),
                                 StrokeWidth = c.LineWidth,
                                 IsAntialias = c.SmoothLines,
                                 Style = SKPaintStyle.Fill,
@@ -191,8 +191,8 @@ namespace LibSidWiz
                             using var surface = SKSurface.Create(pixmap.Info, innerPinnedArray.AddrOfPinnedObject());
 
                             // Prepare buffers to hold the line coordinates
-                            var points = _channels.Select(channel => new PointF[channel.ViewWidthInSamples]).ToList();
                             var path = new SKPath();
+                            var fillPath = new SKPath();
 
                             while (!queue.IsCompleted)
                             {
@@ -234,8 +234,7 @@ namespace LibSidWiz
                                     else
                                         // ReSharper disable once AccessToDisposedClosure
                                         RenderWave(g, channel, frame.ChannelTriggerPoints[channelIndex],
-                                            pens[channelIndex], brushes[channelIndex],
-                                            points[channelIndex], path, channel.FillBase);
+                                            linePaints[channelIndex], fillPaints[channelIndex], path, fillPath, channel.FillBase);
                                 }
 
                                 // We "lend" the data to the frame info temporarily
@@ -251,12 +250,12 @@ namespace LibSidWiz
                         finally
                         {
                             innerPinnedArray.Free();
-                            foreach (var pen in pens)
+                            foreach (var pen in linePaints)
                             {
                                 pen?.Dispose();
                             }
 
-                            foreach (var brush in brushes)
+                            foreach (var brush in fillPaints)
                             {
                                 brush?.Dispose();
                             }
@@ -445,7 +444,8 @@ namespace LibSidWiz
             }
         }
 
-        private void RenderWave(SKCanvas g, Channel channel, int triggerPoint, SKPaint linePaint, SKPaint fillPaint, PointF[] points, SKPath path, double fillBase)
+        private static void RenderWave(SKCanvas g, Channel channel, int triggerPoint, SKPaint linePaint,
+            SKPaint fillPaint, SKPath path, SKPath fillPath, double fillBase)
         {
             // And the initial sample index
             var leftmostSampleIndex = triggerPoint - channel.ViewWidthInSamples / 2;
@@ -454,7 +454,7 @@ namespace LibSidWiz
             float xScale = (float) channel.Bounds.Width / channel.ViewWidthInSamples;
             float yOffset = channel.Bounds.Top + channel.Bounds.Height * 0.5f;
             float yScale = -channel.Bounds.Height * 0.5f;
-            path.Reset();
+            path.Rewind();
             for (var i = 0; i < channel.ViewWidthInSamples; ++i)
             {
                 var sampleValue = channel.GetSample(leftmostSampleIndex + i, false);
@@ -475,17 +475,22 @@ namespace LibSidWiz
             }
 
             // Then draw them all in one go...
-            if (linePaint != null)
-            {
-                g.DrawPath(path, linePaint);
-            }
-
+            // Draw the fill "under" the line
             if (fillPaint != null)
             {
                 // We need to add points to complete the path
-                path.LineTo(channel.Bounds.Right, yOffset);
-                path.LineTo(channel.Bounds.Left, yOffset);
-                g.DrawPath(path, fillPaint);
+                // We compute the Y position of this line. -0.5 scales -1..1 to bottom..top.
+                var baseY = (float)(yOffset + channel.Bounds.Height * -0.5 * fillBase);
+                fillPath.Rewind();
+                fillPath.AddPath(path);
+                fillPath.LineTo(channel.Bounds.Right, baseY);
+                fillPath.LineTo(channel.Bounds.Left, baseY);
+                g.DrawPath(fillPath, fillPaint);
+            }
+
+            if (linePaint != null)
+            {
+                g.DrawPath(path, linePaint);
             }
         }
 
