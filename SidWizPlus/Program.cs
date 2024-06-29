@@ -249,7 +249,7 @@ namespace SidWizPlus
             [Option("youtubemerge", HelpText = "Merge the specified videos (wildcard, results sorted alphabetically) to one file and upload to YouTube", Group="Inputs")]
             public string YouTubeMerge { get; set; }
 
-            [Option("threads", HelpText = "Number of rendering threads to use. Defaults to as many CPUs as your computer has.", Group="Inputs", Default = -1)]
+            [Option("threads", HelpText = "Number of rendering threads to use. Defaults to as many CPUs as your computer has.", Default = -1)]
             public int ThreadCount { get; set; }
         }
 
