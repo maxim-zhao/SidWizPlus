@@ -251,6 +251,10 @@ namespace SidWizPlus
 
             [Option("threads", HelpText = "Number of rendering threads to use. Defaults to as many CPUs as your computer has.", Default = -1)]
             public int ThreadCount { get; set; }
+
+            [Option("verbose", HelpText = "Enable even more logging", Default = false)]
+            public bool Verbose { get; set; }
+
         }
 
         static int Main(string[] args)
@@ -285,11 +289,13 @@ namespace SidWizPlus
             {
                 if (settings.VgmFile != null)
                 {
-                    RunMultiDumper(ref settings);
+                    LogVerbose(settings, "Running MultiDumper because VGM file was specified");
+                    RunMultiDumper(settings);
                 }
                 else
                 {
                     // We want to expand any wildcards in the input file list (and also fully qualify them)
+                    LogVerbose(settings, "Expanding wildcards in inputs...");
                     var inputs = new List<string>();
                     foreach (var inputFile in settings.InputFiles)
                     {
@@ -300,7 +306,7 @@ namespace SidWizPlus
                         }
 
                         var pattern = Path.GetFileName(inputFile) ??
-                                      throw new Exception($"Failed to match {inputFile}");
+                            throw new Exception($"Failed to match {inputFile}");
                         var pathPart = inputFile.Substring(0, inputFile.Length - pattern.Length);
                         var directory = pathPart.Length > 0
                             ? Path.GetFullPath(pathPart)
@@ -315,6 +321,7 @@ namespace SidWizPlus
                     }
 
                     settings.InputFiles = inputs;
+                    LogVerbose(settings, string.Join("\n- ", Enumerable.Repeat("Input files are:", 1).Concat(inputs)));
                 }
 
                 if (settings.InputFiles == null || !settings.InputFiles.Any())
@@ -322,6 +329,7 @@ namespace SidWizPlus
                     throw new Exception("No inputs specified");
                 }
 
+                LogVerbose(settings, "Creating channel objects...");
                 var channels = settings.InputFiles
                     .AsParallel()
                     .Select(filename =>
@@ -362,6 +370,8 @@ namespace SidWizPlus
 
                 if (settings.AutoScalePercentage > 0)
                 {
+                    LogVerbose(settings, "Auto-scaling...");
+
                     float max;
 
                     static bool IsYm2413Percussion(Channel ch) =>
@@ -384,6 +394,7 @@ namespace SidWizPlus
                     }
 
                     var scale = settings.AutoScalePercentage / 100 / max;
+                    LogVerbose(settings, $"Applying scale of {scale} to all channels");
                     foreach (var channel in channels)
                     {
                         channel.Scale = scale;
@@ -392,6 +403,7 @@ namespace SidWizPlus
 
                 if (settings.ChannelLabelsFromVgm && settings.VgmFile != null)
                 {
+                    LogVerbose(settings, "Guessing channel labels from VGM...");
                     TryGuessLabelsFromVgm(channels, settings.VgmFile);
                 }
 
@@ -401,11 +413,14 @@ namespace SidWizPlus
                     if (settings.MasterAudioFile == null && !settings.NoMasterMix)
                     {
                         settings.MasterAudioFile = settings.OutputFile + ".wav";
+                        LogVerbose(settings, "Generating master audio file...");
                         Mixer.MixToFile(channels, settings.MasterAudioFile, !settings.NoMasterMixReplayGain);
                     }
                 }
 
+                LogVerbose(settings, "Starting render...");
                 Render(settings, channels);
+                LogVerbose(settings, "Render complete");
 
                 foreach (var channel in channels)
                 {
@@ -600,7 +615,7 @@ namespace SidWizPlus
             return (Color)property.GetValue(null);
         }
 
-        private static void RunMultiDumper(ref Settings settings)
+        private static void RunMultiDumper(Settings settings)
         {
             if (!File.Exists(settings.MultidumperPath))
             {
@@ -649,6 +664,15 @@ namespace SidWizPlus
             {
                 Console.WriteLine($"Skipping MultiDumper as {settings.InputFiles.Count()} files were already present.");
             }
+        }
+
+        private static void LogVerbose(Settings settings, string message)
+        {
+            if (!settings.Verbose)
+            {
+                return;
+            }
+            Console.WriteLine(message);
         }
 
         private static void Render(Settings settings, List<Channel> channels)
@@ -766,9 +790,14 @@ namespace SidWizPlus
 
             try
             {
-                Console.WriteLine("Rendering...");
+                if (settings.ThreadCount < 1)
+                {
+                    settings.ThreadCount = Environment.ProcessorCount;
+                    LogVerbose(settings, $"Defaulted thread count to {settings.ThreadCount}");
+                }
+                Console.WriteLine($"Rendering on {settings.ThreadCount} threads...");
                 var sw = Stopwatch.StartNew();
-                renderer.Render(outputs, settings.ThreadCount);
+                renderer.Render(outputs, settings.ThreadCount, settings.Verbose);
                 sw.Stop();
                 int numFrames = (int) (channels.Max(x => x.Length).TotalSeconds * settings.FramesPerSecond);
                 Console.WriteLine($"Rendering complete in {sw.Elapsed:g}, average {numFrames / sw.Elapsed.TotalSeconds:N} fps");

@@ -36,7 +36,7 @@ namespace LibSidWiz
             _channels.Add(channel);
         }
 
-        public void Render(IList<IGraphicsOutput> outputs, int numThreads)
+        public void Render(IList<IGraphicsOutput> outputs, int numThreads, bool verboseLogging)
         {
             int numFrames = (int)(_channels.Max(c => c.SampleCount) * FramesPerSecond / SamplingRate);
             var length = TimeSpan.FromSeconds((double)numFrames / FramesPerSecond);
