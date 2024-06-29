@@ -789,17 +789,23 @@ namespace SidWizPlus
 
         private static string FindExecutable(string name)
         {
+            string fullPath;
             // Look in the current directory...
             if (File.Exists(name))
             {
-                return Path.GetFullPath(name);
+                fullPath = Path.GetFullPath(name);
             }
-
-            var values = Environment.GetEnvironmentVariable("PATH");
-            return values?.Split(Path.PathSeparator)
+            else
+            {
+                fullPath = Environment.GetEnvironmentVariable("PATH")
+                    ?.Split(Path.PathSeparator)
                     .Select(path => Path.Combine(path, name))
                     .FirstOrDefault(File.Exists)
-                ?? throw new Exception($"Could not find path to {name}");
+                    ?? throw new Exception($"Could not find path to {name}");
+            }
+
+            Console.WriteLine($"Found {name} at {fullPath}");
+            return fullPath;
         }
 
         private static ITriggerAlgorithm CreateTriggerAlgorithm(string name)
