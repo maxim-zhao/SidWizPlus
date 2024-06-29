@@ -13,7 +13,7 @@ build:
 after_build:
 - cmd: |
     7z a sidwizplus.zip %APPVEYOR_BUILD_FOLDER%\SidWizPlus\bin\Release\net48\*.dll %APPVEYOR_BUILD_FOLDER%\SidWizPlus\bin\Release\net48\*.exe
-    7z a sidwizplusgui.zip %APPVEYOR_BUILD_FOLDER%\SidWiz\bin\Release\*.dll %APPVEYOR_BUILD_FOLDER%\SidWiz\bin\Release\*.exe"
+    7z a sidwizplusgui.zip %APPVEYOR_BUILD_FOLDER%\SidWiz\bin\Release\net48\*.dll %APPVEYOR_BUILD_FOLDER%\SidWiz\bin\Release\net48\*.exe"
 artifacts:
 - path: '*.zip'
   name: Binaries
