@@ -821,7 +821,7 @@ namespace SidWizPlusGUI
                 try
                 {
                     var renderer = CreateWaveformRenderer();
-                    renderer.Render(outputs, _settings.RenderThreads);
+                    renderer.Render(outputs, _settings.RenderThreads, false);
                 }
                 catch (Exception exception)
                 {
