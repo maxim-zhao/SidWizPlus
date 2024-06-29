@@ -12,8 +12,10 @@ build:
   verbosity: minimal
 after_build:
 - cmd: |
-    7z a sidwizplus.zip %APPVEYOR_BUILD_FOLDER%\SidWizPlus\bin\Release\net48\*.dll %APPVEYOR_BUILD_FOLDER%\SidWizPlus\bin\Release\net48\*.exe
-    7z a sidwizplusgui.zip %APPVEYOR_BUILD_FOLDER%\SidWiz\bin\Release\net48\*.dll %APPVEYOR_BUILD_FOLDER%\SidWiz\bin\Release\net48\*.exe"
+    cd /d %APPVEYOR_BUILD_FOLDER%\SidWizPlus\bin\Release\net48
+    7z a -mx9 -r %APPVEYOR_BUILD_FOLDER%\sidwizplus.zip *.dll *.exe
+    cd /d %APPVEYOR_BUILD_FOLDER%\SidWiz\bin\Release\net48
+    7z a -mx9 -r %APPVEYOR_BUILD_FOLDER%\sidwizplusgui.zip *.dll *.exe
 artifacts:
 - path: '*.zip'
   name: Binaries
