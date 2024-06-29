@@ -151,7 +151,7 @@ namespace LibSidWiz
                 var frameReadySignal = new AutoResetEvent(false);
                 // Then we kick off some parallel threads to do the rendering, consuming from queue and emitting to renderedFrames indexed by frame index
 
-                foreach (var _ in Enumerable.Range(0, 16))
+                foreach (var _ in Enumerable.Range(0, numThreads))
                 {
                     Task.Factory.StartNew(() =>
                     {
