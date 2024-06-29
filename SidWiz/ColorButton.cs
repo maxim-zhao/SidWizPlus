@@ -44,9 +44,9 @@ namespace SidWizPlusGUI
 
         private void OnClick(object sender, EventArgs e)
         {
-            using var colorDialog = new ColorDialog();
+            using var colorDialog = new Cyotek.Windows.Forms.ColorPickerDialog();
             colorDialog.Color = _color;
-            colorDialog.FullOpen = true;
+            colorDialog.ShowAlphaChannel = true;
             if (colorDialog.ShowDialog(this) != DialogResult.OK)
             {
                 return;
