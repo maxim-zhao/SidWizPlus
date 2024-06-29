@@ -109,32 +109,7 @@ namespace LibSidWiz
                 {
                     for (var frameIndex = startFrame; frameIndex <= endFrame; ++frameIndex)
                     {
-                        // Compute the start of the sample window
-                        int frameIndexSamples = (int)((long)frameIndex * SamplingRate / FramesPerSecond);
-                        var info = new FrameInfo
-                        {
-                            FrameIndex = frameIndex,
-                            ChannelTriggerPoints = Enumerable.Repeat(frameIndexSamples, _channels.Count).ToList()
-                        };
-                        // For each channel...
-                        for (int channelIndex = 0; channelIndex < _channels.Count; ++channelIndex)
-                        {
-                            var channel = _channels[channelIndex];
-                            if (channel.IsEmpty ||
-                                !string.IsNullOrEmpty(channel.ErrorMessage) ||
-                                channel.Loading ||
-                                channel.IsSilent)
-                            {
-                                // No trigger to find
-                                continue;
-                            }
-
-                            // Compute the "trigger point". This will be the centre of our rendering.
-                            var triggerPoint = channel.GetTriggerPoint(frameIndexSamples, frameSamples,
-                                triggerPoints[channelIndex]);
-                            info.ChannelTriggerPoints[channelIndex] = triggerPoint;
-                            triggerPoints[channelIndex] = triggerPoint;
-                        }
+                        var info = GetFrameInfo(frameIndex, frameSamples, triggerPoints);
 
                         // Add to the queue (may block)
                         queue.Add(info);
@@ -150,7 +125,6 @@ namespace LibSidWiz
                 var renderedFrames = new ConcurrentDictionary<int, FrameInfo>();
                 var frameReadySignal = new AutoResetEvent(false);
                 // Then we kick off some parallel threads to do the rendering, consuming from queue and emitting to renderedFrames indexed by frame index
-
                 foreach (var _ in Enumerable.Range(0, numThreads))
                 {
                     Task.Factory.StartNew(() =>
@@ -260,7 +234,7 @@ namespace LibSidWiz
                                 paint?.Dispose();
                             }
                         }
-                    });
+                    }, TaskCreationOptions.LongRunning);
                 }
 
                 // Finally, we consume the queue
@@ -283,6 +257,38 @@ namespace LibSidWiz
             {
                 pinnedArray.Free();
             }
+        }
+
+        private FrameInfo GetFrameInfo(int frameIndex, int frameSamples, int[] triggerPoints)
+        {
+            // Compute the start of the sample window
+            int frameIndexSamples = (int)((long)frameIndex * SamplingRate / FramesPerSecond);
+            var info = new FrameInfo
+            {
+                FrameIndex = frameIndex,
+                ChannelTriggerPoints = Enumerable.Repeat(frameIndexSamples, _channels.Count).ToList()
+            };
+            // For each channel...
+            for (int channelIndex = 0; channelIndex < _channels.Count; ++channelIndex)
+            {
+                var channel = _channels[channelIndex];
+                if (channel.IsEmpty ||
+                    !string.IsNullOrEmpty(channel.ErrorMessage) ||
+                    channel.Loading ||
+                    channel.IsSilent)
+                {
+                    // No trigger to find
+                    continue;
+                }
+
+                // Compute the "trigger point". This will be the centre of our rendering.
+                var triggerPoint = channel.GetTriggerPoint(frameIndexSamples, frameSamples,
+                    triggerPoints[channelIndex]);
+                info.ChannelTriggerPoints[channelIndex] = triggerPoint;
+                triggerPoints[channelIndex] = triggerPoint;
+            }
+
+            return info;
         }
 
         private class FrameInfo
