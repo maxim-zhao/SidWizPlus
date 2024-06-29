@@ -268,6 +268,8 @@ namespace LibSidWiz
 
         [Category("Appearance")]
         [Description("The line colour")]
+        [Editor(typeof(MyColorEditor), typeof(UITypeEditor))]
+        [TypeConverter(typeof(MyColorConverter))]
         public Color LineColor
         {
             get => _lineColor;
@@ -292,6 +294,8 @@ namespace LibSidWiz
 
         [Category("Appearance")]
         [Description("The fill colour. Set to transparent to have no fill.")]
+        [Editor(typeof(MyColorEditor), typeof(UITypeEditor))]
+        [TypeConverter(typeof(MyColorConverter))]
         public Color FillColor
         {
             get => _fillColor;
@@ -340,6 +344,8 @@ namespace LibSidWiz
 
         [Category("Appearance")]
         [Description("The color of the zero line")]
+        [Editor(typeof(MyColorEditor), typeof(UITypeEditor))]
+        [TypeConverter(typeof(MyColorConverter))]
         public Color ZeroLineColor
         {
             get => _zeroLineColor;
@@ -352,6 +358,8 @@ namespace LibSidWiz
 
         [Category("Appearance")]
         [Description("The color of the border")]
+        [Editor(typeof(MyColorEditor), typeof(UITypeEditor))]
+        [TypeConverter(typeof(MyColorConverter))]
         public Color BorderColor
         {
             get => _borderColor;
@@ -388,6 +396,8 @@ namespace LibSidWiz
 
         [Category("Appearance")]
         [Description("A background colour for the channel. This is layered above any background image, and can be transparent.")]
+        [Editor(typeof(MyColorEditor), typeof(UITypeEditor))]
+        [TypeConverter(typeof(MyColorConverter))]
         public Color BackgroundColor
         {
             get => _backgroundColor;
@@ -425,6 +435,8 @@ namespace LibSidWiz
 
         [Category("Appearance")]
         [Description("The color for the channel label")]
+        [Editor(typeof(MyColorEditor), typeof(UITypeEditor))]
+        [TypeConverter(typeof(MyColorConverter))]
         public Color LabelColor
         {
             get => _labelColor;
