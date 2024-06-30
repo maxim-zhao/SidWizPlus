@@ -255,10 +255,10 @@ namespace SidWizPlusGUI
                     allFilesMask
                 }
                 .Concat(handlers.SelectMany(h => new[] {$"{h.Name} ({h.Filter})", h.Filter}))
-                .Concat(new[]
-                {
+                .Concat(
+                [
                     "All files", "*.*"
-                }));
+                ]));
 
             using var ofd = new OpenFileDialog();
             ofd.CheckFileExists = true;
@@ -594,7 +594,7 @@ namespace SidWizPlusGUI
 
         private void RemoveButton_Click(object sender, EventArgs e)
         {
-            if (!(PropertyGrid.SelectedObject is Channel channel))
+            if (PropertyGrid.SelectedObject is not Channel channel)
             {
                 return;
             }
@@ -1093,7 +1093,7 @@ namespace SidWizPlusGUI
 
         private void CopyChannelSettings(object sender, EventArgs e)
         {
-            if (!(PropertyGrid.SelectedObject is Channel source))
+            if (PropertyGrid.SelectedObject is not Channel source)
             {
                 return;
             }
@@ -1103,7 +1103,7 @@ namespace SidWizPlusGUI
 
         private void PasteChannelSettings(object sender, EventArgs e)
         {
-            if (!(PropertyGrid.SelectedObject is Channel channel))
+            if (PropertyGrid.SelectedObject is not Channel channel)
             {
                 return;
             }
@@ -1120,7 +1120,7 @@ namespace SidWizPlusGUI
 
         private void SplitChannel(object sender, EventArgs e)
         {
-            if (!(PropertyGrid.SelectedObject is Channel channel))
+            if (PropertyGrid.SelectedObject is not Channel channel)
             {
                 return;
             }
@@ -1182,7 +1182,7 @@ namespace SidWizPlusGUI
 
         private void SaveAsDefaultSettings(object sender, EventArgs e)
         {
-            if (!(PropertyGrid.SelectedObject is Channel source))
+            if (PropertyGrid.SelectedObject is not Channel source)
             {
                 return;
             }
@@ -1193,7 +1193,7 @@ namespace SidWizPlusGUI
 
         private void ResetToDefaultSettings(object sender, EventArgs e)
         {
-            if (!(PropertyGrid.SelectedObject is Channel channel))
+            if (PropertyGrid.SelectedObject is not Channel channel)
             {
                 return;
             }

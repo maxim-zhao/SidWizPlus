@@ -1,6 +1,7 @@
 ﻿using System;
 using System.ComponentModel;
 using System.ComponentModel.Design;
+using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
 using System.Drawing.Design;
 using System.Globalization;
@@ -21,6 +22,7 @@ namespace LibSidWiz
     /// <summary>
     /// Wraps a single "voice", and also deals with loading the data into memory
     /// </summary>
+    [SuppressMessage("ReSharper", "UnusedMember.Global")]
     public class Channel: IDisposable
     {
         private readonly bool _autoReloadOnSettingChanged;

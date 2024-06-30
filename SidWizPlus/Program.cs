@@ -478,8 +478,8 @@ namespace SidWizPlus
 
         private class ChannelState
         {
-            private readonly List<InstrumentState> _instruments = new();
-            private readonly Dictionary<int, InstrumentState> _instrumentsByChannel = new();
+            private readonly List<InstrumentState> _instruments = [];
+            private readonly Dictionary<int, InstrumentState> _instrumentsByChannel = [];
             private InstrumentState _currentInstrument;
             public bool KeyDown { private get; set; }
 
@@ -607,12 +607,9 @@ namespace SidWizPlus
                 .FirstOrDefault(p =>
                     p.PropertyType == typeof(Color) &&
                     p.Name.Equals(value, StringComparison.InvariantCultureIgnoreCase));
-            if (property == null)
-            {
-                throw new Exception($"Could not parse color {value}");
-            }
-
-            return (Color)property.GetValue(null);
+            return property == null 
+                ? throw new Exception($"Could not parse color {value}") : 
+                (Color)property.GetValue(null);
         }
 
         private static void RunMultiDumper(Settings settings)
@@ -844,11 +841,8 @@ namespace SidWizPlus
                 .SelectMany(a => a.GetTypes())
                 .FirstOrDefault(t =>
                     typeof(ITriggerAlgorithm).IsAssignableFrom(t) &&
-                    t.Name.ToLowerInvariant().Equals(name.ToLowerInvariant()));
-            if (type == null)
-            {
-                throw new Exception($"Unknown trigger algorithm \"{name}\"");
-            }
+                    t.Name.ToLowerInvariant().Equals(name.ToLowerInvariant())) 
+                ?? throw new Exception($"Unknown trigger algorithm \"{name}\"");
             return Activator.CreateInstance(type) as ITriggerAlgorithm;
         }
 
@@ -1318,11 +1312,8 @@ namespace SidWizPlus
                 true);
             wrapper.WaitForExit();
             var lines = wrapper.Lines().ToList();
-            var line = lines.FirstOrDefault(s => re.IsMatch(s));
-            if (line == null)
-            {
-                throw new Exception($"Failed to find duration for {path}. FFMPEG output:\n{string.Join("\n", lines)}");
-            }
+            var line = lines.FirstOrDefault(s => re.IsMatch(s)) 
+                ?? throw new Exception($"Failed to find duration for {path}. FFMPEG output:\n{string.Join("\n", lines)}");
             return TimeSpan.Parse(re.Match(line).Groups["duration"].Value);
         }
 
