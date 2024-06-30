@@ -87,13 +87,14 @@
             this.label20 = new System.Windows.Forms.Label();
             this.label21 = new System.Windows.Forms.Label();
             this.BackgroundImageControl = new System.Windows.Forms.PictureBox();
-            this.BackgroundColorButton = new SidWizPlusGUI.ColorButton(this.components);
             this.tabPage3 = new System.Windows.Forms.TabPage();
             this.label19 = new System.Windows.Forms.Label();
             this.MasterAudioPath = new System.Windows.Forms.TextBox();
             this.MasterMixReplayGain = new System.Windows.Forms.CheckBox();
             this.AutogenerateMasterMix = new System.Windows.Forms.CheckBox();
             this.tabPage2 = new System.Windows.Forms.TabPage();
+            this.RenderThreadsControl = new System.Windows.Forms.NumericUpDown();
+            this.label2 = new System.Windows.Forms.Label();
             this.groupBox4 = new System.Windows.Forms.GroupBox();
             this.PreviewCheckBox = new System.Windows.Forms.CheckBox();
             this.label10 = new System.Windows.Forms.Label();
@@ -111,8 +112,11 @@
             this.tabPage5 = new System.Windows.Forms.TabPage();
             this.ProgramSettingsGrid = new System.Windows.Forms.PropertyGrid();
             this.imageList1 = new System.Windows.Forms.ImageList(this.components);
-            this.RenderThreadsControl = new System.Windows.Forms.NumericUpDown();
-            this.label2 = new System.Windows.Forms.Label();
+            this.label3 = new System.Windows.Forms.Label();
+            this.VideoCodec = new System.Windows.Forms.TextBox();
+            this.AudioCodec = new System.Windows.Forms.TextBox();
+            this.label18 = new System.Windows.Forms.Label();
+            this.BackgroundColorButton = new SidWizPlusGUI.ColorButton(this.components);
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
             this.splitContainer1.Panel2.SuspendLayout();
@@ -134,13 +138,13 @@
             ((System.ComponentModel.ISupportInitialize)(this.BackgroundImageControl)).BeginInit();
             this.tabPage3.SuspendLayout();
             this.tabPage2.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.RenderThreadsControl)).BeginInit();
             this.groupBox4.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.PreviewFrameskip)).BeginInit();
             this.groupBox3.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.FrameRateControl)).BeginInit();
             this.tabPage6.SuspendLayout();
             this.tabPage5.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.RenderThreadsControl)).BeginInit();
             this.SuspendLayout();
             // 
             // splitContainer1
@@ -783,20 +787,6 @@
             this.BackgroundImageControl.TabStop = false;
             this.BackgroundImageControl.Click += new System.EventHandler(this.BackgroundImageControl_Click);
             // 
-            // BackgroundColorButton
-            // 
-            this.BackgroundColorButton.BackColor = System.Drawing.Color.Black;
-            this.BackgroundColorButton.Color = System.Drawing.Color.Black;
-            this.BackgroundColorButton.ForeColor = System.Drawing.Color.White;
-            this.BackgroundColorButton.Location = new System.Drawing.Point(118, 6);
-            this.BackgroundColorButton.Margin = new System.Windows.Forms.Padding(2, 3, 2, 3);
-            this.BackgroundColorButton.Name = "BackgroundColorButton";
-            this.BackgroundColorButton.Size = new System.Drawing.Size(114, 33);
-            this.BackgroundColorButton.TabIndex = 1;
-            this.BackgroundColorButton.Text = "Black";
-            this.BackgroundColorButton.UseVisualStyleBackColor = false;
-            this.BackgroundColorButton.ColorChanged += new System.EventHandler(this.ControlValueChanged);
-            // 
             // tabPage3
             // 
             this.tabPage3.Controls.Add(this.label19);
@@ -882,6 +872,41 @@
             this.tabPage2.Text = "Video";
             this.tabPage2.UseVisualStyleBackColor = true;
             // 
+            // RenderThreadsControl
+            // 
+            this.RenderThreadsControl.Location = new System.Drawing.Point(118, 237);
+            this.RenderThreadsControl.Margin = new System.Windows.Forms.Padding(2, 3, 2, 3);
+            this.RenderThreadsControl.Maximum = new decimal(new int[] {
+            1000,
+            0,
+            0,
+            0});
+            this.RenderThreadsControl.Minimum = new decimal(new int[] {
+            1,
+            0,
+            0,
+            0});
+            this.RenderThreadsControl.Name = "RenderThreadsControl";
+            this.RenderThreadsControl.Size = new System.Drawing.Size(63, 23);
+            this.RenderThreadsControl.TabIndex = 11;
+            this.RenderThreadsControl.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
+            this.RenderThreadsControl.Value = new decimal(new int[] {
+            4,
+            0,
+            0,
+            0});
+            this.RenderThreadsControl.ValueChanged += new System.EventHandler(this.ControlValueChanged);
+            // 
+            // label2
+            // 
+            this.label2.AutoSize = true;
+            this.label2.Location = new System.Drawing.Point(14, 239);
+            this.label2.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(86, 15);
+            this.label2.TabIndex = 10;
+            this.label2.Text = "Render threads";
+            // 
             // groupBox4
             // 
             this.groupBox4.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
@@ -920,10 +945,10 @@
             // 
             // PreviewFrameskip
             // 
-            this.PreviewFrameskip.Location = new System.Drawing.Point(114, 50);
+            this.PreviewFrameskip.Location = new System.Drawing.Point(112, 50);
             this.PreviewFrameskip.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.PreviewFrameskip.Name = "PreviewFrameskip";
-            this.PreviewFrameskip.Size = new System.Drawing.Size(61, 23);
+            this.PreviewFrameskip.Size = new System.Drawing.Size(63, 23);
             this.PreviewFrameskip.TabIndex = 5;
             this.PreviewFrameskip.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
             this.PreviewFrameskip.Value = new decimal(new int[] {
@@ -946,12 +971,16 @@
             // 
             this.groupBox3.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
+            this.groupBox3.Controls.Add(this.AudioCodec);
+            this.groupBox3.Controls.Add(this.label18);
+            this.groupBox3.Controls.Add(this.VideoCodec);
+            this.groupBox3.Controls.Add(this.label3);
             this.groupBox3.Controls.Add(this.EncodeCheckBox);
             this.groupBox3.Location = new System.Drawing.Point(6, 123);
             this.groupBox3.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.groupBox3.Name = "groupBox3";
             this.groupBox3.Padding = new System.Windows.Forms.Padding(3, 4, 3, 4);
-            this.groupBox3.Size = new System.Drawing.Size(421, 56);
+            this.groupBox3.Size = new System.Drawing.Size(421, 107);
             this.groupBox3.TabIndex = 7;
             this.groupBox3.TabStop = false;
             this.groupBox3.Text = "FFMPEG";
@@ -1101,40 +1130,55 @@
             this.imageList1.Images.SetKeyName(5, "picture.png");
             this.imageList1.Images.SetKeyName(6, "application_xp_terminal.png");
             // 
-            // RenderThreadsControl
+            // label3
             // 
-            this.RenderThreadsControl.Location = new System.Drawing.Point(118, 186);
-            this.RenderThreadsControl.Margin = new System.Windows.Forms.Padding(2, 3, 2, 3);
-            this.RenderThreadsControl.Maximum = new decimal(new int[] {
-            1000,
-            0,
-            0,
-            0});
-            this.RenderThreadsControl.Minimum = new decimal(new int[] {
-            1,
-            0,
-            0,
-            0});
-            this.RenderThreadsControl.Name = "RenderThreadsControl";
-            this.RenderThreadsControl.Size = new System.Drawing.Size(63, 23);
-            this.RenderThreadsControl.TabIndex = 11;
-            this.RenderThreadsControl.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
-            this.RenderThreadsControl.Value = new decimal(new int[] {
-            4,
-            0,
-            0,
-            0});
-            this.RenderThreadsControl.ValueChanged += new System.EventHandler(this.ControlValueChanged);
+            this.label3.AutoSize = true;
+            this.label3.Location = new System.Drawing.Point(8, 47);
+            this.label3.Name = "label3";
+            this.label3.Size = new System.Drawing.Size(72, 15);
+            this.label3.TabIndex = 5;
+            this.label3.Text = "Video codec";
             // 
-            // label2
+            // VideoCodec
             // 
-            this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(14, 188);
-            this.label2.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
-            this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(86, 15);
-            this.label2.TabIndex = 10;
-            this.label2.Text = "Render threads";
+            this.VideoCodec.Location = new System.Drawing.Point(112, 44);
+            this.VideoCodec.Name = "VideoCodec";
+            this.VideoCodec.Size = new System.Drawing.Size(100, 23);
+            this.VideoCodec.TabIndex = 6;
+            this.VideoCodec.Text = "h264";
+            this.VideoCodec.TextChanged += new System.EventHandler(this.ControlValueChanged);
+            // 
+            // AudioCodec
+            // 
+            this.AudioCodec.Location = new System.Drawing.Point(112, 73);
+            this.AudioCodec.Name = "AudioCodec";
+            this.AudioCodec.Size = new System.Drawing.Size(100, 23);
+            this.AudioCodec.TabIndex = 8;
+            this.AudioCodec.Text = "aac";
+            this.AudioCodec.TextChanged += new System.EventHandler(this.ControlValueChanged);
+            // 
+            // label18
+            // 
+            this.label18.AutoSize = true;
+            this.label18.Location = new System.Drawing.Point(8, 76);
+            this.label18.Name = "label18";
+            this.label18.Size = new System.Drawing.Size(74, 15);
+            this.label18.TabIndex = 7;
+            this.label18.Text = "Audio codec";
+            // 
+            // BackgroundColorButton
+            // 
+            this.BackgroundColorButton.BackColor = System.Drawing.Color.Black;
+            this.BackgroundColorButton.Color = System.Drawing.Color.Black;
+            this.BackgroundColorButton.ForeColor = System.Drawing.Color.White;
+            this.BackgroundColorButton.Location = new System.Drawing.Point(118, 6);
+            this.BackgroundColorButton.Margin = new System.Windows.Forms.Padding(2, 3, 2, 3);
+            this.BackgroundColorButton.Name = "BackgroundColorButton";
+            this.BackgroundColorButton.Size = new System.Drawing.Size(114, 33);
+            this.BackgroundColorButton.TabIndex = 1;
+            this.BackgroundColorButton.Text = "Black";
+            this.BackgroundColorButton.UseVisualStyleBackColor = false;
+            this.BackgroundColorButton.ColorChanged += new System.EventHandler(this.ControlValueChanged);
             // 
             // SidWizPlusGui
             // 
@@ -1177,6 +1221,7 @@
             this.tabPage3.PerformLayout();
             this.tabPage2.ResumeLayout(false);
             this.tabPage2.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.RenderThreadsControl)).EndInit();
             this.groupBox4.ResumeLayout(false);
             this.groupBox4.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.PreviewFrameskip)).EndInit();
@@ -1185,7 +1230,6 @@
             ((System.ComponentModel.ISupportInitialize)(this.FrameRateControl)).EndInit();
             this.tabPage6.ResumeLayout(false);
             this.tabPage5.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.RenderThreadsControl)).EndInit();
             this.ResumeLayout(false);
 
         }
@@ -1274,5 +1318,9 @@
         private System.Windows.Forms.Label ChannelsHelpLabel;
         private System.Windows.Forms.NumericUpDown RenderThreadsControl;
         private System.Windows.Forms.Label label2;
+        private System.Windows.Forms.Label label3;
+        private System.Windows.Forms.TextBox AudioCodec;
+        private System.Windows.Forms.Label label18;
+        private System.Windows.Forms.TextBox VideoCodec;
     }
 }

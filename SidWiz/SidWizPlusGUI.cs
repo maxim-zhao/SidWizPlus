@@ -95,7 +95,7 @@ namespace SidWizPlusGUI
             public Color BackgroundColor { get; set; } = Color.Black;
             public string BackgroundImageFilename { get; set; }
             public PreviewSettings Preview { get; } = new() {Enabled = true, Frameskip = 1};
-            public EncodeSettings EncodeVideo { get; } = new() {Enabled = false};
+            public EncodeSettings EncodeVideo { get; } = new() {Enabled = false, VideoCodec = "h264", AudioCodec = "aac"};
             public int RenderThreads { get; set; } = Environment.ProcessorCount;
 
             public MasterAudioSettings MasterAudio { get; } = new() {IsAutomatic = true, ApplyReplayGain = true};
@@ -110,6 +110,8 @@ namespace SidWizPlusGUI
             public class EncodeSettings
             {
                 public bool Enabled { get; set; }
+                public string VideoCodec { get; set; }
+                public string AudioCodec { get; set; }
             }
 
             public class PreviewSettings
@@ -138,6 +140,8 @@ namespace SidWizPlusGUI
                 Preview.Enabled = form.PreviewCheckBox.Checked;
                 Preview.Frameskip = (int) form.PreviewFrameskip.Value;
                 EncodeVideo.Enabled = form.EncodeCheckBox.Checked;
+                EncodeVideo.VideoCodec = form.VideoCodec.Text;
+                EncodeVideo.AudioCodec = form.AudioCodec.Text;
                 MasterAudio.IsAutomatic = form.AutogenerateMasterMix.Checked;
                 MasterAudio.ApplyReplayGain = form.MasterMixReplayGain.Checked;
                 MasterAudio.Path = form.MasterAudioPath.Text;
@@ -161,6 +165,8 @@ namespace SidWizPlusGUI
                 form.PreviewCheckBox.Checked = Preview.Enabled;
                 form.PreviewFrameskip.Value = Preview.Frameskip;
                 form.EncodeCheckBox.Checked = EncodeVideo.Enabled;
+                form.VideoCodec.Text = EncodeVideo.VideoCodec;
+                form.AudioCodec.Text = EncodeVideo.AudioCodec;
                 form.AutogenerateMasterMix.Checked = MasterAudio.IsAutomatic;
                 form.MasterMixReplayGain.Checked = MasterAudio.ApplyReplayGain;
                 form.MasterAudioPath.Text = MasterAudio.Path;
@@ -809,7 +815,9 @@ namespace SidWizPlusGUI
                         _settings.Height,
                         _settings.FrameRate,
                         _programSettings.FfmpegExtraParameters,
-                        _settings.MasterAudio.Path));
+                        _settings.MasterAudio.Path,
+                        _settings.EncodeVideo.VideoCodec,
+                        _settings.EncodeVideo.AudioCodec));
                 }
             }
 

@@ -126,6 +126,15 @@ namespace SidWizPlus
             // ReSharper disable once StringLiteralTypo
             [Option("ffmpeg", Required = false, HelpText = "Path to FFMPEG. Required if rendering to a file. Will be discovered if on the path.")]
             public string FfMpegPath { get; set; }
+
+            // ReSharper disable once StringLiteralTypo
+            [Option("vcodec", HelpText = "Video codec for FFMPEG", Default = "h264")]
+            public string VideoCodec { get; set; }
+
+            // ReSharper disable once StringLiteralTypo
+            [Option("acodec", HelpText = "Audio codec for FFMPEG", Default = "aac")]
+            public string AudioCodec { get; set; }
+
             // ReSharper disable once StringLiteralTypo
             [Option("ffmpegoptions", Required = false, HelpText = "Extra commandline options for FFMPEG, e.g. to set the output format. Surround value with quotes and start with a space, e.g. \" -acodec flac\", to avoid conflicts with other parameters.", Default = "")]
             public string FfMpegExtraOptions { get; set; }
@@ -254,7 +263,6 @@ namespace SidWizPlus
 
             [Option("verbose", HelpText = "Enable even more logging", Default = false)]
             public bool Verbose { get; set; }
-
         }
 
         static int Main(string[] args)
@@ -776,7 +784,7 @@ namespace SidWizPlus
                     // Try to find it
                     settings.FfMpegPath = FindExecutable("ffmpeg.exe");
                 }
-                outputs.Add(new FfmpegOutput(settings.FfMpegPath, settings.OutputFile, settings.Width, settings.Height, settings.FramesPerSecond, settings.FfMpegExtraOptions, settings.MasterAudioFile));
+                outputs.Add(new FfmpegOutput(settings.FfMpegPath, settings.OutputFile, settings.Width, settings.Height, settings.FramesPerSecond, settings.FfMpegExtraOptions, settings.MasterAudioFile, settings.VideoCodec, settings.AudioCodec));
             }
 
             if (settings.PreviewFrameskip > 0)

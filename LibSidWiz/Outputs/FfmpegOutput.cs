@@ -11,19 +11,25 @@ namespace LibSidWiz.Outputs
         private readonly Process _process;
         private readonly BinaryWriter _writer;
 
-        public FfmpegOutput(string pathToExe, string filename, int width, int height, int fps, string extraArgs, string masterAudioFilename)
+        public FfmpegOutput(string pathToExe, string filename, int width, int height, int fps, string extraArgs, string masterAudioFilename, string videoCodec, string audioCodec)
         {
             // Build the FFMPEG commandline
             var arguments = "-y -hide_banner"; // Overwrite, don't show banner at startup
 
-            // Audio part
+            // Audio input
             if (File.Exists(masterAudioFilename))
             {
                 arguments += $" -i \"{masterAudioFilename}\"";
             }
 
-            // Video part
-            arguments += $" -f rawvideo -pixel_format bgr0 -video_size {width}x{height} -framerate {fps} -i pipe: -movflags +faststart";
+            // Video input
+            arguments += $" -f rawvideo -pixel_format bgr0 -video_size {width}x{height} -framerate {fps} -i pipe:";
+            
+            // Audio output
+            arguments += $" -codec:a {audioCodec}";
+
+            // Video output
+            arguments += $" -codec:v {videoCodec} -movflags +faststart";
 
             // Extra args
             arguments += $" {extraArgs} \"{filename}\"";
