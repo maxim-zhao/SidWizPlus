@@ -1,4 +1,6 @@
-﻿namespace SidWizPlusGUI
+﻿using System.Windows.Forms;
+
+namespace SidWizPlusGUI
 {
     partial class SidWizPlusGui
     {
@@ -101,6 +103,10 @@
             this.PreviewFrameskip = new System.Windows.Forms.NumericUpDown();
             this.label13 = new System.Windows.Forms.Label();
             this.groupBox3 = new System.Windows.Forms.GroupBox();
+            this.AudioCodec = new System.Windows.Forms.ComboBox();
+            this.label18 = new System.Windows.Forms.Label();
+            this.VideoCodec = new System.Windows.Forms.ComboBox();
+            this.label3 = new System.Windows.Forms.Label();
             this.EncodeCheckBox = new System.Windows.Forms.CheckBox();
             this.FrameRateControl = new System.Windows.Forms.NumericUpDown();
             this.label14 = new System.Windows.Forms.Label();
@@ -112,10 +118,6 @@
             this.tabPage5 = new System.Windows.Forms.TabPage();
             this.ProgramSettingsGrid = new System.Windows.Forms.PropertyGrid();
             this.imageList1 = new System.Windows.Forms.ImageList(this.components);
-            this.label3 = new System.Windows.Forms.Label();
-            this.VideoCodec = new System.Windows.Forms.TextBox();
-            this.AudioCodec = new System.Windows.Forms.TextBox();
-            this.label18 = new System.Windows.Forms.Label();
             this.BackgroundColorButton = new SidWizPlusGUI.ColorButton(this.components);
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
@@ -985,6 +987,48 @@
             this.groupBox3.TabStop = false;
             this.groupBox3.Text = "FFMPEG";
             // 
+            // AudioCodec
+            // 
+            this.AudioCodec.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.AudioCodec.Location = new System.Drawing.Point(112, 73);
+            this.AudioCodec.Name = "AudioCodec";
+            this.AudioCodec.Size = new System.Drawing.Size(303, 23);
+            this.AudioCodec.TabIndex = 8;
+            this.AudioCodec.Text = "aac";
+            this.AudioCodec.DropDown += new System.EventHandler(this.VideoCodec_DropDown);
+            this.AudioCodec.TextChanged += new System.EventHandler(this.ControlValueChanged);
+            // 
+            // label18
+            // 
+            this.label18.AutoSize = true;
+            this.label18.Location = new System.Drawing.Point(8, 76);
+            this.label18.Name = "label18";
+            this.label18.Size = new System.Drawing.Size(74, 15);
+            this.label18.TabIndex = 7;
+            this.label18.Text = "Audio codec";
+            // 
+            // VideoCodec
+            // 
+            this.VideoCodec.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.VideoCodec.Location = new System.Drawing.Point(112, 44);
+            this.VideoCodec.Name = "VideoCodec";
+            this.VideoCodec.Size = new System.Drawing.Size(303, 23);
+            this.VideoCodec.TabIndex = 6;
+            this.VideoCodec.Text = "libx264";
+            this.VideoCodec.DropDown += new System.EventHandler(this.VideoCodec_DropDown);
+            this.VideoCodec.TextChanged += new System.EventHandler(this.ControlValueChanged);
+            // 
+            // label3
+            // 
+            this.label3.AutoSize = true;
+            this.label3.Location = new System.Drawing.Point(8, 47);
+            this.label3.Name = "label3";
+            this.label3.Size = new System.Drawing.Size(72, 15);
+            this.label3.TabIndex = 5;
+            this.label3.Text = "Video codec";
+            // 
             // EncodeCheckBox
             // 
             this.EncodeCheckBox.AutoSize = true;
@@ -1129,42 +1173,6 @@
             this.imageList1.Images.SetKeyName(4, "layout.png");
             this.imageList1.Images.SetKeyName(5, "picture.png");
             this.imageList1.Images.SetKeyName(6, "application_xp_terminal.png");
-            // 
-            // label3
-            // 
-            this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(8, 47);
-            this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(72, 15);
-            this.label3.TabIndex = 5;
-            this.label3.Text = "Video codec";
-            // 
-            // VideoCodec
-            // 
-            this.VideoCodec.Location = new System.Drawing.Point(112, 44);
-            this.VideoCodec.Name = "VideoCodec";
-            this.VideoCodec.Size = new System.Drawing.Size(100, 23);
-            this.VideoCodec.TabIndex = 6;
-            this.VideoCodec.Text = "h264";
-            this.VideoCodec.TextChanged += new System.EventHandler(this.ControlValueChanged);
-            // 
-            // AudioCodec
-            // 
-            this.AudioCodec.Location = new System.Drawing.Point(112, 73);
-            this.AudioCodec.Name = "AudioCodec";
-            this.AudioCodec.Size = new System.Drawing.Size(100, 23);
-            this.AudioCodec.TabIndex = 8;
-            this.AudioCodec.Text = "aac";
-            this.AudioCodec.TextChanged += new System.EventHandler(this.ControlValueChanged);
-            // 
-            // label18
-            // 
-            this.label18.AutoSize = true;
-            this.label18.Location = new System.Drawing.Point(8, 76);
-            this.label18.Name = "label18";
-            this.label18.Size = new System.Drawing.Size(74, 15);
-            this.label18.TabIndex = 7;
-            this.label18.Text = "Audio codec";
             // 
             // BackgroundColorButton
             // 
@@ -1319,8 +1327,8 @@
         private System.Windows.Forms.NumericUpDown RenderThreadsControl;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.Label label3;
-        private System.Windows.Forms.TextBox AudioCodec;
+        private ComboBox AudioCodec;
         private System.Windows.Forms.Label label18;
-        private System.Windows.Forms.TextBox VideoCodec;
+        private ComboBox VideoCodec;
     }
 }

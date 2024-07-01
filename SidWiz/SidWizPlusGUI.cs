@@ -9,6 +9,7 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Windows.Forms.Design;
@@ -95,7 +96,7 @@ namespace SidWizPlusGUI
             public Color BackgroundColor { get; set; } = Color.Black;
             public string BackgroundImageFilename { get; set; }
             public PreviewSettings Preview { get; } = new() {Enabled = true, Frameskip = 1};
-            public EncodeSettings EncodeVideo { get; } = new() {Enabled = false, VideoCodec = "h264", AudioCodec = "aac"};
+            public EncodeSettings EncodeVideo { get; } = new() {Enabled = false, VideoCodec = "libx264", AudioCodec = "aac"};
             public int RenderThreads { get; set; } = Environment.ProcessorCount;
 
             public MasterAudioSettings MasterAudio { get; } = new() {IsAutomatic = true, ApplyReplayGain = true};
@@ -140,8 +141,8 @@ namespace SidWizPlusGUI
                 Preview.Enabled = form.PreviewCheckBox.Checked;
                 Preview.Frameskip = (int) form.PreviewFrameskip.Value;
                 EncodeVideo.Enabled = form.EncodeCheckBox.Checked;
-                EncodeVideo.VideoCodec = form.VideoCodec.Text;
-                EncodeVideo.AudioCodec = form.AudioCodec.Text;
+                EncodeVideo.VideoCodec = form.VideoCodec.Text.Split([' '], 2).FirstOrDefault() ?? "libx264";
+                EncodeVideo.AudioCodec = form.AudioCodec.Text.Split([' '], 2).FirstOrDefault() ?? "aac";
                 MasterAudio.IsAutomatic = form.AutogenerateMasterMix.Checked;
                 MasterAudio.ApplyReplayGain = form.MasterMixReplayGain.Checked;
                 MasterAudio.Path = form.MasterAudioPath.Text;
@@ -1224,6 +1225,53 @@ namespace SidWizPlusGUI
         {
             PropertyGrid.Visible = PropertyGrid.SelectedObject != null;
             ChannelsHelpLabel.Visible = PropertyGrid.SelectedObject == null;
+        }
+
+        private void VideoCodec_DropDown(object sender, EventArgs e)
+        {
+            if (!File.Exists(_programSettings.FfmpegPath) || AudioCodec.Items.Count > 0 || VideoCodec.Items.Count > 0)
+            {
+                return;
+            }
+
+            try
+            {
+                // We run FFMPEG to find what codecs it supports
+                using var process = new ProcessWrapper(_programSettings.FfmpegPath, "-encoders", false, true);
+                process.WaitForExit();
+                foreach (var grouping in process
+                    .Lines()
+                    .Select(x => Regex.Match(x, "^ (?<type>[AV])[^ ]+ (?<name>[^ ]+) +(?<description>.+)$"))
+                    .Where(m => m.Success && !m.Groups["name"].Value.Contains("="))
+                    .Select(m => new Codec(m.Groups["type"].Value, m.Groups["description"].Value, m.Groups["name"].Value))
+                    .GroupBy(c => c.Type))
+                {
+                    var combo = grouping.Key switch
+                    {
+                        "A" => AudioCodec,
+                        "V" => VideoCodec,
+                        _ => null
+                    };
+                    combo?.Items.Clear();
+                    combo?.Items.AddRange(grouping.OrderBy(x => x.ToString()).ToArray<object>());
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error querying FFMPEG: {ex.Message}");
+            }
+        }
+
+        private record Codec(string Type, string Description, string Name)
+        {
+            public string Type { get; } = Type;
+            public string Description { get; } = Description;
+            public string Name { get; } = Name;
+
+            public override string ToString()
+            {
+                return $"{Name} {Description}";
+            }
         }
     }
 }

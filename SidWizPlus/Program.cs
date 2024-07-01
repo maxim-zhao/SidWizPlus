@@ -128,7 +128,7 @@ namespace SidWizPlus
             public string FfMpegPath { get; set; }
 
             // ReSharper disable once StringLiteralTypo
-            [Option("vcodec", Required = false, HelpText = "Video codec for FFMPEG", Default = "h264")]
+            [Option("vcodec", Required = false, HelpText = "Video codec for FFMPEG", Default = "libx264")]
             public string VideoCodec { get; set; }
 
             // ReSharper disable once StringLiteralTypo
