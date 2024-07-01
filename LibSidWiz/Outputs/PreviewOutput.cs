@@ -78,8 +78,19 @@ namespace LibSidWiz.Outputs
         public void Dispose()
         {
             _stopwatch.Stop();
-            _form?.Close();
-            _form?.Dispose();
+            try
+            {
+                _form?.BeginInvoke(() =>
+                    {
+                        _form?.Close();
+                        _form?.Dispose();
+                    }
+                );
+            }
+            catch (Exception)
+            {
+                // We might get this if exiting the program
+            }
         }
     }
 }

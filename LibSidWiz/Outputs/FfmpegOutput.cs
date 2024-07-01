@@ -8,11 +8,13 @@ namespace LibSidWiz.Outputs
 {
     public class FfmpegOutput : IGraphicsOutput
     {
+        private readonly bool _throwStandardError;
         private readonly Process _process;
         private readonly BinaryWriter _writer;
 
-        public FfmpegOutput(string pathToExe, string filename, int width, int height, int fps, string extraArgs, string masterAudioFilename, string videoCodec, string audioCodec)
+        public FfmpegOutput(string pathToExe, string filename, int width, int height, int fps, string extraArgs, string masterAudioFilename, string videoCodec, string audioCodec, bool throwStandardError)
         {
+            _throwStandardError = throwStandardError;
             // Build the FFMPEG commandline
             var arguments = "-y -hide_banner"; // Overwrite, don't show banner at startup
 
@@ -55,9 +57,9 @@ namespace LibSidWiz.Outputs
                     Arguments = arguments,
                     UseShellExecute = false,
                     RedirectStandardInput = true,
-                    RedirectStandardError = false,
+                    RedirectStandardError = throwStandardError,
                     RedirectStandardOutput = false,
-                    CreateNoWindow = false // makes it inline in console mode
+                    CreateNoWindow = throwStandardError // makes it inline in console mode
                 }
             );
 
@@ -71,13 +73,42 @@ namespace LibSidWiz.Outputs
 
         public void Write(SKImage _, byte[] data, double __, TimeSpan ___)
         {
-            _writer.Write(data);
+            try
+            {
+                _writer.Write(data);
+            }
+            catch (Exception e)
+            {
+                if (_throwStandardError)
+                {
+                    if (_process.HasExited)
+                    {
+                        throw new Exception(
+                            $"""
+                             FFMPEG has exited unexpectedly.
+                             Exit code was {_process.ExitCode}.
+                             Standard error was:
+                             {_process.StandardError.ReadToEnd()}
+                             """, e);
+                    }
+
+                    throw new Exception(
+                        $"""
+                         Cannot write to FFMPEG.
+                         Standard error was:
+                         {_process.StandardError.ReadToEnd()}
+                         """, e);
+                }
+
+                throw;
+            }
         }
 
         public void Dispose()
         {
             // This triggers a shutdown
             _process?.StandardInput.BaseStream.Close();
+            _process?.StandardError.Close();
             // And we wait for it to finish...
             _process?.WaitForExit();
             _process?.Dispose();

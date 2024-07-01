@@ -798,10 +798,17 @@ namespace SidWizPlusGUI
 
                     if (_settings.MasterAudio.IsAutomatic)
                     {
-                        var filename = outputFilename + ".wav";
-                        Mixer.MixToFile(_settings.Channels, filename, MasterMixReplayGain.Checked);
-                        MasterAudioPath.Text = filename;
-                        _settings.MasterAudio.Path = filename;
+                        try
+                        {
+                            var filename = outputFilename + ".wav";
+                            Mixer.MixToFile(_settings.Channels, filename, MasterMixReplayGain.Checked);
+                            MasterAudioPath.Text = filename;
+                            _settings.MasterAudio.Path = filename;
+                        }
+                        catch (Exception ex)
+                        {
+                            MessageBox.Show(this, $"Failed to mix audio: {ex.Message}");
+                        }
                     }
                     else
                     {
@@ -817,7 +824,8 @@ namespace SidWizPlusGUI
                         _programSettings.FfmpegExtraParameters,
                         _settings.MasterAudio.Path,
                         _settings.EncodeVideo.VideoCodec,
-                        _settings.EncodeVideo.AudioCodec));
+                        _settings.EncodeVideo.AudioCodec,
+                        true));
                 }
             }
 
@@ -833,7 +841,7 @@ namespace SidWizPlusGUI
                 }
                 catch (Exception exception)
                 {
-                    BeginInvoke(new Action(() => MessageBox.Show(exception.Message)));
+                    BeginInvoke(new Action(() => MessageBox.Show(this, exception.Message)));
                 }
                 finally
                 {

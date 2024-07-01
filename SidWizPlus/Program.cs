@@ -128,15 +128,16 @@ namespace SidWizPlus
             public string FfMpegPath { get; set; }
 
             // ReSharper disable once StringLiteralTypo
-            [Option("vcodec", HelpText = "Video codec for FFMPEG", Default = "h264")]
+            [Option("vcodec", Required = false, HelpText = "Video codec for FFMPEG", Default = "h264")]
             public string VideoCodec { get; set; }
 
             // ReSharper disable once StringLiteralTypo
-            [Option("acodec", HelpText = "Audio codec for FFMPEG", Default = "aac")]
+            [Option("acodec", Required = false, HelpText = "Audio codec for FFMPEG", Default = "aac")]
             public string AudioCodec { get; set; }
 
             // ReSharper disable once StringLiteralTypo
-            [Option("ffmpegoptions", Required = false, HelpText = "Extra commandline options for FFMPEG, e.g. to set the output format. Surround value with quotes and start with a space, e.g. \" -acodec flac\", to avoid conflicts with other parameters.", Default = "")]
+            [Option("ffmpegoptions", Required = false, 
+                HelpText = "Extra commandline options for FFMPEG, e.g. to set the output format. Surround value with quotes and start with a space, e.g. \" -crf 20\", to avoid conflicts with other parameters.", Default = "")]
             public string FfMpegExtraOptions { get; set; }
 
             // ReSharper disable once StringLiteralTypo
@@ -784,7 +785,7 @@ namespace SidWizPlus
                     // Try to find it
                     settings.FfMpegPath = FindExecutable("ffmpeg.exe");
                 }
-                outputs.Add(new FfmpegOutput(settings.FfMpegPath, settings.OutputFile, settings.Width, settings.Height, settings.FramesPerSecond, settings.FfMpegExtraOptions, settings.MasterAudioFile, settings.VideoCodec, settings.AudioCodec));
+                outputs.Add(new FfmpegOutput(settings.FfMpegPath, settings.OutputFile, settings.Width, settings.Height, settings.FramesPerSecond, settings.FfMpegExtraOptions, settings.MasterAudioFile, settings.VideoCodec, settings.AudioCodec, false));
             }
 
             if (settings.PreviewFrameskip > 0)
