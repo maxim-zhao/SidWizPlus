@@ -33,8 +33,8 @@ namespace SidWizPlusGUI
             [Description("Path to FFMPEG. Download from https://ffmpeg.org/download.html")]
             public string FfmpegPath { get; set; }
             [Category("FFMPEG")]
-            [DisplayName("Extra Parameters")]
-            [Description("Extra parameters for FFMPEG. These are inserted just before the output filename; you can use this to select a non-default codec, for example.")]
+            [DisplayName("Global Extra Parameters")]
+            [Description("Extra parameters for FFMPEG. These are stored in your user settings, and will apply to all encodes. Per-encode settings can be entered on the Video tab.")]
             public string FfmpegExtraParameters { get; set; }
 
             [Category("MultiDumper")]
@@ -96,7 +96,7 @@ namespace SidWizPlusGUI
             public Color BackgroundColor { get; set; } = Color.Black;
             public string BackgroundImageFilename { get; set; }
             public PreviewSettings Preview { get; } = new() {Enabled = true, Frameskip = 1};
-            public EncodeSettings EncodeVideo { get; } = new() {Enabled = false, VideoCodec = "libx264", AudioCodec = "aac"};
+            public EncodeSettings EncodeVideo { get; } = new() {Enabled = false, VideoCodec = "libx264", AudioCodec = "aac", ExtraParameters = ""};
             public int RenderThreads { get; set; } = Environment.ProcessorCount;
 
             public MasterAudioSettings MasterAudio { get; } = new() {IsAutomatic = true, ApplyReplayGain = true};
@@ -113,6 +113,7 @@ namespace SidWizPlusGUI
                 public bool Enabled { get; set; }
                 public string VideoCodec { get; set; }
                 public string AudioCodec { get; set; }
+                public string ExtraParameters { get; set; }
             }
 
             public class PreviewSettings
@@ -143,6 +144,7 @@ namespace SidWizPlusGUI
                 EncodeVideo.Enabled = form.EncodeCheckBox.Checked;
                 EncodeVideo.VideoCodec = form.VideoCodec.Text.Split([' '], 2).FirstOrDefault() ?? "libx264";
                 EncodeVideo.AudioCodec = form.AudioCodec.Text.Split([' '], 2).FirstOrDefault() ?? "aac";
+                EncodeVideo.ExtraParameters = form.ExtraFFMPEGParameters.Text;
                 MasterAudio.IsAutomatic = form.AutogenerateMasterMix.Checked;
                 MasterAudio.ApplyReplayGain = form.MasterMixReplayGain.Checked;
                 MasterAudio.Path = form.MasterAudioPath.Text;
@@ -168,6 +170,7 @@ namespace SidWizPlusGUI
                 form.EncodeCheckBox.Checked = EncodeVideo.Enabled;
                 form.VideoCodec.Text = EncodeVideo.VideoCodec;
                 form.AudioCodec.Text = EncodeVideo.AudioCodec;
+                form.ExtraFFMPEGParameters.Text = EncodeVideo.ExtraParameters;
                 form.AutogenerateMasterMix.Checked = MasterAudio.IsAutomatic;
                 form.MasterMixReplayGain.Checked = MasterAudio.ApplyReplayGain;
                 form.MasterAudioPath.Text = MasterAudio.Path;
@@ -822,7 +825,7 @@ namespace SidWizPlusGUI
                         _settings.Width,
                         _settings.Height,
                         _settings.FrameRate,
-                        _programSettings.FfmpegExtraParameters,
+                        string.Join(" ", _programSettings.FfmpegExtraParameters, _settings.EncodeVideo.ExtraParameters),
                         _settings.MasterAudio.Path,
                         _settings.EncodeVideo.VideoCodec,
                         _settings.EncodeVideo.AudioCodec,

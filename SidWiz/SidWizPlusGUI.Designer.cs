@@ -103,6 +103,8 @@ namespace SidWizPlusGUI
             this.PreviewFrameskip = new System.Windows.Forms.NumericUpDown();
             this.label13 = new System.Windows.Forms.Label();
             this.groupBox3 = new System.Windows.Forms.GroupBox();
+            this.ExtraFFMPEGParameters = new System.Windows.Forms.TextBox();
+            this.label22 = new System.Windows.Forms.Label();
             this.AudioCodec = new System.Windows.Forms.ComboBox();
             this.label18 = new System.Windows.Forms.Label();
             this.VideoCodec = new System.Windows.Forms.ComboBox();
@@ -876,7 +878,7 @@ namespace SidWizPlusGUI
             // 
             // RenderThreadsControl
             // 
-            this.RenderThreadsControl.Location = new System.Drawing.Point(118, 237);
+            this.RenderThreadsControl.Location = new System.Drawing.Point(118, 265);
             this.RenderThreadsControl.Margin = new System.Windows.Forms.Padding(2, 3, 2, 3);
             this.RenderThreadsControl.Maximum = new decimal(new int[] {
             1000,
@@ -902,7 +904,7 @@ namespace SidWizPlusGUI
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(14, 239);
+            this.label2.Location = new System.Drawing.Point(14, 267);
             this.label2.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(86, 15);
@@ -973,6 +975,8 @@ namespace SidWizPlusGUI
             // 
             this.groupBox3.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
+            this.groupBox3.Controls.Add(this.ExtraFFMPEGParameters);
+            this.groupBox3.Controls.Add(this.label22);
             this.groupBox3.Controls.Add(this.AudioCodec);
             this.groupBox3.Controls.Add(this.label18);
             this.groupBox3.Controls.Add(this.VideoCodec);
@@ -982,10 +986,28 @@ namespace SidWizPlusGUI
             this.groupBox3.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.groupBox3.Name = "groupBox3";
             this.groupBox3.Padding = new System.Windows.Forms.Padding(3, 4, 3, 4);
-            this.groupBox3.Size = new System.Drawing.Size(421, 107);
+            this.groupBox3.Size = new System.Drawing.Size(421, 135);
             this.groupBox3.TabIndex = 7;
             this.groupBox3.TabStop = false;
             this.groupBox3.Text = "FFMPEG";
+            // 
+            // ExtraFFMPEGParameters
+            // 
+            this.ExtraFFMPEGParameters.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.ExtraFFMPEGParameters.Location = new System.Drawing.Point(112, 102);
+            this.ExtraFFMPEGParameters.Name = "ExtraFFMPEGParameters";
+            this.ExtraFFMPEGParameters.Size = new System.Drawing.Size(303, 23);
+            this.ExtraFFMPEGParameters.TabIndex = 10;
+            // 
+            // label22
+            // 
+            this.label22.AutoSize = true;
+            this.label22.Location = new System.Drawing.Point(8, 105);
+            this.label22.Name = "label22";
+            this.label22.Size = new System.Drawing.Size(95, 15);
+            this.label22.TabIndex = 9;
+            this.label22.Text = "Extra parameters";
             // 
             // AudioCodec
             // 
@@ -1090,7 +1112,7 @@ namespace SidWizPlusGUI
             // 
             this.RenderButton.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.RenderButton.Location = new System.Drawing.Point(6, 280);
+            this.RenderButton.Location = new System.Drawing.Point(6, 295);
             this.RenderButton.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.RenderButton.Name = "RenderButton";
             this.RenderButton.Size = new System.Drawing.Size(421, 61);
@@ -1330,5 +1352,7 @@ namespace SidWizPlusGUI
         private ComboBox AudioCodec;
         private System.Windows.Forms.Label label18;
         private ComboBox VideoCodec;
+        private TextBox ExtraFFMPEGParameters;
+        private Label label22;
     }
 }
