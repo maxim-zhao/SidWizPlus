@@ -16,6 +16,7 @@ using System.Windows.Forms.Design;
 using LibSidWiz;
 using LibSidWiz.Outputs;
 using LibSidWiz.Triggers;
+using Microsoft.WindowsAPICodePack.Dialogs;
 using Newtonsoft.Json;
 using SkiaSharp;
 
@@ -642,7 +643,7 @@ namespace SidWizPlusGUI
             var previewAspectRatio = (double) Preview.Width / Preview.Height;
             if (previewAspectRatio > imageAspectRatio)
             {
-                // Preview is wider, we have pillarboxing
+                // Preview is wider, we have pillar-boxing
                 // So the y one is correct, x needs to be modified:
                 // +--+-----+--+
                 // |  |     |  |
@@ -1033,6 +1034,14 @@ namespace SidWizPlusGUI
                     toolStrip1.Items.Insert(indexToInsertAt, newItem);
                 }
             }
+
+            // Load settings if passed on the commandline
+            foreach (var arg in Environment.GetCommandLineArgs()
+                .Skip(1)
+                .Where(x => x.ToLowerInvariant().EndsWith(".sidwizplus.json")))
+            {
+                LoadSettingsFromFile(arg);
+            }
         }
 
         private void RemoveSilentChannels(object sender, EventArgs e)
@@ -1097,11 +1106,162 @@ namespace SidWizPlusGUI
                 return;
             }
 
+            LoadSettingsFromFile(ofd.FileName);
+        }
+
+        private void LoadSettingsFromFile(string path)
+        {
             lock (_settings)
             {
-                JsonConvert.PopulateObject(File.ReadAllText(ofd.FileName), _settings);
+                var newSettings = JsonConvert.DeserializeObject<Settings>(File.ReadAllText(path));
 
-                foreach (var channel in _settings.Channels)
+                // We inspect to decide what to do...
+                var clearExistingChannels = false;
+                var discardNewChannels = false;
+                var removeMissingFiles = false;
+                var removeDuplicates = false;
+                if (newSettings.Channels.Any())
+                {
+                    // No new channels means nothing to check...
+
+                    // If we already have channels, ask if the user wants to add or replace.
+                    if (_settings.Channels.Any())
+                    {
+                        using var dialog = new TaskDialog();
+                        dialog.InstructionText = "Loading new channels";
+                        dialog.Text =
+                            $"The settings being loaded contain {newSettings.Channels.Count} channels. What do you want to do?";
+                        dialog.Cancelable = true;
+                        dialog.Icon = TaskDialogStandardIcon.Warning;
+                        dialog.StandardButtons = TaskDialogStandardButtons.Cancel;
+                        dialog.DetailsExpandedText = $"""
+                                                      Existing channels:
+                                                      {string.Join("\n", PrintFilenames(_settings.Channels, null))}
+                                                      New channels:
+                                                      {string.Join("\n", PrintFilenames(newSettings.Channels, _settings.Channels))}
+                                                      """;
+                        AddDialogButton(dialog, "Add", "Add to the existing channels", () => {});
+                        AddDialogButton(dialog, "Replace", "Replace the existing channels",
+                            () => { clearExistingChannels = true; });
+                        AddDialogButton(dialog, "Discard", "Discard the new channels",
+                            () => { discardNewChannels = true; });
+
+                        if (dialog.Show() == TaskDialogResult.Cancel)
+                        {
+                            return;
+                        }
+                    }
+                }
+
+                if (!discardNewChannels && !clearExistingChannels)
+                {
+                    // If the new channels refer to files that don't exist, the user may not want them.
+                    var missingFiles = newSettings.Channels
+                        .Select(x => x.Filename).Where(x => !File.Exists(x))
+                        .Distinct()
+                        .ToList();
+
+                    if (missingFiles.Any())
+                    {
+                        using var dialog = new TaskDialog();
+                        dialog.InstructionText = "Missing audio files";
+                        dialog.Text =
+                            $"The settings being loaded contain {newSettings.Channels.Count} channels, but {missingFiles.Count} refer to files that don't exist. Do you want to add them anyway?";
+                        dialog.Cancelable = true;
+                        dialog.Icon = TaskDialogStandardIcon.Warning;
+                        dialog.StandardButtons = TaskDialogStandardButtons.Yes | TaskDialogStandardButtons.No |
+                                                 TaskDialogStandardButtons.Cancel;
+                        dialog.DetailsExpandedText = string.Join("\n", PrintFilenames(newSettings.Channels, null));
+
+                        switch (dialog.Show())
+                        {
+                            case TaskDialogResult.Cancel:
+                                return;
+                            case TaskDialogResult.Yes:
+                                removeMissingFiles = true;
+                                // Also clear the channels from the settings for the next check
+                                newSettings.Channels.RemoveAll(x => missingFiles.Contains(x.Filename));
+                                break;
+                        }
+                    }
+
+                    // Now also check for duplicates
+                    if (_settings.Channels.Any())
+                    {
+                        var duplicates = newSettings.Channels
+                            .Where(x => _settings.Channels.Any(y =>
+                                Path.GetFullPath(y.Filename) == Path.GetFullPath(x.Filename)))
+                            .ToList();
+                        if (duplicates.Any())
+                        {
+                            using var dialog = new TaskDialog();
+                            dialog.InstructionText = "Duplicate audio files";
+                            dialog.Text =
+                                $"The settings being loaded contain {duplicates.Count} channels where the file is already loaded. Do you want to add them anyway?";
+                            dialog.Cancelable = true;
+                            dialog.Icon = TaskDialogStandardIcon.Warning;
+                            dialog.StandardButtons = TaskDialogStandardButtons.Yes | TaskDialogStandardButtons.No |
+                                                     TaskDialogStandardButtons.Cancel;
+                            dialog.DetailsExpandedText = "New channels:\n" + string.Join("\n",
+                                PrintFilenames(newSettings.Channels, _settings.Channels));
+
+                            switch (dialog.Show())
+                            {
+                                case TaskDialogResult.Cancel:
+                                    return;
+                                case TaskDialogResult.No:
+                                    removeDuplicates = true;
+                                    break;
+                            }
+                        }
+                    }
+                }
+
+                // Deserialize again on top, so partial JSON loads will work
+                if (clearExistingChannels)
+                {
+                    _settings.Channels.Clear();
+                }
+                var countOfOldChannels = _settings.Channels.Count;
+                JsonConvert.PopulateObject(File.ReadAllText(path), _settings);
+                if (discardNewChannels)
+                {
+                    var oldChannels = _settings.Channels.Take(countOfOldChannels).ToList();
+                    _settings.Channels.Clear();
+                    _settings.Channels.AddRange(oldChannels);
+                }
+
+                // Then remove channels as specified
+                if (removeMissingFiles)
+                {
+                    var channelsToRemove = _settings.Channels
+                        .Skip(countOfOldChannels)
+                        .Where(x => !File.Exists(x.Filename))
+                        .ToList();
+                    foreach (var channel in channelsToRemove)
+                    {
+                        _settings.Channels.Remove(channel);
+                    }
+                }
+
+                if (removeDuplicates)
+                {
+                    var oldChannels = _settings.Channels
+                        .Take(countOfOldChannels)
+                        .Select(x => Path.GetFullPath(x.Filename))
+                        .ToList();
+                    var channelsToRemove = _settings.Channels
+                        .Skip(countOfOldChannels)
+                        .Where(x => oldChannels.Contains(Path.GetFullPath(x.Filename)))
+                        .ToList();
+                    foreach (var channel in channelsToRemove)
+                    {
+                        _settings.Channels.Remove(channel);
+                    }
+                }
+
+                // Finally, trigger a load on the new channels (and attach our event handler)
+                foreach (var channel in _settings.Channels.Skip(countOfOldChannels))
                 {
                     channel.Changed += ChannelOnChanged;
                     channel.LoadDataAsync();
@@ -1109,6 +1269,49 @@ namespace SidWizPlusGUI
 
                 _settings.ToControls(this);
             }
+        }
+
+        private static IEnumerable<string> PrintFilenames(List<Channel> channels, List<Channel> existingChannels)
+        {
+            foreach (var channel in channels)
+            {
+                string icon;
+                if (!File.Exists(channel.Filename))
+                {
+                    icon = "❌";
+                }
+                else if (
+                    existingChannels != null && 
+                    !existingChannels.Contains(channel) && 
+                    existingChannels.Any(x => x.Filename == channel.Filename))
+                {
+                    icon = "💥";
+                }
+                else
+                {
+                    icon = "🔉";
+                }
+
+                yield return $@"{icon} {channel.Filename}";
+            }
+            yield return "❌ = file not found";
+            yield return "💥 = file is already present";
+        }
+
+        private static void AddDialogButton(TaskDialog dialog, string text, string instruction, Action action)
+        {
+            var button = new TaskDialogCommandLink
+            {
+                Text = text,
+                Instruction = instruction,
+            };
+            button.Click += (_, _) =>
+            {
+                action();
+                // ReSharper disable once AccessToDisposedClosure
+                dialog.Close(TaskDialogResult.Ok);
+            };
+            dialog.Controls.Add(button);
         }
 
         private void CopyChannelSettings(object sender, EventArgs e)
@@ -1240,7 +1443,7 @@ namespace SidWizPlusGUI
             try
             {
                 // We run FFMPEG to find what codecs it supports
-                using var process = new ProcessWrapper(_programSettings.FfmpegPath, "-encoders", false, true);
+                using var process = new ProcessWrapper(_programSettings.FfmpegPath, "-encoders");
                 process.WaitForExit();
                 foreach (var grouping in process
                     .Lines()

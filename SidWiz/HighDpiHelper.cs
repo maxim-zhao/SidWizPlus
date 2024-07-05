@@ -26,13 +26,13 @@ namespace SidWizPlusGUI
             {
                 switch (control)
                 {
-                    case ButtonBase button when button.Image != null:
+                    case ButtonBase { Image: not null } button:
                         button.Image = ScaleImage(button.Image, dpiScale);
                         break;
                     case SplitContainer splitContainer:
                         splitContainer.SplitterDistance = (int)(splitContainer.SplitterDistance * dpiScale);
                         break;
-                    case TabControl tabControl when tabControl.ImageList != null:
+                    case TabControl { ImageList: not null } tabControl:
                     {
                         var imageList = new ImageList
                         {
@@ -40,7 +40,7 @@ namespace SidWizPlusGUI
                             ColorDepth = ColorDepth.Depth32Bit
                         };
 
-                        for (int i = 0 ; i < tabControl.ImageList.Images.Count; ++i)
+                        for (var i = 0 ; i < tabControl.ImageList.Images.Count; ++i)
                         {
                             imageList.Images.Add(
                                 tabControl.ImageList.Images.Keys[i], 
@@ -98,7 +98,7 @@ namespace SidWizPlusGUI
             using (var g = Graphics.FromImage(newBitmap))
             {
                 g.PixelOffsetMode = PixelOffsetMode.HighQuality;
-                g.InterpolationMode = InterpolationMode.HighQualityBicubic;
+                g.InterpolationMode = InterpolationMode.NearestNeighbor;
                 g.DrawImage(image, new Rectangle(new Point(), newSize));
             }
 
