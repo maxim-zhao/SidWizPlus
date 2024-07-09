@@ -108,7 +108,10 @@ namespace LibSidWiz.Outputs
         {
             // This triggers a shutdown
             _process?.StandardInput.BaseStream.Close();
-            _process?.StandardError.Close();
+            if (_throwStandardError)
+            {
+                _process?.StandardError.Close();
+            }
             // And we wait for it to finish...
             _process?.WaitForExit();
             _process?.Dispose();
