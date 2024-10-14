@@ -326,7 +326,7 @@ namespace SidWizPlus
                             throw new Exception($"Failed to match {inputFile}");
                         }
 
-                        inputs.AddRange(files.OrderByAlphaNumeric(x => x));
+                        inputs.AddRange(files);
                     }
 
                     settings.InputFiles = inputs;
@@ -374,7 +374,7 @@ namespace SidWizPlus
                         return channel;
                     })
                     .Where(ch => ch.SampleCount > 0 && !ch.IsSilent)
-                    .OrderBy(ch => ch.Filename)
+                    .OrderByAlphaNumeric(ch => ch.Filename)
                     .ToList();
 
                 if (settings.AutoScalePercentage > 0)
@@ -649,7 +649,6 @@ namespace SidWizPlus
             settings.InputFiles = Directory.EnumerateFiles(
                     Path.GetDirectoryName(settings.VgmFile) ?? throw new Exception($"Can't get path from VGM \"{settings.VgmFile}\""),
                     Path.GetFileNameWithoutExtension(settings.VgmFile) + " - *.wav")
-                .OrderByAlphaNumeric(s => s)
                 .ToList();
             if (!settings.InputFiles.Any())
             {
@@ -663,7 +662,7 @@ namespace SidWizPlus
                     settings.MultidumperGapMs);
                 var song = wrapper.GetSongs(settings.VgmFile).First();
                 var filenames = wrapper.Dump(song, d => Console.Write($"\r{d:P0}"));
-                settings.InputFiles = filenames.OrderByAlphaNumeric(s => s);
+                settings.InputFiles = filenames.ToList();
                 Console.WriteLine($" done. {settings.InputFiles.Count()} files found.");
             }
             else
