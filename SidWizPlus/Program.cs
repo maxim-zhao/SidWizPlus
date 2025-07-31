@@ -166,6 +166,11 @@ namespace SidWizPlus
             public int MultidumperGapMs { get; set; }
 
             // ReSharper disable once StringLiteralTypo
+            [Option("multidumperoptions", Required = false, HelpText = "Extra arguments for MultiDumper. Surround value with quotes and start with a space, e.g. \" --default_filter\", to avoid conflicts with other parameters.", Default = "")]
+            // ReSharper disable once IdentifierTypo
+            public string MultidumperOptions { get; set; }
+
+            // ReSharper disable once StringLiteralTypo
             [Option("backgroundcolor", Required = false, HelpText = "Background color, can be hex or a .net color name", Default = "black")]
             public string BackgroundColor { get; set; }
 
@@ -659,7 +664,8 @@ namespace SidWizPlus
                     settings.MultidumperSamplingRate, 
                     settings.MultidumperLoopCount, 
                     settings.MultidumperFadeOutMs,
-                    settings.MultidumperGapMs);
+                    settings.MultidumperGapMs,
+                    settings.MultidumperOptions);
                 var song = wrapper.GetSongs(settings.VgmFile).First();
                 var filenames = wrapper.Dump(song, d => Console.Write($"\r{d:P0}"));
                 settings.InputFiles = filenames.ToList();
