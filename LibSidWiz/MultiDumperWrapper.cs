@@ -30,11 +30,11 @@ namespace LibSidWiz
             _gapMs = gapMs;
             _extraOptions = extraOptions;
 
-            // We parse the usage info first to check for allowed parameters
+            // We parse the usage info first to check for allowed parameters, in the form --name or --name=
             var helpText = GetOutputText("", true);
             _allowedParameters =
             [
-                ..Regex.Matches(helpText, "--[^]=]+")
+                ..Regex.Matches(helpText, "--[^= ]+")
                     .Cast<Match>()
                     .Select(x => x.Value)
             ];
@@ -248,6 +248,10 @@ namespace LibSidWiz
             if (_allowedParameters.Contains($"--{name}"))
             {
                 args.Append($" --{name}={value}");
+            }
+            else
+            {
+                Console.Error.WriteLine($"Arg not supported: {name}");
             }
         }
 
