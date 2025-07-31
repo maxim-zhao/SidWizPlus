@@ -108,7 +108,10 @@ namespace LibSidWiz
 
                     Max = Math.Max(Math.Abs(_samples.Max), Math.Abs(_samples.Min));
 
-                    Console.WriteLine($"- Peak sample amplitude for {Filename} is {Max}");
+                    // This is a bit arbitrary. Nuked OPLL emits a DC offset of about 0.0008..0.0018 for an unused channel,
+                    // and a fade out (or low pass filter) will pull that down to 0.
+                    Console.WriteLine($"- Sample range for {Filename} is {_samples.Min}..{_samples.Max} = range {Math.Abs(_samples.Max - _samples.Min)}");
+                    IsSilent = Math.Abs(_samples.Max - _samples.Min) < 0.0025;
 
                     // Point at the same SampleBuffer
                     _samplesForTrigger = string.IsNullOrEmpty(ExternalTriggerFilename) 
@@ -569,7 +572,7 @@ namespace LibSidWiz
         // ReSharper disable once CompareOfFloatsByEqualityOperator
         [Browsable(false)]
         [JsonIgnore]
-        public bool IsSilent => Max == 0.0;
+        public bool IsSilent { get; private set; }
 
         [Browsable(false)]
         [JsonIgnore]

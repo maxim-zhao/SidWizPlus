@@ -121,14 +121,8 @@ namespace LibSidWiz
             for (int i = 0; i < Count; ++i)
             {
                 var sample = this[i];
-                if (sample < Min)
-                {
-                    Min = sample;
-                }
-                if (sample > Max)
-                {
-                    Max = sample;
-                }
+                Min = Math.Min(Min, sample);
+                Max = Math.Max(Max, sample);
             }
         }
     }

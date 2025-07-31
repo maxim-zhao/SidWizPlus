@@ -210,7 +210,8 @@ namespace LibSidWiz
 
             _processWrapper = new ProcessWrapper(
                 _multiDumperPath,
-                args.ToString());
+                args.ToString(),
+                showConsole:true);
             var progressParts = Enumerable.Repeat(0.0, song.Channels.Count).ToList();
             var r = new Regex(@"(?<channel>\d+)\|(?<position>\d+)\|(?<total>\d+)");
             var stopwatch = Stopwatch.StartNew();
