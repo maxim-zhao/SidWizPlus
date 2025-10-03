@@ -111,7 +111,7 @@ namespace LibSidWiz
                     // This is a bit arbitrary. Nuked OPLL emits a DC offset of about 0.0008..0.0018 for an unused channel,
                     // and a fade out (or low pass filter) will pull that down to 0.
                     Console.WriteLine($"- Sample range for {Filename} is {_samples.Min}..{_samples.Max} = range {Math.Abs(_samples.Max - _samples.Min)}");
-                    IsSilent = Math.Abs(_samples.Max - _samples.Min) < 0.0025;
+                    IsSilent = Math.Abs(_samples.Max - _samples.Min) < SilenceThreshold;
 
                     // Point at the same SampleBuffer
                     _samplesForTrigger = string.IsNullOrEmpty(ExternalTriggerFilename) 
@@ -232,6 +232,10 @@ namespace LibSidWiz
                 }
             }
         }
+
+        [Category("Data")]
+        [Description("The amplitude range at which a channel is considered silent")]
+        public float SilenceThreshold { get; set; } = 0.01f;
 
         [Category("Triggering")]
         [Description("The algorithm to use for rendering")]

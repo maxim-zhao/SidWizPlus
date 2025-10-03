@@ -164,11 +164,16 @@ namespace SidWizPlus
             [Option("multidumpergapms", Required = false, HelpText = "Gap time for non-looping tracks for MultiDumper, in ms", Default = 1000)]
             // ReSharper disable once IdentifierTypo
             public int MultidumperGapMs { get; set; }
-
+            
             // ReSharper disable once StringLiteralTypo
             [Option("multidumperoptions", Required = false, HelpText = "Extra arguments for MultiDumper. Surround value with quotes and start with a space, e.g. \" --default_filter\", to avoid conflicts with other parameters.", Default = "")]
             // ReSharper disable once IdentifierTypo
             public string MultidumperOptions { get; set; }
+
+            // ReSharper disable once StringLiteralTypo
+            [Option("silencethreshold", Required = false, HelpText = "Amplitude range treated as silent auto-importing from MultiDumper", Default = 0.01f)]
+            // ReSharper disable once IdentifierTypo
+            public float SilenceThreshold { get; set; }
 
             // ReSharper disable once StringLiteralTypo
             [Option("backgroundcolor", Required = false, HelpText = "Background color, can be hex or a .net color name", Default = "black")]
@@ -359,6 +364,7 @@ namespace SidWizPlus
                             Algorithm = CreateTriggerAlgorithm(settings.TriggerAlgorithm),
                             TriggerLookaheadFrames = settings.TriggerLookahead,
                             TriggerLookaheadOnFailureFrames = settings.TriggerLookaheadOnFailureFrames,
+                            SilenceThreshold = settings.SilenceThreshold,
                             ZeroLineWidth = settings.ZeroLineWidth,
                             ZeroLineColor = ParseColor(settings.ZeroLineColor),
                             LabelFont = settings.ChannelLabelsFont == null
