@@ -21,12 +21,13 @@ You can get a compatible build of MultiDumper here: https://github.com/maxim-zha
 ## Features added
 
 * Commandline mode
-* Replaced renderer with GDI+ (.net Graphics API), allowing simpler code and more advanced rendering:
+* Replaced renderer with Skia, allowing simpler code and more advanced rendering:
   * Antialiasing
   * Background image
   * Line width control
   * Optional fill
   * Alpha blending
+  * Multi-threaded rendering
 * Added rendering features from other variants
   * Grid
   * Channel labels
